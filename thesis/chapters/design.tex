@@ -66,6 +66,8 @@ LID-DS 2021 (mục 6.12) bù một phần cho initial access, vì nó gồm 15 e
 
 Trọng tâm của đồ án là một mô hình học từ normal, không dùng nhãn tấn công, phát hiện được tấn công chưa biết. Mô hình hiện tại (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}) là một mô hình ngôn ngữ thống kê, học không giám sát: nó không dùng mạng nơ-ron hay huấn luyện bằng gradient, mà học bằng cách đếm chuỗi token. Ý tưởng coi chuỗi syscall như một ngôn ngữ và báo khi xác suất thấp có từ \citet{kim2016} và \citet{fournier2023}; phát hiện bằng chuỗi syscall ngắn có từ \citet{forrest1996} và \citet{warrender1999}. Nó chỉ dùng thông tin mà probe thu được trên cụm, nên cùng một cách tính chạy được trên dataset và trên live.
 
+\paragraph{Vì sao có mô hình token.} Mô hình đếm của hệ thống cuối chỉ thấy \emph{syscall nào} được gọi và bao nhiêu lần. Trên LID-DS 2021 nó bỏ sót nhiều: ở lần đánh giá đầu (hệ thống phát hiện 77,3\%), 407 trong 412 bản ghi bị bỏ sót thuộc năm exploit chỉ đổi \emph{dữ liệu} (đường dẫn, số byte, mã lỗi) còn tập syscall giữ nguyên; riêng phần ML đạt 63,9\% trên official, và thêm model con theo nhóm thông tin chỉ lên 65,2\% (mục~\ref{sec:lidds-ml}). Ba điều rút ra từ chẩn đoán dẫn thẳng tới thiết kế: (1) thông tin phân biệt nằm ở tham số và giá trị trả về, nên mỗi syscall phải thành một token mang mã lỗi, cỡ đọc ghi hoặc thư mục; trên development, chỉ dùng tên syscall còn 86,0\%, bỏ mã lỗi hay thông tin open còn 88--91\%; (2) tín hiệu của vài exploit, như Heartbleed, nằm ở \emph{thứ tự} syscall theo thread, nên cần mô hình chuỗi thay cho số đếm; (3) nhiều exploit chỉ lộ trong một cửa sổ và sớm, nên bỏ cổng khởi động, bỏ luật hai cửa sổ, và thay p-value conformal (bị chặn ở sàn $1/(n+1)$) bằng ngưỡng trên thang điểm liên tục. Kết quả trên official đi từ 63,9\% lên 95,99\% (bảng chữ đầu), 97,32\% (bảng chữ theo đúng thông tin probe thu được) và 97,40\% với ngưỡng cross-fit.
+
 \begin{itemize}
 \tightlist
 \item
@@ -82,11 +84,33 @@ Trọng tâm của đồ án là một mô hình học từ normal, không dùng
 
 Trên LID-DS, mỗi kịch bản có một mô hình học từ training và validation, và fold chia theo bản ghi. Trên cụm, mỗi workload có một mô hình học từ 12 giờ normal; vì cụm không có bản ghi, fold là các đoạn 30 phút liền nhau và điểm lớn nhất lấy theo khối 60 s của từng container. Đây là điểm khác duy nhất về dữ liệu giữa hai nơi. Kết quả trên LID-DS ở mục~\ref{sec:lidds-ml}.
 
-Cây và support của hệ thống cuối (mục~\ref{sec:workload-model}) tạm bỏ khỏi đường cảnh báo từ 09/11 nhưng được giữ lại: code, model và ngưỡng vẫn còn, và chúng vẫn được tính và ghi log để so sánh. Lý do: trên LID-DS official, thêm hai nhánh này không tăng phát hiện mà thêm báo nhầm (36 so với 26 bản ghi).
+\paragraph{Vì sao tạm bỏ cây và support.} Cây và support của hệ thống cuối (mục~\ref{sec:workload-model}) tạm bỏ khỏi đường cảnh báo từ 09/11 nhưng được giữ lại: code, model và ngưỡng vẫn còn, và chúng vẫn được tính và ghi log để so sánh. Ban đầu chúng được giữ bên cạnh token vì là các nhánh thấy tấn công chỉ làm nhiều hơn điều quen thuộc (\texttt{mprotect}, \texttt{seccomp}) trên cụm. Hai phép đo cho thấy điều đó không còn đúng khi đã có token:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{LID-DS 2021 official:} nhánh token một mình phát hiện 1.238/1.271 bản ghi, đúng bằng cả ba nhánh; thêm cây và support chỉ thêm báo nhầm, từ 26 lên 36 trong 7.938 bản ghi normal.
+\item
+  \textbf{Lượt live \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}} (525 trial): token bắt 525/525, kể cả \texttt{mprotect} và \texttt{seccomp} ở mọi tốc độ; cây và support bắt 187/525 và không trial nào ngoài token. Ở tốc độ chính, p95 của chúng là 4,01 s so với 0,49 s của token, và chúng đưa gánh cảnh báo từ 0,41 lên 0,52 đợt mỗi replica-giờ.
+\end{itemize}
+
+Đồ án lấy mô hình học làm trọng tâm, nên nhánh không thêm phát hiện mà thêm báo nhầm và gánh được đưa về chế độ ghi log.
 
 Mô hình này là một tổ hợp, không có bài nào đề xuất nguyên khối. Các phần có nguồn là những phần đã trích ở trên. Các lựa chọn sau là của đồ án, được chọn bằng thực nghiệm trên development và CB-DS (mục~\ref{sec:lidds-ml}), không lấy từ nguồn nào: bảng chữ token theo đúng thông tin probe thu được, điểm là trung bình 10 giá trị lớn nhất, chọn ước lượng moment và bỏ 1\% cao nhất, chia mức $\alpha$, và quy tắc một cửa sổ. Các bài trích dẫn không chứng minh những lựa chọn này là tối ưu.
 
-Giới hạn cần nói rõ: mô hình phát hiện điều mới lạ, không phân biệt ý đồ. Trên development nó chưa hơn luật đếm 4-gram chưa thấy trên cùng token, và trên cụm nó gắn cờ gần như mọi binary mới, kể cả vô hại. Giảm cờ trên binary vô hại mà vẫn giữ kết quả LID-DS là việc đang làm (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5}, chưa có kết quả).
+Giới hạn cần nói rõ: mô hình phát hiện điều mới lạ, không phân biệt ý đồ. Trên development nó chưa hơn luật đếm 4-gram chưa thấy trên cùng token, và trên cụm nó gắn cờ gần như mọi binary mới, kể cả vô hại (314/315 lần chạy binary đối chứng ở lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}).
+
+\paragraph{Vì sao binary vô hại bị gắn cờ.} Phân rã trên 136 lần chạy binary đối chứng của lượt đó (134 lần bị gắn cờ) cho thấy cờ đến từ hai nguồn, không nguồn nào là hành vi nguy hiểm:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Burst lúc khởi chạy.} Cửa sổ báo đầu tiên đến sau trung vị 0,44 s. Trong 161 cửa sổ báo của giây đầu, các token gây bất ngờ nhất là của việc dựng process qua \texttt{kubectl exec} và khởi tạo thư viện: \texttt{mprotect}, \texttt{prlimit64}, \texttt{arch\_prctl}, \texttt{brk}, \texttt{seccomp}, \texttt{keyctl}, \texttt{setgid}, \texttt{setuid}. 61 trong 134 lần (46\%) chỉ bị báo trong giây đầu này.
+\item
+  \textbf{Chính vòng lặp của binary đối chứng.} Binary này gọi \texttt{getpid} rồi \texttt{clock\_nanosleep} đều đặn. Trong 1.323 cửa sổ báo sau giây đầu, 1.321 chứa \texttt{clock\_nanosleep} và 1.309 chứa \texttt{getpid}: chuỗi này chưa từng có trong normal của workload nên bị coi là lạ, dù vô hại. 73 trong 134 lần còn bị báo sau giây đầu vì lý do này.
+\end{itemize}
+
+Tức là mô hình theo workload trả lời câu hỏi ``container có làm điều chưa từng thấy không'', và một process mới bất kỳ đều trả lời có. Tín hiệu danh tính (đường dẫn, cây process, người chạy lệnh) không giúp được, vì binary đối chứng và tấn công là cùng một chương trình đi cùng một đường. Hướng đang kiểm chứng (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5}, chưa có kết quả) hỏi thêm ``điều đó có lạ với cả cụm không'': một mô hình gộp mọi workload, cùng một ngưỡng riêng cho pha ngay sau \texttt{execve} học từ các lần khởi chạy vô hại. Số của mục này lấy từ một mẫu 5 segment của lượt chạy, không phải toàn bộ.
 
 \section{Biểu diễn: 249 feature mỗi cửa sổ}
 

@@ -1,0 +1,16 @@
+13376 Counter({'benign': 4510, 'attack': 4484, 'control': 4382}) ['alert', 'events', 'grams', 'label', 'node', 'pod', 'rate', 'scenario', 'score', 't', 'thr', 'tid', 'wk']
+trials 401 Counter({'benign': 136, 'attack': 133, 'control': 132})
+benign n 136 fired 134 first p50/p95 0.44 0.69 share_windows_mean 0.366 median 0.067 fired after t>: {1: 73, 2: 73, 3: 73, 4: 73, 5: 73, 8: 73, 12: 57}
+control n 132 fired 3 first p50/p95 8.73 9.54 share_windows_mean 0.001 median 0.0 fired after t>: {1: 2, 2: 2, 3: 2, 4: 2, 5: 2, 8: 2, 12: 0}
+attack n 28 fired 28 first p50/p95 0.5 0.7 share_windows_mean 0.652 median 0.783 fired after t>: {1: 23, 2: 23, 3: 23, 4: 23, 5: 23, 8: 23, 12: 23}
+attack n 23 fired 23 first p50/p95 0.49 0.74 share_windows_mean 0.749 median 0.967 fired after t>: {1: 22, 2: 22, 3: 22, 4: 22, 5: 22, 8: 21, 12: 20}
+attack n 32 fired 32 first p50/p95 0.55 0.73 share_windows_mean 0.491 median 0.417 fired after t>: {1: 23, 2: 22, 3: 22, 4: 22, 5: 22, 8: 21, 12: 20}
+attack n 20 fired 20 first p50/p95 0.5 0.72 share_windows_mean 0.615 median 0.583 fired after t>: {1: 16, 2: 16, 3: 16, 4: 16, 5: 16, 8: 16, 12: 16}
+attack n 30 fired 30 first p50/p95 0.58 0.7 share_windows_mean 0.648 median 0.967 fired after t>: {1: 25, 2: 25, 3: 25, 4: 25, 5: 25, 8: 25, 12: 22}
+attack n 30 fired 30 first p50/p95 0.44 0.72 share_windows_mean 0.107 median 0.033 fired after t>: {1: 12, 2: 12, 3: 12, 4: 12, 5: 12, 8: 11, 12: 8}
+attack n 34 fired 34 first p50/p95 0.48 0.7 share_windows_mean 0.44 median 0.5 fired after t>: {1: 28, 2: 27, 3: 27, 4: 27, 5: 27, 8: 27, 12: 27}
+attack n 23 fired 23 first p50/p95 0.57 0.66 share_windows_mean 0.864 median 0.967 fired after t>: {1: 23, 2: 23, 3: 23, 4: 23, 5: 23, 8: 22, 12: 20}
+attack n 26 fired 26 first p50/p95 0.64 0.69 share_windows_mean 0.978 median 0.967 fired after t>: {1: 26, 2: 26, 3: 26, 4: 26, 5: 26, 8: 26, 12: 26}
+attack n 20 fired 20 first p50/p95 0.53 0.75 share_windows_mean 0.973 median 0.967 fired after t>: {1: 20, 2: 20, 3: 20, 4: 20, 5: 20, 8: 20, 12: 20}
+benign alerts per trial by second {0: 1.18, 1: 0.68, 2: 0.66, 3: 0.69, 4: 0.69, 5: 0.68, 6: 0.68, 7: 0.7, 8: 0.72, 9: 0.71, 10: 0.71, 11: 0.71, 12: 0.68, 13: 0.71, 14: 0.61, 15: 0.09}
+attack alerts per trial by second {0: 1.24, 1: 1.23, 2: 1.27, 3: 1.28, 4: 1.23, 5: 1.23, 6: 1.23, 7: 1.23, 8: 1.25, 9: 1.24, 10: 1.23, 11: 1.26, 12: 1.2, 13: 1.23, 14: 1.2, 15: 0.44}
