@@ -80,3 +80,5 @@ Mỗi dòng: thời điểm (giờ Việt Nam, lấy từ `date`, dữ liệu ho
 | 10/11 20:55 | Bước 3, official một lần cho `token-hold0-poolnone`: 1.238/1.271, 26/7.938, p95 1,47 s, đạt ngưỡng đăng ký | `lidds-ml-v5-official.json` |
 | 10/11 20:56 | Fit cụm với normal mở rộng (amendment 2): `pulse-v5-token-fit` (36 GB, 6 job), `pulse-v5-count-fit --shadow` (8 GB) | `pulse-live-v5-fit-1110` |
 | 10/11 20:57 | Bản LaTeX và kiểm toán số chuyển sang `lidds-ml-v5` (chỉ token): 0,33% báo nhầm; thêm đoạn gate đã thử và bị loại | audit 50/50 |
+| 10/11 20:59 | Fit nhánh đếm shadow xong (21 workload, `pulse-live-v5-fit-1110/count-thresholds.json`) | journal `.234` |
+| 10/11 21:00 | Thử 10 lệnh admin qua `kubectl exec` trên một pod mỗi workload (cụm rảnh giữa hai lượt): 8 lệnh chạy được ở 19–20/21 workload, `python3` 14, `ps` 4; `istio-proxy` không có lệnh nào. Ước tính khoảng 430/525 trial có lệnh admin hợp lệ | kubectl |
