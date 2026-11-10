@@ -1,0 +1,1187 @@
+{
+ "schema": "pulse-lidds-ml-v5",
+ "protocol": "sentinel_pulse/protocol/lidds-ml-v5.json",
+ "candidates": {
+  "three-hold0-poolnone": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 530,
+    "recall": 0.9742647058823529,
+    "recall_ci95": [
+     0.9572687129987276,
+     0.984609377310588
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 12,
+    "false_alarm_rate": 0.003526300323244196,
+    "false_alarm_ci95": [
+     0.002018356121902117,
+     0.006153905247690175
+    ],
+    "latency_p50": 0.38844144344329834,
+    "latency_p95": 1.516074502468109,
+    "precision_1to1": 0.9963936052787719,
+    "precision_base_rate": 0.977859778597786,
+    "detected_within_3s": 527
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.941312789916992,
+    "latency_p95": 5.229039788246155,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 344
+   },
+   "keeps_v4": true
+  },
+  "token-hold0-poolnone": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 530,
+    "recall": 0.9742647058823529,
+    "recall_ci95": [
+     0.9572687129987276,
+     0.984609377310588
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.38844144344329834,
+    "latency_p95": 1.516074502468109,
+    "precision_1to1": 0.9981935452449395,
+    "precision_base_rate": 0.9888059701492538,
+    "detected_within_3s": 527
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.941312789916992,
+    "latency_p95": 5.229039788246155,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 344
+   },
+   "keeps_v4": true
+  },
+  "token-hold0-pool0.01": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 509,
+    "recall": 0.9356617647058824,
+    "recall_ci95": [
+     0.911835138701758,
+     0.9533784558847063
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.40854382514953613,
+    "latency_p95": 1.5318497657775876,
+    "precision_1to1": 0.9981191558559426,
+    "precision_base_rate": 0.9883495145631068,
+    "detected_within_3s": 503
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.9764106273651123,
+    "latency_p95": 5.298578262329102,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 328
+   },
+   "keeps_v4": false
+  },
+  "token-hold0-pool0.001": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 496,
+    "recall": 0.9117647058823529,
+    "recall_ci95": [
+     0.8849509439055995,
+     0.9328036771381475
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.41421544551849365,
+    "latency_p95": 1.5701573491096497,
+    "precision_1to1": 0.9980699546817791,
+    "precision_base_rate": 0.9880478087649402,
+    "detected_within_3s": 490
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.976411819458008,
+    "latency_p95": 5.298578262329102,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 327
+   },
+   "keeps_v4": false
+  },
+  "token-hold0-pool0.00018": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 487,
+    "recall": 0.8952205882352942,
+    "recall_ci95": [
+     0.866653195943251,
+     0.9182452126478454
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.4286026954650879,
+    "latency_p95": 1.7280568122863766,
+    "precision_1to1": 0.998034356604086,
+    "precision_base_rate": 0.9878296146044625,
+    "detected_within_3s": 476
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.978440999984741,
+    "latency_p95": 5.298578262329102,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 325
+   },
+   "keeps_v4": false
+  },
+  "token-hold1-poolnone": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 365,
+    "recall": 0.6709558823529411,
+    "recall_ci95": [
+     0.6303926560946728,
+     0.7091215392493827
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 4,
+    "false_alarm_rate": 0.0011754334410813989,
+    "false_alarm_ci95": [
+     0.00045718769399542445,
+     0.0030186416489361638
+    ],
+    "latency_p50": 0.310100793838501,
+    "latency_p95": 1.3786751747131347,
+    "precision_1to1": 0.9982511848303143,
+    "precision_base_rate": 0.989159891598916,
+    "detected_within_3s": 359
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 576,
+    "recall": 0.6464646464646465,
+    "recall_ci95": [
+     0.6145059463998633,
+     0.6771657863403223
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 5.660929918289185,
+    "latency_p95": 21.39997661113739,
+    "precision_1to1": 0.9967195732131615,
+    "precision_base_rate": 0.9948186528497409,
+    "detected_within_3s": 44
+   },
+   "keeps_v4": false
+  },
+  "token-hold1-pool0.01": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 344,
+    "recall": 0.6323529411764706,
+    "recall_ci95": [
+     0.591038129214684,
+     0.6718115704065204
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 4,
+    "false_alarm_rate": 0.0011754334410813989,
+    "false_alarm_ci95": [
+     0.00045718769399542445,
+     0.0030186416489361638
+    ],
+    "latency_p50": 0.3237173557281494,
+    "latency_p95": 1.594483947753904,
+    "precision_1to1": 0.9981446238429479,
+    "precision_base_rate": 0.9885057471264368,
+    "detected_within_3s": 335
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 576,
+    "recall": 0.6464646464646465,
+    "recall_ci95": [
+     0.6145059463998633,
+     0.6771657863403223
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 5.662847399711609,
+    "latency_p95": 21.39997661113739,
+    "precision_1to1": 0.9967195732131615,
+    "precision_base_rate": 0.9948186528497409,
+    "detected_within_3s": 37
+   },
+   "keeps_v4": false
+  },
+  "token-hold1-pool0.001": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 331,
+    "recall": 0.6084558823529411,
+    "recall_ci95": [
+     0.5668155750594177,
+     0.6485751510190692
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 4,
+    "false_alarm_rate": 0.0011754334410813989,
+    "false_alarm_ci95": [
+     0.00045718769399542445,
+     0.0030186416489361638
+    ],
+    "latency_p50": 0.3288898468017578,
+    "latency_p95": 1.6876455545425415,
+    "precision_1to1": 0.9980718945850896,
+    "precision_base_rate": 0.9880597014925373,
+    "detected_within_3s": 320
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 576,
+    "recall": 0.6464646464646465,
+    "recall_ci95": [
+     0.6145059463998633,
+     0.6771657863403223
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 5.662847399711609,
+    "latency_p95": 21.39997661113739,
+    "precision_1to1": 0.9967195732131615,
+    "precision_base_rate": 0.9948186528497409,
+    "detected_within_3s": 35
+   },
+   "keeps_v4": false
+  },
+  "token-hold1-pool0.00018": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 316,
+    "recall": 0.5808823529411765,
+    "recall_ci95": [
+     0.5389931658351738,
+     0.6216372061555623
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 4,
+    "false_alarm_rate": 0.0011754334410813989,
+    "false_alarm_ci95": [
+     0.00045718769399542445,
+     0.0030186416489361638
+    ],
+    "latency_p50": 0.3333936929702759,
+    "latency_p95": 4.535104930400848,
+    "precision_1to1": 0.9979805554215033,
+    "precision_base_rate": 0.9875,
+    "detected_within_3s": 298
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 576,
+    "recall": 0.6464646464646465,
+    "recall_ci95": [
+     0.6145059463998633,
+     0.6771657863403223
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 5.662847399711609,
+    "latency_p95": 21.39997661113739,
+    "precision_1to1": 0.9967195732131615,
+    "precision_base_rate": 0.9948186528497409,
+    "detected_within_3s": 32
+   },
+   "keeps_v4": false
+  },
+  "token-hold2-poolnone": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 364,
+    "recall": 0.6691176470588235,
+    "recall_ci95": [
+     0.6285120604608243,
+     0.7073514446107145
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 4,
+    "false_alarm_rate": 0.0011754334410813989,
+    "false_alarm_ci95": [
+     0.00045718769399542445,
+     0.0030186416489361638
+    ],
+    "latency_p50": 0.30993831157684326,
+    "latency_p95": 1.375783812999725,
+    "precision_1to1": 0.9982463888181499,
+    "precision_base_rate": 0.9891304347826086,
+    "detected_within_3s": 359
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 550,
+    "recall": 0.6172839506172839,
+    "recall_ci95": [
+     0.5849298099937094,
+     0.648631079441918
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 6.072073817253113,
+    "latency_p95": 21.371034491062165,
+    "precision_1to1": 0.9965650311691617,
+    "precision_base_rate": 0.9945750452079566,
+    "detected_within_3s": 43
+   },
+   "keeps_v4": false
+  },
+  "token-hold2-pool0.01": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 343,
+    "recall": 0.6305147058823529,
+    "recall_ci95": [
+     0.5891711501984664,
+     0.6700278591502211
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 4,
+    "false_alarm_rate": 0.0011754334410813989,
+    "false_alarm_ci95": [
+     0.00045718769399542445,
+     0.0030186416489361638
+    ],
+    "latency_p50": 0.32352375984191895,
+    "latency_p95": 1.5316283702850335,
+    "precision_1to1": 0.9981392246484323,
+    "precision_base_rate": 0.9884726224783862,
+    "detected_within_3s": 335
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 550,
+    "recall": 0.6172839506172839,
+    "recall_ci95": [
+     0.5849298099937094,
+     0.648631079441918
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 6.072073817253113,
+    "latency_p95": 21.371034491062165,
+    "precision_1to1": 0.9965650311691617,
+    "precision_base_rate": 0.9945750452079566,
+    "detected_within_3s": 35
+   },
+   "keeps_v4": false
+  },
+  "token-hold2-pool0.001": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 330,
+    "recall": 0.6066176470588235,
+    "recall_ci95": [
+     0.564956573208739,
+     0.646783462597231
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 4,
+    "false_alarm_rate": 0.0011754334410813989,
+    "false_alarm_ci95": [
+     0.00045718769399542445,
+     0.0030186416489361638
+    ],
+    "latency_p50": 0.3283555507659912,
+    "latency_p95": 1.657763242721558,
+    "precision_1to1": 0.9980660631409054,
+    "precision_base_rate": 0.9880239520958084,
+    "detected_within_3s": 320
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 550,
+    "recall": 0.6172839506172839,
+    "recall_ci95": [
+     0.5849298099937094,
+     0.648631079441918
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 6.072073817253113,
+    "latency_p95": 21.371034491062165,
+    "precision_1to1": 0.9965650311691617,
+    "precision_base_rate": 0.9945750452079566,
+    "detected_within_3s": 33
+   },
+   "keeps_v4": false
+  },
+  "token-hold2-pool0.00018": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 315,
+    "recall": 0.5790441176470589,
+    "recall_ci95": [
+     0.5371430589772691,
+     0.6198366227409503
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 4,
+    "false_alarm_rate": 0.0011754334410813989,
+    "false_alarm_ci95": [
+     0.00045718769399542445,
+     0.0030186416489361638
+    ],
+    "latency_p50": 0.3327615261077881,
+    "latency_p95": 6.252845859527603,
+    "precision_1to1": 0.9979741574738786,
+    "precision_base_rate": 0.987460815047022,
+    "detected_within_3s": 298
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 549,
+    "recall": 0.6161616161616161,
+    "recall_ci95": [
+     0.5837947170682508,
+     0.6475311399325859
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 6.058498382568359,
+    "latency_p95": 21.37209758758545,
+    "precision_1to1": 0.9965587959261706,
+    "precision_base_rate": 0.9945652173913043,
+    "detected_within_3s": 30
+   },
+   "keeps_v4": false
+  },
+  "token-phase1-pool0.01": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 509,
+    "recall": 0.9356617647058824,
+    "recall_ci95": [
+     0.911835138701758,
+     0.9533784558847063
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.40854382514953613,
+    "latency_p95": 1.5318497657775876,
+    "precision_1to1": 0.9981191558559426,
+    "precision_base_rate": 0.9883495145631068,
+    "detected_within_3s": 503
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.9485971927642822,
+    "latency_p95": 5.23509955406189,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 337
+   },
+   "keeps_v4": false
+  },
+  "token-phase1-pool0.001": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 497,
+    "recall": 0.9136029411764706,
+    "recall_ci95": [
+     0.8869980884966334,
+     0.9344072228196302
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.4147500991821289,
+    "latency_p95": 1.5678325653076166,
+    "precision_1to1": 0.9980738305926925,
+    "precision_base_rate": 0.9880715705765407,
+    "detected_within_3s": 491
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.9764106273651123,
+    "latency_p95": 5.276639938354492,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 328
+   },
+   "keeps_v4": false
+  },
+  "token-phase1-pool0.00018": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 488,
+    "recall": 0.8970588235294118,
+    "recall_ci95": [
+     0.868675857013353,
+     0.9198732418502602
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.43020009994506836,
+    "latency_p95": 1.727018046379089,
+    "precision_1to1": 0.9980383766605286,
+    "precision_base_rate": 0.9878542510121457,
+    "detected_within_3s": 477
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.9815428256988525,
+    "latency_p95": 5.303971171379089,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 323
+   },
+   "keeps_v4": false
+  },
+  "token-phase2-pool0.01": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 509,
+    "recall": 0.9356617647058824,
+    "recall_ci95": [
+     0.911835138701758,
+     0.9533784558847063
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.40854382514953613,
+    "latency_p95": 1.5318497657775876,
+    "precision_1to1": 0.9981191558559426,
+    "precision_base_rate": 0.9883495145631068,
+    "detected_within_3s": 503
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.9485971927642822,
+    "latency_p95": 5.23509955406189,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 337
+   },
+   "keeps_v4": false
+  },
+  "token-phase2-pool0.001": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 497,
+    "recall": 0.9136029411764706,
+    "recall_ci95": [
+     0.8869980884966334,
+     0.9344072228196302
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.4147500991821289,
+    "latency_p95": 1.5678325653076166,
+    "precision_1to1": 0.9980738305926925,
+    "precision_base_rate": 0.9880715705765407,
+    "detected_within_3s": 491
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.9764106273651123,
+    "latency_p95": 5.276639938354492,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 328
+   },
+   "keeps_v4": false
+  },
+  "token-phase2-pool0.00018": {
+   "development": {
+    "attack_recordings": 544,
+    "detected": 488,
+    "recall": 0.8970588235294118,
+    "recall_ci95": [
+     0.868675857013353,
+     0.9198732418502602
+    ],
+    "normal_recordings": 3403,
+    "false_alarm_recordings": 6,
+    "false_alarm_rate": 0.001763150161622098,
+    "false_alarm_ci95": [
+     0.0008082992130422984,
+     0.0038416381365544653
+    ],
+    "latency_p50": 0.43020009994506836,
+    "latency_p95": 1.727018046379089,
+    "precision_1to1": 0.9980383766605286,
+    "precision_base_rate": 0.9878542510121457,
+    "detected_within_3s": 477
+   },
+   "cbds": {
+    "attack_recordings": 891,
+    "detected": 891,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9957069496992542,
+     1.0000000000000002
+    ],
+    "normal_recordings": 1410,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.002127659574468085,
+    "false_alarm_ci95": [
+     0.0007238411919855098,
+     0.006237051739726218
+    ],
+    "latency_p50": 3.9815428256988525,
+    "latency_p95": 5.303971171379089,
+    "precision_1to1": 0.9978768577494691,
+    "precision_base_rate": 0.9966442953020134,
+    "detected_within_3s": 323
+   },
+   "keeps_v4": false
+  }
+ },
+ "official": {
+  "candidate": "token-hold0-poolnone",
+  "pooled": {
+   "attack_recordings": 1271,
+   "detected": 1238,
+   "recall": 0.9740361919748229,
+   "recall_ci95": [
+    0.9637619279688598,
+    0.9814535403685398
+   ],
+   "normal_recordings": 7938,
+   "false_alarm_recordings": 26,
+   "false_alarm_rate": 0.00327538422776518,
+   "false_alarm_ci95": [
+    0.0022362443448457657,
+    0.004795071918122762
+   ],
+   "latency_p50": 0.3944070339202881,
+   "latency_p95": 1.4747861981391888,
+   "precision_1to1": 0.9966485772730822,
+   "precision_base_rate": 0.9794303797468354,
+   "detected_within_3s": 1234
+  },
+  "scenarios": {
+   "Bruteforce_CWE-307": {
+    "attack_recordings": 97,
+    "detected": 97,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9619046107955446,
+     0.9999999999999999
+    ],
+    "normal_recordings": 538,
+    "false_alarm_recordings": 0,
+    "false_alarm_rate": 0.0,
+    "false_alarm_ci95": [
+     -4.336808689942018e-19,
+     0.007089894906555717
+    ],
+    "latency_p50": 0.27811169624328613,
+    "latency_p95": 0.4710176944732666,
+    "precision_1to1": 1.0,
+    "precision_base_rate": 1.0
+   },
+   "CVE-2012-2122": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 533,
+    "false_alarm_recordings": 0,
+    "false_alarm_rate": 0.0,
+    "false_alarm_ci95": [
+     0.0,
+     0.007155928303618796
+    ],
+    "latency_p50": 0.2600533962249756,
+    "latency_p95": 0.4701234936714172,
+    "precision_1to1": 1.0,
+    "precision_base_rate": 1.0
+   },
+   "CVE-2014-0160": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 531,
+    "false_alarm_recordings": 1,
+    "false_alarm_rate": 0.0018832391713747645,
+    "false_alarm_ci95": [
+     0.0003325067906512014,
+     0.010589605475859108
+    ],
+    "latency_p50": 0.26472902297973633,
+    "latency_p95": 0.4861250400543213,
+    "precision_1to1": 0.9981203007518796,
+    "precision_base_rate": 0.9882352941176471
+   },
+   "CVE-2017-12635_6": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 527,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.003795066413662239,
+    "false_alarm_ci95": [
+     0.001041339981112185,
+     0.013730674872282876
+    ],
+    "latency_p50": 1.1926031112670898,
+    "latency_p95": 1.7036457777023313,
+    "precision_1to1": 0.9962192816635159,
+    "precision_base_rate": 0.9764705882352941
+   },
+   "CVE-2017-7529": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 510,
+    "false_alarm_recordings": 0,
+    "false_alarm_rate": 0.0,
+    "false_alarm_ci95": [
+     0.0,
+     0.007476233921114989
+    ],
+    "latency_p50": 0.2515549659729004,
+    "latency_p95": 0.48473412990570064,
+    "precision_1to1": 1.0,
+    "precision_base_rate": 1.0
+   },
+   "CVE-2018-3760": {
+    "attack_recordings": 85,
+    "detected": 85,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9567589957857582,
+     1.0000000000000002
+    ],
+    "normal_recordings": 516,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.003875968992248062,
+    "false_alarm_ci95": [
+     0.0010635525543113075,
+     0.014021042445396295
+    ],
+    "latency_p50": 0.25873661041259766,
+    "latency_p95": 0.49741625785827637,
+    "precision_1to1": 0.9961389961389961,
+    "precision_base_rate": 0.9770114942528736
+   },
+   "CVE-2019-5418": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 8,
+    "false_alarm_rate": 0.015037593984962405,
+    "false_alarm_ci95": [
+     0.0076389521418323576,
+     0.029389901161084024
+    ],
+    "latency_p50": 0.26500535011291504,
+    "latency_p95": 0.46831904649734496,
+    "precision_1to1": 0.985185185185185,
+    "precision_base_rate": 0.9130434782608695
+   },
+   "CVE-2020-13942": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 529,
+    "false_alarm_recordings": 0,
+    "false_alarm_rate": 0.0,
+    "false_alarm_ci95": [
+     -4.336808689942018e-19,
+     0.007209647294805811
+    ],
+    "latency_p50": 0.3751556873321533,
+    "latency_p95": 0.5958004951477051,
+    "precision_1to1": 1.0,
+    "precision_base_rate": 1.0
+   },
+   "CVE-2020-23839": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.005639097744360902,
+    "false_alarm_ci95": [
+     0.0019195821926513285,
+     0.016447039585127776
+    ],
+    "latency_p50": 0.2520899772644043,
+    "latency_p95": 0.4785926103591919,
+    "precision_1to1": 0.9943925233644859,
+    "precision_base_rate": 0.9655172413793104
+   },
+   "CVE-2020-9484": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 531,
+    "false_alarm_recordings": 0,
+    "false_alarm_rate": 0.0,
+    "false_alarm_ci95": [
+     -4.336808689942018e-19,
+     0.007182687360145509
+    ],
+    "latency_p50": 0.3541901111602783,
+    "latency_p95": 2.442307412624359,
+    "precision_1to1": 1.0,
+    "precision_base_rate": 1.0
+   },
+   "CWE-89-SQL-injection": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.0037593984962406013,
+    "false_alarm_ci95": [
+     0.0010315471935583272,
+     0.01360262827919332
+    ],
+    "latency_p50": 1.1047968864440918,
+    "latency_p95": 1.6749624013900757,
+    "precision_1to1": 0.9962546816479402,
+    "precision_base_rate": 0.9767441860465116
+   },
+   "EPS_CWE-434": {
+    "attack_recordings": 85,
+    "detected": 85,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9567589957857582,
+     1.0000000000000002
+    ],
+    "normal_recordings": 531,
+    "false_alarm_recordings": 1,
+    "false_alarm_rate": 0.0018832391713747645,
+    "false_alarm_ci95": [
+     0.0003325067906512014,
+     0.010589605475859108
+    ],
+    "latency_p50": 1.1440668106079102,
+    "latency_p95": 1.4861594200134276,
+    "precision_1to1": 0.9981203007518796,
+    "precision_base_rate": 0.9883720930232558
+   },
+   "Juice-Shop": {
+    "attack_recordings": 85,
+    "detected": 52,
+    "recall": 0.611764705882353,
+    "recall_ci95": [
+     0.505475154675872,
+     0.7083886208527093
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.005639097744360902,
+    "false_alarm_ci95": [
+     0.0019195821926513285,
+     0.016447039585127776
+    ],
+    "latency_p50": 0.2742123603820801,
+    "latency_p95": 2.169906747341141,
+    "precision_1to1": 0.9908664350442351,
+    "precision_base_rate": 0.9454545454545454
+   },
+   "PHP_CWE-434": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.0037593984962406013,
+    "false_alarm_ci95": [
+     0.0010315471935583272,
+     0.01360262827919332
+    ],
+    "latency_p50": 0.5859544277191162,
+    "latency_p95": 0.8394233226776122,
+    "precision_1to1": 0.9962546816479402,
+    "precision_base_rate": 0.9764705882352941
+   },
+   "ZipSlip": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.0037593984962406013,
+    "false_alarm_ci95": [
+     0.0010315471935583272,
+     0.01360262827919332
+    ],
+    "latency_p50": 1.1305749416351318,
+    "latency_p95": 1.4871939897537232,
+    "precision_1to1": 0.9962546816479402,
+    "precision_base_rate": 0.9764705882352941
+   }
+  }
+ }
+}
