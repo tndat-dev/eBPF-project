@@ -19,6 +19,10 @@
 | `cbds-thesis-tripwire` | thesis/chapters/evaluation.tex | Tripwire & 100\% (891/891) & 0\% (0) \\ | `results-20261029/cbds/cbds-confirmation.json` | có |
 | `cbds-thesis-ml` | thesis/chapters/evaluation.tex | ML & 99,0\% (882/891) & 1,5\% (21) \\ | `results-20261029/cbds/cbds-confirmation.json` | có |
 | `cbds-thesis-step3` | thesis/chapters/evaluation.tex | OR mọi nhánh (v2) & 100\% (891/891) & 5,5\% (77) \\ | `results-20261029/cbds/cbds-confirmation.json` | có |
+| `token-live-v4` | thesis/chapters/evaluation.tex | Ba nhánh (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}) & 315/315 & 99,06\% & 3/315 & 314/315 & 0,49 s & 0,52 \\ | `results-20261110/pulse-live-v4-1109/arms.json` | có |
+| `token-live-v5` | thesis/chapters/evaluation.tex | \textbf{Chỉ token (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v5})} & 315/315 & 99,06\% & 3/315 & 313/315 & 0,49 s & 0,41 \\ | `results-20261110/pulse-live-v4-1109/arms.json` | có |
+| `token-live-counts` | thesis/chapters/evaluation.tex | Chỉ cây và support & 133/315 & 100,00\% & 0/315 & 46/315 & 4,01 s & 0,16 \\ | `results-20261110/pulse-live-v4-1109/arms.json` | có |
+| `token-live-hard-precision` | thesis/chapters/evaluation.tex | 49,9\% (315/(315 + 3 + 313)) | `results-20261110/pulse-live-v4-1109/arms.json` | có |
 | `ml-v2-thesis-baseline` | thesis/chapters/evaluation.tex | ML ban đầu & 63,89\% (812) & 2,71\% (215) & 79,1\% & 5,29 s \\ | `results-20261102/lidds-ml-v1/lidds-ml-v1.json.gz` | có |
 | `ml-v2-thesis-v1` | thesis/chapters/evaluation.tex | \texttt{lidds-\allowbreak{}ml-\allowbreak{}v1} & 65,22\% (829) & 2,05\% (163) & 83,6\% & 4,04 s \\ | `results-20261102/lidds-ml-v1/lidds-ml-v1.json.gz` | có |
 | `ml-v2-thesis-v2` | thesis/chapters/evaluation.tex | \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2} & 95,99\% (1.220) & 0,57\% (45) & 96,4\% & 2,32 s \\ | `results-20261105/lidds-ml-v2/lidds-ml-v2.json` | có |

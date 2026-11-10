@@ -187,6 +187,37 @@ Chênh lệch nhỏ của ML đúng chiều hỏng đã thiết kế: cửa sổ
   \label{fig:live-latency-cdf}
 \end{figure}
 
+\section{Mô hình token trên cụm}\label{sec:token-live}
+
+Lượt live blind \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109} (09--10/11, 24 giờ, protocol \texttt{pulse-\allowbreak{}live-\allowbreak{}v3-\allowbreak{}v1} với hai amendment) chạy mô hình token trên cụm, cùng campaign 525 trial như hệ thống cuối. Mô hình học từ 12 giờ normal của chính cụm; ngưỡng fit trước khi lượt chạy bắt đầu và không đổi trong lượt. Bảng dưới là tốc độ chính (6, 12, 24 lần mỗi giây); gánh tính trên toàn bộ thời gian normal ngoài pha chọn và ngoài campaign (817,1 replica-giờ).
+
+\begingroup\small
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.10\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.12\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.12\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.12\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.15\linewidth-2\tabcolsep\relax}@{}}
+\caption{Mô hình token trên cụm, tốc độ chính (lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}).}\label{tab:token-live}\\
+\toprule\noalign{}
+Cấu hình & Recall & Precision & Control & Binary vô hại & p95 & Gánh (đợt/replica-giờ) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Ba nhánh (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}) & 315/315 & 99,06\% & 3/315 & 314/315 & 0,49 s & 0,52 \\
+\textbf{Chỉ token (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v5})} & 315/315 & 99,06\% & 3/315 & 313/315 & 0,49 s & 0,41 \\
+Chỉ cây và support & 133/315 & 100,00\% & 0/315 & 46/315 & 4,01 s & 0,16 \\
+\end{longtable}
+\endgroup
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Bốn kỳ vọng đều đạt} với mô hình token: recall, precision, control nhàn rỗi và p95 (thời điểm báo là cuối cửa sổ, cộng khoảng 0,15 s chấm điểm tới lúc ghi decision). Ở mọi tốc độ, kể cả 1 và 3 lần mỗi giây, mô hình bắt 525/525 trial.
+\item
+  \textbf{Cây và support không thêm trial nào} ngoài token, và đưa gánh từ 0,41 lên 0,52 đợt mỗi replica-giờ. Đây là một trong hai lý do chúng được đưa về chế độ ghi log (mục~\ref{sec:token-model}).
+\item
+  \textbf{Báo nhầm khác binary vô hại bị gắn cờ.} Báo nhầm là cảnh báo khi container chạy bình thường (control nhàn rỗi, gánh trên normal). Binary vô hại là một lớp mẫu âm khó: một chương trình mới, vô hại, chạy vào container qua đúng đường \texttt{kubectl exec} của tấn công. Precision ở bảng chỉ tính control nhàn rỗi là mẫu âm; nếu tính cả binary vô hại thì precision ở tốc độ chính chỉ còn 49,9\% (315/(315 + 3 + 313)). Nói cách khác, mỗi lần có người chạy một chương trình mới vào container, mô hình gần như chắc chắn báo. Nguyên nhân phân tích ở mục~\ref{sec:token-model}.
+\item
+  \textbf{Giới hạn.} Bridge của lượt này bỏ qua dòng cảnh báo của nhánh token (lỗi đã sửa), nên độ trễ tới Alertmanager và RCA của mô hình token chưa đo được. Tấn công là năm fixture tự viết. Gánh của lượt này và của hệ thống cuối (1,76) đo ở hai lượt khác ngày, không phải so sánh có đối chứng.
+\end{itemize}
+
 \section{Kẻ tấn công chậm}
 
 \begin{longtable}[]{@{}ll@{}}

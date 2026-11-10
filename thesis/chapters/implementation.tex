@@ -35,7 +35,7 @@ Lưu trữ & NFS riêng cho dữ liệu các lượt chạy \\
   \textbf{Khóa bằng proof:} loader và object được khóa bằng SHA-256 cùng một “proof” gắn với phiên bản kernel. Worker từ chối chạy trên kernel khác.
 \end{itemize}
 
-\section{Probe token và chấm mô hình token}
+\section{Probe token và chấm mô hình token}\label{sec:token-impl}
 
 Mô hình token (mục~\ref{sec:token-model}) cần giá trị trả về và đường dẫn, nên probe được mở rộng thành một bản build riêng (\texttt{make tokens}), kèm proof gắn với kernel và mã băm của artifact.
 

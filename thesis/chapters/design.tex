@@ -68,21 +68,121 @@ Trọng tâm của đồ án là một mô hình học từ normal, không dùng
 
 \paragraph{Vì sao có mô hình token.} Mô hình đếm của hệ thống cuối chỉ thấy \emph{syscall nào} được gọi và bao nhiêu lần. Trên LID-DS 2021 nó bỏ sót nhiều: ở lần đánh giá đầu (hệ thống phát hiện 77,3\%), 407 trong 412 bản ghi bị bỏ sót thuộc năm exploit chỉ đổi \emph{dữ liệu} (đường dẫn, số byte, mã lỗi) còn tập syscall giữ nguyên; riêng phần ML đạt 63,9\% trên official, và thêm model con theo nhóm thông tin chỉ lên 65,2\% (mục~\ref{sec:lidds-ml}). Ba điều rút ra từ chẩn đoán dẫn thẳng tới thiết kế: (1) thông tin phân biệt nằm ở tham số và giá trị trả về, nên mỗi syscall phải thành một token mang mã lỗi, cỡ đọc ghi hoặc thư mục; trên development, chỉ dùng tên syscall còn 86,0\%, bỏ mã lỗi hay thông tin open còn 88--91\%; (2) tín hiệu của vài exploit, như Heartbleed, nằm ở \emph{thứ tự} syscall theo thread, nên cần mô hình chuỗi thay cho số đếm; (3) nhiều exploit chỉ lộ trong một cửa sổ và sớm, nên bỏ cổng khởi động, bỏ luật hai cửa sổ, và thay p-value conformal (bị chặn ở sàn $1/(n+1)$) bằng ngưỡng trên thang điểm liên tục. Kết quả trên official đi từ 63,9\% lên 95,99\% (bảng chữ đầu), 97,32\% (bảng chữ theo đúng thông tin probe thu được) và 97,40\% với ngưỡng cross-fit.
 
+Phần còn lại của mục mô tả mô hình theo đúng thứ tự dữ liệu đi qua: từ một lần gọi syscall thành token, từ token thành chuỗi theo thread, từ chuỗi thành xác suất, từ xác suất thành điểm của cửa sổ 0,5 s, và từ điểm thành quyết định báo. Công thức dưới đây là công thức của code đang chạy (\texttt{sentinel\_\allowbreak{}pulse/\allowbreak{}detector/\allowbreak{}token\_\allowbreak{}model.py} trên cụm, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds\_\allowbreak{}ml\_\allowbreak{}tokens.py} trên dataset; hai bản cho cùng xác suất tới sai số $10^{-12}$, có test kiểm).
+
+\subsection{Từ syscall thành token}
+
+Mỗi sự kiện là một lần syscall trả về. Token của sự kiện được chọn theo thứ tự ưu tiên sau (bảng chữ \texttt{select1f}):
+
+\begin{enumerate}
+\tightlist
+\item
+  \textbf{Mã lỗi:} nếu syscall nằm trong 27 syscall được giữ mã lỗi và trả về lỗi, token là \texttt{tên!mã}, ví dụ \texttt{openat!2} là \texttt{openat} trả về \texttt{ENOENT}. 27 syscall gồm nhóm \texttt{stat} (\texttt{stat}, \texttt{lstat}, \texttt{fstat}, \texttt{newfstatat}), \texttt{access}, \texttt{faccessat}, nhóm mở (\texttt{open}, \texttt{openat}, \texttt{creat}), \texttt{read}, \texttt{write}, \texttt{writev}, \texttt{ioctl}, \texttt{connect}, \texttt{execve}, \texttt{fcntl}, \texttt{close}, \texttt{rename}, \texttt{renameat}, \texttt{sendfile}, \texttt{unlink}, \texttt{unlinkat}, \texttt{mkdir}, \texttt{kill}, \texttt{recvfrom}, \texttt{shutdown} và \texttt{futex}.
+\item
+  \textbf{Mở file thành công:} token là \texttt{tên:chế~độ:thư~mục~đầu}, với chế độ \texttt{r} hoặc \texttt{w} và thư mục đầu là thành phần đầu của đường dẫn tuyệt đối (\texttt{/etc}, \texttt{/tmp}), \texttt{/} nếu file nằm ngay ở gốc, \texttt{rel} nếu đường dẫn tương đối. Ví dụ \texttt{openat:r:/etc}.
+\item
+  \textbf{Đọc hoặc ghi thành công:} token là \texttt{tên\#b} với $b = \min(15, \lfloor \log_2 n \rfloor)$ và $n$ là số byte trả về, ví dụ đọc 4.096 byte thành \texttt{read\#12}.
+\item
+  \textbf{Còn lại:} chỉ tên syscall, ví dụ \texttt{getpid}.
+\end{enumerate}
+
+Lý do của từng quy tắc là thông tin mà exploit thay đổi trong khi tập syscall giữ nguyên: đường dẫn ra ngoài thư mục quen (ZipSlip, CVE-2019-5418), mã lỗi và cỡ đọc ghi bất thường. Tín hiệu của Heartbleed thì nằm ở thứ tự syscall, phần do chuỗi theo thread mang (mục sau). Danh sách 27 syscall và độ phân giải cỡ được chọn trên development có nhãn tấn công, nên đây là một lựa chọn có lạc quan (mục~\ref{sec:lidds-ml}).
+
+Trên dataset, token tính từ dòng trả về của trace. Trên cụm, probe eBPF dựng đúng token này trong kernel thành một số 32 bit: số syscall ở bit 23--31, loại token ở bit 21--22, phần chi tiết ở các bit còn lại (mã lỗi, nhóm cỡ, hoặc cờ ghi cùng mã băm FNV-1a của thư mục đầu). 39 syscall cần giá trị trả về phát token lúc trả về qua một chương trình \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}exit}; các syscall khác phát tên lúc vào. Thư mục đầu lấy bằng cách đi ngược cây dentry từ file descriptor vừa mở, theo góc nhìn của container (mục~\ref{sec:token-impl}).
+
+\subsection{Từ token thành chuỗi theo thread}
+
+Mỗi thread giữ bốn token gần nhất của nó. Ở mỗi sự kiện $e_i$, mô hình nhìn \emph{4-gram} $g_i = (t_{i-3}, t_{i-2}, t_{i-1}, t_i)$ của đúng thread đó; ở đầu thread gram ngắn hơn. Chuỗi được tách theo thread vì một service có nhiều thread chạy xen kẽ, và thứ tự trong một thread mới mang nghĩa (mở, đọc, đóng). Lịch sử của thread không bị cắt ở biên cửa sổ. Gram được gán vào cửa sổ 0,5 s chứa thời điểm của sự kiện; trên cụm, kernel đếm thẳng số lần mỗi (cgroup, cửa sổ, gram) xuất hiện, nên không phải chuyển từng sự kiện lên user space.
+
+\subsection{Từ chuỗi thành xác suất}
+
+Mô hình ước lượng $P(t_i \mid t_{i-3}, t_{i-2}, t_{i-1})$: xác suất token tiếp theo khi biết ba token trước nó trong thread. Học chỉ là đếm trên normal. Gọi $c(h, w)$ là số lần token $w$ theo sau ngữ cảnh $h$, $c(h) = \sum_w c(h, w)$ và $T(h)$ là số token \emph{khác nhau} từng theo sau $h$.
+
+\textbf{Mức nền} xử lý cả token chưa từng thấy. Với $\nu(w)$ là tên syscall của $w$, $N$ là tổng số sự kiện, $V$ là số tên khác nhau và $V_\nu$ là số token khác nhau của tên $\nu$:
+\[
+P_0(w) = \frac{c(\nu) + \tfrac12}{N + \tfrac12 (V + 1)} \cdot \frac{c(\nu, w) + \tfrac12}{c(\nu) + \tfrac12 (V_\nu + 1)}.
+\]
+Thừa số thứ hai là xác suất của biến thể (mã lỗi, cỡ, thư mục) khi đã biết tên. Nếu chính tên syscall chưa từng thấy, thừa số thứ hai được thay bằng trung bình của xác suất ``biến thể chưa thấy'' trên mọi tên đã biết. Nhờ vậy một \texttt{openat!13} chưa từng thấy vẫn có xác suất cao hơn nhiều so với một syscall chưa từng gọi như \texttt{ptrace}.
+
+\textbf{Làm mượt Witten--Bell nội suy} \citep{witten1991,chen1999} đi từ ngữ cảnh ngắn tới dài. Với $h_k$ là $k$ token ngay trước $w$, $k = 1, 2, 3$:
+\[
+P_k(w \mid h_k) = \frac{c(h_k, w) + T(h_k)\, P_{k-1}(w \mid h_{k-1})}{c(h_k) + T(h_k)},
+\]
+và $P_k = P_{k-1}$ nếu $h_k$ chưa từng thấy. Xác suất dùng để chấm là $P_3$. Ý nghĩa của trọng số: một ngữ cảnh luôn được theo sau bởi cùng vài token ($T$ nhỏ so với $c$) tin vào số đếm của chính nó; một ngữ cảnh có nhiều token tiếp theo khác nhau dành nhiều xác suất hơn cho mức ngắn hơn. Vì vậy 4-gram chưa thấy nhưng gồm các bước quen vẫn có xác suất vừa phải, còn 4-gram có token lạ thì xác suất rất nhỏ.
+
+\subsection{Từ xác suất thành điểm của cửa sổ}
+
+Mỗi sự kiện có độ bất ngờ $-\ln P_3$. Điểm của cửa sổ $W$ là trung bình 10 giá trị lớn nhất, mỗi gram tính theo số lần nó xuất hiện:
+\[
+s(W) = \frac{1}{10} \sum_{\text{10 sự kiện bất ngờ nhất của } W} -\ln P_3(e),
+\]
+lấy trung bình mọi sự kiện nếu cửa sổ có ít hơn 10, và $s = 0$ cho cửa sổ rỗng. Lấy các giá trị lớn nhất thay vì trung bình cả cửa sổ để vài sự kiện lạ không bị loãng giữa hàng nghìn sự kiện quen; lấy 10 thay vì 1 để một sự kiện hiếm đơn lẻ trong normal không đủ làm báo. Trên development, trung bình của 1 hoặc 20 giá trị lớn nhất cho kết quả kém hơn, 3 hoặc 5 chỉ nhanh hơn một chút.
+
+\textbf{Ví dụ thật} (lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}, binary đối chứng trong container RabbitMQ, 5,2 s sau khi chạy). Cửa sổ có 89 sự kiện. Gram (\texttt{getpid}, \texttt{clock\_\allowbreak{}nanosleep}, \texttt{getpid}, \texttt{clock\_\allowbreak{}nanosleep}) xuất hiện 6 lần với $-\ln P_3 = 34{,}0$, vì chuỗi này chưa từng có trong normal của RabbitMQ; gram tiếp theo xuất hiện 6 lần với $7{,}0$. Mười sự kiện bất ngờ nhất là 6 lần $34{,}0$ và 4 lần $7{,}0$, nên $s = (6 \times 34{,}0 + 4 \times 7{,}0)/10 = 23{,}2$, trên ngưỡng $13{,}4$ của workload: cửa sổ bị báo. Cùng binary trong \texttt{order-\allowbreak{}service} chỉ có 3 lần gram đó trong cửa sổ (với $-\ln P_3 = 26{,}7$), nên các gram quen chiếm phần còn lại của top 10 và $s = 11{,}3$, dưới ngưỡng $13{,}3$. Ví dụ này cũng cho thấy giới hạn: mô hình đo độ lạ và mật độ của độ lạ, không đo ý đồ.
+
+\subsection{Từ điểm thành ngưỡng}
+
+Ngưỡng được đặt chỉ bằng normal. Ý tưởng: trong mỗi đơn vị normal (một bản ghi trên dataset, một khối 60 s của một container trên cụm), lấy điểm cửa sổ lớn nhất $M_j$; phân bố của các cực đại này được mô tả tốt bằng phân bố Gumbel \citep{coles2001}; ngưỡng là mức mà một đơn vị normal chỉ vượt với xác suất $\alpha'$.
+
+\begin{enumerate}
+\tightlist
+\item
+  \textbf{Điểm giữ ra bằng cross-fit 5 fold.} Nếu chấm normal bằng chính mô hình đã học nó, điểm sẽ thấp hơn điểm của dữ liệu mới, và ngưỡng sẽ quá thấp. Vì vậy dữ liệu học được chia 5 phần; mỗi phần được chấm bằng mô hình học từ 4 phần còn lại. Trên dataset, mỗi bản ghi training hoặc validation vào fold $\text{sha256}(\text{tên}) \bmod 5$ (khoảng 270 bản ghi mỗi kịch bản). Trên cụm, thời gian được cắt thành các đoạn 30 phút liền nhau, chia lần lượt vào 5 fold, để một cửa sổ giữ ra không nằm sát các cửa sổ đã học. Mô hình dùng để chấm thật học trên toàn bộ dữ liệu.
+\item
+  \textbf{Bỏ 1\% cực đại cao nhất} (ít nhất một), vì vài đơn vị giữ ra có sự kiện hiếm thật và làm phình phân bố.
+\item
+  \textbf{Khớp Gumbel theo moment} trên các cực đại còn lại, với trung bình $\bar M$ và độ lệch chuẩn $\sigma_M$:
+  \[
+  \beta = \frac{\sqrt 6}{\pi}\, \sigma_M, \qquad \mu = \bar M - 0{,}5772\, \beta.
+  \]
+\item
+  \textbf{Ngưỡng} ở mức $\alpha' = 0{,}0002 \times 0{,}9 = 0{,}00018$:
+  \[
+  \tau = \mu - \beta \ln\!\bigl(-\ln(1 - \alpha')\bigr).
+  \]
+\end{enumerate}
+
+Mức $\alpha'$ là mức thiết kế dưới giả thiết các cực đại tuân Gumbel, không phải tỉ lệ báo nhầm được bảo đảm: trên cụm, tỉ lệ khối 60 s vượt ngưỡng trên dữ liệu giữ ra cao hơn mức thiết kế 12,8--16,6 lần. Vì vậy $\alpha$ được chọn theo báo nhầm đo được trên development. Ước lượng moment được chọn sau khi so với Gumbel ước lượng hợp lý cực đại, GEV, phân bố chuẩn và đuôi mũ trên development (mục~\ref{sec:lidds-ml}).
+
+\subsection{Quyết định và thời điểm báo}
+
+Một cửa sổ có $s(W) > \tau$ là báo; thời điểm báo là cuối cửa sổ đó. Không cần hai cửa sổ liền nhau, vì nhiều exploit chỉ lộ trong một cửa sổ. Trên cụm, worker chấm mỗi cửa sổ khoảng 0,15 s sau khi cửa sổ đóng (p95 0,18 s, đo trên 10,9 triệu cửa sổ của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}).
+
+\subsection{Tham số và nguồn gốc của chúng}
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.34\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}@{}}
+\toprule\noalign{}
+Tham số & Giá trị & Chọn thế nào \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Độ dài gram & 4 & Development; LSTM lớn không hơn \\
+Cửa sổ & 0,5 s & Cố định từ hệ thống cuối \\
+Số giá trị lấy trung bình & 10 & Development (so với 1, 3, 5, 20) \\
+Bảng chữ token & \texttt{select1f} & Development, có nhãn tấn công \\
+Số nhóm cỡ đọc ghi & 16 ($\log_2$, không chia đôi) & Development \\
+Mức $\alpha$ & 0,0002 & Development, theo báo nhầm đo được \\
+Số fold, phần bỏ đi & 5; 1\% & Development và CB-DS \\
+Khối cực đại trên cụm & 60 s & Cố định trước khi có dữ liệu cụm (protocol \texttt{pulse-\allowbreak{}live-\allowbreak{}v3-\allowbreak{}v1}) \\
+Đoạn cross-fit trên cụm & 30 phút & Cố định trước khi tính ngưỡng trên cụm, sau khi đã có dữ liệu capture \\
+\end{longtable}
+
+\subsection{Khác nhau giữa LID-DS và cụm}
+
+Thuật toán, bảng chữ và quy tắc ngưỡng giống nhau ở hai nơi. Khác nhau ở dữ liệu:
+
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Token:} mỗi lần syscall trả về là một token gồm tên syscall, kèm mã lỗi của 27 syscall, hoặc cỡ đọc ghi theo thang log2, hoặc chế độ mở và thư mục đầu của đường dẫn.
+  \textbf{Đơn vị học:} LID-DS có một mô hình cho mỗi kịch bản, học từ bản ghi training và validation; cụm có một mô hình cho mỗi workload, học từ 12 giờ normal của chính cụm (lượt tiếp theo học thêm normal của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}).
 \item
-  \textbf{Mô hình:} 4-gram theo từng thread, làm mượt Witten--Bell \citep{witten1991,chen1999}, lùi về $P(\text{tên}) \times P(\text{token} \mid \text{tên})$ khi ngữ cảnh chưa từng thấy.
+  \textbf{Đơn vị cực đại:} một bản ghi trên LID-DS, một khối 60 s của một container trên cụm, vì cụm không có bản ghi.
 \item
-  \textbf{Điểm cửa sổ:} trung bình 10 giá trị $-\log p$ lớn nhất trong cửa sổ 0,5 s. Lấy các giá trị lớn nhất để vài sự kiện lạ không bị loãng trong hàng nghìn sự kiện quen.
-\item
-  \textbf{Ngưỡng:} phân bố cực trị Gumbel \citep{coles2001} khớp theo moment trên các điểm lớn nhất của dữ liệu giữ ra, bỏ 1\% cao nhất, ở mức $\alpha = 0{,}0002 \times 0{,}9$. Dữ liệu giữ ra lấy bằng cross-fit 5 fold: mỗi phần được chấm bằng mô hình học từ các phần còn lại, còn mô hình cuối học trên toàn bộ. Dùng lý thuyết cực trị để đặt ngưỡng không cần nhãn có tiền lệ ở \citet{siffer2017}, nhưng bài đó khớp phần đuôi của luồng điểm; còn dùng điểm giữ ra của K-fold để hiệu chỉnh có tiền lệ ở CV+ \citep{barber2021}, nhưng bảo đảm phủ của CV+ không chuyển sang đây vì đồ án khớp một phân bố chứ không lấy phân vị.
-\item
-  \textbf{Quyết định:} một cửa sổ vượt ngưỡng là báo.
+  \textbf{Thứ tự token:} trên cụm, syscall không cần giá trị trả về phát token lúc vào, nên token của một lời gọi chặn lâu (ví dụ \texttt{epoll\_wait}) đến sớm hơn trên dataset. Bảng chữ \texttt{probe1f} mô phỏng đúng thứ tự này trên dataset: trên development nó phát hiện cùng 530/544 bản ghi, với 21 thay vì 19 báo nhầm (đo ở cấu hình \texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}).
 \end{itemize}
 
-Trên LID-DS, mỗi kịch bản có một mô hình học từ training và validation, và fold chia theo bản ghi. Trên cụm, mỗi workload có một mô hình học từ 12 giờ normal; vì cụm không có bản ghi, fold là các đoạn 30 phút liền nhau và điểm lớn nhất lấy theo khối 60 s của từng container. Đây là điểm khác duy nhất về dữ liệu giữa hai nơi. Kết quả trên LID-DS ở mục~\ref{sec:lidds-ml}.
+Kết quả trên LID-DS ở mục~\ref{sec:lidds-ml}; trên cụm ở mục~\ref{sec:token-live}. Toàn bộ mô hình của 21 workload trên cụm chiếm khoảng 1,2 MB (bảng đếm nén).
 
 \paragraph{Vì sao tạm bỏ cây và support.} Cây và support của hệ thống cuối (mục~\ref{sec:workload-model}) tạm bỏ khỏi đường cảnh báo từ 09/11 nhưng được giữ lại: code, model và ngưỡng vẫn còn, và chúng vẫn được tính và ghi log để so sánh. Ban đầu chúng được giữ bên cạnh token vì là các nhánh thấy tấn công chỉ làm nhiều hơn điều quen thuộc (\texttt{mprotect}, \texttt{seccomp}) trên cụm. Hai phép đo cho thấy điều đó không còn đúng khi đã có token:
 

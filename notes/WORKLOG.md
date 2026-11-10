@@ -82,3 +82,4 @@ Mỗi dòng: thời điểm (giờ Việt Nam, lấy từ `date`, dữ liệu ho
 | 10/11 20:57 | Bản LaTeX và kiểm toán số chuyển sang `lidds-ml-v5` (chỉ token): 0,33% báo nhầm; thêm đoạn gate đã thử và bị loại | audit 50/50 |
 | 10/11 20:59 | Fit nhánh đếm shadow xong (21 workload, `pulse-live-v5-fit-1110/count-thresholds.json`) | journal `.234` |
 | 10/11 21:00 | Thử 10 lệnh admin qua `kubectl exec` trên một pod mỗi workload (cụm rảnh giữa hai lượt): 8 lệnh chạy được ở 19–20/21 workload, `python3` 14, `ps` 4; `istio-proxy` không có lệnh nào. Ước tính khoảng 430/525 trial có lệnh admin hợp lệ | kubectl |
+| 10/11 21:47 | Đồ án §4.2 viết lại thành 8 mục giải thích mô hình token: token hoá, 4-gram theo thread, xác suất (add-½, Witten–Bell nội suy), điểm cửa sổ với ví dụ thật từ lượt 1109, ngưỡng cross-fit + Gumbel, thời điểm báo, bảng tham số, khác nhau LID-DS và cụm; thêm mục kết quả token trên cụm ở chương đánh giá | audit 54/54 |

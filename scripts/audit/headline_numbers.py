@@ -275,6 +275,22 @@ def claims():
     mlv4 = receipt(MLV4)
     MLV5 = 'results-20261110/lidds-ml-v5/lidds-ml-v5-official.json'
     mlv5 = receipt(MLV5)
+    LIVE5 = 'results-20261110/pulse-live-v4-1109/arms.json'
+    live5 = receipt(LIVE5)
+
+    def live_row(name, arm):
+        p, b = arm['primary'], arm['burden']
+        return (f"{name} & {p['attack']['hits']}/{p['attack']['n']} & {pct(p['precision']['rate'], 2)} & "
+                f"{p['control']['hits']}/{p['control']['n']} & {p['benign']['hits']}/{p['benign']['n']} & "
+                f"{num(p['latency_p95'], 2)} s & {num(b['value'], 2)} \\\\").replace('%', r'\%')
+    for cid, name, arm in (('v4', r'Ba nhánh (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v4})', 'V4'),
+                           ('v5', r'\textbf{Chỉ token (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v5})}', 'T'),
+                           ('counts', 'Chỉ cây và support', 'C')):
+        add(f'token-live-{cid}', thesis, live_row(name, live5['arms'][arm]), [], LIVE5)
+    tl = live5['arms']['T']['primary']
+    hard = tl['attack']['hits'] / (tl['attack']['hits'] + tl['control']['hits'] + tl['benign']['hits'])
+    add('token-live-hard-precision', thesis, f"{pct(hard)} ({tl['attack']['hits']}/({tl['attack']['hits']} + "
+        f"{tl['control']['hits']} + {tl['benign']['hits']}))".replace('%', r'\%'), [], LIVE5)
     MLV1 = 'results-20261102/lidds-ml-v1/lidds-ml-v1.json.gz'
     mlv1 = receipt(MLV1)
 
