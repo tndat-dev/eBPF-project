@@ -1,0 +1,30 @@
+% Hình mô hình token: đường chấm điểm (trái) và đường học + đặt ngưỡng (phải). Style ở main.tex.
+\begin{tikzpicture}
+  % ---- chấm điểm, cột trái
+  \node[ext, text width=6.6cm] (sc) at (0,0) {\textbf{1. Một lần syscall trả về} của một thread trong container\\ví dụ \texttt{openat} trả về fd của \texttt{/etc/passwd}};
+  \node[kern, text width=6.6cm] (tok) at ($(sc.south west)+(0,-0.55)$) {\textbf{2. Token} (bảng chữ \texttt{select1f}), theo thứ tự ưu tiên:\\
+    lỗi ở 27 syscall: \texttt{tên!errno} \quad (\texttt{openat!2})\\
+    mở file thành công: \texttt{tên:r|w:thư mục đầu} \quad (\texttt{openat:r:/etc})\\
+    đọc/ghi thành công: \texttt{tên\#}$\min(15,\lfloor\log_2 n\rfloor)$ \quad (\texttt{read\#12})\\
+    còn lại: tên \quad (\texttt{getpid})};
+  \node[kern, text width=6.6cm] (gram) at ($(tok.south west)+(0,-0.55)$) {\textbf{3. 4-gram theo thread}\\$g_i = (t_{i-3}, t_{i-2}, t_{i-1}, t_i)$ của đúng thread đó; gán vào cửa sổ 0,5 s chứa sự kiện; trên cụm kernel đếm (cgroup, cửa sổ, gram)};
+  \node[mlb, text width=6.6cm] (prob) at ($(gram.south west)+(0,-0.55)$) {\textbf{4. Xác suất} $P_3(t_i \mid t_{i-3}, t_{i-2}, t_{i-1})$\\mức nền (cộng $\tfrac12$): $P_0(w) = P(\text{tên}) \cdot P(w \mid \text{tên})$\\Witten--Bell nội suy, $k = 1, 2, 3$:\\[2pt]\hspace*{0.5cm}$\displaystyle P_k = \frac{c(h_k, w) + T(h_k)\,P_{k-1}}{c(h_k) + T(h_k)}$};
+  \node[mlb, text width=6.6cm] (score) at ($(prob.south west)+(0,-0.55)$) {\textbf{5. Điểm cửa sổ}\\độ bất ngờ $-\ln P_3$ của mỗi sự kiện;\\$s(W)$ = trung bình 10 giá trị lớn nhất (gram tính theo số lần)};
+  \node[alr, text width=6.6cm] (dec) at ($(score.south west)+(0,-0.55)$) {\textbf{6. Quyết định}\\$s(W) > \tau_{\text{workload}}$ $\Rightarrow$ cửa sổ báo; thời điểm báo là cuối cửa sổ; một cửa sổ là đủ};
+  \node[grp, fit=(sc)(tok)(gram)(prob)(score)(dec)] (left) {};
+  \node[grplabel] at (left.north west) {Chấm điểm (mỗi cửa sổ 0,5 s, trên worker)};
+  % ---- học, cột phải
+  \node[sto, text width=6.3cm] (norm) at (7.85,0) {\textbf{a. Normal của workload}\\cụm: 12 giờ capture + normal của lượt trước ngoài các trial\\LID-DS: bản ghi training và validation của kịch bản};
+  \node[mlb, text width=6.3cm] (count) at ($(norm.south west)+(0,-0.55)$) {\textbf{b. Đếm}\\$c(h, w)$, $c(h)$, $T(h)$ cho ngữ cảnh 0--3 token; số đếm tên và biến thể của tên};
+  \node[mlb, text width=6.3cm] (xfit) at ($(count.south west)+(0,-0.55)$) {\textbf{c. Cross-fit 5 fold}\\cụm: đoạn 30 phút chia lần lượt vào 5 fold\\LID-DS: fold = sha256(tên bản ghi) mod 5\\mỗi fold được chấm bằng mô hình học từ 4 fold kia};
+  \node[mlb, text width=6.3cm] (max) at ($(xfit.south west)+(0,-0.55)$) {\textbf{d. Cực đại theo đơn vị}\\$M_j$ = điểm cửa sổ lớn nhất của khối 60 s mỗi container (cụm) hoặc của bản ghi (LID-DS); bỏ 1\% $M_j$ cao nhất};
+  \node[mlb, text width=6.3cm] (gum) at ($(max.south west)+(0,-0.55)$) {\textbf{e. Gumbel theo moment}\\$\beta = \tfrac{\sqrt6}{\pi}\sigma_M$, \quad $\mu = \bar M - 0{,}5772\,\beta$\\$\tau = \mu - \beta\ln(-\ln(1 - \alpha'))$, \quad $\alpha' = 0{,}00018$};
+  \node[sto, text width=6.3cm] (out) at ($(gum.south west)+(0,-0.55)$) {\textbf{f. Mô hình cuối} học trên toàn bộ normal, cùng $\tau$, ghi vào \texttt{MODELS.json} (SHA-256 từng mô hình); không đổi trong lượt chạy};
+  \node[grp, fit=(norm)(count)(xfit)(max)(gum)(out)] (right) {};
+  \node[grplabel] at (right.north west) {Học và đặt ngưỡng (offline, chỉ normal)};
+  % ---- mũi tên
+  \foreach \a/\b in {sc/tok, tok/gram, gram/prob, prob/score, score/dec, norm/count, count/xfit, xfit/max, max/gum, gum/out}
+    \draw[arr] (\a.south -| \b.north) -- (\b.north);
+  \draw[arrd] (count.west) -- ++(-0.45,0) |- node[elab, pos=0.75, above] {số đếm} (prob.east);
+  \draw[arrd] (out.west) -- ++(-0.2,0) |- node[elab, pos=0.75, above] {$\tau$} (dec.east);
+\end{tikzpicture}

@@ -1,0 +1,23 @@
+% Hình đường cảnh báo và RCA. Style ở main.tex.
+\begin{tikzpicture}
+  \node[mlb, text width=3.3cm, minimum height=2.2cm] (w) at (0,0) {\textbf{Worker} ($\times$3)\\decision trên đĩa local; chỉ dòng cửa sổ báo rời worker};
+  \node[alr, text width=6.2cm, minimum height=2.2cm] (br) at ($(w.north east)+(0.55,0)$) {\textbf{Bridge cảnh báo} (master)\\bám luồng decision của từng worker qua SSH\\gom đợt theo (Pod, container): cửa sổ báo cách nhau dưới 15 s\\push \texttt{POST /api/v2/alerts} lúc mở đợt; lỗi thì thử lại 3 lần\\ghi \texttt{triggers.jsonl}: dòng đầu của mỗi đợt đã giao};
+  \node[alr, text width=3.6cm, minimum height=2.2cm] (am) at ($(br.north east)+(0.55,0)$) {\textbf{Alertmanager}\\route theo nhãn \texttt{notify}: báo ngay hoặc chỉ lên dashboard};
+  \draw[arr] (w) -- node[elab, above] {SSH} (br);
+  \draw[arr] (br) -- node[elab, above] {push} (am);
+  % ---- RCA
+  \node[ext, text width=4.3cm] (tp) at ($(w.west |- br.south)+(0,-1.0)$) {\textbf{Tetragon}, 3 policy chỉ trong \texttt{production}\\\textbf{runtime}: file nhạy cảm, credential, kết nối, namespace, ptrace\\\textbf{fork}\\\textbf{flow}: lần gửi trên socket đã mở, mẫu 1 lần mỗi process mỗi 10 s};
+  \node[alr, text width=4.5cm] (sub) at ($(tp.north east)+(0.45,0)$) {\textbf{Subscriber}\\\texttt{tetra getevents} của 3 worker, xoay vòng có giới hạn\\ghép theo node, Pod UID, container, thời gian; process định danh bằng \texttt{exec\_id}\\ring SQLite 180 s; nhật ký exec 15 phút};
+  \node[alr, text width=4.6cm] (case) at ($(sub.north east)+(0.45,0)$) {\textbf{Dựng case} (nhịp 0,25 s)\\mỗi cảnh báo Alertmanager đã nhận; lấy 30 s trước cảnh báo\\cùng container trong 300 s: cùng case; binary mới trong khoảng đó: case tiếp nối\\giữ tối đa 20.000 case};
+  \node[alr, text width=8.6cm, anchor=north east] (rank) at ($(case.south east)+(0,-0.55)$) {\textbf{Xếp hạng nghi phạm} (heuristic có lý do)\\binary mới trong workload sau mốc baseline +4; thao tác credential, namespace, mount, ptrace +3 mỗi lần (tối đa 9); binary chưa từng ghi nhận +2; exec trong cửa sổ cảnh báo +2; syscall thất bại +1 (tối đa 3); cha của nghi phạm khác +1\\không tính hạ quyền lúc khởi động; bỏ qua \texttt{containerd-shim}, \texttt{runc}\\bằng điểm: process khởi chạy gần cảnh báo nhất đứng trước};
+  \node[alr, text width=4.95cm, anchor=north east] (tri) at ($(rank.north west)+(-0.45,0)$) {\textbf{Triage và giao tin}\\thao tác bảo mật: báo ngay\\chỉ probe Kubernetes, binary mới, khác: dashboard\\chỉ đổi cách giao tin; decision không đổi};
+  \node[sto, text width=14.05cm] (out) at ($(tri.west |- rank.south)+(0,-0.5)$) {\textbf{Đầu ra:} cây bằng chứng của case (JSON, Markdown, SVG); trang \texttt{/cases}: nghi phạm, lý do, binary, đích mạng; bridge gửi lại cảnh báo kèm tóm tắt RCA. Cây cho thấy liên quan theo định danh và thời gian, không chứng minh nhân quả; RCA không tự xử lý pod.};
+  \node[grp, fit=(tp)(sub)(case)(rank)(tri)(out)] (rgrp) {};
+  \node[grplabel] at (rgrp.north west) {RCA (master)};
+  \draw[arr] (tp) -- (sub);
+  \draw[arr] (sub) -- (case);
+  \draw[arr] (am.south) -- node[elab, right] {cảnh báo đã nhận} (am.south |- case.north);
+  \draw[arr] (case.south -| rank.north) -- (rank.north);
+  \draw[arr] (rank.west |- tri.east) -- (tri.east);
+  \draw[arr] (tri.south) -- (tri.south |- out.north);
+\end{tikzpicture}

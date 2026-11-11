@@ -1,22 +1,22 @@
-\chapter{Kết luận và hướng phát triển}
+\chapter{Kết luận và hướng phát triển}\label{chap:conclusion}
 
-Số đếm syscall theo cửa sổ 0,5 s đủ để phát hiện hành vi sau xâm nhập trong container với p95 dưới 2 s trên cụm thật. Tuy vậy, chúng chưa đủ để phân biệt ác ý với một process vô hại mới.
+Một mô hình ngôn ngữ đơn giản trên token syscall, học chỉ từ normal, phát hiện được exploit thật của dataset công khai và tấn công trên cụm thật với độ trễ dưới 1 giây, với probe eBPF đủ rẻ để chạy liên tục. Mô hình chưa phân biệt được ác ý với một process vô hại mới, và gánh cảnh báo còn gấp khoảng 4 lần ngân sách.
 
 \section{Trả lời các câu hỏi nghiên cứu}
 
-\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.374\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.626\linewidth-2\tabcolsep\relax}@{}}
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.32\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.68\linewidth-2\tabcolsep\relax}@{}}
+\caption{Trả lời các câu hỏi nghiên cứu.}\label{tab:rq-answers}\\
 \toprule\noalign{}
 Câu hỏi & Trả lời \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-RQ1: đạt bốn kỳ vọng trên cụm thật? & Có. Hệ thống cuối đạt recall 99,4\%, precision 99,4\%, control 0,6\% và p95 1,97 s trên một campaign mới. Trên LID-DS 2021, cùng tham số, hệ thống phát hiện 77,3\% bản ghi tấn công với 3,0\% bản ghi normal bị báo nhầm; yếu ở các exploit chạy trong chính process của dịch vụ. ML cải thiện trên dataset đạt 97,32\% với 0,44\% trên official (offline, chưa chạy trên cụm) \\
-RQ2: feature nào mang tín hiệu? & Cặp exec, kênh syscall tường minh, 5 tổng hợp và cả hai nhánh p-value. Thêm syscall không giúp, và còn làm chậm \\
-RQ3: giảm được gánh cảnh báo? & Một phần. Gánh giảm từ 6,74 xuống khoảng 1,5 đợt/replica-giờ nhờ chiết khấu theo replica, nhưng vẫn gấp khoảng 15 lần ngân sách \\
-RQ4: tách được process vô hại mới? & ML thì không: 80,7--95,1\% binary vô hại bị gắn cờ. Tripwire tách được lớp tấn công buộc dùng syscall lạ, và gần như không thêm gánh \\
-RQ5: RCA chỉ ra process gây ra? & Process tấn công luôn nằm trong 3 nghi phạm đầu. Top-1 14,1\% là do luật phá hoà theo tên; phá hoà theo thời điểm khởi chạy cho 100\% trên cùng lượt (development) và 100\% (426/426) ở kiểm blind trên lượt sau \\
-RQ6: chi phí? & Khoảng 250--450 ns mỗi syscall của container được theo dõi, và 13--31\% một core mỗi worker cho phần chấm điểm. Trên ứng dụng thật, probe làm p50 của request tăng 0,5--3\% và p95 tăng 3--8\% ở trung vị; CI quá rộng để nói mức tăng dưới 5\% \\
+RQ1: phát hiện exploit thật trên dataset? & Có. LID-DS 2021 official: recall 97,40\% (CI 96,38--98,15\%), 0,33\% bản ghi normal bị báo nhầm, precision 97,9\%, p95 1,47 s; 14/15 kịch bản đạt 100\%, Juice-Shop 61,2\%. CB-DS: 891/891 với 3/1.410 báo nhầm \\
+RQ2: thông tin nào mang tín hiệu? & Cỡ đọc ghi lúc trả về mang nhiều nhất; chỉ tên syscall mất 40/544 bản ghi development; mã lỗi chưa được chứng minh là cần. Mô hình chưa hơn một luật đếm 4-gram chưa thấy có ngưỡng hiệu chỉnh \\
+RQ3: đạt bốn kỳ vọng trên cụm thật? & Có. Tập chính 315/315, precision 99,06\%, control 0,95\%, p95 0,49 s tới cuối cửa sổ; 525/525 ở mọi tốc độ. Gánh 0,41 đợt/replica-giờ, gấp khoảng 4 lần ngân sách \\
+RQ4: tách được process vô hại mới? & Không. Binary vô hại bị gắn cờ 313/315; gate theo mô hình gộp và theo pha sau \texttt{execve} không giữ được kết quả trên dataset nên bị loại \\
+RQ5: chi phí? & Khoảng 0,4--0,5 µs mỗi syscall đơn giản của container được theo dõi, 1,8--2,1 µs cho mở và đóng một file, 0,2--0,3 µs cho syscall của container khác; chấm mỗi cửa sổ p50 0,15 s \\
 \end{longtable}
 
 \section{Đóng góp}
@@ -25,20 +25,20 @@ RQ6: chi phí? & Khoảng 250--450 ns mỗi syscall của container được the
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  Một hệ thống chạy live trên Kubernetes, từ kernel tới Alertmanager và cây bằng chứng RCA, với đường chấm điểm khớp từng bit.
+  \textbf{Một probe eBPF dựng token syscall ngay trong kernel:} tên, mã lỗi, chế độ mở và thư mục đầu (đi ngược cây dentry), cỡ đọc ghi lúc trả về, cùng đếm 4-gram theo thread, với đúng một token cho mỗi syscall đã được kiểm bằng proof.
 \item
-  Một cách đánh giá live có đăng ký trước, đối chứng binary vô hại, đo độ trễ và gánh cảnh báo theo giờ.
+  \textbf{Một mô hình học từ normal chạy giống hệt trên dataset và trên cụm:} mô hình ngôn ngữ Witten--Bell trên token, ngưỡng Gumbel trên điểm giữ ra của cross-fit, quyết định một cửa sổ. Trên LID-DS 2021 official nó đạt khoảng 97\% recall và 0,3\% báo nhầm; trong các nguồn đọc được, chưa thấy mô hình học nào đạt mức này trên đủ 15 kịch bản.
 \item
-  Bằng chứng thực nghiệm rằng detector tần suất, kể cả autoencoder, phát hiện sự mới lạ chứ không phải ác ý.
+  \textbf{Một hệ thống chạy live trên Kubernetes,} từ kernel tới Alertmanager và cây bằng chứng RCA, với mô hình, probe và code khoá bằng SHA-256.
 \item
-  Chiết khấu bằng chứng theo replica và tripwire A1, cả hai đều đã được xác nhận live.
+  \textbf{Một cách đánh giá live có đăng ký trước:} lượt 24 giờ trên tải thật, campaign có control idle và binary vô hại, đo độ trễ và gánh cảnh báo theo giờ, mọi con số trong đồ án tính lại được từ biên nhận.
 \item
-  Một ML học từ normal đạt khoảng 97\% recall và 0,4\% báo nhầm trên đủ 15 kịch bản LID-DS 2021, offline, cùng chẩn đoán vì sao các lớp trước trượt. Trong các nguồn đọc được, chưa thấy mô hình học nào đạt mức này trên đủ 15 kịch bản; tuy vậy, trên dataset này nó chưa hơn luật đếm novelty trên cùng token.
+  \textbf{Bằng chứng thực nghiệm} rằng mô hình chuỗi học từ normal phát hiện điều mới chứ không phải ác ý: binary vô hại bị gắn cờ gần như luôn, và trên cả dataset lẫn cụm mô hình chưa hơn một luật novelty có ngưỡng.
 \end{enumerate}
 
 \section{Hướng phát triển}
 
-Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (Chương 7). Những việc đã có protocol đăng ký trước được ghi tên protocol.
+Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (Chương 7).
 
 \begin{itemize}
 \tightlist
@@ -47,48 +47,22 @@ Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (
   \begin{itemize}
   \tightlist
   \item
-    chấm hành vi của chính process sau pha khởi chạy, kèm khối ý đồ gồm syscall nhạy cảm và mã lỗi (\texttt{exec-\allowbreak{}intent-\allowbreak{}v1}; probe đếm theo process đã qua verifier; hook \texttt{sys\_exit} toàn cục bị bỏ vì thêm 29--197 ns mỗi syscall; phân rã offline cho thấy chỉ bỏ qua 1--4 s đầu vẫn còn 66--79\% binary vô hại bị gắn cờ, nên cần chấm hành vi sau pha khởi động chứ không chỉ chờ);
+    kết quả lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110}: mô hình học lại với normal dài hơn, đối chứng lệnh quản trị thật, độ trễ tới Alertmanager và RCA của mô hình token;
   \item
-    đưa token kèm tham số và giá trị trả về vào probe (mục~\ref{sec:lidds-ml}): trên LID-DS 2021 official, ML đạt 97,40\% với 0,33\% (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v5}); còn phải chạy một lượt live blind so với hệ thống hiện tại, và xác nhận trên LID-DS 2019;
+    chấm riêng các process đi vào container qua runtime exec bằng một mô hình riêng, học từ các lần exec vô hại, thay vì so chúng với normal của dịch vụ; điều kiện là không làm mất kết quả trên LID-DS 2021;
   \item
-    giám sát tầng ứng dụng cho tấn công không đổi hành vi hệ thống (như \texttt{SQLInjectionUser} của LID-DS): uprobe eBPF vào hàm thực thi truy vấn của driver cơ sở dữ liệu, so cấu trúc câu truy vấn với khi bình thường, làm lớp bổ trợ cho Pulse;
-  \item
-    đưa vào campaign các lệnh quản trị thật (\texttt{ls}, \texttt{ps}, \texttt{python -c}, probe của chính pod) làm đối chứng vô hại, và báo precision ở tỉ lệ 1:1, 1:10, 1:100 với binary vô hại tính là âm tính.
+    giám sát tầng ứng dụng cho tấn công không đổi hành vi hệ thống (như \texttt{SQLInjectionUser} của LID-DS): uprobe eBPF vào hàm thực thi truy vấn của driver cơ sở dữ liệu, làm lớp bổ trợ cho Pulse.
   \end{itemize}
 \item
-  \textbf{Tính thực tế của tấn công:} exploit thật vào process của dịch vụ trên cụm, trong một namespace cô lập, ưu tiên các CVE có cả trong LID-DS 2021 và ReplicaWatcher; một ứng dụng thứ hai có tải thay đổi suốt lượt chạy.
+  \textbf{Bằng chứng độc lập:} chấm một lần trên LID-DS 2019; baseline học sâu (CHIDS, các mô hình của thư viện LID-DS) trên cùng bản ghi và cùng cách đo.
 \item
-  \textbf{Kẻ tấn công thích nghi:} thí nghiệm chia theo mức hiểu biết về detector, với tốc độ dưới 1 lần/s, chạy ngắt quãng, và chạy cùng lúc trên mọi replica; một trial \texttt{io\_\allowbreak{}uring}. Một đường tích luỹ chậm (martingale hoặc CUSUM trên p-value sẵn có) chạy song song với đường báo nhanh để lấy lại recall ở tấn công chậm mà không làm chậm đường chính.
+  \textbf{Tính thực tế của tấn công:} exploit thật vào process của dịch vụ trên cụm, trong một namespace cô lập; một ứng dụng thứ hai có tải thay đổi suốt lượt chạy.
 \item
-  \textbf{Gánh cảnh báo và calibration:}
-  \begin{itemize}
-  \tightlist
-  \item
-    kết quả lượt xác nhận calibration tự làm mới (\texttt{live-\allowbreak{}recalibration-\allowbreak{}confirmation-\allowbreak{}v1});
-  \item
-    chỉ bỏ khỏi calibration các cửa sổ đã được xác nhận là tấn công (\citealp{bashari2025}), thay vì bỏ theo lịch campaign hoặc bỏ mọi cửa sổ đã báo;
-  \item
-    calibration theo nhóm chồng lấp workload và replica cho các replica lệch hệ thống như Kafka;
-  \item
-    gom đợt cảnh báo thành sự cố và tương quan với sự kiện của Kubernetes, báo thêm số sự cố mỗi ngày.
-  \end{itemize}
+  \textbf{Kẻ tấn công thích nghi:} thí nghiệm chia theo mức hiểu biết về detector, chỉ dùng 4-gram đã thấy, chạy chậm trong một process có sẵn; một trial \texttt{io\_\allowbreak{}uring}.
 \item
-  \textbf{Bằng chứng cho bộ feature:} ablation bỏ lần lượt từng syscall và từng cặp của base29 (\texttt{syscall-\allowbreak{}ablation-\allowbreak{}loo-\allowbreak{}v1}).
+  \textbf{Gánh cảnh báo:} học lại định kỳ chỉ từ normal đã được xác nhận; gom đợt thành sự cố và tương quan với sự kiện của Kubernetes, báo thêm số sự cố mỗi ngày.
 \item
-  \textbf{Baseline học sâu:} CHIDS và các mô hình MLP, LSTM của thư viện LID-DS trên cùng bản ghi và cùng cách đo (\texttt{lidds-\allowbreak{}dl-\allowbreak{}baseline-\allowbreak{}v1}).
+  \textbf{Chi phí:} đo trên request của ứng dụng thật với probe token; bỏ bộ đếm syscall theo cgroup khỏi bản build khi không còn cần cho so sánh.
 \item
-  \textbf{RCA:}
-  \begin{itemize}
-  \tightlist
-  \item
-    đo độ trễ của nhật ký exec so với cảnh báo, và nếu cần thì chờ có giới hạn trước khi kiểm exec;
-  \item
-    gán phần bất thường cho từng process (bỏ lần lượt từng process mới rồi chấm lại), và kiểm với thứ tự khởi chạy ngẫu nhiên giữa binary vô hại và tấn công;
-  \item
-    LLM chạy cục bộ chỉ để chú thích case một cách bất đồng bộ, ngoài đường cảnh báo: CORTEX mất trung vị 152,4 s mỗi cảnh báo (\citealp{wei2025}), quá chậm cho đường chính;
-  \item
-    cảnh báo đã mang tóm tắt RCA và tách mức báo khi gửi (RCA 5.20), cần đo trên một lượt live.
-  \end{itemize}
-\item
-  \textbf{Chấm một phần trong kernel} bằng số cố định (\citealp{osaki2024}): lợi ích chính là bớt sự kiện phải chuyển lên user space và bớt CPU, không phải giảm độ trễ, vì phần lớn độ trễ hiện nằm ở cửa sổ 0,5 s và luật hai cửa sổ.
+  \textbf{RCA:} đo độ trễ của nhật ký exec so với cảnh báo; LLM chạy cục bộ chỉ để chú thích case bất đồng bộ, ngoài đường cảnh báo, vì CORTEX mất trung vị 152,4 s mỗi cảnh báo \citep{wei2025}.
 \end{itemize}

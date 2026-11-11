@@ -1,0 +1,25 @@
+% Hình quy trình học và đánh giá. Style ở main.tex.
+\begin{tikzpicture}
+  % ---- dataset (trái)
+  \node[evl, text width=6.6cm] (dev) at (0,0) {\textbf{1. LID-DS 2021 development + CB-DS}\\development: 30\% bản ghi test của mỗi kịch bản (544 tấn công, 3.403 normal); CB-DS: 891 tấn công, 1.410 normal\\chọn bảng chữ token, độ dài gram, số giá trị lấy trung bình, cách đặt ngưỡng, mức $\alpha$};
+  \node[mlb, text width=6.6cm] (off) at ($(dev.south west)+(0,-0.55)$) {\textbf{2. LID-DS 2021 official}\\70\% còn lại (1.271 tấn công, 7.938 normal); chấm một cấu hình đã chọn theo protocol};
+  \node[evl, text width=6.6cm] (l19) at ($(off.south west)+(0,-0.55)$) {\textbf{3. LID-DS 2019} (bước cuối)\\chấm một lần, không chỉnh gì};
+  \node[grp, fit=(dev)(off)(l19)] (dgrp) {};
+  \node[grplabel] at (dgrp.north west) {Dataset công khai, offline (exploit thật)};
+  % ---- cụm (phải)
+  \node[evl, text width=6.5cm] (cap) at (7.7,0) {\textbf{a. Thu normal} 12 giờ trên cụm\\probe token trên 3 worker, tải AIMS theo lịch đăng ký, không có tấn công};
+  \node[mlb, text width=6.5cm] (fit) at ($(cap.south west)+(0,-0.55)$) {\textbf{b. Học mô hình}\\một mô hình mỗi workload; cross-fit theo đoạn 30 phút, cực đại theo khối 60 s; \texttt{MODELS.json} khoá SHA-256 trước lượt chạy};
+  \node[evl, text width=6.5cm] (live) at ($(fit.south west)+(0,-0.55)$) {\textbf{c. Lượt live blind} 24 giờ\\pha chọn 90 phút, rồi 525 trial: 21 workload $\times$ 5 kịch bản $\times$ 5 tốc độ (1--24 lần/s); mỗi trial có control idle, binary vô hại và tấn công 15 s};
+  \node[mlb, text width=6.5cm] (refit) at ($(live.south west)+(0,-0.55)$) {\textbf{d. Học lại} với normal của lượt vừa xong, bỏ khoảng quanh mỗi trial; lượt live tiếp theo dùng mô hình mới};
+  \node[grp, fit=(cap)(fit)(live)(refit)] (cgrp) {};
+  \node[grplabel] at (cgrp.north west) {Cụm Kubernetes của lab (live)};
+  \draw[arr] (dev) -- (off);
+  \draw[arr] (off) -- (l19);
+  \draw[arr] (cap) -- (fit);
+  \draw[arr] (fit) -- (live);
+  \draw[arr] (live) -- (refit);
+  \draw[arrd] (refit.east) -- ++(0.3,0) |- (fit.east);
+  \draw[arrd] (dev.east) -- ++(0.35,0) |- node[elab, pos=0.75, below] {cấu hình} (fit.west);
+  % ---- nguyên tắc
+  \node[sto, text width=14.6cm] (rule) at ($(dgrp.south west |- cgrp.south)+(0.1,-0.6)$) {\textbf{Nguyên tắc:} mỗi bước có protocol JSON commit vào git trước khi đọc dữ liệu (kỳ vọng, chỉ số, luật chọn); chỉ chọn trên development, official và lượt live chỉ để xác nhận; sửa đổi là amendment có giờ và lý do; mọi con số trong đồ án được tính lại từ biên nhận JSON bằng \texttt{scripts/audit/headline\_numbers.py}; không job nặng nào chạy cùng lượt live.};
+\end{tikzpicture}

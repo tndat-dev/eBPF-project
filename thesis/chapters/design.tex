@@ -1,58 +1,66 @@
 \chapter{Thiết kế Sentinel Pulse}
 
-Chương này mô tả hai thế hệ. Mô hình ML hiện tại của đồ án là mô hình token (mục~\ref{sec:token-model}), đã đánh giá trên LID-DS 2021 và đang được kiểm chứng trên cụm. Các mục còn lại mô tả hệ thống cuối đã chạy live trọn vẹn, gồm cây, support và tripwire; mọi số live ở chương đánh giá là của hệ thống đó, trừ khi ghi khác.
+Sentinel Pulse có bốn phần nối tiếp nhau:
 
-Pulse có hai nhánh phát hiện chạy song song trên cùng số đếm syscall: một model ML theo workload và một luật tripwire. Bất kỳ nhánh nào báo cũng sinh cảnh báo; RCA dựng cây bằng chứng cho mỗi cảnh báo đã gửi đi.
+\begin{enumerate}
+\tightlist
+\item
+  \textbf{Probe eBPF} trong kernel biến mỗi lần syscall của container thành một token và đếm các chuỗi 4 token theo từng thread.
+\item
+  \textbf{Mô hình ngôn ngữ theo workload}, học chỉ từ normal, chấm mỗi cửa sổ 0,5 s.
+\item
+  \textbf{Đường cảnh báo} đẩy cửa sổ vượt ngưỡng thẳng vào Alertmanager của cụm.
+\item
+  \textbf{RCA} dựng cây bằng chứng process quanh mỗi cảnh báo đã gửi đi.
+\end{enumerate}
+
+Hình~\ref{fig:architecture} cho thấy toàn bộ hệ thống. Trên mỗi worker, kernel chỉ dựng token và đếm 4-gram; mọi phép tính xác suất nằm ở user space. Master chỉ đọc decision đã ghi, không can thiệp vào việc chấm điểm. Mô hình được học offline từ normal của chính cụm, khoá bằng SHA-256 và không đổi trong một lượt chạy. Các mục sau đi lần lượt qua mô hình đe dọa, mô hình ML (Hình~\ref{fig:token-model}), RCA và đường cảnh báo (Hình~\ref{fig:alert-rca}); probe trong kernel ở Hình~\ref{fig:probe}.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{architecture.png}
-  \caption{Kiến trúc Sentinel Pulse (hệ thống cuối, lượt \texttt{pulse-\allowbreak{}final-\allowbreak{}system-\allowbreak{}confirm}).}
+  \adjustbox{max width=\linewidth}{\input{figures/tikz-overview}}
+  \caption{Kiến trúc Sentinel Pulse: thành phần trên mỗi worker, trên master, lưu trữ và bước học mô hình. Nét đứt là dữ liệu điều khiển (danh sách cgroup, metadata workload, mô hình).}
   \label{fig:architecture}
 \end{figure}
-
-Trên mỗi worker, ML và tripwire cùng đọc một luồng feature và cùng dùng kênh trao đổi với hai worker còn lại. Master chỉ đọc decision đã ghi, đẩy cảnh báo vào Alertmanager, rồi dựng case RCA từ những cảnh báo Alertmanager đã nhận.
 
 \section{Mô hình đe dọa}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Kẻ tấn công} đã chạy được code bên trong một container ứng dụng, tức giai đoạn \emph{sau khi xâm nhập}. Họ khởi chạy một process mới và thử các thao tác ở mức syscall: đổi namespace, ptrace, exec bất thường, đổi quyền vùng nhớ, gọi API seccomp.
+  \textbf{Kẻ tấn công} đã chạy được code bên trong một container ứng dụng, tức giai đoạn \emph{sau khi xâm nhập}, hoặc đang khai thác lỗ hổng của chính dịch vụ trong container. Trên cụm, họ khởi chạy một process mới và thử các thao tác ở mức syscall: đổi namespace, ptrace, exec bất thường, đổi quyền vùng nhớ, gọi API seccomp. Trên dataset, exploit đi qua chính ứng dụng.
 \item
   \textbf{Phạm vi được bảo vệ} là mọi replica của 21 workload trong namespace \texttt{production}. Pod hạ tầng, pod tạo tải và các master không được chấm điểm.
 \item
-  \textbf{Giả thiết tin cậy:} kernel, eBPF, Tetragon và worker của Pulse chưa bị chiếm. Dữ liệu normal dùng để fit và hiệu chỉnh không chứa tấn công.
+  \textbf{Giả thiết tin cậy:} kernel, eBPF, Tetragon và worker của Pulse chưa bị chiếm. Dữ liệu normal dùng để học và đặt ngưỡng không chứa tấn công.
 \item
   \textbf{Ngoài phạm vi:}
 
   \begin{itemize}
   \tightlist
   \item
-    xâm nhập ban đầu qua chính ứng dụng, ví dụ SQL injection hay command injection;
+    kẻ tấn công thích nghi chỉ dùng chuỗi syscall đã có trong normal của workload;
   \item
-    tấn công chạy đồng thời trên mọi replica;
-  \item
-    kẻ tấn công thích nghi chỉ dùng syscall đã có trong hồ sơ normal;
+    tấn công chỉ đổi ngữ nghĩa dữ liệu bên trong process mà không đổi hành vi hệ thống (mục~\ref{sec:limits-novelty});
   \item
     tấn công vào host hay hạ tầng cụm.
   \end{itemize}
 \end{itemize}
 
-Độ phủ theo MITRE ATT\&CK for Containers chỉ có một phần (Bảng~\ref{tab:attack-coverage}). Chương 7 bàn về hệ quả của giới hạn này.
+Độ phủ của campaign trên cụm theo MITRE ATT\&CK for Containers chỉ có một phần (Bảng~\ref{tab:attack-coverage}).
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.42\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.58\linewidth-2\tabcolsep\relax}@{}}
-\caption{Độ phủ của campaign đánh giá theo chiến thuật MITRE ATT\&CK for Containers.}\label{tab:attack-coverage}\\
+\caption{Độ phủ của campaign trên cụm theo chiến thuật MITRE ATT\&CK for Containers.}\label{tab:attack-coverage}\\
 \toprule\noalign{}
-Chiến thuật & Campaign của luận văn \\
+Chiến thuật & Campaign của đồ án \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Initial access (khai thác ứng dụng public) & Không có \\
+Initial access (khai thác ứng dụng public) & Không có trên cụm; có trên LID-DS 2021 \\
 Execution & Một phần: binary mới chạy qua \texttt{kubectl exec}; \texttt{execveat} với fd không hợp lệ (luôn thất bại) \\
 Persistence & Không có \\
-Privilege escalation / thoát container & Một phần: \texttt{setns} với fd không hợp lệ (luôn thất bại); \texttt{ptrace(PTRACE\_TRACEME)} trên process con của chính nó \\
+Privilege escalation / thoát container & Một phần: \texttt{setns} với fd không hợp lệ (luôn thất bại); \texttt{ptrace(PTRACE\_TRACEME)} trên process con của chính nó; 9 kịch bản thoát container của CB-DS \\
 Stealth / defense impairment & Một phần: \texttt{seccomp} với thao tác không hợp lệ (luôn thất bại); \texttt{mprotect} trên trang nhớ ẩn danh của chính nó \\
 Credential access & Không có \\
 Discovery & Không có \\
@@ -60,15 +68,32 @@ Lateral movement & Không có \\
 Impact (gồm chiếm tài nguyên kiểu đào coin) & Không có \\
 \end{longtable}
 
-LID-DS 2021 (mục 6.12) bù một phần cho initial access, vì nó gồm 15 exploit thật đi qua ứng dụng, nhưng chỉ đánh giá offline.
+LID-DS 2021 (mục~\ref{sec:lidds}) bù một phần cho initial access với 15 exploit thật đi qua ứng dụng, nhưng chỉ đánh giá offline.
 
-\section{Mô hình ML hiện tại: mô hình ngôn ngữ trên token}\label{sec:token-model}
+\section{Mô hình ML: mô hình ngôn ngữ trên token}\label{sec:token-model}
 
-Trọng tâm của đồ án là một mô hình học từ normal, không dùng nhãn tấn công, phát hiện được tấn công chưa biết. Mô hình hiện tại (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5}: nhánh token của \texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}, không có cây và support) là một mô hình ngôn ngữ thống kê, học không giám sát: nó không dùng mạng nơ-ron hay huấn luyện bằng gradient, mà học bằng cách đếm chuỗi token. Ý tưởng coi chuỗi syscall như một ngôn ngữ và báo khi xác suất thấp có từ \citet{kim2016} và \citet{fournier2023}; phát hiện bằng chuỗi syscall ngắn có từ \citet{forrest1996} và \citet{warrender1999}. Nó chỉ dùng thông tin mà probe thu được trên cụm, nên cùng một cách tính chạy được trên dataset và trên live.
+Trọng tâm của đồ án là một mô hình học từ normal, không dùng nhãn tấn công, phát hiện được tấn công chưa biết. Mô hình (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5}) là một mô hình ngôn ngữ thống kê, học không giám sát: nó không dùng mạng nơ-ron hay huấn luyện bằng gradient, mà học bằng cách đếm chuỗi token. Ý tưởng coi chuỗi syscall như một ngôn ngữ và báo khi xác suất thấp có từ \citet{kim2016} và \citet{fournier2023}; phát hiện bằng chuỗi syscall ngắn có từ \citet{forrest1996} và \citet{warrender1999}. Mô hình chỉ dùng thông tin mà probe thu được trên cụm, nên cùng một cách tính chạy được trên dataset và trên live.
 
-\paragraph{Vì sao có mô hình token.} Mô hình đếm của hệ thống cuối chỉ thấy \emph{syscall nào} được gọi và bao nhiêu lần. Trên LID-DS 2021 nó bỏ sót nhiều: ở lần đánh giá đầu (hệ thống phát hiện 77,3\%), 407 trong 412 bản ghi bị bỏ sót thuộc năm exploit chỉ đổi \emph{dữ liệu} (đường dẫn, số byte, mã lỗi) còn tập syscall giữ nguyên; riêng phần ML đạt 63,9\% trên official, và thêm model con theo nhóm thông tin chỉ lên 65,2\% (mục~\ref{sec:lidds-ml}). Ba điều rút ra từ chẩn đoán dẫn thẳng tới thiết kế: (1) thông tin phân biệt nằm ở tham số và giá trị trả về, nên mỗi syscall phải thành một token mang mã lỗi, cỡ đọc ghi hoặc thư mục; trên development, chỉ dùng tên syscall còn 86,0\%, bỏ mã lỗi hay thông tin open còn 88--91\%; (2) tín hiệu của vài exploit, như Heartbleed, nằm ở \emph{thứ tự} syscall theo thread, nên cần mô hình chuỗi thay cho số đếm; (3) nhiều exploit chỉ lộ trong một cửa sổ và sớm, nên bỏ cổng khởi động, bỏ luật hai cửa sổ, và thay p-value conformal (bị chặn ở sàn $1/(n+1)$) bằng ngưỡng trên thang điểm liên tục. Kết quả trên official đi từ 63,9\% lên 95,99\% (bảng chữ đầu), 97,32\% (bảng chữ theo đúng thông tin probe thu được) và 97,40\% với ngưỡng cross-fit.
+\paragraph{Vì sao chọn thiết kế này.} Ba quan sát trên development của LID-DS 2021 dẫn tới thiết kế:
 
-Phần còn lại của mục mô tả mô hình theo đúng thứ tự dữ liệu đi qua: từ một lần gọi syscall thành token, từ token thành chuỗi theo thread, từ chuỗi thành xác suất, từ xác suất thành điểm của cửa sổ 0,5 s, và từ điểm thành quyết định báo. Công thức dưới đây là công thức của code đang chạy (\texttt{sentinel\_\allowbreak{}pulse/\allowbreak{}detector/\allowbreak{}token\_\allowbreak{}model.py} trên cụm, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds\_\allowbreak{}ml\_\allowbreak{}tokens.py} trên dataset; hai bản cho cùng xác suất tới sai số $10^{-12}$, có test kiểm).
+\begin{enumerate}
+\tightlist
+\item
+  \textbf{Thông tin phân biệt nằm ở tham số và giá trị trả về.} Nhiều exploit giữ nguyên tập syscall và chỉ đổi dữ liệu: đường dẫn, số byte, mã lỗi. Cùng mô hình nhưng token chỉ là tên syscall chỉ phát hiện 89,5\% bản ghi tấn công development, so với 97,4\% khi token mang cỡ đọc ghi, chế độ mở và thư mục (mục~\ref{sec:token-ablation}).
+\item
+  \textbf{Thứ tự trong thread mang tín hiệu.} Một service có nhiều thread chạy xen kẽ, và thứ tự các bước (mở, đọc, đóng) chỉ có nghĩa trong cùng một thread. Vì vậy mô hình học chuỗi theo thread thay cho số đếm của cả container.
+\item
+  \textbf{Nhiều exploit chỉ lộ trong một cửa sổ, và lộ sớm.} Vì vậy một cửa sổ vượt ngưỡng là đủ để báo, và ngưỡng được đặt trên thang điểm liên tục.
+\end{enumerate}
+
+\begin{figure}[htbp]
+  \centering
+  \adjustbox{max width=\linewidth}{\input{figures/tikz-model}}
+  \caption{Mô hình ngôn ngữ trên token: chấm một cửa sổ (trái, bước 1--6) và học cùng đặt ngưỡng chỉ từ normal (phải, bước a--f).}
+  \label{fig:token-model}
+\end{figure}
+
+Hình~\ref{fig:token-model} tóm tắt mô hình. Phần còn lại của mục mô tả mô hình theo đúng thứ tự dữ liệu đi qua: từ một lần gọi syscall thành token, từ token thành chuỗi theo thread, từ chuỗi thành xác suất, từ xác suất thành điểm của cửa sổ 0,5 s, và từ điểm thành quyết định báo. Công thức dưới đây là công thức của code đang chạy (\texttt{sentinel\_\allowbreak{}pulse/\allowbreak{}detector/\allowbreak{}token\_\allowbreak{}model.py} trên cụm, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds\_\allowbreak{}ml\_\allowbreak{}tokens.py} trên dataset; hai bản cho cùng xác suất tới sai số $10^{-12}$, có test kiểm).
 
 \subsection{Từ syscall thành token}
 
@@ -86,13 +111,13 @@ Mỗi sự kiện là một lần syscall trả về. Token của sự kiện đ
   \textbf{Còn lại:} chỉ tên syscall, ví dụ \texttt{getpid}.
 \end{enumerate}
 
-Lý do của từng quy tắc là thông tin mà exploit thay đổi trong khi tập syscall giữ nguyên: đường dẫn ra ngoài thư mục quen (ZipSlip, CVE-2019-5418), mã lỗi và cỡ đọc ghi bất thường. Tín hiệu của Heartbleed thì nằm ở thứ tự syscall, phần do chuỗi theo thread mang (mục sau). Danh sách 27 syscall và độ phân giải cỡ được chọn trên development có nhãn tấn công, nên đây là một lựa chọn có lạc quan (mục~\ref{sec:lidds-ml}).
+Mỗi quy tắc nhắm một loại thông tin mà exploit thay đổi trong khi tập syscall giữ nguyên: đường dẫn ra ngoài thư mục quen (ZipSlip, CVE-2019-5418), cỡ đọc ghi bất thường, mã lỗi. Trên development, cỡ đọc ghi mang phần lớn tín hiệu; với riêng mô hình token, bỏ mã lỗi không làm giảm phát hiện (mục~\ref{sec:token-ablation}). Danh sách 27 syscall và độ phân giải cỡ được chọn trên development có nhãn tấn công, nên đây là một lựa chọn có lạc quan.
 
 Trên dataset, token tính từ dòng trả về của trace. Trên cụm, probe eBPF dựng đúng token này trong kernel thành một số 32 bit: số syscall ở bit 23--31, loại token ở bit 21--22, phần chi tiết ở các bit còn lại (mã lỗi, nhóm cỡ, hoặc cờ ghi cùng mã băm FNV-1a của thư mục đầu). 39 syscall cần giá trị trả về phát token lúc trả về qua một chương trình \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}exit}; các syscall khác phát tên lúc vào. Thư mục đầu lấy bằng cách đi ngược cây dentry từ file descriptor vừa mở, theo góc nhìn của container (mục~\ref{sec:token-impl}).
 
 \subsection{Từ token thành chuỗi theo thread}
 
-Mỗi thread giữ bốn token gần nhất của nó. Ở mỗi sự kiện $e_i$, mô hình nhìn \emph{4-gram} $g_i = (t_{i-3}, t_{i-2}, t_{i-1}, t_i)$ của đúng thread đó; ở đầu thread gram ngắn hơn. Chuỗi được tách theo thread vì một service có nhiều thread chạy xen kẽ, và thứ tự trong một thread mới mang nghĩa (mở, đọc, đóng). Lịch sử của thread không bị cắt ở biên cửa sổ. Gram được gán vào cửa sổ 0,5 s chứa thời điểm của sự kiện; trên cụm, kernel đếm thẳng số lần mỗi (cgroup, cửa sổ, gram) xuất hiện, nên không phải chuyển từng sự kiện lên user space.
+Mỗi thread giữ bốn token gần nhất của nó. Ở mỗi sự kiện $e_i$, mô hình nhìn \emph{4-gram} $g_i = (t_{i-3}, t_{i-2}, t_{i-1}, t_i)$ của đúng thread đó; ở đầu thread gram ngắn hơn. Lịch sử của thread không bị cắt ở biên cửa sổ; thread chuyển sang cgroup khác thì bắt đầu lịch sử mới. Gram được gán vào cửa sổ 0,5 s chứa thời điểm của sự kiện; trên cụm, kernel đếm thẳng số lần mỗi (cgroup, cửa sổ, gram) xuất hiện, nên không phải chuyển từng sự kiện lên user space.
 
 \subsection{Từ chuỗi thành xác suất}
 
@@ -122,7 +147,7 @@ lấy trung bình mọi sự kiện nếu cửa sổ có ít hơn 10, và $s = 0
 
 \subsection{Từ điểm thành ngưỡng}
 
-Ngưỡng được đặt chỉ bằng normal. Ý tưởng: trong mỗi đơn vị normal (một bản ghi trên dataset, một khối 60 s của một container trên cụm), lấy điểm cửa sổ lớn nhất $M_j$; phân bố của các cực đại này được mô tả tốt bằng phân bố Gumbel \citep{coles2001}; ngưỡng là mức mà một đơn vị normal chỉ vượt với xác suất $\alpha'$.
+Ngưỡng được đặt chỉ bằng normal. Ý tưởng: trong mỗi đơn vị normal (một bản ghi trên dataset, một khối 60 s của một container trên cụm), lấy điểm cửa sổ lớn nhất $M_j$; phân bố của các cực đại này được mô tả bằng phân bố Gumbel \citep{coles2001}; ngưỡng là mức mà một đơn vị normal chỉ vượt với xác suất $\alpha'$.
 
 \begin{enumerate}
 \tightlist
@@ -142,7 +167,7 @@ Ngưỡng được đặt chỉ bằng normal. Ý tưởng: trong mỗi đơn v�
   \]
 \end{enumerate}
 
-Mức $\alpha'$ là mức thiết kế dưới giả thiết các cực đại tuân Gumbel, không phải tỉ lệ báo nhầm được bảo đảm: trên cụm, tỉ lệ khối 60 s vượt ngưỡng trên dữ liệu giữ ra cao hơn mức thiết kế 12,8--16,6 lần. Vì vậy $\alpha$ được chọn theo báo nhầm đo được trên development. Ước lượng moment được chọn sau khi so với Gumbel ước lượng hợp lý cực đại, GEV, phân bố chuẩn và đuôi mũ trên development (mục~\ref{sec:lidds-ml}).
+Mức $\alpha'$ là mức thiết kế dưới giả thiết các cực đại tuân Gumbel, không phải tỉ lệ báo nhầm được bảo đảm: trên cụm, tỉ lệ khối 60 s vượt ngưỡng trên dữ liệu giữ ra cao hơn mức thiết kế khoảng 14--17 lần (mục~\ref{sec:token-live}). Vì vậy $\alpha$ được chọn theo báo nhầm đo được trên development. Ước lượng moment được chọn trên development sau khi so với Gumbel ước lượng hợp lý cực đại, GEV, phân bố chuẩn và đuôi mũ.
 
 \subsection{Quyết định và thời điểm báo}
 
@@ -151,6 +176,7 @@ Một cửa sổ có $s(W) > \tau$ là báo; thời điểm báo là cuối cử
 \subsection{Tham số và nguồn gốc của chúng}
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.34\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}@{}}
+\caption{Tham số của mô hình token.}\label{tab:token-params}\\
 \toprule\noalign{}
 Tham số & Giá trị & Chọn thế nào \\
 \midrule\noalign{}
@@ -158,7 +184,7 @@ Tham số & Giá trị & Chọn thế nào \\
 \bottomrule\noalign{}
 \endlastfoot
 Độ dài gram & 4 & Development; LSTM lớn không hơn \\
-Cửa sổ & 0,5 s & Cố định từ hệ thống cuối \\
+Cửa sổ & 0,5 s & Cố định từ đầu, theo mục tiêu độ trễ \\
 Số giá trị lấy trung bình & 10 & Development (so với 1, 3, 5, 20) \\
 Bảng chữ token & \texttt{select1f} & Development, có nhãn tấn công \\
 Số nhóm cỡ đọc ghi & 16 ($\log_2$, không chia đôi) & Development \\
@@ -175,155 +201,18 @@ Thuật toán, bảng chữ và quy tắc ngưỡng giống nhau ở hai nơi. K
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Đơn vị học:} LID-DS có một mô hình cho mỗi kịch bản, học từ bản ghi training và validation; cụm có một mô hình cho mỗi workload, học từ 12 giờ normal của chính cụm (lượt tiếp theo học thêm normal của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}).
+  \textbf{Đơn vị học:} LID-DS có một mô hình cho mỗi kịch bản, học từ bản ghi training và validation. Cụm có một mô hình cho mỗi workload, học từ normal của chính cụm: 12 giờ capture chỉ có normal, cộng normal của lượt live trước ở ngoài các trial (từ 5 s trước tới 25 s sau lúc trial bắt đầu).
 \item
   \textbf{Đơn vị cực đại:} một bản ghi trên LID-DS, một khối 60 s của một container trên cụm, vì cụm không có bản ghi.
 \item
-  \textbf{Thứ tự token:} trên cụm, syscall không cần giá trị trả về phát token lúc vào, nên token của một lời gọi chặn lâu (ví dụ \texttt{epoll\_wait}) đến sớm hơn trên dataset. Bảng chữ \texttt{probe1f} mô phỏng đúng thứ tự này trên dataset: trên development nó phát hiện cùng 530/544 bản ghi, với 21 thay vì 19 báo nhầm (đo ở cấu hình \texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}).
+  \textbf{Thứ tự token:} trên cụm, syscall không cần giá trị trả về phát token lúc vào, nên token của một lời gọi chặn lâu (ví dụ \texttt{epoll\_wait}) đến sớm hơn trên dataset. Bảng chữ \texttt{probe1f} mô phỏng đúng thứ tự này trên dataset: trên development, mô hình token cho cùng 530/544 bản ghi tấn công và cùng 0,56\% báo nhầm như \texttt{select1f} (mục~\ref{sec:token-ablation}).
 \end{itemize}
 
-Kết quả trên LID-DS ở mục~\ref{sec:lidds-ml}; trên cụm ở mục~\ref{sec:token-live}. Toàn bộ mô hình của 21 workload trên cụm chiếm khoảng 1,2 MB (bảng đếm nén).
+Mô hình của 21 workload trên cụm chiếm khoảng 1,5 MB (bảng đếm nén gzip, bản fit hiện tại).
 
-\paragraph{Vì sao tạm bỏ cây và support.} Cây và support của hệ thống cuối (mục~\ref{sec:workload-model}) tạm bỏ khỏi đường cảnh báo từ 09/11 nhưng được giữ lại: code, model và ngưỡng vẫn còn, và chúng vẫn được tính và ghi log để so sánh. Ban đầu chúng được giữ bên cạnh token vì là các nhánh thấy tấn công chỉ làm nhiều hơn điều quen thuộc (\texttt{mprotect}, \texttt{seccomp}) trên cụm. Hai phép đo cho thấy điều đó không còn đúng khi đã có token:
+Mô hình này là một tổ hợp, không có bài nào đề xuất nguyên khối. Các phần có nguồn là những phần đã trích ở trên. Các lựa chọn sau là của đồ án, được chọn bằng thực nghiệm trên development và CB-DS, không lấy từ nguồn nào: bảng chữ token theo đúng thông tin probe thu được, điểm là trung bình 10 giá trị lớn nhất, chọn ước lượng moment và bỏ 1\% cao nhất, mức $\alpha$, và quy tắc một cửa sổ. Các bài trích dẫn không chứng minh những lựa chọn này là tối ưu.
 
-\begin{itemize}
-\tightlist
-\item
-  \textbf{LID-DS 2021 official:} nhánh token một mình phát hiện 1.238/1.271 bản ghi, đúng bằng cả ba nhánh; thêm cây và support chỉ thêm báo nhầm, từ 26 lên 36 trong 7.938 bản ghi normal.
-\item
-  \textbf{Lượt live \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}} (525 trial): token bắt 525/525, kể cả \texttt{mprotect} và \texttt{seccomp} ở mọi tốc độ; cây và support bắt 187/525 và không trial nào ngoài token. Ở tốc độ chính, p95 của chúng là 4,01 s so với 0,49 s của token, và chúng đưa gánh cảnh báo từ 0,41 lên 0,52 đợt mỗi replica-giờ.
-\end{itemize}
-
-Đồ án lấy mô hình học làm trọng tâm, nên nhánh không thêm phát hiện mà thêm báo nhầm và gánh được đưa về chế độ ghi log.
-
-Mô hình này là một tổ hợp, không có bài nào đề xuất nguyên khối. Các phần có nguồn là những phần đã trích ở trên. Các lựa chọn sau là của đồ án, được chọn bằng thực nghiệm trên development và CB-DS (mục~\ref{sec:lidds-ml}), không lấy từ nguồn nào: bảng chữ token theo đúng thông tin probe thu được, điểm là trung bình 10 giá trị lớn nhất, chọn ước lượng moment và bỏ 1\% cao nhất, chia mức $\alpha$, và quy tắc một cửa sổ. Các bài trích dẫn không chứng minh những lựa chọn này là tối ưu.
-
-Giới hạn cần nói rõ: mô hình phát hiện điều mới lạ, không phân biệt ý đồ. Trên development nó chưa hơn luật đếm 4-gram chưa thấy trên cùng token, và trên cụm nó gắn cờ gần như mọi binary mới, kể cả vô hại (314/315 lần chạy binary đối chứng ở lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}).
-
-\paragraph{Vì sao binary vô hại bị gắn cờ.} Phân rã trên 136 lần chạy binary đối chứng của lượt đó (134 lần bị gắn cờ) cho thấy cờ đến từ hai nguồn, không nguồn nào là hành vi nguy hiểm:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Burst lúc khởi chạy.} Cửa sổ báo đầu tiên đến sau trung vị 0,44 s. Trong 161 cửa sổ báo của giây đầu, các token gây bất ngờ nhất là của việc dựng process qua \texttt{kubectl exec} và khởi tạo thư viện: \texttt{mprotect}, \texttt{prlimit64}, \texttt{arch\_prctl}, \texttt{brk}, \texttt{seccomp}, \texttt{keyctl}, \texttt{setgid}, \texttt{setuid}. 61 trong 134 lần (46\%) chỉ bị báo trong giây đầu này.
-\item
-  \textbf{Chính vòng lặp của binary đối chứng.} Binary này gọi \texttt{getpid} rồi \texttt{clock\_nanosleep} đều đặn. Trong 1.323 cửa sổ báo sau giây đầu, 1.321 chứa \texttt{clock\_nanosleep} và 1.309 chứa \texttt{getpid}: chuỗi này chưa từng có trong normal của workload nên bị coi là lạ, dù vô hại. 73 trong 134 lần còn bị báo sau giây đầu vì lý do này.
-\end{itemize}
-
-Tức là mô hình theo workload trả lời câu hỏi ``container có làm điều chưa từng thấy không'', và một process mới bất kỳ đều trả lời có. Tín hiệu danh tính (đường dẫn, cây process, người chạy lệnh) không giúp được, vì binary đối chứng và tấn công là cùng một chương trình đi cùng một đường. Một gate hỏi thêm ``điều đó có lạ với cả cụm không'' (mô hình gộp mọi workload, cùng một ngưỡng riêng cho pha ngay sau \texttt{execve}) đã được thử và bị loại vì không giữ được kết quả trên LID-DS (mục~\ref{sec:lidds-ml}). Số của mục này lấy từ một mẫu 5 segment của lượt chạy, không phải toàn bộ.
-
-\section{Biểu diễn: 249 feature mỗi cửa sổ}
-
-Cứ 0,5 s, user space đọc map eBPF và lấy hiệu số bộ đếm giữa hai lần đọc cho từng cgroup. Vector của một cửa sổ gồm:
-
-\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.223\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.132\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.645\linewidth-2\tabcolsep\relax}@{}}
-\toprule\noalign{}
-Nhóm & Số feature & Nội dung \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Syscall tường minh & 58 & log-count và tỉ lệ của 29 syscall (bộ \texttt{base29}) \\
-Tổng hợp & 5 & log-count và tỉ lệ của syscall còn lại, log tổng, tỉ lệ syscall nhạy cảm, số lần seccomp từ chối \\
-Bin băm syscall & 64 & mọi ID syscall, băm vào 64 bin \\
-Bin băm cặp syscall & 64 & cặp syscall liền nhau của cùng thread (cách nhau ≤ 5 s), băm vào 64 bin \\
-Trượt 10 cửa sổ & 58 & trung bình và độ lệch chuẩn của 29 syscall trên 10 cửa sổ gần nhất \\
-\end{longtable}
-
-Bộ \texttt{base29} gồm:
-
-\begin{itemize}
-\tightlist
-\item
-  syscall thường gặp: \texttt{read}, \texttt{write}, \texttt{open}, \texttt{openat}, \texttt{close}, \texttt{mmap};
-\item
-  mạng: \texttt{socket}, \texttt{connect}, \texttt{accept}, \texttt{accept4}, \texttt{sendto}, \texttt{recvfrom}, \texttt{sendmmsg}, \texttt{recvmmsg};
-\item
-  tạo process: \texttt{clone}, \texttt{clone3}, \texttt{execve}, \texttt{execveat};
-\item
-  11 syscall nhạy cảm: \texttt{mprotect}, \texttt{chmod}, \texttt{ptrace}, \texttt{setuid}, \texttt{setgid}, \texttt{capset}, \texttt{pivot\_\allowbreak{}root}, \texttt{mount}, \texttt{unshare}, \texttt{setns}, \texttt{seccomp}.
-\end{itemize}
-
-Nhiều syscall nhạy cảm bằng 0 trên toàn bộ normal. Chính vì vậy chúng là tín hiệu tấn công mà không làm tăng báo nhầm.
-
-Model nhận \textbf{ngữ cảnh} gồm 3 cửa sổ trước và cửa sổ hiện tại, tức 996 số. Hai snapshot cách nhau ngoài 0,35--0,8 s là một \emph{cadence gap}: lịch sử bị xóa và các cửa sổ ngay sau đó không được tính là normal. Mục 6.5 trình bày bằng chứng cho từng nhóm feature.
-
-\section{Model theo workload của hệ thống cuối}\label{sec:workload-model}
-
-Mỗi workload có một model riêng gồm hai nhánh:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Nhánh tree:} ExtraTrees (\citealp{geurts2006}) học phân biệt ngữ cảnh normal với ngữ cảnh normal bị làm hỏng có chủ đích. Nó nắm được quan hệ giữa lịch sử và cửa sổ hiện tại.
-\item
-  \textbf{Nhánh support:} với từng feature của cửa sổ hiện tại, lưu vùng giá trị đã thấy khi normal. Điểm là mức vượt ra ngoài vùng đó lớn nhất, chia theo thang của feature. Nhánh này bắt ngay một syscall chưa từng xuất hiện.
-\end{itemize}
-
-Mỗi nhánh cho một p-value conformal trên tập calibration riêng, rồi hai p-value được gộp thành joint p (mục 2.4). Ngân sách thiết kế là α = 0,05/30 ≈ 0,00167 mỗi cửa sổ, tức 5\% cho khoảng 15 s. Đây là ngân sách thiết kế dưới giả thiết hoán đổi, không phải bảo đảm.
-
-Calibration được làm mới bằng normal gần nhất trước mỗi lượt live, còn estimator thì giữ nguyên. Model bundle, chính sách và 13 file code chấm điểm đều được khóa bằng SHA-256. Worker từ chối chạy nếu bất kỳ file nào khác bản đóng băng.
-
-\section{Chính sách quyết định: k2of2 α×5 với chiết khấu theo replica}
-
-Một cửa sổ \textbf{đạt} khi thỏa cả hai điều kiện:
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  joint p ≤ 5α (khoảng 0,0083);
-\item
-  cửa sổ còn mang bằng chứng sau chiết khấu.
-\end{enumerate}
-
-Cảnh báo bật khi hai cửa sổ liên tiếp (cách nhau tối đa 1 s) cùng đạt.
-
-\textbf{Chiết khấu theo replica} (chính sách \texttt{policy-\allowbreak{}k2of2-\allowbreak{}a5-\allowbreak{}peer30}) dựa trên một quan sát: phần lớn cảnh báo trên normal đến từ hành vi mà mọi replica của workload đều có, như probe của Kubernetes hay tác vụ định kỳ.
-
-\begin{itemize}
-\tightlist
-\item
-  Mỗi worker phát mặt nạ ID syscall của từng cửa sổ cho các worker khác qua TCP.
-\item
-  Một cửa sổ \textbf{không còn bằng chứng} khi ngữ cảnh 4 cửa sổ của nó không chứa ID syscall nào mà các replica khác chưa thấy trong 30 s.
-\item
-  Workload chỉ có một replica, hoặc không có cửa sổ của peer trong 30 s, thì không bao giờ bị chiết khấu.
-\end{itemize}
-
-Thiết kế hỏng theo một phía: mất tin của peer chỉ làm bớt chiết khấu, nên detector báo nhiều hơn, không bao giờ ít hơn.
-
-Giới hạn đã đăng ký trước: một tấn công chạy cùng lúc trên mọi replica sẽ bị chiết khấu mất.
-
-\section{Luật tripwire A1}
-
-Tripwire báo khi một cửa sổ chứa ID syscall nằm ngoài cả hai tập sau:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Tham chiếu của workload:} hợp các ID syscall thấy ở mọi replica trong 90 phút đầu của lượt chạy (pha chọn).
-\item
-  \textbf{Tập exec E:} 59 ID mà việc khởi chạy một binary bất kỳ gây ra. Tập này đóng băng bằng SHA-256.
-\end{itemize}
-
-Tham chiếu đến từ cả ba worker qua cùng kênh trao đổi với chiết khấu. Việc chấm bắt đầu 60 s sau khi pha chọn kết thúc, để các cửa sổ tham chiếu đến muộn vẫn được tính.
-
-Tripwire là phiên bản phát hiện của allowlist syscall (mục 3.4):
-
-\begin{itemize}
-\tightlist
-\item
-  nó bắt các hành vi \emph{buộc} phải dùng syscall lạ (\texttt{ptrace}, \texttt{setns}, \texttt{execveat});
-\item
-  nó không bắt \texttt{mprotect} hay \texttt{seccomp}, vì hai syscall này có sẵn trong hồ sơ normal của nhiều workload.
-\end{itemize}
-
-\section{Hệ thống cuối}
-
-Hệ thống cuối báo khi ML \textbf{hoặc} tripwire báo. Tripwire không sửa bất kỳ trường nào của ML, nên các chỉ số của ML vẫn đo riêng được trên cùng lượt chạy.
-
-Cấu hình này được chọn sau khi so sánh có và không có luật (mục 6.6): trong các cách gắn luật đã thử, đây là cách duy nhất giữ mọi chỉ số của ML ở mức ≤ 3 s, đồng thời làm p95 nhanh hơn.
+Giới hạn cần nói rõ: mô hình phát hiện điều mới lạ, không phân biệt ý đồ. Trên development nó chưa hơn luật đếm 4-gram chưa thấy trên cùng token (mục~\ref{sec:token-ablation}), và trên cụm nó gắn cờ gần như mọi binary mới, kể cả vô hại (mục~\ref{sec:benign}).
 
 \section{Truy nguyên nguyên nhân (RCA)}
 
@@ -352,6 +241,7 @@ Pulse chỉ cho biết container nào bất thường. RCA trả lời ba câu h
 \end{itemize}
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.758\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.242\linewidth-2\tabcolsep\relax}@{}}
+\caption{Điểm xếp hạng nghi phạm của RCA.}\label{tab:rca-score}\\
 \toprule\noalign{}
 Lý do & Điểm \\
 \midrule\noalign{}
@@ -366,28 +256,37 @@ Syscall thất bại & 1 mỗi lần, tối đa 3 \\
 Là cha của một nghi phạm khác & 1 \\
 \end{longtable}
 
-Bảng điểm có thêm hai ngoại lệ:
+Bảng điểm có thêm ba quy tắc:
 
 \begin{itemize}
 \tightlist
 \item
-  \texttt{setuid}/\texttt{setgid} hạ xuống ID khác 0 ngay sau khi process khởi động không được tính là thao tác bảo mật. Đây là \emph{luật hạ quyền}: nhiều probe hợp lệ hạ quyền lúc khởi chạy.
+  \texttt{setuid}/\texttt{setgid} hạ xuống ID khác 0 ngay sau khi process khởi động không được tính là thao tác bảo mật, vì nhiều probe hợp lệ hạ quyền lúc khởi chạy.
 \item
   Tiến trình của container runtime (\texttt{containerd-\allowbreak{}shim}, \texttt{runc}) không được xếp hạng.
+\item
+  Khi hai nghi phạm bằng điểm, process khởi chạy gần cảnh báo nhất đứng trước.
 \end{itemize}
 
 Cây bằng chứng cho thấy liên quan theo định danh và thời gian, không chứng minh nhân quả. RCA cũng không tự xử lý pod.
 
 \section{Đường cảnh báo}
 
+\begin{figure}[htbp]
+  \centering
+  \adjustbox{max width=\linewidth}{\input{figures/tikz-alert}}
+  \caption{Đường cảnh báo và RCA: từ decision của worker tới Alertmanager, rồi từ cảnh báo đã nhận tới case và nghi phạm.}
+  \label{fig:alert-rca}
+\end{figure}
+
 \begin{itemize}
 \tightlist
 \item
-  Một bridge chỉ đọc bám luồng decision trên đĩa local của từng worker và gom các cửa sổ báo thành đợt.
+  Một bridge chỉ đọc bám luồng decision trên đĩa local của từng worker và gom các cửa sổ báo của cùng container cách nhau dưới 15 s thành một đợt.
 \item
   Mỗi đợt được đẩy thẳng vào Alertmanager của cụm qua API v2. Push lỗi được thử lại 3 lần.
 \item
   RCA dựng case từ chính các cảnh báo Alertmanager đã nhận, nên mã đợt cảnh báo và mã case là một.
 \end{itemize}
 
-Pulse không dùng đường Prometheus kéo theo chu kỳ. Mục 6.8 cho thấy đường đó chậm hơn nhiều.
+Pulse không dùng đường Prometheus kéo theo chu kỳ, vì mỗi cảnh báo phải chờ thêm tới một chu kỳ kéo trước khi tới Alertmanager.

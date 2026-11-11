@@ -1,4 +1,4 @@
-% Luận văn Sentinel Pulse. Biên dịch: tectonic main.tex (hoặc xelatex + bibtex).
+% Đồ án Sentinel Pulse. Biên dịch: tectonic main.tex (hoặc xelatex + bibtex).
 \documentclass[a4paper,fontsize=13pt,oneside,listof=totoc,bibliography=totoc,numbers=noenddot]{scrreprt}
 
 \usepackage{fontspec}
@@ -28,7 +28,26 @@
 
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
-\graphicspath{{figures/}{../docs/figures/vi/}}
+\usepackage{tikz}
+\usepackage{adjustbox}
+\usetikzlibrary{positioning,arrows.meta,fit,calc}
+% style chung của sơ đồ kiến trúc (thesis/figures/tikz-*.tex)
+\tikzset{
+  pbox/.style={draw, rounded corners=2pt, align=left, inner sep=3pt, font={\setstretch{1}\footnotesize},
+    anchor=north west},
+  kern/.style={pbox, fill=yellow!14, draw=yellow!45!black},
+  usr/.style={pbox, fill=blue!6, draw=blue!55!black},
+  mlb/.style={pbox, fill=green!9, draw=green!40!black},
+  alr/.style={pbox, fill=red!6, draw=red!55!black},
+  ext/.style={pbox, fill=orange!9, draw=orange!65!black},
+  sto/.style={pbox, fill=gray!9, draw=gray!60!black},
+  evl/.style={pbox, dashed, fill=violet!5, draw=violet!60!black},
+  grp/.style={draw, dashed, rounded corners=4pt, inner sep=5pt},
+  grplabel/.style={font=\scriptsize\bfseries, anchor=south west, inner sep=1pt},
+  arr/.style={-{Stealth[length=2mm]}, semithick},
+  arrd/.style={arr, dashed},
+  elab/.style={font=\scriptsize\itshape, fill=white, inner sep=1pt}}
+\graphicspath{{figures/}}
 \usepackage{longtable,booktabs,array,calc}
 \usepackage{caption}
 \captionsetup{font=small,labelfont=bf}
@@ -55,7 +74,7 @@
   \vspace{0.3cm}
   {\LARGE\bfseries THIẾT KẾ HỆ THỐNG RUNTIME SECURITY SỬ DỤNG eBPF KẾT HỢP PHÁT HIỆN ANOMALY\par}
   \vspace{0.8cm}
-  {\large Sentinel Pulse: phát hiện bất thường runtime của container Kubernetes từ tần suất syscall eBPF\par}
+  {\large Sentinel Pulse: phát hiện bất thường runtime của container Kubernetes bằng mô hình ngôn ngữ trên token syscall thu bằng eBPF\par}
   \vspace{2.5cm}
   {\large
   \begin{tabular}{@{}ll@{}}

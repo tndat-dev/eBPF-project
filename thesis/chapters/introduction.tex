@@ -1,10 +1,10 @@
 \chapter{Mở đầu}
 
-Luận văn xây dựng và đánh giá live một hệ thống phát hiện bất thường runtime cho container. Hệ thống chỉ dùng số đếm syscall và báo đủ nhanh để người vận hành kịp phản ứng.
+Đồ án xây dựng và đánh giá live một hệ thống phát hiện bất thường runtime cho container. Hệ thống thu syscall bằng eBPF, học hành vi bình thường của từng workload bằng một mô hình ngôn ngữ trên token syscall, và báo đủ nhanh để người vận hành kịp phản ứng.
 
 \section{Bối cảnh}
 
-Kubernetes chạy nhiều container của nhiều ứng dụng trên cùng một kernel. Một container bị chiếm quyền có thể dò kernel, đổi namespace, chạy binary lạ hoặc theo dõi process khác. Mọi hành vi đó đều phải đi qua syscall, nên syscall là điểm quan sát chung cho mọi loại tấn công ở tầng process.
+Kubernetes chạy nhiều container của nhiều ứng dụng trên cùng một kernel. Một container bị chiếm quyền có thể dò kernel, đổi namespace, chạy binary lạ hoặc theo dõi process khác. Một exploit đi qua ứng dụng có thể đọc file ngoài thư mục quen hay ghi dữ liệu bất thường. Mọi hành vi đó đều phải đi qua syscall, nên syscall là điểm quan sát chung cho tấn công ở tầng process.
 
 Hai hướng giám sát đang có:
 
@@ -22,7 +22,7 @@ Hướng thứ hai có ba khoảng trống khi đưa vào vận hành (Chương 
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  Phần lớn công trình đánh giá offline trên trace ghi sẵn, nên không đo độ trễ từ kernel tới người nhận cảnh báo.
+  Phần lớn công trình đánh giá offline trên trace ghi sẵn, với tham số đầy đủ, nên không biết mô hình còn đúng không khi chỉ có thông tin mà một probe chi phí thấp thu được trên cụm, và không đo độ trễ từ kernel tới người nhận cảnh báo.
 \item
   Hiếm công trình đo gánh cảnh báo trên tải thật kéo dài nhiều giờ, trong khi gánh này mới quyết định người vận hành có dùng hệ thống hay không.
 \item
@@ -31,9 +31,10 @@ Hướng thứ hai có ba khoảng trống khi đưa vào vận hành (Chương 
 
 \section{Mục tiêu}
 
-Sentinel Pulse phải đạt đồng thời bốn kỳ vọng trên cụm thật. Bốn kỳ vọng này được đặt trước mọi lượt live:
+Sentinel Pulse phải đạt đồng thời bốn kỳ vọng, trên cụm thật và trên dataset công khai có exploit thật. Bốn kỳ vọng này được đặt trước mọi lượt đánh giá:
 
 \begin{longtable}[]{@{}ll@{}}
+\caption{Bốn kỳ vọng của hệ thống.}\label{tab:expectations}\\
 \toprule\noalign{}
 Kỳ vọng & Ngưỡng \\
 \midrule\noalign{}
@@ -42,11 +43,11 @@ Kỳ vọng & Ngưỡng \\
 \endlastfoot
 Precision & ≥ 95\% \\
 Recall & ≥ 95\% \\
-Tỉ lệ control idle bị báo & ≤ 5\% \\
+Tỉ lệ control idle bị báo (trên cụm) & ≤ 5\% \\
 p95 độ trễ kernel → cảnh báo & \textless{} 2 s ưu tiên, ≤ 3 s chấp nhận \\
 \end{longtable}
 
-Ngoài bốn kỳ vọng, gánh cảnh báo trên normal cần thấp nhất có thể, với ngân sách tham chiếu là 0,1 đợt/replica-giờ.
+Ngoài bốn kỳ vọng, gánh cảnh báo trên normal và tỉ lệ process vô hại mới bị gắn cờ cần thấp nhất có thể, với ngân sách tham chiếu cho gánh là 0,1 đợt/replica-giờ. Mô hình chỉ học từ normal, không dùng nhãn tấn công, để phát hiện được cả tấn công chưa biết.
 
 \section{Câu hỏi nghiên cứu}
 
@@ -54,17 +55,15 @@ Ngoài bốn kỳ vọng, gánh cảnh báo trên normal cần thấp nhất có
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{RQ1.} Số đếm syscall theo cửa sổ 0,5 s có đủ để đạt bốn kỳ vọng trên cụm thật không?
+  \textbf{RQ1.} Một mô hình học từ normal, chỉ dùng thông tin mà probe eBPF thu được, có phát hiện được exploit thật của dataset công khai với recall và precision trên 95\% không?
 \item
-  \textbf{RQ2.} Syscall và nhóm feature nào mang tín hiệu? Bỏ đi thì mất gì?
+  \textbf{RQ2.} Thông tin nào trong token mang tín hiệu? Mô hình có hơn một luật novelty đơn giản không?
 \item
-  \textbf{RQ3.} Có giảm được gánh cảnh báo mà không mất recall hay độ trễ không?
+  \textbf{RQ3.} Trên cụm thật, mô hình có đạt bốn kỳ vọng không, và gánh cảnh báo bao nhiêu?
 \item
-  \textbf{RQ4.} Detector phân biệt được tấn công với một process vô hại mới đến đâu? Một luật đơn giản chạy cạnh ML có bù được không?
+  \textbf{RQ4.} Mô hình phân biệt được tấn công với một process vô hại mới đến đâu?
 \item
-  \textbf{RQ5.} Từ một cảnh báo, hệ thống có chỉ ra được process gây ra nó không?
-\item
-  \textbf{RQ6.} Probe eBPF tốn bao nhiêu cho syscall và cho request của ứng dụng?
+  \textbf{RQ5.} Probe eBPF tốn bao nhiêu cho mỗi syscall?
 \end{enumerate}
 
 \section{Đóng góp}
@@ -73,23 +72,23 @@ Ngoài bốn kỳ vọng, gánh cảnh báo trên normal cần thấp nhất có
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{Hệ thống Sentinel Pulse} chạy trên cụm thật. Nó gồm probe eBPF đếm syscall theo cgroup, worker chấm điểm theo workload, chính sách quyết định có chiết khấu theo replica, luật tripwire, đường cảnh báo qua Alertmanager và RCA từ Tetragon. Đường chấm nhanh cho kết quả khớp từng bit với scikit-learn, dùng 13--31\% một core mỗi worker.
+  \textbf{Probe eBPF dựng token syscall trong kernel:} mỗi syscall thành một token 32 bit mang tên, mã lỗi, chế độ mở và thư mục đầu, hoặc cỡ đọc ghi lúc trả về; kernel đếm 4-gram theo thread trong cửa sổ 0,5 s.
 \item
-  \textbf{Phương pháp đánh giá live có đăng ký trước.} Mỗi lượt chạy 24 giờ trên tải thật, kèm campaign có control idle và binary vô hại. Protocol, kỳ vọng và luật chọn được commit trước khi đọc dữ liệu. Khoảng tin cậy dùng Wilson và bootstrap theo workload.
+  \textbf{Mô hình ngôn ngữ trên token, học chỉ từ normal,} với ngưỡng Gumbel đặt trên điểm giữ ra của cross-fit. Cùng một mô hình đạt recall 97,40\% với 0,33\% bản ghi normal bị báo nhầm trên LID-DS 2021 official, và bắt 315/315 tấn công với p95 0,49 s trên cụm thật.
 \item
-  \textbf{Phát hiện thực nghiệm: detector tần suất phát hiện sự mới lạ, không phải ác ý.} Binary vô hại chạy cùng đường exec bị gắn cờ 80,7--95,1\% qua 6 lượt live. Autoencoder gắn cờ binary vô hại khoảng 100\%. Hồ sơ tần suất kiểu BoSC tách binary vô hại tốt hơn (16\%) nhưng bỏ sót 37\% attack.
+  \textbf{Hệ thống Sentinel Pulse chạy trên cụm thật:} probe, worker chấm điểm theo workload, đường cảnh báo qua Alertmanager và RCA từ Tetragon.
 \item
-  \textbf{Chiết khấu bằng chứng theo replica.} Cảnh báo bị giảm trọng số khi hành vi đó cũng xuất hiện ở replica khác của cùng workload trong 30 s. Cách này giảm gánh cảnh báo còn 0,37 lần so với CUSUM và đã được xác nhận live.
+  \textbf{Phương pháp đánh giá có đăng ký trước:} protocol, kỳ vọng và luật chọn được commit trước khi đọc dữ liệu; lượt live 24 giờ với control idle và binary vô hại; mọi con số trong đồ án được tính lại từ biên nhận.
 \item
-  \textbf{Hệ thống cuối ML + tripwire A1} đạt cả bốn kỳ vọng live, với p95 1,97 s. Bản tripwire live khớp bản offline 100\% trên 10,4 triệu cửa sổ.
+  \textbf{Phát hiện thực nghiệm:} mô hình phát hiện sự mới lạ, không phải ác ý. Binary vô hại bị gắn cờ 313/315, và trên cả dataset lẫn cụm mô hình chưa hơn một luật novelty có ngưỡng hiệu chỉnh.
 \end{enumerate}
 
-\section{Cấu trúc luận văn}
+\section{Cấu trúc đồ án}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Chương 2} trình bày nền tảng: syscall, eBPF, p-value conformal và luật dừng.
+  \textbf{Chương 2} trình bày nền tảng: syscall, eBPF, mô hình ngôn ngữ n-gram, cực trị và cross-fit.
 \item
   \textbf{Chương 3} đặt Pulse cạnh các công trình liên quan.
 \item

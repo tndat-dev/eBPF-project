@@ -1,7 +1,7 @@
 \chapter*{Tóm tắt}
 \addcontentsline{toc}{chapter}{Tóm tắt}
 
-Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes trong khoảng 2 giây, chỉ từ số đếm syscall do eBPF thu ở kernel. Trên một cụm thật, hệ thống cuối đạt recall 99,4\% và precision 99,4\%, với p95 độ trễ từ kernel tới cảnh báo là 1,97 s.
+Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes bằng một mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel, học chỉ từ normal. Trên dataset công khai LID-DS 2021, mô hình phát hiện 97,40\% bản ghi tấn công với 0,33\% bản ghi normal bị báo nhầm. Trên một cụm thật, nó bắt 315/315 tấn công ở tốc độ chính với p95 độ trễ 0,49 s.
 
 \textbf{Bài toán.} Công cụ runtime dựa trên luật (Falco, Tetragon) chỉ bắt được hành vi đã biết trước. Phát hiện bất thường từ syscall thì có từ thập niên 1990, nhưng phần lớn công trình đánh giá offline trên trace đã ghi sẵn. Chúng hiếm khi đo độ trễ tới người nhận, gánh cảnh báo trên tải thật, hay khả năng tách tấn công khỏi một process vô hại mới.
 
@@ -10,42 +10,42 @@ Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Thu thập:} cứ 0,5 s, một chương trình eBPF gắn vào \texttt{sys\_\allowbreak{}enter} đếm syscall theo từng cgroup. Từ đó hệ thống dựng một vector 249 feature cho mỗi container.
+  \textbf{Thu thập:} probe eBPF móc \texttt{sys\_\allowbreak{}enter}, \texttt{sys\_\allowbreak{}exit} và seccomp, biến mỗi syscall thành một token 32 bit: tên, cộng mã lỗi, chế độ mở và thư mục đầu của file, hoặc cỡ đọc ghi lúc trả về. Kernel đếm chuỗi 4 token theo từng thread trong cửa sổ 0,5 s.
 \item
-  \textbf{Chấm điểm (hệ thống cuối đã chạy live):} mỗi workload có một model riêng, gồm một cây quyết định trên ngữ cảnh 4 cửa sổ và một nhánh support, cùng cho p-value conformal. Mô hình ML hiện tại của đồ án là mô hình ngôn ngữ trên token, học từ normal; nó được mô tả ở mục kết quả LID-DS dưới đây và đang được kiểm chứng trên cụm.
+  \textbf{Mô hình:} mỗi workload có một mô hình ngôn ngữ 4-gram làm mượt Witten--Bell. Điểm của cửa sổ là trung bình 10 độ bất ngờ lớn nhất. Ngưỡng là phân vị của phân bố Gumbel khớp trên cực đại của điểm giữ ra (cross-fit 5 fold), chỉ dùng normal. Một cửa sổ vượt ngưỡng là báo.
 \item
-  \textbf{Quyết định:} chính sách k2of2 ở mức α×5, có chiết khấu bằng chứng khi các replica khác của cùng workload cũng thấy hành vi đó trong 30 s.
-\item
-  \textbf{Luật tripwire A1} chạy song song: báo khi một syscall chưa từng thấy ở workload trong khoảng tham chiếu xuất hiện, trừ tập syscall do exec gây ra.
-\item
-  \textbf{Truy nguyên (RCA):} dựng cây bằng chứng từ sự kiện exec, fork và kết nối của Tetragon.
+  \textbf{Đường cảnh báo và RCA:} bridge đẩy cảnh báo thẳng vào Alertmanager; RCA dựng cây bằng chứng process từ sự kiện Tetragon cho mỗi cảnh báo đã gửi.
 \end{itemize}
 
-\textbf{Đánh giá.} Hệ thống được đánh giá trong 6 lượt live 24 giờ trên cụm 3 worker chạy ứng dụng AIMS (21 workload). Lượt cuối có một campaign 525 trial: tấn công, control idle và khởi chạy một binary vô hại. Mọi kỳ vọng và luật chọn được đăng ký trước khi đọc dữ liệu.
+\textbf{Đánh giá.} Mọi kỳ vọng và luật chọn được đăng ký trước khi đọc dữ liệu.
 
-\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.472\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.230\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.201\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.097\linewidth-2\tabcolsep\relax}@{}}
+\begin{itemize}
+\tightlist
+\item
+  \textbf{LID-DS 2021 official} (15 kịch bản lỗ hổng thật): recall 97,40\% (CI 96,38--98,15\%), 0,33\% bản ghi normal bị báo nhầm, precision theo tỉ lệ của dataset 97,9\%, p95 1,47 s; 14/15 kịch bản đạt 100\%, Juice-Shop 61,2\%. CB-DS (9 kịch bản thoát container): 891/891, 3/1.410 bản ghi normal bị báo nhầm.
+\item
+  \textbf{Lượt live blind 24 giờ} trên cụm 3 worker chạy ứng dụng AIMS (21 workload), 525 trial gồm tấn công, control idle và một binary vô hại:
+\end{itemize}
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.5\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}@{}}
 \toprule\noalign{}
-Chỉ số, tập chính (6, 12, 24 hành vi/s) & Kỳ vọng & Hệ thống cuối & Chỉ ML \\
+Chỉ số, tập chính (6, 12, 24 hành vi/s) & Kỳ vọng & Kết quả \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Recall & ≥ 95\% & 99,4\% (313/315) & 99,4\% \\
-Precision & ≥ 95\% & 99,4\% & 99,4\% \\
-Control idle dương & ≤ 5\% & 0,6\% (2/314) & 0,6\% \\
-p95 kernel → cảnh báo đầu tiên & ≤ 3 s, ưu tiên \textless{} 2 s & 1,97 s & 2,25 s \\
+Recall & ≥ 95\% & 315/315 \\
+Precision & ≥ 95\% & 99,06\% \\
+Control idle dương & ≤ 5\% & 0,95\% (3/315) \\
+p95 kernel → cuối cửa sổ báo & ≤ 3 s, ưu tiên \textless{} 2 s & 0,49 s \\
 \end{longtable}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Gánh cảnh báo:} trên normal là 1,55 đợt/replica-giờ; tripwire thêm +0,049 {[}+0,005; +0,124{]} đợt.
+  \textbf{Gánh cảnh báo:} 0,41 đợt/replica-giờ trên normal.
 \item
-  \textbf{Tripwire:} bản live khớp bản tính lại offline trên 10,4 triệu cửa sổ, không lệch cửa sổ nào.
-\item
-  \textbf{Dataset công khai LID-DS 2021} (15 kịch bản lỗ hổng thật, tham số lấy nguyên từ live): hệ thống phát hiện 77,3\% bản ghi tấn công và báo nhầm trên 3,0\% bản ghi normal; STIDE phát hiện 100\% nhưng báo nhầm trên 60,8\%. Đó là số với probe hiện tại, chỉ đếm syscall. Cải thiện ML trên dataset, không dùng luật: bỏ cổng khởi động vốn làm mù đầu bản ghi ngắn, thêm mô hình ngôn ngữ trên token kèm mã lỗi, thư mục và cỡ đọc ghi (chỉ những thông tin probe thu được bằng hook trên 27 syscall cùng nhóm đọc ghi và open), ngưỡng theo bản ghi và quyết định một cửa sổ. Kết quả offline trên tập official: 97,40\% recall (CI 96,38--98,15\%), 0,33\% bản ghi normal bị báo nhầm, precision 97,9\%, p95 1,47 s; 97,1\% được phát hiện trong 3 s. Mô hình chưa hơn luật đếm novelty trên cùng token, và chưa kiểm trên cụm. Juice-Shop vẫn yếu (61,2\%).
-\item
-  \textbf{Chi phí probe:} khoảng 250--450 ns mỗi syscall của container được theo dõi; trên ứng dụng thật, p50 của request tăng 0,5--3\% và p95 tăng 3--8\% (trung vị, CI rộng).
+  \textbf{Chi phí probe:} khoảng 0,4--0,5 µs mỗi syscall đơn giản của container được theo dõi, 0,2--0,3 µs cho syscall của container khác.
 \end{itemize}
 
 \textbf{Giới hạn chính.}
@@ -53,13 +53,11 @@ p95 kernel → cảnh báo đầu tiên & ≤ 3 s, ưu tiên \textless{} 2 s & 1
 \begin{itemize}
 \tightlist
 \item
-  Detector tần suất bắt “process mới” chứ chưa phân biệt được ác ý: binary vô hại vẫn bị gắn cờ 89,5\%.
+  Mô hình bắt ``process mới'' chứ chưa phân biệt được ác ý: binary vô hại bị gắn cờ 313/315, và mô hình chưa hơn một luật đếm 4-gram chưa thấy có ngưỡng hiệu chỉnh.
 \item
-  Gánh cảnh báo còn gấp khoảng 15 lần ngân sách 0,1 đợt/replica-giờ.
+  Gánh cảnh báo còn gấp khoảng 4 lần ngân sách 0,1 đợt/replica-giờ.
 \item
-  Tấn công là fixture tự viết, trên một cụm và một ứng dụng.
-\item
-  Nhãn chưa được người độc lập review.
+  Tấn công trên cụm là fixture tự viết, trên một cụm và một ứng dụng; nhãn chưa được người độc lập review.
 \end{itemize}
 
-\textbf{Từ khóa:} eBPF, syscall, phát hiện bất thường, Kubernetes, conformal prediction, an ninh runtime.
+\textbf{Từ khóa:} eBPF, syscall, phát hiện bất thường, mô hình ngôn ngữ, Kubernetes, an ninh runtime.

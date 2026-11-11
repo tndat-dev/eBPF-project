@@ -1,98 +1,76 @@
 \chapter{Cài đặt}
 
-Pulse chạy trên cụm Kubernetes 6 node của phòng lab. Mỗi worker có một loader eBPF viết bằng C và một worker Python chấm điểm. Bridge cảnh báo và RCA chạy trên master đầu tiên. Code, protocol và biên nhận nằm trong cùng một repo git.
+Pulse chạy trên cụm Kubernetes 6 node của phòng lab. Mỗi worker có một probe eBPF với loader viết bằng C, và một worker Python chấm điểm. Bridge cảnh báo và RCA chạy trên master đầu tiên. Code, protocol và biên nhận nằm trong cùng một repo git.
 
 \section{Cụm thử nghiệm}
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.271\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.729\linewidth-2\tabcolsep\relax}@{}}
+\caption{Cụm thử nghiệm.}\label{tab:cluster}\\
 \toprule\noalign{}
 Thành phần & Cấu hình \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Node & 3 master (control plane), 3 worker; VM trên ESXi \\
+Node & 3 master (control plane), 3 worker; VM trên ESXi; mỗi worker 24 core \\
 Phần mềm & Kubernetes v1.34.10, Ubuntu 24.04, kernel 6.8.0, Cilium, Istio ambient \\
 Ứng dụng & AIMS (An Internet Media Store): frontend, API gateway, các service Python, PostgreSQL (CloudNativePG), Kafka, RabbitMQ, Redis, MinIO; 21 workload, khoảng 80 pod \\
 Tải normal & Bốn generator trong namespace \texttt{production}, chuyển qua các chế độ steady, toolmix, peak, burst, recovery theo lịch đăng ký \\
-Công cụ runtime có sẵn & Tetragon (nguồn sự kiện cho RCA), Falco (baseline luật) \\
+Công cụ runtime có sẵn & Tetragon, nguồn sự kiện cho RCA \\
 Lưu trữ & NFS riêng cho dữ liệu các lượt chạy \\
 \end{longtable}
 
-\section{Thu thập trong kernel}
+\section{Probe eBPF}\label{sec:token-impl}
+
+Probe là một object eBPF (\texttt{make tokens}) và một loader C, cả hai được khoá bằng SHA-256 cùng một \emph{proof} gắn với phiên bản kernel; worker từ chối chạy trên kernel khác. Hình~\ref{fig:probe} cho thấy đường đi của một syscall qua ba chương trình BPF.
+
+\begin{figure}[htbp]
+  \centering
+  \adjustbox{max width=\linewidth}{\input{figures/tikz-probe}}
+  \caption{Probe eBPF: ba chương trình BPF dựng token cho mỗi syscall, đếm 4-gram theo thread trong map, và loader đọc các cửa sổ đã đóng.}
+  \label{fig:probe}
+\end{figure}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Loader eBPF} (\texttt{pulse\_\allowbreak{}counter\_\allowbreak{}extended}) gắn chương trình vào \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}enter} và \texttt{fexit/\allowbreak{}\_\allowbreak{}\_\allowbreak{}seccomp\_\allowbreak{}filter}. Nhờ vậy nó đếm cả syscall bị seccomp từ chối.
+  \textbf{Lọc theo cgroup:} \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}enter} chạy trước mọi syscall của node, rồi tra cgroup của task trong allow-list. Process ngoài allow-list thoát sau một lần tra map. Allow-list do dịch vụ resolver ghi; resolver ánh xạ Pod UID → container → cgroup → phiên bản workload.
 \item
-  \textbf{Map theo cgroup} giữ ba loại bộ đếm: số đếm theo từng ID syscall (0--1023), 64 bin ID và 64 bin cặp syscall. Bin cặp dùng syscall trước đó của từng thread, nên kernel phải nhớ syscall cuối của mỗi thread.
+  \textbf{Token lúc vào và lúc ra:} 39 syscall cần giá trị trả về (nhóm mở, đọc ghi, và các syscall giữ mã lỗi) phát token lúc trả về, qua một chương trình \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}exit}. Các syscall khác phát tên ngay lúc vào. Syscall bị seccomp bỏ qua không bao giờ tới \texttt{sys\_\allowbreak{}exit}, nên \texttt{fexit/\allowbreak{}\_\_seccomp\_\allowbreak{}filter} phát tên của nó. Nhờ vậy mỗi syscall cho đúng một token.
 \item
-  \textbf{Danh sách cgroup cho phép} do dịch vụ resolver ghi. Resolver ánh xạ Pod UID → container → cgroup → phiên bản workload.
+  \textbf{Thư mục đầu} lấy bằng cách đi ngược cây dentry từ fd vừa mở tới gốc của task (gốc của container), qua \texttt{bpf\_\allowbreak{}loop} tối đa 64 bước, rồi băm FNV-1a. Probe không dùng \texttt{d\_path} và không gắn \texttt{fentry} vào hàm mở file.
 \item
-  \textbf{Cứ 500 ms,} loader đọc map và in một frame JSON ra stdout. Mỗi frame có bộ đếm tích lũy của mọi cgroup được theo dõi.
+  \textbf{Map 4-gram:} khoá là (cgroup, cửa sổ 0,5 s, 4 token), giá trị là số lần. Cứ 0,5 s, loader đọc map theo lô, lấy các cửa sổ đã đóng, xoá chúng và in một dòng JSON cho mỗi (cgroup, cửa sổ). Từng sự kiện không phải chuyển lên user space.
 \item
-  \textbf{Khóa bằng proof:} loader và object được khóa bằng SHA-256 cùng một “proof” gắn với phiên bản kernel. Worker từ chối chạy trên kernel khác.
-\end{itemize}
-
-\section{Probe token và chấm mô hình token}\label{sec:token-impl}
-
-Mô hình token (mục~\ref{sec:token-model}) cần giá trị trả về và đường dẫn, nên probe được mở rộng thành một bản build riêng (\texttt{make tokens}), kèm proof gắn với kernel và mã băm của artifact.
-
-\begin{itemize}
-\tightlist
+  \textbf{Bộ đếm theo cgroup:} bản build còn giữ bộ đếm số lần gọi từng syscall theo cgroup. Bộ đếm này không dùng để báo; chi phí đo ở mục~\ref{sec:overhead} gồm cả phần này.
 \item
-  \textbf{Token 32 bit:} số syscall ở bit 23--31, loại ở bit 21--22, phần chi tiết ở các bit còn lại (mã lỗi, nhóm cỡ, hoặc cờ ghi và mã băm FNV-1a của thư mục đầu).
+  \textbf{Kiểm chứng:} script proof chạy một fixture trong cgroup cô lập và kiểm đúng một token cho mỗi syscall, token mẫu đúng giá trị mong đợi, đường seccomp đúng và không mất sự kiện. Proof của bản build đang dùng đạt trên cả 3 worker.
 \item
-  \textbf{Điểm móc:} 39 syscall cần giá trị trả về phát token lúc trả về, qua một chương trình \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}exit}; các syscall còn lại phát tên lúc vào. Thư mục đầu lấy bằng đi ngược dentry từ fd trả về. Bản đầu dùng \texttt{fexit} từng syscall đã bị bỏ vì va chạm với kprobe của Tetragon làm chi phí tăng cao.
-\item
-  \textbf{Map gram:} khóa là (cgroup, cửa sổ, 4 token), loader đọc hết các cửa sổ đã đóng mỗi 0,5 s. Worker dựng cửa sổ token, chấm bằng mô hình của workload rồi ghi điểm cùng decision.
-\item
-  \textbf{Kiểm chứng:} proof kiểm đúng một token cho mỗi syscall, kể cả syscall bị seccomp bỏ qua, và không mất sự kiện.
-\item
-  \textbf{Chi phí thêm so với probe hiện tại:} \texttt{getpid} 127--174 ns, \texttt{read} 4 KB 210--229 ns, \texttt{open} + \texttt{close} 0,94--1,23 µs, \texttt{mmap} + \texttt{munmap} 413--699 ns, \texttt{futex} 216--298 ns (đo vi mô; chi phí trên ứng dụng thật chưa đo).
+  \textbf{Phương án đã loại:} bản đầu phát token lúc trả về bằng một chương trình \texttt{fexit} cho mỗi syscall. Trên cụm có kprobe của Tetragon vào \texttt{\_\_x64\_sys\_openat}, nên mỗi lần mở file phải đi qua danh sách mọi trampoline ftrace, và \texttt{open} + \texttt{close} chậm thêm 2,3--2,7 µs. Một chương trình \texttt{raw\_tp/sys\_exit} chung cho cả 39 syscall tránh được việc này.
 \end{itemize}
 
 \section{Worker chấm điểm}
 
-Worker (\texttt{pipeline/\allowbreak{}matched\_\allowbreak{}worker.\allowbreak{}py}) chạy như một unit systemd trên mỗi worker, giới hạn 3 core và 3 GB RAM. Mỗi frame đi qua các bước:
+Worker (\texttt{pipeline/\allowbreak{}matched\_\allowbreak{}worker.\allowbreak{}py}) chạy như một unit systemd trên mỗi worker, giới hạn 3 core và 3 GB RAM. Với mỗi dòng cửa sổ token từ loader, nó:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  Kiểm tính toàn vẹn: tổng theo ID phải bằng tổng của probe, và bin băm phải bằng phép chiếu của số đếm theo ID. Frame sai bị ghi vào \texttt{issues} và lịch sử được xóa.
+  kiểm hợp đồng của dòng: tổng số lần bằng số sự kiện, ô lịch sử trống chỉ ở đầu gram; dòng sai được ghi vào \texttt{issues};
 \item
-  Tính hiệu số với frame trước, dựng 249 feature và ngữ cảnh 4 cửa sổ.
+  gắn metadata của resolver: workload, Pod, container, phiên bản;
 \item
-  Chấm theo batch: gom mọi ngữ cảnh cùng workload trong một frame, tối đa 256 bản ghi.
-\item
-  Áp chính sách, chiết khấu theo replica và tripwire, rồi ghi decision.
+  chấm cửa sổ bằng mô hình của workload (\texttt{detector/\allowbreak{}token\_\allowbreak{}model.\allowbreak{}py}), so với ngưỡng của workload, rồi ghi một dòng decision gồm điểm, ngưỡng, cờ báo và thời điểm chấm.
 \end{enumerate}
 
-\textbf{Đường chấm nhanh} (\texttt{detector/\allowbreak{}fast\_\allowbreak{}forest.\allowbreak{}py}) làm đúng phép tính của scikit-learn: cộng xác suất của từng cây theo thứ tự, bắt đầu từ số 0 float64, nhưng bỏ phần chi phí Python của mỗi cây.
+\textbf{Khoá mô hình.} \texttt{CONFIG.json} của lượt chạy ghi đường dẫn, SHA-256 và ngưỡng của mô hình từng workload. Worker kiểm hash trước khi nạp mô hình, nên mọi kết quả live gắn với đúng một bộ mô hình.
 
-\begin{itemize}
-\tightlist
-\item
-  Batch đầu tiên của mỗi model được chấm bằng cả hai đường. Chỉ cần lệch một giá trị là model đó quay về đường cũ suốt tiến trình.
-\item
-  Replay 41.250 dòng feature live qua đường tham chiếu cho 0 dòng lệch.
-\item
-  CPU của worker giảm từ khoảng 94\% xuống 13--31\% một core.
-\end{itemize}
-
-\textbf{Khóa bản đóng băng.} Trước khi chấm, worker so SHA-256 của 13 file code chấm điểm với một snapshot đóng băng, và kiểm hash của model bundle cùng chính sách. Nhờ vậy mọi kết quả live gắn với đúng một phiên bản code.
-
-\section{Trao đổi giữa worker}
-
-Mỗi worker mở một cổng TCP (9479), phát mặt nạ ID syscall của từng cửa sổ và nhận mặt nạ của hai worker còn lại. Tin của peer tới sau khoảng 20 ms, nên bucket mới nhất có thể chưa đủ lúc quyết định.
-
-Cùng kênh này mang cửa sổ tham chiếu cho tripwire. Trong lượt cuối, không cửa sổ tham chiếu nào của peer đến muộn.
+\textbf{Độ trễ chấm.} Trên lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}, worker chấm 10,9 triệu cửa sổ token với p50 0,15 s, p95 0,18 s và lớn nhất 0,62 s sau khi cửa sổ đóng.
 
 \section{Ghi dữ liệu ngoài vòng chấm điểm}
 
-Các lượt đầu ghi feature và decision thẳng lên NFS trong vòng chấm điểm. Mỗi lần NFS chậm là một lần frame bị trễ; có frame trễ tới 31,7 s. Hệ thống cuối sửa theo ba cách:
+Feature, token và decision được ghi lên NFS để phân tích sau, nhưng NFS có lúc chậm nhiều giây. Vì vậy vòng chấm điểm không bao giờ chờ NFS:
 
 \begin{itemize}
 \tightlist
@@ -102,26 +80,37 @@ Các lượt đầu ghi feature và decision thẳng lên NFS trong vòng chấm
   \textbf{Bản decision trên đĩa local} của worker cho bridge, RCA và campaign đọc.
 \item
   \textbf{Trạng thái ghi không đồng bộ.}
+\item
+  \textbf{Segment 30 phút:} mỗi segment được niêm phong bằng SHA-256 khi đóng, nên phân tích sau đọc đúng dữ liệu đã ghi.
 \end{itemize}
 
-Kết quả ở lượt cuối:
+Dữ liệu token để phân tích chiếm 16,7--22,6 GB mỗi worker mỗi ngày trên lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}. Đây là chi phí của việc đánh giá, không phải của việc phát hiện: worker chỉ cần mô hình và cửa sổ hiện tại.
 
-\begin{itemize}
+\section{Học mô hình trên cụm}
+
+\texttt{scripts/\allowbreak{}analysis/\allowbreak{}token\_\allowbreak{}branch\_\allowbreak{}fit.py} học mô hình cho cả 21 workload trong một job systemd có giới hạn bộ nhớ trên master đầu tiên:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  độ trễ frame lớn nhất còn 2,4 s;
+  tách các cửa sổ token của lượt thu normal theo workload; nếu có lượt live trước, thêm normal của lượt đó, bỏ khoảng từ 5 s trước tới 25 s sau lúc mỗi trial bắt đầu;
 \item
-  lần ghi nền lâu nhất 35 ms, không lần nào phải chờ hàng đợi;
+  cắt thời gian thành đoạn 30 phút, chia lần lượt vào 5 fold, học 5 mô hình giữ ra và chấm phần giữ ra;
 \item
-  số lần cách nhịp còn 4, 2 và 1 trên ba worker, so với 8--10 ở lượt trước.
-\end{itemize}
+  lấy điểm lớn nhất của từng khối 60 s mỗi container, bỏ 1\% cao nhất, khớp Gumbel theo moment và tính ngưỡng;
+\item
+  học mô hình cuối trên toàn bộ dữ liệu, ghi \texttt{MODELS.json} cùng SHA-256 của từng mô hình.
+\end{enumerate}
+
+Lần fit gần nhất (12 giờ capture cộng normal của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}) mất 5 giờ 35 phút CPU và đỉnh 36,0 GB bộ nhớ.
 
 \section{Bridge và RCA}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Bridge cảnh báo} chạy trên master, bám file decision local của ba worker và đẩy đợt cảnh báo vào Alertmanager. Ở lượt cuối có 3 push lỗi, cả 3 được thử lại thành công; 5.840/5.840 đợt tới nơi.
+  \textbf{Bridge cảnh báo} chạy trên master, bám luồng decision trên đĩa local của ba worker qua SSH và đẩy đợt cảnh báo vào Alertmanager. Luồng được xoay vòng mỗi giờ.
 \item
   \textbf{Subscriber RCA} đọc luồng sự kiện Tetragon của ba worker vào ring SQLite local, dựng case theo nhịp 0,25 s và giữ tối đa 20.000 case.
 
@@ -130,29 +119,9 @@ Kết quả ở lượt cuối:
   \item
     Luồng \texttt{tetra\ getevents} được xoay vòng có giới hạn thời gian sống.
   \item
-    DaemonSet Tetragon chạy với \texttt{shareProcessNamespace} để các process \texttt{timeout} kết thúc được thu dọn. Trước khi sửa có 3.931 process zombie trên ba worker.
+    DaemonSet Tetragon chạy với \texttt{shareProcessNamespace} để các process \texttt{timeout} kết thúc được thu dọn.
   \end{itemize}
 \end{itemize}
-
-\section{Calibration tự làm mới trong worker}\label{sec:live-recal}
-
-Calibration của bundle cũ dần theo ngày (mục~\ref{sec:limits-calibration}). Worker vì vậy có thêm một chế độ làm mới theo chu kỳ, \texttt{rolling-\allowbreak{}12-\allowbreak{}1}: mỗi giờ, hai mảng calibration của từng workload được thay bằng điểm của các cửa sổ eligible trong 12 giờ trước, gộp cả ba worker. Đây đúng là chiến lược đã cho kết quả tốt nhất trên soak 48 giờ ở phân tích offline.
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Không đổi file chấm điểm:} cả đường chấm thường lẫn đường chấm nhanh đọc hai mảng \texttt{calibration\_scores} và \texttt{support\_calibration} của model ở mỗi lần gọi. Vì vậy chỉ cần thay hai mảng giữa hai frame; estimator, ranh giới support, chính sách và 13 file bị ghim SHA-256 giữ nguyên.
-\item
-  \textbf{Dữ liệu đi ngoài vòng chấm điểm:} mỗi worker ghi điểm thô của mọi cửa sổ vào một bộ đệm theo giờ trên đĩa local (31 byte mỗi cửa sổ). Một thread nền chép giờ vừa xong lên NFS sau 60 s, rồi sau 300 s đọc 12 giờ của cả ba worker và dựng mảng mới. Vòng chấm điểm chỉ nhận mảng đã dựng và thay vào giữa hai frame.
-\item
-  \textbf{Ghi vết:} mỗi decision mang số \texttt{calibration\_epoch}; epoch chỉ tăng khi có ít nhất một workload được thay. Workload chưa đủ 1.200 cửa sổ giữ mảng cũ.
-\item
-  \textbf{Khoảng campaign:} trong lượt đánh giá, các khoảng của campaign được loại khỏi calibration, đúng như bản offline. Hệ thống vận hành thật không biết lúc nào bị tấn công, nên đây là một giới hạn (mục~\ref{sec:limits-calibration}).
-\item
-  \textbf{Kiểm cài đặt:} một script dựng lại từng calibration đã áp dụng chỉ bằng các thành phần offline, rồi so mọi p-value live dưới epoch đó. Trong lượt smoke 75 phút (29/10), cả ba worker áp dụng epoch 1 cho 21/21 workload; 62.887 dòng decision khớp bản dựng lại 100\%, và kích thước mảng giống nhau trên ba worker.
-\end{itemize}
-
-Lượt xác nhận 24 giờ theo protocol \texttt{live-\allowbreak{}recalibration-\allowbreak{}confirmation-\allowbreak{}v1} so nhánh live R với chính các dòng đó tính lại bằng calibration của bundle (F). Luật thắng: gánh thấp hơn ít nhất 10\%, recall không kém quá 2 điểm, control không cao quá 1 điểm và p95 không chậm quá 0,2 s.
 
 \section{Quy trình một lượt live}
 
@@ -160,13 +129,15 @@ Lượt xác nhận 24 giờ theo protocol \texttt{live-\allowbreak{}recalibrati
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{Planner} tạo một file \texttt{CONFIG.\allowbreak{}json} bất biến. File này chứa hash của model, chính sách và fixture, lịch tải, lịch trial đã xáo trộn bằng seed cố định, và cấu hình từng worker.
+  \textbf{Snapshot:} code của lượt chạy là một bản \texttt{git clone} của commit đã push, ghi vào \texttt{CONFIG.json}.
+\item
+  \textbf{Planner} tạo \texttt{CONFIG.json} bất biến. File này chứa hash của mô hình, probe và fixture, lịch tải, lịch trial đã xáo trộn bằng seed cố định, và cấu hình từng worker.
 \item
   \textbf{Launcher} cài worker lên ba node, khởi động RCA và bridge, rồi đến traffic và campaign.
 \item
-  \textbf{90 phút đầu là pha chọn:} tham chiếu của tripwire và baseline binary của RCA được dựng ra rồi đóng băng. Tấn công chỉ bắt đầu sau mốc này 120 s.
+  \textbf{90 phút đầu là pha chọn:} tải normal chạy qua mọi chế độ; baseline binary của RCA được dựng rồi đóng băng. Tấn công chỉ bắt đầu sau mốc này 120 s.
 \item
-  \textbf{Sau khi capture kết thúc,} một chuỗi phân tích tự chạy theo protocol đã commit. Biên nhận JSON được chép vào repo.
+  \textbf{Sau khi capture kết thúc,} phân tích chạy theo protocol đã commit, và biên nhận JSON được chép vào repo.
 \end{enumerate}
 
 Không job nặng nào chạy cùng lúc với lượt live, để điều kiện đo không đổi giữa các lượt.
