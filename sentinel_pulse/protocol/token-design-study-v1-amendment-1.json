@@ -1,0 +1,14 @@
+{
+  "schema": "sentinel-pulse-token-design-study-v1-amendment-1",
+  "amends": "sentinel_pulse/protocol/token-design-study-v1.json",
+  "registered_at": "2026-11-11T16:46+07:00",
+  "registered_before": "any run of the cache or the study on LID-DS 2021 or CB-DS; written while implementing, tested only on the synthetic archive of tests/test_lidds_evaluate_v2.py",
+  "changes": {
+    "q1_absent_units": "a hooked syscall that never occurs in the cached recordings (for example openat2) is listed as absent from the data and not scored: removing it cannot change any token",
+    "q1_add_one_candidates": "errno candidates are the syscall names of the cache vocabulary (learning and development recordings) that have at least one errno fact and no errno in select1f, not only the names of the training recordings; a hooked name whose errno select1f drops (pread, sendto, ...) is a candidate too. Size candidates are the protocol's list restricted to the names that have a size fact",
+    "q4_seen_only": "a row is removed when its gram has count 0 at its own length (a thread's first grams are shorter than 4) or its last token is unseen. This removes more than the registered text (full 4-grams only), so the simulated attack is harder for the model",
+    "q3_goodness_of_fit": "the Anderson-Darling test and the Holm correction use all held-out maxima of a scenario with the moment Gumbel fitted on them; the same test on the trimmed maxima (the registered fit) is reported next to it",
+    "q4_bootstrap": "attack recordings are resampled within each scenario at the two fixed operating points; the false-alarm budget is met by construction and is not resampled"
+  },
+  "unchanged": "data, gate, base criterion, grids, decisions, the two declared official scorings, LID-DS 2019 untouched"
+}
