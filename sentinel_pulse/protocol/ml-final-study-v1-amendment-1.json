@@ -1,0 +1,29 @@
+{
+ "schema": "sentinel-pulse-ml-final-study-v1-amendment-1",
+ "amends": "sentinel_pulse/protocol/ml-final-study-v1.json",
+ "registered_at": "2026-11-13T01:42+07:00",
+ "registered_before": "any code of parts B2 and B3 is written or run",
+ "reason": "Part B (one admin command held out) missed its criterion: a tool never seen stays novel (362/439 flagged) and learning operator sessions into the workload model lowered the attack recall (303/314). Two questions follow. B2: is a tool still flagged once the model has seen operator sessions on that workload before (held out by trial, not by command)? B3: would separate models per process lineage (the workload's own processes against processes that entered through a runtime exec) remove the flags without teaching the workload model anything about sessions? B3 decides whether the probe gets a lineage tag",
+ "data": "pulse-live-v5-1110 interval windows and the v5 models, as parts A and B; development analysis on data already seen",
+ "B2_known_tools_in_the_workload_model": {
+  "procedure": "pairs are dealt to 5 folds by pair number modulo 5; for fold f every workload model also learns the admin-interval windows of that workload's containers in the other folds; the admin intervals of fold f are scored with it. Thresholds stay the v5 thresholds",
+  "report": "held-out admin flagged, all rates and by command, with the v5 model alongside; attack, attack-specific, benign and control as part B (model that learnt every admin interval)"
+ },
+ "B3_lineage_proxy": {
+  "idea": "two streams per container: native (threads of the workload's own process tree) and session (threads of a process that entered through a runtime exec). The native stream keeps the v5 workload model unchanged; the session stream gets its own model, learnt from operator sessions of the whole cluster. LID-DS 2021 recordings have no runtime exec, so every event there is native and the registered result is unchanged by construction",
+  "proxy": "the v5 run has no lineage tag. Session proxy of a window = its grams whose full 4-gram is unseen by the v5 workload model; native proxy = the other grams. Stated as a proxy: a session gram the workload also knows goes to the native side, and a novel gram of the workload itself goes to the session side",
+  "native_arm": "score of the native proxy with the v5 workload model against the v5 threshold, on control, admin, benign and attack intervals",
+  "session_model": "one CountTokenLM for the cluster (not per workload), same n, smoothing and window score as the token model, learnt from the session proxy of admin-interval windows; folds by pair as B2; threshold = the registered rule (moment Gumbel without the top 1 % at alpha' = 0.00018) on the held-out maxima, one maximum per admin interval",
+  "arms": {
+   "known_tools": "held-out admin intervals scored by the model of the other folds (cross-fit)",
+   "unseen_tool": "for each command c: model and threshold from the other 9 commands, all folds; flagged on c",
+   "unknown_program": "benign-binary intervals under the model of all admin intervals",
+   "learnt_program": "benign-binary intervals after the model also learnt the benign-binary intervals of the other folds (threshold refitted on admin and benign held-out maxima)",
+   "attack_tools_only": "attack intervals under the model of all admin intervals",
+   "attack_program_learnt": "attack intervals of fold f under the model of the admin and benign intervals of the other folds"
+  },
+  "decision": "the lineage tag is built into the probe and a live confirmation is registered if: native arm flags at most 5 % of the control, admin and benign intervals; known tools flagged at most 20 %; attack_program_learnt detects at least 95 % of the primary set. unseen_tool and unknown_program are reported as they are: a program never seen is expected to be flagged, and is then handled as drift (part E)",
+  "limits": "proxy, not the kernel's lineage; the campaign's attack binary and benign binary share their code, so learnt_program is the hardest case for the attack arm and the easiest for the benign arm; about 439 admin intervals of 10 commands"
+ },
+ "code": "scripts/analysis/session_model.py with tests"
+}
