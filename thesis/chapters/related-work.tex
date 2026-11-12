@@ -23,7 +23,7 @@ Công trình & Biểu diễn & Mô hình & Kết quả tác giả báo cáo \\
 \citealp{bortolini2025} & Syscall gom theo mức đe dọa, ma trận bigram & Transformer & F1 0,90 so với 0,92 của bản đầy đủ \\
 \citealp{zehra2025} (FedMon) & Syscall + mạng qua eBPF, nhiều cụm & VAE + Isolation Forest, học liên kết & Precision 94\%, recall 91\% \\
 \citealp{zhou2026} & Mở file, ngữ nghĩa đường dẫn & Autoencoder có attention & Recall 82,0\%, FPR 0,79\% \\
-\textbf{Sentinel Pulse} & Token syscall (tên + mã lỗi, chế độ mở và thư mục, cỡ đọc ghi) dựng bằng eBPF; 4-gram theo thread, cửa sổ 0,5 s & Mô hình ngôn ngữ Witten--Bell theo workload, ngưỡng Gumbel trên điểm giữ ra & LID-DS 2021 official: recall 97,40\%, báo nhầm 0,33\% bản ghi; live 24 giờ: 315/315, p95 0,49 s \\
+\textbf{Sentinel Pulse} & Token syscall (tên + mã lỗi, chế độ mở và thư mục, cỡ đọc ghi) dựng bằng eBPF; 4-gram theo thread, cửa sổ 0,5 s & Mô hình ngôn ngữ Witten--Bell theo workload, ngưỡng Gumbel trên điểm giữ ra & LID-DS 2021 official: recall 97,40\%, báo nhầm 0,33\% bản ghi; live 24 giờ: 314/314, p95 0,49 s, tới Alertmanager p95 0,68 s \\
 \end{longtable}
 
 Bảng không dùng để so con số giữa các dòng. Đơn vị đánh giá khác nhau (trace, epoch, cửa sổ 0,5 s), tỉ lệ normal/attack khác nhau, và định nghĩa báo nhầm cũng khác nhau.

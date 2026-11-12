@@ -1,7 +1,7 @@
 \chapter*{Tóm tắt}
 \addcontentsline{toc}{chapter}{Tóm tắt}
 
-Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes bằng một mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel, học chỉ từ normal. Trên dataset công khai LID-DS 2021, mô hình phát hiện 97,40\% bản ghi tấn công với 0,33\% bản ghi normal bị báo nhầm. Trên một cụm thật, nó bắt 315/315 tấn công ở tốc độ chính với p95 độ trễ 0,49 s.
+Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes bằng một mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel, học chỉ từ normal. Trên dataset công khai LID-DS 2021, mô hình phát hiện 97,40\% bản ghi tấn công với 0,33\% bản ghi normal bị báo nhầm. Trên một cụm thật, ở lượt live gần nhất nó bắt 314/314 tấn công ở tốc độ chính, không báo control idle nào, và cảnh báo tới Alertmanager sau p95 0,68 s.
 
 \textbf{Bài toán.} Công cụ runtime dựa trên luật (Falco, Tetragon) chỉ bắt được hành vi đã biết trước. Phát hiện bất thường từ syscall thì có từ thập niên 1990, nhưng phần lớn công trình đánh giá offline trên trace đã ghi sẵn. Chúng hiếm khi đo độ trễ tới người nhận, gánh cảnh báo trên tải thật, hay khả năng tách tấn công khỏi một process vô hại mới.
 
@@ -24,7 +24,7 @@ Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes 
 \item
   \textbf{LID-DS 2021 official} (15 kịch bản lỗ hổng thật): recall 97,40\% (CI 96,38--98,15\%), 0,33\% bản ghi normal bị báo nhầm, precision theo tỉ lệ của dataset 97,9\%, p95 1,47 s; 14/15 kịch bản đạt 100\%, Juice-Shop 61,2\%. CB-DS (9 kịch bản thoát container): 891/891, 3/1.410 bản ghi normal bị báo nhầm.
 \item
-  \textbf{Lượt live blind 24 giờ} trên cụm 3 worker chạy ứng dụng AIMS (21 workload), 525 trial gồm tấn công, control idle và một binary vô hại:
+  \textbf{Hai lượt live blind 24 giờ} trên cụm 3 worker chạy ứng dụng AIMS (21 workload), mỗi lượt 525 trial gồm tấn công, control idle, một binary vô hại và (lượt sau) một lệnh quản trị thật. Lượt sau:
 \end{itemize}
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.5\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}@{}}
@@ -34,18 +34,23 @@ Chỉ số, tập chính (6, 12, 24 hành vi/s) & Kỳ vọng & Kết quả \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Recall & ≥ 95\% & 315/315 \\
-Precision & ≥ 95\% & 99,06\% \\
-Control idle dương & ≤ 5\% & 0,95\% (3/315) \\
+Recall & ≥ 95\% & 314/314 \\
+Precision & ≥ 95\% & 100\% \\
+Control idle dương & ≤ 5\% & 0/314 \\
 p95 kernel → cuối cửa sổ báo & ≤ 3 s, ưu tiên \textless{} 2 s & 0,49 s \\
+p95 kernel → Alertmanager & & 0,68 s \\
 \end{longtable}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Gánh cảnh báo:} 0,41 đợt/replica-giờ trên normal.
+  \textbf{Gánh cảnh báo:} 0,17 đợt/replica-giờ trên normal (0,41 ở lượt trước, khi mô hình học ít normal hơn).
 \item
-  \textbf{Chi phí probe:} khoảng 0,4--0,5 µs mỗi syscall đơn giản của container được theo dõi, 0,2--0,3 µs cho syscall của container khác.
+  \textbf{RCA:} 467/522 tấn công có case riêng; binary tấn công đứng hạng 1 ở 99,4\% case.
+\item
+  \textbf{Kiểm từng lựa chọn thiết kế} (development): chỉ 5 trong 39 syscall có hook là cần, và trên official tập 5 syscall cho cùng 1.238 phát hiện với 17 thay vì 26 báo nhầm; quanh bộ tham số đang dùng kết quả phẳng; Gumbel không đúng như một phân bố nhưng là quy tắc ngưỡng tốt nhất đã thử.
+\item
+  \textbf{Chi phí:} khoảng 0,4--0,5 µs mỗi syscall đơn giản của container được theo dõi, 0,2--0,3 µs cho syscall của container khác; worker 0,3 core mỗi node.
 \end{itemize}
 
 \textbf{Giới hạn chính.}
@@ -53,9 +58,9 @@ p95 kernel → cuối cửa sổ báo & ≤ 3 s, ưu tiên \textless{} 2 s & 0,4
 \begin{itemize}
 \tightlist
 \item
-  Mô hình bắt ``process mới'' chứ chưa phân biệt được ác ý: binary vô hại bị gắn cờ 313/315, và mô hình chưa hơn một luật đếm 4-gram chưa thấy có ngưỡng hiệu chỉnh.
+  Mô hình bắt ``process mới'' chứ chưa phân biệt được ác ý: binary vô hại bị gắn cờ 314/314 và lệnh quản trị thật 419/436. Nó hơn rõ một luật đếm 4-gram chưa thấy ở báo nhầm thấp, nhưng khi tấn công chỉ dùng chuỗi đã thấy thì cả hai đều không phát hiện gì.
 \item
-  Gánh cảnh báo còn gấp khoảng 4 lần ngân sách 0,1 đợt/replica-giờ.
+  Gánh cảnh báo còn trên ngân sách 0,1 đợt/replica-giờ.
 \item
   Tấn công trên cụm là fixture tự viết, trên một cụm và một ứng dụng; nhãn chưa được người độc lập review.
 \end{itemize}

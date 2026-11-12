@@ -4,24 +4,24 @@ Kết quả mạnh nhất của đồ án là cùng một mô hình học từ n
 
 \section{Detector phát hiện sự mới lạ, không phải ác ý}\label{sec:limits-novelty}
 
-Mọi tấn công trong campaign trên cụm đều là một process mới chạy qua exec, và mô hình bắt ``có process mới'' rất mạnh: binary vô hại bị gắn cờ 313/315 lần ở tập chính. Vì vậy recall 100\% trên cụm có thể bị thổi phồng một phần bởi chính dấu hiệu exec. Đây là dạng tương quan giả mà \citet{arp2022} cảnh báo. Đối chứng binary vô hại đo được mức thổi phồng, nhưng không cho biết recall khi tấn công không sinh process mới; LID-DS 2021, nơi exploit đi qua chính process của dịch vụ, bù một phần cho điều đó.
+Mọi tấn công trong campaign trên cụm đều là một process mới chạy qua exec, và mô hình bắt ``có process mới'' rất mạnh: binary vô hại bị gắn cờ 314/314 lần ở tập chính của lượt gần nhất, lệnh quản trị thật 255/261. Vì vậy recall 100\% trên cụm có thể bị thổi phồng một phần bởi chính dấu hiệu exec. Đây là dạng tương quan giả mà \citet{arp2022} cảnh báo. Đối chứng binary vô hại đo được mức thổi phồng, nhưng không cho biết recall khi tấn công không sinh process mới; LID-DS 2021, nơi exploit đi qua chính process của dịch vụ, bù một phần cho điều đó.
 
-Mô hình ngôn ngữ có thang điểm liên tục và không có điều kiện viết tay, nhưng trên cả dataset lẫn cụm nó chưa hơn một luật đếm 4-gram chưa thấy có ngưỡng hiệu chỉnh (mục~\ref{sec:token-ablation}). Khi normal giữ lại hiếm khi chứa chuỗi mới, mọi ngưỡng đã hiệu chỉnh trên điểm bất ngờ đều gần với một luật novelty, nên đo trên dữ liệu đó không tách được hai cách. Phân biệt chúng cần tấn công chỉ dùng chuỗi đã thấy, tức là kẻ tấn công thích nghi (mục~\ref{sec:limits-adaptive}).
+So với luật đếm 4-gram chưa thấy, mô hình có lợi thế rõ ở báo nhầm thấp: ở cùng ngân sách 6 bản ghi normal, nó phát hiện nhiều hơn 86 bản ghi development (mục~\ref{sec:model-vs-rule}). Lợi thế này đến từ chỗ mô hình chấm được \emph{mức độ} lạ: một 4-gram mới ghép từ các bước quen ít bất ngờ hơn nhiều so với một token chưa từng có. Nhưng khi mọi chuỗi chưa thấy bị bỏ khỏi bản ghi tấn công, mô hình không phát hiện bản ghi nào (0/544). Như vậy trên dataset này, mọi phát hiện của mô hình dựa vào chuỗi chưa thấy; với một tấn công blind tránh được mọi chuỗi mới, mô hình và luật đếm cùng mù. Đây là giới hạn chính về mặt phương pháp (mục~\ref{sec:limits-adaptive}).
 
 Giới hạn ngược chiều với tấn công đi qua exec là tấn công không tạo hành vi hệ thống mới. Mọi bản ghi LID-DS official bị lọt đều thuộc Juice-Shop, và 28 trong số đó không có dấu vết ở mọi tín hiệu đã thử. Trong các bản ghi đã xem của loại \texttt{SQLInjectionUser}, exploit là một request đăng nhập có câu SQL bị sửa, dài hơn bình thường (thân 444 byte so với 55 byte), gửi tới đúng endpoint mà người dùng bình thường gọi. Process \texttt{node} xử lý nó như một lần đăng nhập thường: không có process mới, đường dẫn mới, mã lỗi mới hay cỡ đọc ghi bất thường. Trace syscall của dataset cũng chỉ giữ khoảng 80 byte đầu của buffer, nên câu SQL độc không có trong dữ liệu mà detector đọc. Tấn công chỉ đổi ngữ nghĩa câu truy vấn bên trong process thì mọi detector chỉ đọc syscall đều không thấy; cần một lớp bổ trợ ở tầng ứng dụng như WAF, RASP hay giám sát câu truy vấn ở driver cơ sở dữ liệu. Đồ án không thêm tín hiệu riêng cho loại này, vì thiết kế tín hiệu cho đúng một exploit sau khi đã thấy nó bị lọt là chỉnh theo dữ liệu đã xem.
 
 \section{Gánh cảnh báo}
 
-Gánh 0,41 đợt/replica-giờ còn gấp khoảng 4 lần ngân sách tham chiếu 0,1. Lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109} chấm khoảng 64 container cùng lúc (817,1 replica-giờ trên 12,85 giờ normal), nên con số này tương đương cỡ 620 đợt cảnh báo mỗi ngày (ước tính $0{,}41 \times 64 \times 24$).
+Gánh giảm từ 0,41 xuống 0,17 đợt/replica-giờ khi mô hình học thêm normal của một lượt live, nhưng vẫn trên ngân sách tham chiếu 0,1. Với khoảng 64 container được chấm cùng lúc, 0,17 tương đương cỡ 260 đợt cảnh báo mỗi ngày (ước tính $0{,}17 \times 64 \times 24$), chưa kể cảnh báo do process mới vô hại.
 
-Precision 99,06\% đo trên campaign cân bằng 1:1. Ở tỉ lệ tấn công thật, precision sẽ thấp hơn rất nhiều. Vì vậy đồ án báo gánh cảnh báo như một giới hạn, không coi precision là bằng chứng dùng được trong vận hành.
+Precision 99--100\% đo trên campaign cân bằng 1:1. Ở tỉ lệ tấn công thật, precision sẽ thấp hơn rất nhiều. Vì vậy đồ án báo gánh cảnh báo như một giới hạn, không coi precision là bằng chứng dùng được trong vận hành.
 
 Cảnh báo còn lại trên normal có cấu trúc rõ:
 
 \begin{itemize}
 \tightlist
 \item
-  mọi cửa sổ báo trên normal của mẫu đều chứa một 4-gram chưa thấy, tức là chúng đến từ hành vi hiếm mà 12 giờ normal chưa phủ;
+  ở lượt 1109, mọi cửa sổ báo trên normal của mẫu đều chứa một 4-gram chưa thấy, tức là chúng đến từ hành vi hiếm mà 12 giờ normal chưa phủ; học thêm normal giảm gánh 2,5 lần;
 \item
   phần lớn đợt đến từ một workload Kafka (89/118 trong mẫu), với các chuỗi bảo trì file.
 \end{itemize}
@@ -39,7 +39,7 @@ Hai hướng giảm gánh không cần nhãn tấn công: học từ normal dài
 \item
   \textbf{Tấn công đi qua process của dịch vụ} chưa được đo trên cụm. LID-DS (mục~\ref{sec:lidds}) bù một phần với 15 kịch bản lỗ hổng thật, nhưng đó là đánh giá offline trên trace ghi sẵn.
 \item
-  \textbf{Binary vô hại và tấn công là cùng một fixture,} nên đối chứng vô hại chỉ đại diện cho một loại process mới. Lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110} thêm 10 lệnh quản trị thật (\texttt{ls}, \texttt{cat}, \texttt{ps}, \texttt{env}, \texttt{id}, \texttt{sh}, \texttt{python3}, \texttt{date}, \texttt{uname}, \texttt{df}) làm đối chứng thứ hai.
+  \textbf{Binary vô hại và tấn công là cùng một fixture,} nên đối chứng vô hại chỉ đại diện cho một loại process mới. Lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110} thêm 10 lệnh quản trị thật làm đối chứng thứ hai, và chúng bị gắn cờ gần như binary đối chứng (419/436).
 \end{itemize}
 
 Về quy mô, campaign của đồ án không nhỏ so với các đánh giá đã công bố: một so sánh gần đây giữa Falco, Tetragon và Tracee dùng 3 tấn công, mỗi tấn công lặp 20 lần, và báo tỉ lệ báo nhầm 0\% mà không mô tả tải vô hại \citep{syairozi2025}; ReplicaWatcher dùng 13 kịch bản CVE/CWE trên hai ứng dụng \citep{elkhairi2024}. Khoảng trống thật của đồ án không nằm ở số kịch bản mà ở loại kịch bản: chưa có exploit chạy trong chính process của dịch vụ trên cụm.
@@ -85,9 +85,11 @@ Học lại định kỳ từ normal gần nhất là cách tự nhiên, nhưng 
 \item
   \textbf{Normal ngắn:} mô hình trên cụm học từ 12 giờ normal (cộng normal của một lượt live), và các chế độ tải biến động tập trung trong 90 phút đầu mỗi lượt.
 \item
-  \textbf{Chưa đo:} chi phí trên request của ứng dụng thật với probe token, độ trễ tới Alertmanager và RCA của mô hình token, và LID-DS 2019.
+  \textbf{Chưa đo:} chi phí trên request của ứng dụng thật với probe token, tải cực đại mà map 4-gram còn chứa đủ, và LID-DS 2019.
+\item
+  \textbf{Hạ tầng:} cụm chạy trên VM của một host ESXi bị cấp phát bộ nhớ vượt quá RAM thật. Lượt v5 có 3,5 phút host nghẽn, và bộ nhớ của worker có lúc bị driver balloon của host chiếm hàng chục GB. Đo độ trễ và chi phí trên hạ tầng như vậy có nhiễu từ host.
 \end{itemize}
 
 \section{Truy nguyên nguyên nhân}
 
-Cây bằng chứng cho thấy phụ thuộc theo định danh và thời gian, yếu hơn phụ thuộc theo luồng thông tin mà các hệ provenance dùng, và không chứng minh nhân quả. Khi hai process mới chạy gần nhau và bằng điểm, luật phá hoà theo thời điểm khởi chạy xếp process gần cảnh báo nhất lên trước; luật này sẽ xếp sai khi tấn công khởi chạy trước một process mới vô hại. Một nguồn sai khác là thứ tự sự kiện: Tetragon tự ghi trong mã nguồn rằng một sự kiện có thể tới trước sự kiện exec của chính process, và giữ lại để thử lại mỗi 2 s, tối đa 15 lần \citep{tetragon_eventcache}, nên sự kiện exec của tấn công có thể tới RCA sau cảnh báo.
+Cây bằng chứng cho thấy phụ thuộc theo định danh và thời gian, yếu hơn phụ thuộc theo luồng thông tin mà các hệ provenance dùng, và không chứng minh nhân quả. Khi hai process mới chạy gần nhau và bằng điểm, luật phá hoà theo thời điểm khởi chạy xếp process gần cảnh báo nhất lên trước; luật này sẽ xếp sai khi tấn công khởi chạy trước một process mới vô hại, và campaign hiện luôn chạy tấn công sau, nên hạng 1 đạt 99,4\% một phần nhờ thứ tự này. Giả thuyết trước đây rằng sự kiện exec của tấn công tới RCA sau cảnh báo đã bị số đo bác: độ trễ exec của binary tấn công lớn nhất là 0,38 s. Lỗi thật là một điều kiện đua khác: mô hình báo trên burst dựng process, trước khi binary có sự kiện exec, và RCA chỉ xét exec tới cuối cửa sổ báo (14 trên 522 tấn công). Bản sửa đã viết nhưng chưa đo live. Chất lượng RCA mới chỉ được đo bằng độ phủ và thứ hạng trên một loại tấn công; chưa có đánh giá bởi người điều tra.

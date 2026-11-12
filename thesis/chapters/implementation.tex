@@ -66,7 +66,7 @@ Worker (\texttt{pipeline/\allowbreak{}matched\_\allowbreak{}worker.\allowbreak{}
 
 \textbf{Khoá mô hình.} \texttt{CONFIG.json} của lượt chạy ghi đường dẫn, SHA-256 và ngưỡng của mô hình từng workload. Worker kiểm hash trước khi nạp mô hình, nên mọi kết quả live gắn với đúng một bộ mô hình.
 
-\textbf{Độ trễ chấm.} Trên lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}, worker chấm 10,9 triệu cửa sổ token với p50 0,15 s, p95 0,18 s và lớn nhất 0,62 s sau khi cửa sổ đóng.
+\textbf{Độ trễ chấm.} Trên lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}, worker chấm 10,9 triệu cửa sổ token với p50 0,15 s, p95 0,18 s và lớn nhất 0,62 s sau khi cửa sổ đóng. Trên lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110}, unit worker dùng trung bình 0,30--0,31 core mỗi node (mục~\ref{sec:overhead}).
 
 \section{Ghi dữ liệu ngoài vòng chấm điểm}
 
@@ -112,7 +112,7 @@ Lần fit gần nhất (12 giờ capture cộng normal của lượt \texttt{pul
 \item
   \textbf{Bridge cảnh báo} chạy trên master, bám luồng decision trên đĩa local của ba worker qua SSH và đẩy đợt cảnh báo vào Alertmanager. Luồng được xoay vòng mỗi giờ.
 \item
-  \textbf{Subscriber RCA} đọc luồng sự kiện Tetragon của ba worker vào ring SQLite local, dựng case theo nhịp 0,25 s và giữ tối đa 20.000 case.
+  \textbf{Subscriber RCA} đọc luồng sự kiện Tetragon của ba worker vào ring SQLite local, dựng case theo nhịp 0,25 s và giữ tối đa 20.000 case. Mỗi quyết định mở case tiếp nối được ghi vào một log kiểm toán, cùng lần exec mới nhất của container và thời điểm RCA nhận được nó.
 
   \begin{itemize}
   \tightlist
@@ -120,6 +120,8 @@ Lần fit gần nhất (12 giờ capture cộng normal của lượt \texttt{pul
     Luồng \texttt{tetra\ getevents} được xoay vòng có giới hạn thời gian sống.
   \item
     DaemonSet Tetragon chạy với \texttt{shareProcessNamespace} để các process \texttt{timeout} kết thúc được thu dọn.
+  \item
+    Mô hình token báo ngay trên burst dựng process, thường trước khi binary được khởi chạy có sự kiện exec. Vì vậy khi quyết định mở case tiếp nối, RCA xét các lần exec tới thời điểm quyết định, và xét lại một lần sau 2 s nếu chưa thấy exec mới (sửa sau lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110}, mục~\ref{sec:alert-rca}).
   \end{itemize}
 \end{itemize}
 

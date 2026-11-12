@@ -42,8 +42,13 @@ Mọi con số dưới đây là **development** (đã nhìn nhiều lần, có 
 `getdents64` chỉ làm p95 thành 1,55 s, `epoll_wait` (cỡ) thêm 1 báo nhầm, `getdents` và `poll` (cỡ) mất 1 bản ghi ZipSlip. `sendto` và
 `recvmsg` đã nằm trong 39. Trong toàn bộ dữ liệu chỉ 31/142 tên syscall từng trả lỗi.
 
-Theo protocol: `select1f` giữ nguyên; tập 5 syscall được chấm một lần trên official như một lần tái dùng đã khai (kết quả ở
-`official-smallest-subset.json` khi có).
+Theo protocol: `select1f` giữ nguyên; tập 5 syscall được chấm một lần trên official như một lần tái dùng đã khai.
+
+**Official, một lần (`official-smallest-subset.json`, unit `token-study-official`, source f1d4752, 12/11 13:14–14:49):** trước khi chấm
+tập con, bản đủ 39 syscall tái lập đúng `lidds-ml-v5` official (1.238/1.271, 26/7.938, p95 1,47 s). Tập 5 syscall: **1.238/1.271**
+(CI 96,38–98,15), báo nhầm **17/7.938** (0,21%, CI 0,13–0,34), p95 1,46 s, trong 3 s 1.234. Khác nhau chỉ ở báo nhầm:
+CVE-2019-5418 8 → 0, CVE-2017-12635_6 2 → 1, CWE-89 2 → 1, ZipSlip 2 → 3. Tập con không được dùng ở đây (protocol: đổi probe cần
+build, capture và lượt live mới).
 
 ## Q2 (`q2.json`): tham số, đổi từng cái một
 

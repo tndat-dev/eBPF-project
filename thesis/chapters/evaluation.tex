@@ -1,6 +1,6 @@
 \chapter{Đánh giá}
 
-Mô hình token đạt cả ba tiêu chí trên LID-DS 2021 official: recall 97,40\%, precision theo tỉ lệ của dataset 97,9\%, p95 1,47 s. Trên cụm thật, nó đạt cả bốn kỳ vọng đã đăng ký: bắt 315/315 tấn công ở tốc độ chính, p95 0,49 s. Điểm yếu chính là nó gắn cờ gần như mọi process vô hại mới (313/315). Chương này đi theo thứ tự các câu hỏi nghiên cứu, sau phần phương pháp.
+Mô hình token đạt cả ba tiêu chí trên LID-DS 2021 official: recall 97,40\%, precision theo tỉ lệ của dataset 97,9\%, p95 1,47 s. Trên cụm thật, nó đạt cả bốn kỳ vọng đã đăng ký ở hai lượt live: lượt gần nhất bắt 314/314 tấn công ở tốc độ chính, không báo control idle nào, và cảnh báo tới Alertmanager sau p95 0,68 s. Điểm yếu chính là nó gắn cờ gần như mọi process vô hại mới: binary đối chứng 314/314, lệnh quản trị 255/261. Chương này đi theo thứ tự các câu hỏi nghiên cứu, sau phần phương pháp.
 
 \section{Phương pháp}
 
@@ -11,7 +11,7 @@ Mô hình token đạt cả ba tiêu chí trên LID-DS 2021 official: recall 97,
   \label{fig:eval-flow}
 \end{figure}
 
-\textbf{Đăng ký trước.} Mỗi phân tích chính và mỗi lượt live có một protocol JSON được commit vào git trước khi đọc dữ liệu liên quan: \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} (cùng hai amendment) cho dataset, \texttt{pulse-\allowbreak{}live-\allowbreak{}v3-\allowbreak{}v1} (cùng hai amendment) cho lượt live, \texttt{token-\allowbreak{}probe-\allowbreak{}overhead-\allowbreak{}v1} cho chi phí. Protocol ghi kỳ vọng, định nghĩa chỉ số, luật chọn và code phân tích. Mọi sửa đổi sau đó là một amendment có giờ và lý do. Hình~\ref{fig:eval-flow} cho thấy thứ tự các bước.
+\textbf{Đăng ký trước.} Mỗi phân tích chính và mỗi lượt live có một protocol JSON được commit vào git trước khi đọc dữ liệu liên quan: \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} (cùng ba amendment) cho dataset và lượt live gần nhất, \texttt{pulse-\allowbreak{}live-\allowbreak{}v3-\allowbreak{}v1} (cùng hai amendment) cho lượt live, \texttt{token-\allowbreak{}design-\allowbreak{}study-\allowbreak{}v1} cho các lựa chọn thiết kế, \texttt{token-\allowbreak{}probe-\allowbreak{}overhead-\allowbreak{}v1} cho chi phí. Protocol ghi kỳ vọng, định nghĩa chỉ số, luật chọn và code phân tích. Mọi sửa đổi sau đó là một amendment có giờ và lý do. Hình~\ref{fig:eval-flow} cho thấy thứ tự các bước.
 
 Kết quả được chia hai loại:
 
@@ -25,7 +25,7 @@ Kết quả được chia hai loại:
 
 \textbf{Dataset.} LID-DS 2021 \citep{grimmer2022} có 15 kịch bản lỗ hổng thật. Mô hình của mỗi kịch bản học từ bản ghi training và validation. Bản ghi test của mỗi kịch bản được chia theo seed ghi trong protocol: 30\% là development (544 bản ghi tấn công, 3.403 normal), 70\% là official (1.271 tấn công, 7.938 normal). Một bản ghi tấn công được tính là phát hiện khi có cảnh báo kết thúc sau thời điểm exploit đầu tiên mà dataset ghi lại; độ trễ tính từ thời điểm đó. Một bản ghi normal bị báo nhầm khi có bất kỳ cảnh báo nào. CB-DS \citep{elkhairi2022} gồm 1.700 bản ghi normal của một container E-shop và 9 kịch bản thoát container, mỗi kịch bản 99 bản ghi; normal được chia 210 training, 60 validation, phần còn lại là test (1.410 bản ghi có cửa sổ để chấm). CB-DS không có thời điểm exploit, nên bản ghi tấn công được tính là phát hiện khi có bất kỳ cửa sổ nào báo, và không đo độ trễ.
 
-\textbf{Campaign trên cụm.} Mỗi trial nhắm một replica và gồm ba đoạn 15 s trên cùng container:
+\textbf{Campaign trên cụm.} Mỗi trial nhắm một replica và gồm các đoạn 15 s nối tiếp trên cùng container:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -37,6 +37,8 @@ Kết quả được chia hai loại:
 \item
   \textbf{Tấn công:} một trong 5 kịch bản (Bảng~\ref{tab:scenarios}), lặp theo tốc độ đăng ký.
 \end{enumerate}
+
+Từ lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110}, giữa control idle và binary vô hại có thêm một \textbf{lệnh quản trị thật} chạy qua \texttt{kubectl\ exec} (\texttt{ls}, \texttt{cat}, \texttt{ps}, \texttt{env}, \texttt{id}, \texttt{sh}, \texttt{python}, \texttt{date}, \texttt{uname}, \texttt{df}, lần lượt); lệnh mà image không có thì không tính.
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.389\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.611\linewidth-2\tabcolsep\relax}@{}}
 \caption{Năm kịch bản tấn công trên cụm.}\label{tab:scenarios}\\
@@ -143,12 +145,16 @@ Kịch bản & Phát hiện & Recall & Báo nhầm & Tỉ lệ báo nhầm \\
   \textbf{Giới hạn:} tập official không hoàn toàn chưa nhìn, vì bảng chữ token được thiết kế sau khi đã xem kết quả của các tín hiệu khác trên cùng bản ghi. Mỗi kịch bản chỉ có khoảng 60 bản ghi validation, nên chỉ kiểm chứng được mức báo nhầm gộp, không theo từng kịch bản. Bằng chứng độc lập phải đến từ LID-DS 2019 (Chương~\ref{chap:conclusion}).
 \end{itemize}
 
-\section{RQ2: thông tin nào trong token mang tín hiệu}\label{sec:token-ablation}
+\section{RQ2: lựa chọn thiết kế nào mang kết quả}\label{sec:token-ablation}
 
-\textbf{Bảng chữ token.} Bảng~\ref{tab:alphabets} so các bảng chữ trên development, với cùng mô hình và cùng quy tắc ngưỡng ($\alpha = 0{,}002$, ngưỡng Gumbel trên điểm lớn nhất của bản ghi validation, mô hình học trên training). Các dòng ``bỏ'' và ``chỉ'' so với bảng chữ đầy đủ (mã lỗi của mọi syscall, cỡ đọc ghi theo $\log_2$ chia đôi).
+Các lựa chọn của mô hình (tập syscall giữ chi tiết, độ dài gram, số giá trị lấy trung bình, cách đặt ngưỡng) được chọn bằng thực nghiệm. Mục này kiểm từng lựa chọn theo protocol \texttt{token-\allowbreak{}design-\allowbreak{}study-\allowbreak{}v1}, đăng ký trước khi chạy. Mọi con số của mục là development (544 bản ghi tấn công, 3.403 normal) và CB-DS; phần official không được đọc. Để chấm được hàng trăm biến thể, dữ liệu được đọc một lần thành cache: mỗi syscall thành một \emph{fact} mang mọi chi tiết, và token của bất kỳ bảng chữ nào suy ra từ fact. Trước khi đọc kết quả, đường tính qua cache phải cho đúng điểm đã lưu của hệ thống ở cả 16 kịch bản (lệch lớn nhất $2{,}8 \times 10^{-14}$) và tái lập đúng 530/544 với 6 báo nhầm, CB-DS 891/891 với 3.
+
+\subsection{Loại thông tin trong token}
+
+Bảng~\ref{tab:alphabets} so các bảng chữ theo loại thông tin, với cùng mô hình ($\alpha = 0{,}002$, ngưỡng Gumbel trên điểm lớn nhất của bản ghi validation, mô hình học trên training; đây là phép so có trước cross-fit). Các dòng ``bỏ'' và ``chỉ'' so với bảng chữ đầy đủ (mã lỗi của mọi syscall, cỡ đọc ghi theo $\log_2$ chia đôi).
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.52\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}@{}}
-\caption{Bảng chữ token trên LID-DS 2021 development (544 bản ghi tấn công, 3.403 normal).}\label{tab:alphabets}\\
+\caption{Bảng chữ token theo loại thông tin, development.}\label{tab:alphabets}\\
 \toprule\noalign{}
 Bảng chữ & Phát hiện & Báo nhầm & p95 \\
 \midrule\noalign{}
@@ -166,61 +172,177 @@ Chỉ thông tin open & 487 (89,52\%) & 0,47\% & 2,54 s \\
 Chỉ tên syscall & 487 (89,52\%) & 0,56\% & 2,59 s \\
 \end{longtable}
 
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Cỡ đọc ghi mang nhiều tín hiệu nhất:} bỏ nó mất 37 bản ghi, và cỡ phải là cỡ trả về chứ không phải cỡ yêu cầu lúc vào (mất 25). Đây là lý do probe phải móc lúc syscall trả về.
-\item
-  \textbf{Chỉ tên syscall mất 40 bản ghi} so với bảng chữ đầy đủ, nên mô hình chuỗi tên đơn thuần là không đủ.
-\item
-  \textbf{Mã lỗi chưa được chứng minh là cần} với riêng mô hình token: bỏ hẳn mã lỗi cho 528 so với 527. \texttt{select1f} giữ mã lỗi của 27 syscall theo cấu hình đã đăng ký.
-\item
-  \textbf{Thứ tự phát token của probe không làm mất gì:} \texttt{probe1f} cho đúng cùng kết quả với \texttt{select1f}.
-\end{itemize}
+Cỡ đọc ghi mang nhiều tín hiệu nhất, và phải là cỡ trả về chứ không phải cỡ yêu cầu lúc vào; đây là lý do probe phải móc lúc syscall trả về. Chỉ tên syscall mất 40 bản ghi so với bảng chữ đầy đủ. Thứ tự phát token của probe không làm mất gì.
 
-\textbf{Mô hình hay luật novelty?} Mô hình không phải luật any-mismatch: trên development (bảng chữ đầy đủ), 53,4\% bản ghi normal chứa một 4-gram chưa từng thấy, nhưng mô hình chỉ báo ở 1,1\% số đó. Tuy vậy, một luật đếm 4-gram hoặc token chưa thấy, với ngưỡng hiệu chỉnh cùng cách, đạt 97,4\% với 0,41\% báo nhầm, ngang mô hình ở cùng mức (97,2\% với 0,65\%). Trên cụm, cùng câu hỏi cho cùng câu trả lời: trong một mẫu 5 segment của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}, 4,97\% trong 3.865 cửa sổ của các đoạn control idle chứa một 4-gram chưa thấy, còn mô hình báo ở 0,078\%. Luật ``ít nhất 10 4-gram chưa thấy trong cửa sổ'' bắt 133/133 đoạn tấn công, báo 1/132 đoạn control và 132/136 binary vô hại; mô hình bắt 133/133, báo 3/132 và 134/136. Như vậy trên cả hai nơi, phần lớn tín hiệu đến từ việc token chưa thấy xuất hiện dày, và mô hình chưa cho thấy lợi thế so với một luật đếm có ngưỡng hiệu chỉnh (mục~\ref{sec:limits-novelty}).
+\subsection{Từng syscall trong 39 syscall có hook}
 
-\section{RQ3: trên cụm thật}\label{sec:token-live}
+Mỗi syscall có hook lần lượt bị rút về chỉ còn tên (không mã lỗi, không thông tin open, không cỡ), rồi cả hệ thống được chấm lại với đúng quy trình đã đăng ký. 8 trong 39 syscall không xuất hiện trong dữ liệu (\texttt{creat}, \texttt{openat2}, \texttt{preadv}, \texttt{pwritev}, \texttt{readv}, \texttt{recvmmsg}, \texttt{renameat}, \texttt{splice}). Trong 31 syscall còn lại, chỉ 7 làm đổi kết quả (Bảng~\ref{tab:loo}); 24 syscall kia, bỏ riêng từng cái, không đổi phát hiện, báo nhầm hay CB-DS.
 
-Lượt live blind \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109} (09--10/11, 24 giờ) chạy mô hình token trên cả 21 workload, với campaign 525 trial. Mô hình học từ 12 giờ normal của chính cụm (lượt thu \texttt{pulse-\allowbreak{}token-\allowbreak{}capture-\allowbreak{}1107}); ngưỡng fit trước khi lượt chạy bắt đầu và không đổi trong lượt. Capture đủ 86.400 s trên cả ba worker, 0 issue, campaign 525/525 trial.
-
-\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.38\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.42\linewidth-2\tabcolsep\relax}@{}}
-\caption{Mô hình token trên cụm, tập chính (6, 12, 24 lần/s; lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}).}\label{tab:token-live}\\
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.24\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.4\linewidth-2\tabcolsep\relax}@{}}
+\caption{Bỏ từng syscall khỏi nhóm có hook, development (gốc: 530 phát hiện, 6 báo nhầm, p95 1,52 s).}\label{tab:loo}\\
 \toprule\noalign{}
-Chỉ số & Kỳ vọng & Kết quả {[}CI 95\%{]} \\
+Syscall bị bỏ & Phát hiện & Báo nhầm & Thay đổi nằm ở \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Recall & ≥ 95\% & 315/315 {[}98,8; 100,0{]} \\
-Precision & ≥ 95\% & 99,06\% {[}97,26; 99,68{]} \\
-Control dương & ≤ 5\% & 3/315 (0,95\%) {[}0,32; 2,76{]} \\
-p95 kernel → cuối cửa sổ báo & ≤ 3 s, ưu tiên \textless{} 2 s & 0,49 s (p50 0,34 s) \\
-Binary vô hại bị gắn cờ & báo kèm & 313/315 \\
-Gánh cảnh báo (đợt/replica-giờ) & thấp nhất có thể & 0,41 {[}0,15; 0,73{]} \\
+\texttt{write} & 490 ($-$40) & 6 & \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} $-$36, ZipSlip $-$4; p95 2,22 s \\
+\texttt{open} & 526 ($-$4) & 6 & ZipSlip $-$4 \\
+\texttt{read} & 528 ($-$2) & 7 (+1) & ZipSlip $-$2; p95 2,23 s \\
+\texttt{pread} & 529 ($-$1) & 6 & ZipSlip $-$1 \\
+\texttt{recv}, \texttt{recvfrom} & 530 & 9 (+3) & ba kịch bản, mỗi kịch bản +1 \\
+\texttt{send}, \texttt{sendto} & 530 & 7 (+1) & \\
+\texttt{stat} & 530 & 7 (+1) & \\
+\end{longtable}
+
+\textbf{Tập con nhỏ nhất.} Loại lùi theo thứ tự đã đăng ký (syscall ít ảnh hưởng nhất trước; một syscall bị loại khi phần còn lại vẫn giữ 530 phát hiện, tối đa 6 báo nhầm, p95 $\leq$ 1,52 s và CB-DS 891/891 với tối đa 3 báo nhầm), rồi lặp tới khi không loại được nữa. Sau 36 lần chấm, 26 syscall bị loại và còn lại \textbf{5}: \texttt{open}, \texttt{read}, \texttt{recv} cùng \texttt{recvfrom}, \texttt{stat} và \texttt{write}. Tập 5 syscall này cho đúng kết quả của cả 39 ở từng kịch bản: 530/544, 6 báo nhầm, p95 1,52 s, CB-DS 891/891 với 3. Bỏ thêm bất kỳ syscall nào trong 5 đều vi phạm tiêu chí. Đây là một tập không bỏ thêm được, chưa phải cực tiểu toàn cục đã chứng minh. Protocol cho phép chấm tập này đúng một lần trên official, như một lần tái dùng đã khai. Trước khi chấm, bản đủ 39 syscall phải tái lập đúng kết quả official đã báo (1.238/1.271, 26 báo nhầm, p95 1,47 s), và nó tái lập đúng. Tập 5 syscall phát hiện 1.238/1.271 với 17/7.938 báo nhầm (0,21\%), p95 1,46 s: cùng số phát hiện, ít hơn 9 báo nhầm, chủ yếu ở \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} (8 về 0).
+
+\textbf{Thêm syscall khác.} 13 ứng viên có dữ liệu được thêm lần lượt: mã lỗi của \texttt{accept}, \texttt{clone}, \texttt{epoll\_wait}, \texttt{lseek}, \texttt{nanosleep}, \texttt{poll}, \texttt{select}, \texttt{setsockopt}, và cỡ trả về của \texttt{getdents}, \texttt{getdents64}, \texttt{poll}, \texttt{epoll\_wait}, \texttt{select}. Không ứng viên nào tăng phát hiện: 9 không đổi gì, cỡ của \texttt{epoll\_wait} thêm 1 báo nhầm, cỡ của \texttt{getdents} và của \texttt{poll} mỗi cái mất 1 bản ghi. \texttt{sendto} và \texttt{recvmsg} đã nằm trong 39 syscall có hook.
+
+Như vậy tập 39 syscall không phải tối ưu: nó là một tập đủ, rộng hơn cần thiết trên dataset này. Tín hiệu nằm ở cỡ của \texttt{write} và \texttt{read}, đường dẫn và mã lỗi của \texttt{open}; \texttt{stat} và \texttt{recv} giữ báo nhầm thấp. Hệ thống vẫn dùng \texttt{select1f}: thu hẹp tập hook là đổi probe, phải đo lại trên cụm, nơi tấn công khác loại.
+
+\subsection{Tham số}
+
+Mỗi tham số được đổi riêng, các tham số khác giữ nguyên (Bảng~\ref{tab:params-grid}).
+
+\begingroup\small
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.26\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.74\linewidth-2\tabcolsep\relax}@{}}
+\caption{Đổi từng tham số, development: phát hiện (trên 544) / báo nhầm (trên 3.403). Giá trị đang dùng in đậm.}\label{tab:params-grid}\\
+\toprule\noalign{}
+Tham số & Giá trị: phát hiện / báo nhầm \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Độ dài gram & 2: 458 / 3 \quad 3: 530 / 8 \quad \textbf{4: 530 / 6} \quad 5: 526 / 6 \quad 6: 493 / 6 \\
+Số giá trị lấy trung bình & 1: 123 / 7 \quad 3: 528 / 5 \quad 5: 529 / 7 \quad \textbf{10: 530 / 6} \quad 20: 492 / 7 \\
+$\alpha'$ & 0,01: 531 / 51 \quad 0,003: 530 / 25 \quad 0,001: 530 / 15 \quad 0,0005: 530 / 10 \quad \textbf{0,00018: 530 / 6} \quad 0,0001: 527 / 6 \quad 0,00005: 525 / 6 \\
+Số fold & 3: 530 / 7 \quad \textbf{5: 530 / 6} \quad 10: 530 / 7 \\
+Phần cực đại bỏ đi & 0: 523 / 4 \quad 0,5\%: 524 / 6 \quad \textbf{1\%: 530 / 6} \quad 2\%: 530 / 9 \quad 5\%: 530 / 15 \\
+\end{longtable}
+\endgroup
+
+Bộ đang dùng nằm ở điểm tốt nhất của từng trục, đúng như mong đợi vì nó được chọn trên chính dữ liệu này. Điều đáng biết là quanh nó kết quả phẳng: gram dài 3, lấy trung bình 3 tới 5 giá trị, 3 tới 10 fold, $\alpha'$ từ 0,0005 tới 0,003 đều giữ 528--530 phát hiện. Kết quả chỉ hỏng ở các cực: lấy 1 giá trị (123/544, tức một sự kiện lạ đơn lẻ không đủ để phân biệt), lấy 20, gram dài 2 hoặc 6. Bảng này không dùng để chọn lại.
+
+\subsection{Ngưỡng Gumbel có đúng không}
+
+\textbf{Như một phân bố thì không.} Kiểm Anderson--Darling bác giả thiết Gumbel cho cực đại giữ ra ở 15/15 kịch bản sau hiệu chỉnh Holm. Hình dạng GEV ước lượng $\xi$ chạy từ $-0{,}28$ tới $+0{,}77$: 10 kịch bản có đuôi nhẹ hơn Gumbel, hai kịch bản nặng hơn nhiều. Mức $\alpha'$ cũng không được giữ: trên 3.403 bản ghi normal development, ở $\alpha' = 0{,}01$ kỳ vọng 34 bản ghi vượt ngưỡng và thấy 51 (1,5 lần); ở $\alpha' = 0{,}00018$ kỳ vọng 0,6 và thấy 6 (9,8 lần).
+
+\textbf{Như một quy tắc đặt ngưỡng thì nó vẫn tốt nhất trong các quy tắc đã thử.} Ngưỡng Gumbel theo moment chính là
+\[
+\tau = \bar M + k(\alpha')\, \sigma_M, \qquad k(0{,}00018) = 6{,}27,
+\]
+tức ``trung bình cộng 6,27 độ lệch chuẩn của các cực đại đã bỏ 1\%''; $\alpha'$ chỉ là cách đánh số cho $k$. So với các quy tắc không dùng nhãn khác ở cùng ngân sách báo nhầm (Bảng~\ref{tab:threshold-rules}), quy tắc đang dùng không thua ở ngân sách nào.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.52\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}@{}}
+\caption{Phát hiện nhiều nhất của mỗi quy tắc ngưỡng trong ngân sách báo nhầm (số bản ghi normal), development.}\label{tab:threshold-rules}\\
+\toprule\noalign{}
+Quy tắc (chỉ dùng normal) & $\leq$ 6 & $\leq$ 12 & $\leq$ 20 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Gumbel theo moment, bỏ 1\% (đang dùng)} & \textbf{530} & \textbf{530} & \textbf{530} \\
+Gumbel theo moment, mọi cực đại & 525 & 530 & 530 \\
+Phân bố chuẩn & 525 & 530 & 530 \\
+Gumbel hợp lý cực đại & 495 & 530 & 530 \\
+GEV hợp lý cực đại & không có & 459 & 496 \\
+Cực đại giữ ra lớn nhất (conformal) & không có & không có & 497 \\
+\end{longtable}
+
+Vì vậy đồ án không diễn giải $\alpha'$ như một tỉ lệ báo nhầm: nó là một núm chỉnh, và báo nhầm phải được đo.
+
+\subsection{Mô hình hay luật đếm 4-gram chưa thấy}\label{sec:model-vs-rule}
+
+Luật đơn giản nhất trên cùng token là đếm số sự kiện có 4-gram chưa từng thấy trong cửa sổ. Luật này được chấm với đúng quy trình của mô hình: cùng cross-fit, cùng cách đặt ngưỡng, cùng quyết định một cửa sổ.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.4\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}@{}}
+\caption{Mô hình và luật đếm 4-gram chưa thấy ở cùng ngân sách báo nhầm, development (544 bản ghi tấn công).}\label{tab:model-vs-rule}\\
+\toprule\noalign{}
+Ngân sách báo nhầm (bản ghi) & Mô hình & Luật đếm \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+$\leq$ 3 & 472 & không có điểm nào \\
+$\leq$ 6 & 530 & 444 \\
+$\leq$ 12 & 530 & 488 \\
+$\leq$ 20 & 530 & 497 \\
+$\leq$ 34 & 531 & 526 \\
 \end{longtable}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Bốn kỳ vọng đều đạt.} Ở mọi tốc độ, kể cả 1 và 3 lần/s, mô hình bắt 525/525 trial (105/105 ở từng tốc độ và ở từng kịch bản), kể cả \texttt{mprotect} và \texttt{seccomp} là hai syscall có sẵn trong normal của nhiều workload. Trên cả 525 trial, control dương là 5/525.
+  \textbf{Ở báo nhầm thấp, mô hình hơn rõ:} tại ngân sách 6 bản ghi, mô hình phát hiện nhiều hơn 86 bản ghi, khoảng tin cậy 95\% [80; 93] (bootstrap ghép cặp theo bản ghi, trong từng kịch bản). Khi nới ngân sách lên 34, hai bên gần ngang nhau. Lý do: 53,4\% bản ghi normal có ít nhất một 4-gram chưa thấy, nên luật đếm phải đặt ngưỡng cao; mô hình thì chấm được \emph{mức độ} lạ, và một 4-gram mới ghép từ các bước quen có độ bất ngờ thấp hơn nhiều so với một token chưa từng có.
 \item
-  \textbf{Độ trễ:} thời điểm báo ở bảng là cuối cửa sổ. Worker chấm cửa sổ thêm p50 0,15 s, p95 0,18 s; tính cả phần này, từ kernel tới lúc decision được ghi là khoảng 0,64 s ở p95.
+  \textbf{Với tấn công chỉ dùng chuỗi đã thấy, cả hai đều mù.} Mô phỏng: từ mỗi bản ghi tấn công, bỏ mọi sự kiện có gram hoặc token chưa thấy, như thể kẻ tấn công tránh được mọi chuỗi mới, rồi chấm phần còn lại với ngưỡng đã đăng ký. Mô hình phát hiện 0/544 bản ghi (trước khi bỏ: 530); luật đếm cho 0 theo định nghĩa. Tức là trên dataset này, mọi phát hiện của mô hình dựa vào chuỗi chưa thấy; nó không bắt được bất thường về \emph{tần suất} của chuỗi quen. Đây là cận dưới bán tổng hợp, vì bỏ sự kiện không phải một exploit thật.
 \item
-  \textbf{Gánh cảnh báo:} 332 đợt trên 817,1 replica-giờ normal. Con số này vẫn gấp khoảng 4 lần ngân sách tham chiếu 0,1 đợt/replica-giờ, và khoảng tin cậy rộng vì gánh dồn vào vài workload.
+  Một phép so trước đó, với bảng chữ cũ và ngưỡng đặt trên 60 bản ghi validation, cho hai bên ngang nhau (luật 530 phát hiện với 14 báo nhầm, mô hình 529 với 22). Bảng trên dùng đúng quy trình của hệ thống hiện tại.
+\end{itemize}
+
+\section{RQ3: trên cụm thật}\label{sec:token-live}
+
+Mô hình token đã chạy hai lượt live blind 24 giờ trên cả 21 workload, mỗi lượt một campaign 525 trial. Ngưỡng fit trước khi lượt chạy bắt đầu và không đổi trong lượt.
+
+\begin{itemize}
+\tightlist
 \item
-  \textbf{Ngưỡng không giữ mức thiết kế:} trên điểm giữ ra của lượt thu, 145/48.531 khối 60 s (0,299\%) vượt ngưỡng, gấp 16,6 lần mức thiết kế 0,018\%. Trong mẫu 5 segment, cả 146/146 cửa sổ báo trên normal đều chứa một 4-gram chưa thấy, và 89/118 đợt đến từ một workload Kafka. Tức là gánh đến chủ yếu từ việc 12 giờ normal chưa phủ hết hành vi hiếm, không phải từ tấn công. Học lại với cả normal của lượt này (ngoài các trial) hạ tỉ lệ khối vượt ngưỡng trên điểm giữ ra còn 350/134.905 (0,259\%).
+  \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109} (09--10/11): mô hình học từ 12 giờ normal của lượt thu \texttt{pulse-\allowbreak{}token-\allowbreak{}capture-\allowbreak{}1107}.
 \item
-  \textbf{Đường tới người nhận chưa đo ở lượt này:} bridge của lượt này bỏ qua dòng decision của mô hình token (lỗi đã sửa), nên cảnh báo token chưa đi qua Alertmanager và RCA. Lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110}, với mô hình học lại ở trên, đo cả đường này và thêm đối chứng lệnh quản trị.
+  \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110} (11--12/11): mô hình học thêm normal của lượt trước, ngoài các trial; mỗi trial có thêm một lệnh quản trị thật; cảnh báo đi qua Alertmanager và RCA (mục~\ref{sec:alert-rca}).
+\end{itemize}
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.34\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}@{}}
+\caption{Mô hình token trên cụm, tập chính (6, 12, 24 lần/s), với khoảng tin cậy 95\%.}\label{tab:token-live}\\
+\toprule\noalign{}
+Chỉ số & Kỳ vọng & Lượt 1109 (học 12 giờ) & Lượt v5-1110 (học thêm) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Recall & ≥ 95\% & 315/315 {[}98,8; 100,0{]} & 314/314 {[}98,8; 100,0{]} \\
+Precision & ≥ 95\% & 99,06\% {[}97,26; 99,68{]} & 100\% {[}98,79; 100,00{]} \\
+Control dương & ≤ 5\% & 3/315 (0,95\%) {[}0,32; 2,76{]} & 0/314 {[}0,00; 1,21{]} \\
+p95 kernel → cuối cửa sổ báo & ≤ 3 s, ưu tiên \textless{} 2 s & 0,49 s (p50 0,34 s) & 0,49 s (p50 0,35 s) \\
+Binary vô hại bị gắn cờ & báo kèm & 313/315 & 314/314 \\
+Lệnh quản trị bị gắn cờ & báo kèm & không có & 255/261 \\
+Gánh cảnh báo (đợt/replica-giờ) & thấp nhất có thể & 0,41 {[}0,15; 0,73{]} & 0,17 {[}0,06; 0,33{]} \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Bốn kỳ vọng đều đạt ở cả hai lượt.} Ở mọi tốc độ, kể cả 1 và 3 lần/s, lượt 1109 bắt 525/525 trial và lượt v5 bắt 521/522 (một trial \texttt{mprotect} ở 1 lần/s bị lọt); control dương là 5/525 và 0/522. Hai syscall \texttt{mprotect} và \texttt{seccomp} có sẵn trong normal của nhiều workload nhưng vẫn bị bắt ở mọi tốc độ.
+\item
+  \textbf{Độ trễ:} thời điểm báo ở bảng là cuối cửa sổ. Worker chấm cửa sổ thêm p50 0,15 s, p95 0,18 s. Đo trực tiếp ở lượt v5, từ sự kiện kernel tới lúc Alertmanager nhận cảnh báo là p50 0,51 s, p95 0,68 s (mục~\ref{sec:alert-rca}).
+\item
+  \textbf{Học thêm normal giảm gánh:} từ 332 đợt trên 817,1 replica-giờ (0,41) xuống 104 đợt trên 630,1 replica-giờ (0,17), và control dương từ 3/315 về 0/314. Hai lượt khác ngày nên đây không phải so sánh có đối chứng, nhưng nó khớp với nguyên nhân đo được ở lượt 1109: trong một mẫu 5 segment, cả 146/146 cửa sổ báo trên normal đều chứa một 4-gram chưa thấy, và 89/118 đợt đến từ một workload Kafka. Gánh 0,17 vẫn trên ngân sách tham chiếu 0,1.
+\item
+  \textbf{Ngưỡng không giữ mức thiết kế trên cụm:} trên điểm giữ ra của lượt thu, 145/48.531 khối 60 s (0,299\%) vượt ngưỡng, gấp 16,6 lần mức thiết kế 0,018\%; với mô hình học thêm là 350/134.905 (0,259\%). Điều này khớp với mục trên: $\alpha'$ là núm chỉnh.
+\item
+  \textbf{Sự cố hạ tầng ở lượt v5:} ngày 11/11 từ 13:47:33 tới 13:51:04, host ảo hoá nghẽn và cả ba worker ghi cách nhịp cùng lúc (112 issue, là toàn bộ issue của lượt). Kết quả ở bảng là phân tích đã đăng ký trên mọi trial. Bỏ hai cặp trial nằm trong khoảng nghẽn không đổi tỉ lệ nào: 313/313, 0/313, gánh 0,17.
+\item
+  \textbf{Mức chấp nhận của protocol lượt v5} còn gồm binary vô hại và lệnh quản trị bị gắn cờ, mỗi loại tối đa 20\%. Hai mức này không đạt (mục~\ref{sec:benign}).
 \end{itemize}
 
 \section{RQ4: tách tấn công khỏi process vô hại mới}\label{sec:benign}
 
-Mô hình gắn cờ binary vô hại ở 313/315 trial tập chính và 522/525 trial mọi tốc độ. Nếu tính binary vô hại là mẫu âm, precision ở tốc độ chính chỉ còn 49,9\% (315/(315 + 3 + 313)). Nói cách khác, mỗi lần có người chạy một chương trình mới vào container, mô hình gần như chắc chắn báo.
+Mô hình gắn cờ gần như mọi process mới đi vào container qua \texttt{kubectl exec}, dù vô hại:
 
-\textbf{Binary vô hại khác báo nhầm.} Báo nhầm là cảnh báo khi container chạy bình thường (control idle, gánh trên normal). Binary vô hại là một lớp mẫu âm khó: một chương trình mới, vô hại, đi vào container qua đúng đường \texttt{kubectl exec} của tấn công.
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Binary vô hại:} 313/315 trial tập chính ở lượt 1109 và 314/314 ở lượt v5; mọi tốc độ 522/525 và 520/522.
+\item
+  \textbf{Lệnh quản trị thật} (lượt v5; mỗi trial một lệnh trong \texttt{ls}, \texttt{cat}, \texttt{ps}, \texttt{env}, \texttt{id}, \texttt{sh}, \texttt{python}, \texttt{date}, \texttt{uname}, \texttt{df}; lệnh mà image không có thì không tính): 255/261 ở tập chính, 419/436 ở mọi tốc độ (96,1\%). Sáu lệnh bị gắn cờ ở mọi lần chạy; thấp nhất là \texttt{uname} 43/49, \texttt{python} 34/38 và \texttt{date} 45/50. Lớp này chưa từng được dùng để chọn bất cứ gì.
+\end{itemize}
 
-\textbf{Vì sao binary vô hại bị gắn cờ.} Phân rã trên 136 lần chạy binary đối chứng trong một mẫu 5 segment của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109} (134 lần bị gắn cờ) cho thấy cờ đến từ hai nguồn, không nguồn nào là hành vi nguy hiểm:
+Nếu tính binary vô hại là mẫu âm, precision ở tốc độ chính của lượt v5 chỉ còn 50,0\% (314/(314 + 0 + 314)). Nói cách khác, mỗi lần có người chạy một chương trình vào container, mô hình gần như chắc chắn báo.
+
+\textbf{Binary vô hại khác báo nhầm.} Báo nhầm là cảnh báo khi container chạy bình thường (control idle, gánh trên normal). Binary vô hại và lệnh quản trị là mẫu âm khó: một chương trình mới, vô hại, đi vào container qua đúng đường của tấn công.
+
+\textbf{Vì sao bị gắn cờ.} Phân rã trên 136 lần chạy binary đối chứng trong một mẫu 5 segment của lượt 1109 (134 lần bị gắn cờ) cho thấy cờ đến từ hai nguồn, không nguồn nào là hành vi nguy hiểm:
 
 \begin{itemize}
 \tightlist
@@ -230,7 +352,7 @@ Mô hình gắn cờ binary vô hại ở 313/315 trial tập chính và 522/525
   \textbf{Chính vòng lặp của binary đối chứng.} Trong 1.323 cửa sổ báo sau giây đầu, 1.321 chứa \texttt{clock\_nanosleep} và 1.309 chứa \texttt{getpid}: chuỗi này chưa từng có trong normal của workload nên bị coi là lạ, dù vô hại. 73 trong 134 lần còn bị báo sau giây đầu vì lý do này.
 \end{itemize}
 
-Mô hình theo workload trả lời câu hỏi ``container có làm điều chưa từng thấy không'', và một process mới bất kỳ đều trả lời có. Tín hiệu danh tính (đường dẫn, cây process, người chạy lệnh) không giúp được, vì binary đối chứng và tấn công là cùng một chương trình đi cùng một đường.
+Mô hình theo workload trả lời câu hỏi ``container có làm điều chưa từng thấy không'', và một process mới bất kỳ đều trả lời có. Lệnh quản trị bị gắn cờ ngang binary đối chứng cho thấy đây không phải đặc điểm riêng của fixture.
 
 \textbf{Gate cho binary vô hại, đã thử và bị loại.} Protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} đăng ký trước một gate, trước khi tính bất kỳ điểm nào của nó trên dataset: cửa sổ báo còn phải lạ với một mô hình gộp mọi workload (hoặc mọi kịch bản), và trong 1--2 s sau \texttt{execve} phải bị bỏ qua hoặc vượt một ngưỡng riêng học từ các lần khởi chạy vô hại. Quy tắc chọn đòi gate giữ đúng ba mức của mục~\ref{sec:lidds} trên development và CB-DS. Không ứng viên nào đạt:
 
@@ -242,7 +364,7 @@ Mô hình theo workload trả lời câu hỏi ``container có làm điều chư
   bỏ qua 1--2 s sau \texttt{execve} hạ development còn 315--365/544 và CB-DS còn 549--576/891: ở các bản ghi bị mất, mọi cửa sổ báo nằm trong vài giây sau một \texttt{execve}.
 \end{itemize}
 
-Trên trial của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109} (development cho bước này) với mô hình học lại, các ứng viên bỏ qua hoặc dùng ngưỡng riêng sau \texttt{execve} hạ binary vô hại còn 135--274/525, nhưng chỉ bắt 302--311/315 tấn công tốc độ chính; mô hình gộp một mình chỉ hạ còn 520--522/525. Chỉ mô hình không gate qua được dataset, nên binary vô hại vẫn là giới hạn mở của mô hình.
+Trên trial của lượt 1109 (development cho bước này) với mô hình học lại, các ứng viên bỏ qua hoặc dùng ngưỡng riêng sau \texttt{execve} hạ binary vô hại còn 135--274/525, nhưng chỉ bắt 302--311/315 tấn công tốc độ chính; mô hình gộp một mình chỉ hạ còn 520--522/525. Chỉ mô hình không gate qua được dataset, nên process vô hại mới vẫn là giới hạn mở của mô hình.
 
 \section{RQ5: chi phí}\label{sec:overhead}
 
@@ -275,6 +397,52 @@ Thao tác & Không probe (ns) & Container được theo dõi: thêm (ns) & Thêm
   Mốc không có probe đã cao (\texttt{getpid} khoảng 1,1 µs), nhiều khả năng do VM và các probe khác của cụm, như Tetragon. Vì vậy số ns tuyệt đối mới là số so sánh được, không phải phần trăm.
 \item
   Con số gồm cả bộ đếm syscall theo cgroup còn trong bản build (mục~\ref{sec:token-impl}).
+\end{itemize}
+
+\textbf{CPU của worker.} Ở lượt v5, unit worker trên mỗi node (loader cùng worker Python) dùng 7 giờ 05 phút tới 7 giờ 28 phút CPU trong 24 giờ, tức trung bình 0,30--0,31 core trên node 24 core. Con số này gồm cả phần tính cây và support để so sánh, nên là cận trên cho riêng mô hình token. Thời gian chấm là p50 0,15 s, p95 0,18 s mỗi cửa sổ.
+
+\textbf{Chưa đo:} chi phí trên request của ứng dụng thật với probe token, và tải cực đại mà map 4-gram còn chứa đủ.
+
+\section{RQ6: đường tới người nhận và RCA}\label{sec:alert-rca}
+
+Lượt v5 là lượt đầu cảnh báo của mô hình token đi trọn đường: decision trên worker, bridge, Alertmanager, rồi RCA dựng case từ đúng cảnh báo Alertmanager đã nhận.
+
+\textbf{Tới Alertmanager.} Tính từ sự kiện kernel đầu tiên của tấn công tới lúc Alertmanager nhận cảnh báo:
+
+\begin{itemize}
+\tightlist
 \item
-  \textbf{Chưa đo:} chi phí trên request của ứng dụng thật với probe token, và CPU của worker khi chấm mô hình token. Thời gian chấm là p50 0,15 s mỗi cửa sổ sau khi cửa sổ đóng (mục~\ref{sec:token-live}).
+  đường push của bridge: cảnh báo tới nơi ở 521/522 trial, p50 0,51 s, p95 0,68 s; theo từng tốc độ p95 từ 0,65 tới 0,69 s;
+\item
+  đường Prometheus kéo theo chu kỳ, chạy song song để so: chu kỳ nhanh p50 5,29 s; chu kỳ mặc định p50 60,3 s và chỉ kịp ở 143/522 trial.
+\end{itemize}
+
+Ngoài khoảng nghẽn hạ tầng, cả 2.075/2.075 đợt cảnh báo của lượt đều tới Alertmanager, với thời gian từ decision tới lúc nhận p50 0,034 s, p95 0,064 s. Trong 3,5 phút nghẽn, 113/190 đợt không tới: bridge chỉ thử lại 3 lần rồi bỏ, không có hàng đợi bền; đây là một giới hạn vận hành.
+
+\textbf{RCA.}
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.55\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.45\linewidth-2\tabcolsep\relax}@{}}
+\caption{RCA trên lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110} (522 trial tấn công).}\label{tab:rca}\\
+\toprule\noalign{}
+Chỉ số & Kết quả \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Tấn công có case riêng & 467/522 (89,5\%) \\
+Binary tấn công đứng hạng 1 trong case & 464/467 (99,4\%) \\
+Cảnh báo → case, p50 / p95 & 2,33 s / 2,61 s \\
+Độ trễ sự kiện exec của binary tấn công, p95 / lớn nhất & 0,10 s / 0,38 s \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Hạng 1 có lợi thế từ thiết kế campaign:} trong mỗi trial, tấn công chạy sau binary vô hại và lệnh quản trị, và luật phá hoà xếp process khởi chạy gần cảnh báo nhất lên trước. Thứ tự ngược lại chưa được đo.
+\item
+  \textbf{55 tấn công không có case riêng} được quy nguyên nhân bằng log kiểm toán của bước mở case tiếp nối. 40 là lần chạy lại cùng binary tấn công trên cùng container sau 85--345 s: RCA gộp vào case trước theo thiết kế. 14 bị từ chối vì một điều kiện đua: mô hình báo ngay trên burst dựng process, cửa sổ báo đầu tiên kết thúc khoảng 0,2 s sau khi trial bắt đầu, trước khi binary tấn công được exec; RCA khi đó chỉ xét các lần exec tới cuối cửa sổ báo. 1 trial không có quyết định nào.
+\item
+  \textbf{Sự kiện exec không tới muộn với tấn công.} Giả thuyết trước đây là sự kiện exec của tấn công tới RCA sau cảnh báo. Số đo bác giả thuyết này: ở 51/55 trường hợp, exec của binary tấn công đã có trong nhật ký khi RCA quyết định. Sự kiện exec tới muộn có thật (41 quyết định thấy độ trễ trên 10 s, tới 45 s), nhưng tất cả là process \texttt{python} của các service trong pha chọn lúc tải cao.
+\item
+  \textbf{Đã sửa, chưa đo live:} RCA giờ xét các lần exec tới thời điểm quyết định, và xét lại một lần sau 2 s nếu chưa thấy exec mới. Theo log kiểm toán, thay đổi này nhắm đúng 14 trường hợp trên.
 \end{itemize}

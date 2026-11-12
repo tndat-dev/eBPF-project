@@ -86,6 +86,18 @@ Trọng tâm của đồ án là một mô hình học từ normal, không dùng
   \textbf{Nhiều exploit chỉ lộ trong một cửa sổ, và lộ sớm.} Vì vậy một cửa sổ vượt ngưỡng là đủ để báo, và ngưỡng được đặt trên thang điểm liên tục.
 \end{enumerate}
 
+\paragraph{Vì sao không dùng mô hình đếm (cây và support).} Phiên bản đầu của Pulse chỉ đếm: mỗi cửa sổ 0,5 s là một vector số lần gọi từng syscall của container, chấm bằng một rừng cây ExtraTrees \citep{geurts2006} và một nhánh \emph{support} ghi vùng giá trị đã thấy của từng số đếm. Hai phép đo cho thấy vì sao phải đổi sang token:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{LID-DS 2021.} Trên toàn bộ tập test, với tham số lấy nguyên từ cụm, mô hình đếm chỉ phát hiện 1.154/1.815 bản ghi tấn công (63,6\%), p95 4,13 s. Số bị lọt dồn vào các exploit chạy trong chính process của dịch vụ: Heartbleed lọt 113/120 bản ghi, ZipSlip 114/118, \texttt{CVE-\allowbreak{}2018-\allowbreak{}3760} 117/122, Juice-Shop 116/121, \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} 100/120. Ở các exploit này, tập syscall và tần suất gần như không đổi; cái thay đổi là đường dẫn, số byte, mã lỗi và thứ tự trong thread, đúng những thứ số đếm không mang. Trên tập official, với cùng cách đặt ngưỡng và cùng quy tắc một cửa sổ, cây và support phát hiện 662/1.271 (52,1\%) với p95 13,15 s, còn mô hình token phát hiện 1.238/1.271 với p95 1,47 s.
+\item
+  \textbf{Trên cụm.} Ở lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}, cây và support được tính song song chỉ để so sánh: chúng bắt 133/315 tấn công tốc độ chính với p95 4,01 s, và không bắt trial nào mà mô hình token bỏ sót. Đặt chúng cạnh mô hình token trên official cũng không thêm phát hiện nào (vẫn 1.238), chỉ thêm báo nhầm: từ 26 lên 36 bản ghi normal.
+\end{itemize}
+
+Vì vậy hệ thống chỉ còn mô hình token; cây và support không nằm trong đường cảnh báo.
+
 \begin{figure}[htbp]
   \centering
   \adjustbox{max width=\linewidth}{\input{figures/tikz-model}}
@@ -111,7 +123,7 @@ Mỗi sự kiện là một lần syscall trả về. Token của sự kiện đ
   \textbf{Còn lại:} chỉ tên syscall, ví dụ \texttt{getpid}.
 \end{enumerate}
 
-Mỗi quy tắc nhắm một loại thông tin mà exploit thay đổi trong khi tập syscall giữ nguyên: đường dẫn ra ngoài thư mục quen (ZipSlip, CVE-2019-5418), cỡ đọc ghi bất thường, mã lỗi. Trên development, cỡ đọc ghi mang phần lớn tín hiệu; với riêng mô hình token, bỏ mã lỗi không làm giảm phát hiện (mục~\ref{sec:token-ablation}). Danh sách 27 syscall và độ phân giải cỡ được chọn trên development có nhãn tấn công, nên đây là một lựa chọn có lạc quan.
+Mỗi quy tắc nhắm một loại thông tin mà exploit thay đổi trong khi tập syscall giữ nguyên: đường dẫn ra ngoài thư mục quen (ZipSlip, CVE-2019-5418), cỡ đọc ghi bất thường, mã lỗi. Danh sách 27 syscall và độ phân giải cỡ được chọn trên development có nhãn tấn công, nên đây là một lựa chọn có lạc quan. Kiểm lại từng syscall (mục~\ref{sec:token-ablation}) cho thấy tập này rộng hơn cần thiết: trên development, chỉ 5 trong 39 syscall có hook là cần để giữ kết quả, và tín hiệu nằm chủ yếu ở cỡ của \texttt{write} và \texttt{read} cùng đường dẫn và mã lỗi của \texttt{open}.
 
 Trên dataset, token tính từ dòng trả về của trace. Trên cụm, probe eBPF dựng đúng token này trong kernel thành một số 32 bit: số syscall ở bit 23--31, loại token ở bit 21--22, phần chi tiết ở các bit còn lại (mã lỗi, nhóm cỡ, hoặc cờ ghi cùng mã băm FNV-1a của thư mục đầu). 39 syscall cần giá trị trả về phát token lúc trả về qua một chương trình \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}exit}; các syscall khác phát tên lúc vào. Thư mục đầu lấy bằng cách đi ngược cây dentry từ file descriptor vừa mở, theo góc nhìn của container (mục~\ref{sec:token-impl}).
 
@@ -167,7 +179,7 @@ Ngưỡng được đặt chỉ bằng normal. Ý tưởng: trong mỗi đơn v�
   \]
 \end{enumerate}
 
-Mức $\alpha'$ là mức thiết kế dưới giả thiết các cực đại tuân Gumbel, không phải tỉ lệ báo nhầm được bảo đảm: trên cụm, tỉ lệ khối 60 s vượt ngưỡng trên dữ liệu giữ ra cao hơn mức thiết kế khoảng 14--17 lần (mục~\ref{sec:token-live}). Vì vậy $\alpha$ được chọn theo báo nhầm đo được trên development. Ước lượng moment được chọn trên development sau khi so với Gumbel ước lượng hợp lý cực đại, GEV, phân bố chuẩn và đuôi mũ.
+Cùng ngưỡng đó viết cách khác là $\tau = \bar M + k\,\sigma_M$ với $k = 6{,}27$ ở $\alpha' = 0{,}00018$: trung bình cộng 6,27 độ lệch chuẩn của các cực đại đã bỏ 1\%. Cách viết này là cách hiểu đúng hơn, vì giả thiết Gumbel không giữ: kiểm định bác nó ở cả 15 kịch bản của dataset, tỉ lệ bản ghi normal vượt ngưỡng cao hơn $\alpha'$ khoảng 10 lần trên development, và tỉ lệ khối 60 s vượt ngưỡng trên cụm cao hơn 14--17 lần (mục~\ref{sec:token-ablation} và~\ref{sec:token-live}). $\alpha'$ vì vậy là một núm chỉnh, không phải tỉ lệ báo nhầm được bảo đảm, và nó được chọn theo báo nhầm đo được trên development. Dù vậy, trong các quy tắc chỉ dùng normal đã thử (Gumbel ước lượng hợp lý cực đại, GEV, phân bố chuẩn, cực đại giữ ra lớn nhất), quy tắc này cho nhiều phát hiện nhất ở mọi ngân sách báo nhầm đã xét.
 
 \subsection{Quyết định và thời điểm báo}
 
@@ -194,6 +206,8 @@ Khối cực đại trên cụm & 60 s & Cố định trước khi có dữ li�
 Đoạn cross-fit trên cụm & 30 phút & Cố định trước khi tính ngưỡng trên cụm, sau khi đã có dữ liệu capture \\
 \end{longtable}
 
+Bảng~\ref{tab:params-grid} cho thấy kết quả đổi thế nào khi từng tham số lệch khỏi giá trị này: quanh bộ đang dùng kết quả phẳng, và chỉ hỏng ở các cực (lấy trung bình 1 hoặc 20 giá trị, gram dài 2 hoặc 6).
+
 \subsection{Khác nhau giữa LID-DS và cụm}
 
 Thuật toán, bảng chữ và quy tắc ngưỡng giống nhau ở hai nơi. Khác nhau ở dữ liệu:
@@ -212,7 +226,7 @@ Mô hình của 21 workload trên cụm chiếm khoảng 1,5 MB (bảng đếm n
 
 Mô hình này là một tổ hợp, không có bài nào đề xuất nguyên khối. Các phần có nguồn là những phần đã trích ở trên. Các lựa chọn sau là của đồ án, được chọn bằng thực nghiệm trên development và CB-DS, không lấy từ nguồn nào: bảng chữ token theo đúng thông tin probe thu được, điểm là trung bình 10 giá trị lớn nhất, chọn ước lượng moment và bỏ 1\% cao nhất, mức $\alpha$, và quy tắc một cửa sổ. Các bài trích dẫn không chứng minh những lựa chọn này là tối ưu.
 
-Giới hạn cần nói rõ: mô hình phát hiện điều mới lạ, không phân biệt ý đồ. Trên development nó chưa hơn luật đếm 4-gram chưa thấy trên cùng token (mục~\ref{sec:token-ablation}), và trên cụm nó gắn cờ gần như mọi binary mới, kể cả vô hại (mục~\ref{sec:benign}).
+Giới hạn cần nói rõ: mô hình phát hiện điều mới lạ, không phân biệt ý đồ. Ở cùng mức báo nhầm thấp, nó phát hiện nhiều hơn hẳn một luật đếm 4-gram chưa thấy trên cùng token, nhưng khi tấn công chỉ gồm các chuỗi đã thấy thì cả hai đều không phát hiện gì (mục~\ref{sec:model-vs-rule}). Trên cụm, nó gắn cờ gần như mọi process mới, kể cả vô hại (mục~\ref{sec:benign}).
 
 \section{Truy nguyên nguyên nhân (RCA)}
 

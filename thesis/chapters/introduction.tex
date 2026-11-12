@@ -57,13 +57,15 @@ Ngoài bốn kỳ vọng, gánh cảnh báo trên normal và tỉ lệ process v
 \item
   \textbf{RQ1.} Một mô hình học từ normal, chỉ dùng thông tin mà probe eBPF thu được, có phát hiện được exploit thật của dataset công khai với recall và precision trên 95\% không?
 \item
-  \textbf{RQ2.} Thông tin nào trong token mang tín hiệu? Mô hình có hơn một luật novelty đơn giản không?
+  \textbf{RQ2.} Lựa chọn thiết kế nào mang kết quả: loại thông tin, từng syscall có hook, tham số, cách đặt ngưỡng? Mô hình có hơn một luật đếm chuỗi chưa thấy không?
 \item
   \textbf{RQ3.} Trên cụm thật, mô hình có đạt bốn kỳ vọng không, và gánh cảnh báo bao nhiêu?
 \item
   \textbf{RQ4.} Mô hình phân biệt được tấn công với một process vô hại mới đến đâu?
 \item
-  \textbf{RQ5.} Probe eBPF tốn bao nhiêu cho mỗi syscall?
+  \textbf{RQ5.} Probe eBPF và worker tốn bao nhiêu?
+\item
+  \textbf{RQ6.} Cảnh báo tới người nhận nhanh đến đâu, và RCA có chỉ ra process gây ra cảnh báo không?
 \end{enumerate}
 
 \section{Đóng góp}
@@ -74,13 +76,13 @@ Ngoài bốn kỳ vọng, gánh cảnh báo trên normal và tỉ lệ process v
 \item
   \textbf{Probe eBPF dựng token syscall trong kernel:} mỗi syscall thành một token 32 bit mang tên, mã lỗi, chế độ mở và thư mục đầu, hoặc cỡ đọc ghi lúc trả về; kernel đếm 4-gram theo thread trong cửa sổ 0,5 s.
 \item
-  \textbf{Mô hình ngôn ngữ trên token, học chỉ từ normal,} với ngưỡng Gumbel đặt trên điểm giữ ra của cross-fit. Cùng một mô hình đạt recall 97,40\% với 0,33\% bản ghi normal bị báo nhầm trên LID-DS 2021 official, và bắt 315/315 tấn công với p95 0,49 s trên cụm thật.
+  \textbf{Mô hình ngôn ngữ trên token, học chỉ từ normal,} với ngưỡng Gumbel đặt trên điểm giữ ra của cross-fit. Cùng một mô hình đạt recall 97,40\% với 0,33\% bản ghi normal bị báo nhầm trên LID-DS 2021 official, và bắt 314/314 tấn công với p95 0,49 s trên cụm thật.
 \item
   \textbf{Hệ thống Sentinel Pulse chạy trên cụm thật:} probe, worker chấm điểm theo workload, đường cảnh báo qua Alertmanager và RCA từ Tetragon.
 \item
   \textbf{Phương pháp đánh giá có đăng ký trước:} protocol, kỳ vọng và luật chọn được commit trước khi đọc dữ liệu; lượt live 24 giờ với control idle và binary vô hại; mọi con số trong đồ án được tính lại từ biên nhận.
 \item
-  \textbf{Phát hiện thực nghiệm:} mô hình phát hiện sự mới lạ, không phải ác ý. Binary vô hại bị gắn cờ 313/315, và trên cả dataset lẫn cụm mô hình chưa hơn một luật novelty có ngưỡng hiệu chỉnh.
+  \textbf{Phát hiện thực nghiệm:} mô hình phát hiện sự mới lạ, không phải ác ý. Binary vô hại bị gắn cờ 314/314 và lệnh quản trị thật 419/436; mô hình hơn rõ một luật đếm chuỗi chưa thấy ở báo nhầm thấp, nhưng cả hai đều mù khi tấn công chỉ dùng chuỗi đã thấy.
 \end{enumerate}
 
 \section{Cấu trúc đồ án}

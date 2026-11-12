@@ -268,30 +268,102 @@ def claims():
     k, r, f_, q = rows['select1f']
     add('alphabet-select1f', thesis, tex(f"\\textbf{{\\texttt{{select1f}}}} (đang dùng) & \\textbf{{{k} ({num(r, 2)}%)}} & \\textbf{{{num(f_, 2)}%}} & "
         f"\\textbf{{{num(q, 2)} s}} \\\\"), [], PO)
-    # live run pulse-live-v4-1109, token model (arm T)
+    # the two live runs, token model (arm T): pulse-live-v4-1109 and pulse-live-v5-1110 (registered analysis, all pairs)
     LIVE = 'results-20261110/pulse-live-v4-1109/arms.json'
-    live = receipt(LIVE)
-    T = live['arms']['T']
-    p_, b_ = T['primary'], T['burden']
-    add('live-recall', thesis, f"Recall & ≥ 95\\% & {p_['attack']['hits']}/{p_['attack']['n']} {br(*p_['attack']['ci95'], 1)} \\\\", [], LIVE)
-    add('live-precision', thesis, tex(f"Precision & ≥ 95% & {pct(p_['precision']['rate'], 2)} {br(*p_['precision']['ci95'])} \\\\"), [], LIVE)
-    add('live-control', thesis, tex(f"Control dương & ≤ 5% & {p_['control']['hits']}/{p_['control']['n']} ({pct(p_['control']['rate'], 2)}) "
-        f"{br(*p_['control']['ci95'])} \\\\"), [], LIVE)
-    add('live-p95', thesis, f"{num(p_['latency_p95'], 2)} s (p50 {num(p_['latency_p50'], 2)} s) \\\\", [], LIVE)
-    add('live-benign', thesis, f"Binary vô hại bị gắn cờ & báo kèm & {p_['benign']['hits']}/{p_['benign']['n']} \\\\", [], LIVE)
-    add('live-burden', thesis, f"Gánh cảnh báo (đợt/replica-giờ) & thấp nhất có thể & {num(b_['value'], 2)} {br(*b_['ci95'])}".replace(
-        f"{{[}}{num(100 * b_['ci95'][0], 2)}; {num(100 * b_['ci95'][1], 2)}{{]}}", f"{{[}}{num(b_['ci95'][0], 2)}; {num(b_['ci95'][1], 2)}{{]}}"), [], LIVE)
-    add('live-burden-episodes', thesis, f"{b_['episodes']} đợt trên {num(b_['replica_hours'], 1)} replica-giờ normal", [], LIVE)
-    al = T['all_rates']
-    assert all(v['hits'] == v['n'] == 105 for v in T['recall_by_rate'].values())
-    add('live-all-rates', thesis, f"mô hình bắt {al['attack']['hits']}/{al['attack']['n']} trial (105/105 ở từng tốc độ", [], LIVE)
-    add('live-all-control', thesis, f"control dương là {al['control']['hits']}/{al['control']['n']}", [], LIVE)
-    add('live-all-benign', thesis, f"{p_['benign']['hits']}/{p_['benign']['n']} trial tập chính và {al['benign']['hits']}/{al['benign']['n']} trial mọi tốc độ", [], LIVE)
-    hard = p_['attack']['hits'] / (p_['attack']['hits'] + p_['control']['hits'] + p_['benign']['hits'])
-    add('token-live-hard-precision', thesis, tex(f"{pct(hard)} ({p_['attack']['hits']}/({p_['attack']['hits']} + "
-        f"{p_['control']['hits']} + {p_['benign']['hits']}))"), [], LIVE)
-    sl = live['scoring_latency']['token']
+    LIVE5 = 'results-20261112/pulse-live-v5-1110/arms.json'
+    T4, T5 = receipt(LIVE)['arms']['T'], receipt(LIVE5)['arms']['T']
+    p4, p5 = T4['primary'], T5['primary']
+    frac = lambda x: f"{x['hits']}/{x['n']}"
+    add('live-recall', thesis, f"Recall & ≥ 95\\% & {frac(p4['attack'])} {br(*p4['attack']['ci95'], 1)} & {frac(p5['attack'])} {br(*p5['attack']['ci95'], 1)} \\\\",
+        [], f'{LIVE}, {LIVE5}')
+    prec = lambda p: f"{pct(p['precision']['rate'], 2) if p['precision']['rate'] < 1 else '100%'} {br(*p['precision']['ci95'])}"
+    add('live-precision', thesis, tex(f"Precision & ≥ 95% & {prec(p4)} & {prec(p5)} \\\\"), [], f'{LIVE}, {LIVE5}')
+    ctl = lambda p: f"{frac(p['control'])}" + (f" ({pct(p['control']['rate'], 2)})" if p['control']['hits'] else '') + f" {br(*p['control']['ci95'])}"
+    add('live-control', thesis, tex(f"Control dương & ≤ 5% & {ctl(p4)} & {ctl(p5)} \\\\"), [], f'{LIVE}, {LIVE5}')
+    add('live-p95', thesis, f"{num(p4['latency_p95'], 2)} s (p50 {num(p4['latency_p50'], 2)} s) & {num(p5['latency_p95'], 2)} s (p50 {num(p5['latency_p50'], 2)} s) \\\\",
+        [], f'{LIVE}, {LIVE5}')
+    add('live-benign', thesis, f"Binary vô hại bị gắn cờ & báo kèm & {frac(p4['benign'])} & {frac(p5['benign'])} \\\\", [], f'{LIVE}, {LIVE5}')
+    add('live-admin', thesis, f"Lệnh quản trị bị gắn cờ & báo kèm & không có & {frac(p5['admin'])} \\\\", [], LIVE5)
+    b4, b5 = T4['burden'], T5['burden']
+    bb = lambda b: f"{num(b['value'], 2)} {{[}}{num(b['ci95'][0], 2)}; {num(b['ci95'][1], 2)}{{]}}"
+    add('live-burden', thesis, f"Gánh cảnh báo (đợt/replica-giờ) & thấp nhất có thể & {bb(b4)} & {bb(b5)} \\\\", [], f'{LIVE}, {LIVE5}')
+    add('live-burden-episodes', thesis, f"từ {b4['episodes']} đợt trên {num(b4['replica_hours'], 1)} replica-giờ ({num(b4['value'], 2)}) xuống "
+        f"{b5['episodes']} đợt trên {num(b5['replica_hours'], 1)} replica-giờ ({num(b5['value'], 2)})", [], f'{LIVE}, {LIVE5}')
+    a4, a5 = T4['all_rates'], T5['all_rates']
+    add('live-all-rates', thesis, f"lượt 1109 bắt {frac(a4['attack'])} trial và lượt v5 bắt {frac(a5['attack'])}", [], f'{LIVE}, {LIVE5}')
+    add('live-all-control', thesis, f"control dương là {frac(a4['control'])} và {frac(a5['control'])}", [], f'{LIVE}, {LIVE5}')
+    add('live-all-benign', thesis, f"{frac(p4['benign'])} trial tập chính ở lượt 1109 và {frac(p5['benign'])} ở lượt v5; mọi tốc độ "
+        f"{frac(a4['benign'])} và {frac(a5['benign'])}", [], f'{LIVE}, {LIVE5}')
+    add('live-admin-all', thesis, tex(f"{frac(p5['admin'])} ở tập chính, {frac(a5['admin'])} ở mọi tốc độ ({pct(a5['admin']['rate'])})"), [], LIVE5)
+    hard = p5['attack']['hits'] / (p5['attack']['hits'] + p5['control']['hits'] + p5['benign']['hits'])
+    add('token-live-hard-precision', thesis, tex(f"{pct(hard)} ({p5['attack']['hits']}/({p5['attack']['hits']} + "
+        f"{p5['control']['hits']} + {p5['benign']['hits']}))"), [], LIVE5)
+    sl = receipt(LIVE)['scoring_latency']['token']
     add('live-scoring', thesis, f"Worker chấm cửa sổ thêm p50 {num(sl['p50'], 2)} s, p95 {num(sl['p95'], 2)} s", [], LIVE)
+    W = 'results-20261112/pulse-live-v5-1110/worker-cpu.txt'
+    import re
+    hours = [int(h) + int(mi) / 60 + float(se) / 3600 for h, mi, se in re.findall(r'Consumed (\d+)h (\d+)min ([\d.]+)s', (EV/W).read_text())]
+    add('worker-cpu', thesis, f"tức trung bình {num(min(hours) / 24, 2)}--{num(max(hours) / 24, 2)} core trên node 24 core", [], W)
+    # alert path and RCA of pulse-live-v5-1110
+    DL = 'results-20261112/pulse-live-v5-1110/delivery-latency.json'
+    dl = receipt(DL)['summary']
+    pr = [v['p95'] for v in dl['push_by_rate'].values()]
+    add('delivery-push', thesis, f"cảnh báo tới nơi ở {dl['push']['trials_alerted']}/{dl['attack_trials']} trial, p50 {num(dl['push']['p50'], 2)} s, "
+        f"p95 {num(dl['push']['p95'], 2)} s; theo từng tốc độ p95 từ {num(min(pr), 2)} tới {num(max(pr), 2)} s", [], DL)
+    add('delivery-pull', thesis, f"chu kỳ nhanh p50 {num(dl['pull-fast']['p50'], 2)} s; chu kỳ mặc định p50 {num(dl['pull-default']['p50'], 1)} s và chỉ kịp ở "
+        f"{dl['pull-default']['trials_alerted']}/{dl['attack_trials']} trial", [], DL)
+    BD = 'results-20261112/pulse-live-v5-1110/bridge-delivery.json'
+    bd = receipt(BD)
+    o, i = bd['outside_stall'], bd['inside_stall']
+    add('bridge-delivered', thesis, f"cả {thousands(o['delivered'])}/{thousands(o['episodes'])} đợt cảnh báo của lượt đều tới Alertmanager, với thời gian từ decision "
+        f"tới lúc nhận p50 {num(o['decision_to_receipt_seconds']['p50'], 3)} s, p95 {num(o['decision_to_receipt_seconds']['p95'], 3)} s. Trong 3,5 phút nghẽn, "
+        f"{i['not_delivered']}/{i['episodes']} đợt không tới", [], BD)
+    RC = 'results-20261112/pulse-live-v5-1110/rca-coverage.json'
+    rc = receipt(RC)
+    top1 = round(rc['stored_rank_top1'] * rc['attack_cases'])
+    add('rca-own-case', thesis, tex(f"Tấn công có case riêng & {rc['attack_cases']}/{rc['trials']} ({pct(rc['attack_cases'] / rc['trials'])}) \\\\"), [], RC)
+    add('rca-top1', thesis, tex(f"Binary tấn công đứng hạng 1 trong case & {top1}/{rc['attack_cases']} ({pct(rc['stored_rank_top1'])}) \\\\"), [], RC)
+    add('rca-latency', thesis, f"Cảnh báo → case, p50 / p95 & {num(rc['preview_to_case_seconds']['p50'], 2)} s / {num(rc['preview_to_case_seconds']['p95'], 2)} s \\\\", [], RC)
+    RF = 'results-20261112/pulse-live-v5-1110/rca-follow-up.json'
+    rf = receipt(RF)
+    al = rf['exec_lag_seconds']['attack_binary']
+    add('rca-exec-lag', thesis, f"Độ trễ sự kiện exec của binary tấn công, p95 / lớn nhất & {num(al['p95'], 2)} s / {num(al['max'], 2)} s \\\\", [], RF)
+    miss = rf['attack_trials'] - rf['classes']['own_case']
+    add('rca-missing', thesis, f"\\textbf{{{miss} tấn công không có case riêng}}", [], RF)
+    add('rca-known', thesis, f"ở {rf['classes']['exec_known_refused']}/{miss} trường hợp, exec của binary tấn công đã có trong nhật ký", [], RF)
+    # token design study (development) and the declared official scoring
+    DS = 'results-20261112/token-design-study/'
+    q1 = receipt(DS + 'q1.json'); base = q1['base']
+    for unit, label in (('write', r'\texttt{write}'), ('open', r'\texttt{open}')):
+        r = q1['leave_one_out'][unit]
+        add(f'loo-{unit}', thesis, f"{label} & {r['detected']} ($-${base['detected'] - r['detected']})", [], DS + 'q1.json')
+    add('loo-counts', thesis, f"{len(q1['absent_from_data'])} trong 39 syscall không xuất hiện trong dữ liệu", [], DS + 'q1.json')
+    changed = sum(1 for r in q1['leave_one_out'].values() if (r['detected'], r['false_alarm_recordings']) != (base['detected'], base['false_alarm_recordings']))
+    add('loo-changed', thesis, f"Trong {len(q1['leave_one_out'])} syscall còn lại, chỉ {changed} làm đổi kết quả", [], DS + 'q1.json')
+    add('subset-size', thesis, f"Sau {len(q1['elimination'])} lần chấm, {len(q1['removed'])} syscall bị loại và còn lại \\textbf{{{len(q1['smallest_subset'])}}}", [], DS + 'q1.json')
+    add('add-one', thesis, f"{len(q1['add_one'])} ứng viên có dữ liệu được thêm lần lượt", [], DS + 'q1.json')
+    OF = DS + 'official-smallest-subset.json'
+    of = receipt(OF)
+    add('subset-official', thesis, f"phát hiện {thousands(of['subset']['detected'])}/{thousands(of['subset']['attack_recordings'])} với "
+        f"{of['subset']['false_alarm_recordings']}/{thousands(of['subset']['normal_recordings'])} báo nhầm", [], OF)
+    q2 = receipt(DS + 'q2.json')['grid']
+    cell = lambda v, r, bold: (r'\textbf{' if bold else '') + f"{v}: {r['detected']} / {r['false_alarm_recordings']}" + ('}' if bold else '')
+    add('grid-n', thesis, 'Độ dài gram & ' + r' \quad '.join(cell(k, r, k == '4') for k, r in q2['n'].items()) + r' \\', [], DS + 'q2.json')
+    add('grid-top', thesis, 'Số giá trị lấy trung bình & ' + r' \quad '.join(cell(k, r, k == '10') for k, r in q2['top'].items()) + r' \\', [], DS + 'q2.json')
+    q3 = receipt(DS + 'q3.json')
+    reg = q3['alternatives_at_false_alarm_budgets']['gumbel moments, trimmed (registered)']
+    add('threshold-registered', thesis, r'\textbf{Gumbel theo moment, bỏ 1\% (đang dùng)} & ' + ' & '.join(rf'\textbf{{{reg[b][1]}}}' for b in ('6', '12', '20')) + r' \\',
+        [], DS + 'q3.json')
+    c18 = next(c for c in q3['calibration'] if abs(c['alpha'] - 0.00018) < 1e-9)
+    add('calibration', thesis, f"ở $\\alpha' = 0{{,}}00018$ kỳ vọng {num(c18['expected'], 1)} và thấy {c18['observed']} ({num(c18['ratio'], 1)} lần)", [], DS + 'q3.json')
+    add('ad-rejected', thesis, f"bác giả thiết Gumbel cho cực đại giữ ra ở {q3['rejected_after_holm']}/{len(q3['scenarios'])} kịch bản", [], DS + 'q3.json')
+    q4 = receipt(DS + 'q4.json')
+    bm, br_ = q4['at_false_alarm_budgets']['model'], q4['at_false_alarm_budgets']['unseen_grams']
+    add('rule-6', thesis, f"$\\leq$ 6 & {bm['6'][1]} & {br_['6'][1]} \\\\", [], DS + 'q4.json')
+    pd = q4['paired']['unseen_grams']
+    add('rule-paired', thesis, f"mô hình phát hiện nhiều hơn {pd['difference']} bản ghi, khoảng tin cậy 95\\% [{round(pd['ci95'][0])}; {round(pd['ci95'][1])}]", [], DS + 'q4.json')
+    so = q4['seen_only_simulation']['pooled']
+    add('seen-only', thesis, f"Mô hình phát hiện {so['detected_seen_only']}/{so['attack_recordings']} bản ghi (trước khi bỏ: {so['detected']})", [], DS + 'q4.json')
     # held-out block exceedance of the fits
     F4, F5 = 'results-20261109/pulse-live-v4-fit/token-FIT.json', 'results-20261111/pulse-live-v5-fit/token-FIT.json'
     def exceed(f):
