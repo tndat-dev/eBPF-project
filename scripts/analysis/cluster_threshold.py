@@ -158,7 +158,7 @@ def main():
     doc = dict(schema='ml-final-study-v1-cluster-threshold', protocol='sentinel_pulse/protocol/ml-final-study-v1.json',
                gumbel_reproduces_v5=dict(largest_difference=check, passed=check <= 1e-9), thresholds=thr)
     if check <= 1e-9:
-        trials = la.load_trials(a.run_root / la.CAMPAIGN)
+        trials = la.live.load_trials(a.run_root / la.CAMPAIGN)
         windows, _ = la.collect(a.run_root, trials, a.jobs)
         lms = {w: CountTokenLM.load(Path(models[w][0])) for w in sorted({t['workload'] for t in trials} & set(thr))}
         doc['trials'] = trial_rates(trials, windows, models, lms, thr)
