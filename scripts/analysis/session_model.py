@@ -23,6 +23,8 @@ import json
 from pathlib import Path
 import sys
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sentinel_pulse.detector.token_model import TOP, CountTokenLM, call_of, strip  # noqa: E402
@@ -176,6 +178,25 @@ def part_b3(trials, windows, models, lms):
         benign=both(benign, lambda i: nat_hit(i) or ab_max[i] > tau_ab),
         admin=both(admin, lambda i: nat_hit(i) or ab_max[i] > tau_ab),
         control=both(idx('control'), nat_hit))
+    # exploratory (not part of the registered decision): the score distributions behind the session arms
+    q = lambda v: dict(n=len(v), **{f'p{p}': float(np.percentile(v, p)) for p in (5, 25, 50, 75, 95, 99)}, max=float(max(v))) if v else None
+    auc = lambda pos, neg: float(np.mean([(a > b) + 0.5 * (a == b) for a in pos for b in neg])) if pos and neg else None
+    adm, ben = [ab_max[i] for i in admin], [ab_max[i] for i in benign]
+    att = [attack_max[i] for i in attack]
+    att_p = [attack_max[i] for i in attack if is_primary(i)]
+    out['exploratory'] = dict(
+        note='held-out interval maxima under the admin + benign session model (cross-fit); no decision uses these',
+        admin=q(adm), benign=q(ben), attack=q(att), attack_primary=q(att_p),
+        auc_attack_vs_benign=auc(att, ben), auc_attack_vs_admin=auc(att, adm), auc_attack_primary_vs_benign=auc(att_p, ben),
+        attack_primary_above_largest_benign=rate(sum(v > max(ben) for v in att_p), len(att_p)),
+        attack_primary_above_p99_admin_and_benign=rate(sum(v > np.percentile(adm + ben, 99) for v in att_p), len(att_p)),
+        flagged_at_p99=dict(admin=rate(sum(v > np.percentile(adm + ben, 99) for v in adm), len(adm)),
+                            benign=rate(sum(v > np.percentile(adm + ben, 99) for v in ben), len(ben))),
+        by_scenario_primary_above_largest_benign={
+            sc: rate(sum(attack_max[i] > max(ben) for i in attack if use[i]['scenario'] == sc and is_primary(i)),
+                     sum(use[i]['scenario'] == sc and is_primary(i) for i in attack)) for sc in sorted({use[i]['scenario'] for i in attack})},
+        tools_only=dict(admin=q(list(known_max.values())), benign=q([interval_max(full_admin, ses[i]) for i in benign]),
+                        attack_primary=q([interval_max(full_admin, ses[i]) for i in attack if is_primary(i)])))
     n = out['native_arm']
     out['decision'] = dict(
         native_at_most_5_percent=all((n[k]['rate'] or 0) <= 0.05 for k in ('control', 'admin', 'benign')),
@@ -204,7 +225,7 @@ def main():
     print(json.dumps(dict(B2=doc['B2']['held_out_admin'], native=b3['native_arm'], known=b3['known_tools']['flagged'],
                           unseen=b3['unseen_tool']['all'], unknown_program=b3['unknown_program'],
                           learnt_program=b3['learnt_program']['benign'], attack_tools_only=b3['attack_tools_only'],
-                          attack_program_learnt=b3['attack_program_learnt'], decision=b3['decision'])))
+                          attack_program_learnt=b3['attack_program_learnt'], decision=b3['decision'], exploratory=b3['exploratory'])))
 
 
 if __name__ == '__main__':
