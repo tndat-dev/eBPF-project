@@ -1,0 +1,19 @@
+{
+  "schema": "sentinel-pulse-lidds-ml-v5-amendment-3",
+  "amends": "sentinel_pulse/protocol/lidds-ml-v5.json",
+  "registered_at": "2026-11-12T08:12+07:00",
+  "registered_before": "any run of scripts/analysis/pulse_live_v4.py on pulse-live-v5-1110. Already seen: the worker status and issue files after the run, and one mid-run count from the bridge triggers on 11/11 10:07 (notes/WORKLOG.md), before the stall below; no decision was taken from it",
+  "run": "pulse-live-v5-1110: 86,400 s on three workers, campaign 525/525 pairs, finished 11/11 15:16; capture finished 12/11 01:10",
+  "stall": {
+    "what": "the three workers reported cadence gaps at the same time (50, 42 and 20 issues), first 1794379653.769, last 1794379864.787 (11/11 13:47:33 to 13:51:04 +07); they are the only issues of the run",
+    "cause": "the hypervisor: the kernel logs of the worker VMs show 'hrtimer: interrupt took 81622731 ns' and 'workqueue ... hogged CPU' from 06:47:33 UTC on, on all workers at once; no Pulse job and no analysis job ran on the cluster then",
+    "span": [1794379623.769, 1794379894.787],
+    "span_rule": "first to last cadence gap of any worker, with 30 s on each side"
+  },
+  "analysis": {
+    "registered": "all 525 pairs and the whole normal span, as the protocol says; this is the result that is compared with the acceptable levels",
+    "sensitivity": "the same without the stall (owner rule: a run completes its cycle and bad spans are left out in the analysis): every pair with an interval [start, start + 15 s] overlapping the span is dropped (pairs 465 and 466), and the span leaves the normal time; pulse_live_v4.py --exclude-span",
+    "reported": "both, side by side; the admin commands also by command"
+  },
+  "unchanged": "arms, trial window, burden definition, acceptable levels"
+}

@@ -9,7 +9,12 @@ count-branch rows (preview_evaluation.py), so it is not used here. Normal burden
 episodes when less than 15 s apart, per replica-hour, from selection end to capture end without the campaign span,
 workload-clustered bootstrap 95 % CI. Rates: Wilson 95 % CI. Primary set: attack rates 6, 12, 24 per second.
 
-    python3 pulse_live_v4.py --run-root ROOT --output out.json [--reps 10000]
+--exclude-span START END (unix seconds, repeatable) leaves out a span in which the infrastructure stalled (owner rule: a
+run completes its cycle and bad spans are excluded in the analysis): every interval of a pair whose attack, control,
+benign or admin interval overlaps the span is dropped, and the span leaves the normal time. Run without it for the
+registered analysis and with it for the sensitivity.
+
+    python3 pulse_live_v4.py --run-root ROOT --output out.json [--reps 10000] [--exclude-span A B] [--protocol TEXT]
 """
 import argparse
 from array import array
@@ -85,7 +90,8 @@ def load_trials(campaign):
             continue
         trials.append(dict(label=label, start=float(row['start_at']), key=(row['pod_uid'], row['container_name']),
                            pair=int(str(row['trial_id']).split(':')[0]), workload=row['workload_key'],
-                           rate=row.get('rate_per_second'), scenario=row.get('scenario'), kernel=None))
+                           rate=row.get('rate_per_second'), scenario=row.get('scenario'), kernel=None,
+                           command=row.get('admin_command')))
     for trial in trials:
         if trial['label'] == 'attack':
             path = campaign / 'trials' / f"{trial['pair']:04d}" / 'EVALUATION_INPUT.json'
@@ -158,10 +164,10 @@ def trial_metrics(trials, at, keep):
     return out
 
 
-def by_field(trials, at, field):
+def by_field(trials, at, field, label='attack'):
     out = {}
-    for value in sorted({t[field] for t in trials if t['label'] == 'attack'}, key=str):
-        members = [i for i, t in enumerate(trials) if t['label'] == 'attack' and t[field] == value]
+    for value in sorted({t[field] for t in trials if t['label'] == label}, key=str):
+        members = [i for i, t in enumerate(trials) if t['label'] == label and t[field] == value]
         out[str(value)] = rate_row(sum(at[i] is not None for i in members), len(members))
     return out
 
@@ -216,12 +222,20 @@ def worker_report(root):
     return out
 
 
-def analyse(root, reps):
+def drop_stalled(trials, stalls):
+    """Trials without the pairs that have an interval [start, start + HORIZON] overlapping a stalled span."""
+    bad = {t['pair'] for t in trials if any(t['start'] < b and t['start'] + HORIZON > a for a, b in stalls)}
+    return [t for t in trials if t['pair'] not in bad], sorted(bad)
+
+
+def analyse(root, reps, stalls=(), protocol='sentinel_pulse/protocol/pulse-live-v3-v1.json + amendments 1, 2'):
     cfg = json.loads((root / 'CONFIG.json').read_text())
     campaign = root / CAMPAIGN
     normal = (float(cfg['selection_end']), float(cfg['selection_start']) + float(cfg['seconds']))
     spans = [campaign_span(campaign)] if (campaign / 'TERMINAL.json').exists() else []
-    trials = load_trials(campaign)
+    complete = bool(spans)
+    trials, dropped = drop_stalled(load_trials(campaign), stalls)
+    spans = spans + [tuple(x) for x in stalls]
     alarms, seconds, workload_of, latency = read_decisions(root, normal, spans)
     table = trial_table(trials, alarms)
     arms = {}
@@ -230,10 +244,12 @@ def analyse(root, reps):
         primary = trial_metrics(trials, at, lambda rate: rate in PRIMARY)
         arms[arm] = dict(primary=primary, all_rates=trial_metrics(trials, at, lambda rate: rate is not None),
                          recall_by_rate=by_field(trials, at, 'rate'), recall_by_scenario=by_field(trials, at, 'scenario'),
+                         admin_by_command=by_field(trials, at, 'command', 'admin'),
                          expectations=expectations(primary),
                          burden=burden(episodes_per_workload(alarms[arm], workload_of, normal, spans), seconds, reps))
-    return dict(schema='pulse-live-v4-arms-v1', run=cfg['run_id'], protocol='sentinel_pulse/protocol/pulse-live-v3-v1.json + amendments 1, 2',
-                campaign_complete=bool(spans), pairs=len({t['pair'] for t in trials}), normal_span=normal, excluded_spans=spans,
+    return dict(schema='pulse-live-v4-arms-v1', run=cfg['run_id'], protocol=protocol,
+                campaign_complete=complete, pairs=len({t['pair'] for t in trials}), normal_span=normal, excluded_spans=spans,
+                stalled_spans=[list(x) for x in stalls], pairs_dropped_for_stall=dropped,
                 arms=arms, scoring_latency=dict(token=quantiles(latency['token']), counts=quantiles(latency['counts'])),
                 workers=worker_report(root))
 
@@ -243,8 +259,10 @@ def main():
     ap.add_argument('--run-root', type=Path, required=True)
     ap.add_argument('--output', type=Path, required=True)
     ap.add_argument('--reps', type=int, default=10000)
+    ap.add_argument('--exclude-span', type=float, nargs=2, action='append', default=[], metavar=('START', 'END'))
+    ap.add_argument('--protocol', default='sentinel_pulse/protocol/pulse-live-v3-v1.json + amendments 1, 2')
     a = ap.parse_args()
-    out = analyse(a.run_root, a.reps)
+    out = analyse(a.run_root, a.reps, [tuple(x) for x in a.exclude_span], a.protocol)
     a.output.write_text(json.dumps(out, indent=1))
     for arm, r in out['arms'].items():
         p = r['primary']

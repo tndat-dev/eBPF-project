@@ -98,3 +98,29 @@ def test_burden_merges_episodes_and_leaves_out_selection_and_campaign(tmp_path):
 def test_burden_bootstrap_is_clustered_by_workload():
     b = m.burden(dict(a=10, b=0), dict(a=3600.0, b=3600.0), reps=2000)
     assert b['value'] == 5.0 and b['ci95'][0] == 0.0 and b['ci95'][1] == 10.0
+
+
+def test_a_stalled_span_drops_its_pairs_and_its_normal_time(tmp_path):
+    rows = [token(2041.0, True), token(2141.0, True), token(3000.0, True), token(3100.0, True), counts(3000.0), counts(3100.0)]
+    write_run(tmp_path, rows)
+    full = m.analyse(tmp_path, reps=50)
+    cut = m.analyse(tmp_path, reps=50, stalls=[(2110.0, 2120.0), (3090.0, 3110.0)])    # inside the control of pair 2; one normal alarm
+    assert full['arms']['T']['all_rates']['attack']['n'] == 2 and full['pairs_dropped_for_stall'] == []
+    assert cut['pairs_dropped_for_stall'] == [2] and cut['pairs'] == 1
+    assert (cut['arms']['T']['all_rates']['attack']['hits'], cut['arms']['T']['all_rates']['attack']['n']) == (1, 1)
+    assert full['arms']['T']['burden']['episodes'] == 2 and cut['arms']['T']['burden']['episodes'] == 1
+    assert abs(cut['arms']['T']['burden']['replica_hours'] - 0.5 / 3600) < 1e-12
+    assert cut['campaign_complete'] is True and cut['stalled_spans'] == [[2110.0, 2120.0], [3090.0, 3110.0]]
+
+
+def test_admin_commands_are_reported_by_command(tmp_path):
+    write_run(tmp_path, [token(2061.0, True)])
+    camp = tmp_path / m.CAMPAIGN
+    with open(camp / 'INTERVALS.jsonl', 'a') as f:
+        f.write(json.dumps(dict(P, label='expected_normal', control_kind='admin_exec', admin_command='ls', trial_id='1:admin', start_at=2060.0)) + '\n')
+        f.write(json.dumps(dict(P, label='expected_normal', control_kind='admin_exec', admin_command='ps', trial_id='2:admin', start_at=2160.0)) + '\n')
+    for pair, code in ((1, 0), (2, 127)):                 # ps is missing in the image: not a benign run
+        (camp / 'trials' / f'{pair:04d}' / 'ADMIN.json').write_text(json.dumps(dict(returncode=code)))
+    t = m.analyse(tmp_path, reps=50)['arms']['T']
+    assert t['admin_by_command'] == {'ls': dict(hits=1, n=1, rate=1.0, ci95=m.wilson(1, 1))}
+    assert (t['all_rates']['admin']['hits'], t['all_rates']['admin']['n']) == (1, 1)
