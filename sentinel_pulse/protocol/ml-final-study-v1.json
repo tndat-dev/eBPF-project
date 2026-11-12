@@ -1,6 +1,6 @@
 {
  "schema": "sentinel-pulse-ml-final-study-v1",
- "registered_at": "2026-11-12T21:52+07:00",
+ "registered_at": "2026-11-12T21:50+07:00",
  "registered_before": "any code of parts A-E below is written or run; the data of pulse-live-v5-1110 has been analysed only by the registered pulse_live_v4.py, rca_coverage.py, rca_follow_up.py, bridge_delivery.py and delivery-latency analyses",
  "owner_decision": "12/11: study the remaining weaknesses in depth and push them as far as possible so the final ML model can be fixed, then add rules that reduce the flagging of benign processes; read the whole thesis for points that are not rigorous and design experiments for them; LID-DS 2019 stays untouched until the model is ready for one final run",
  "system_under_study": "lidds-ml-v5 token model alone (alphabet select1f, per-thread 4-grams, interpolated Witten-Bell, mean of the 10 highest -ln p, moment Gumbel without the top 1 % at alpha' = 0.00018, one window fires); on the cluster the models and thresholds of pulse-live-v5-fit-1110",
