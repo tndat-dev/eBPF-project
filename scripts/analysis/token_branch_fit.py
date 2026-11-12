@@ -131,9 +131,12 @@ def crossfit_one(path, start, end, block, folds, seconds):
 
 def fit_crossfit(job):
     """lidds-ml-v4 on the cluster; (key, report row, spec entry or None)."""
-    key, path, train, validation, alpha, block, minimum, output, folds, seconds, share = job
+    key, path, train, validation, alpha, block, minimum, output, folds, seconds, share, *dump = job
     lm, maxima, windows = crossfit_one(path, train[0], validation[1], block, folds, seconds)
     blocks = np.asarray(list(maxima.values()), float)
+    if dump and dump[0]:                                   # ml-final-study-v1 part C: the held-out block maxima
+        target = Path(dump[0]) / (hashlib.sha256(key.encode()).hexdigest()[:16] + '.maxima.json')
+        target.write_text(json.dumps(dict(workload=key, blocks=[[*cell, v] for cell, v in sorted(maxima.items())])))
     row = dict(training_windows=windows, validation_blocks=len(blocks), distinct_contexts=sum(len(level) for level in lm.count))
     if windows == 0 or len(blocks) < minimum:
         return key, row, None
@@ -238,6 +241,7 @@ def main():
     ap.add_argument('--extra-span', type=float, nargs=2, metavar=('START', 'END'))
     ap.add_argument('--pool-level', type=float, help='lidds-ml-v5 gate: level of the pool threshold (needs --folds)')
     ap.add_argument('--exec-hold', type=float, default=1.0, help='lidds-ml-v5 gate: seconds held after an execve')
+    ap.add_argument('--dump-maxima', type=Path, help='ml-final-study-v1 part C: write the held-out block maxima per workload here')
     a = ap.parse_args()
     if not a.train[0] < a.train[1] <= a.validation[0] < a.validation[1]:
         raise SystemExit('spans must be ordered: training before validation')
@@ -256,7 +260,9 @@ def main():
     jobs = [(k, str(v), a.train, a.validation, a.alpha, a.block, a.minimum_blocks, str(a.output)) for k, v in sorted(names.items())]
     worker = fit_one
     if a.folds:
-        jobs = [j + (a.folds, a.fold_seconds, a.share) for j in jobs]
+        if a.dump_maxima:
+            a.dump_maxima.mkdir(parents=True, exist_ok=True)
+        jobs = [j + (a.folds, a.fold_seconds, a.share, str(a.dump_maxima) if a.dump_maxima else None) for j in jobs]
         worker = fit_crossfit
     if a.jobs > 1:
         from multiprocessing import Pool

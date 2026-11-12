@@ -82,3 +82,19 @@ def test_split_adds_the_extra_run_without_its_trials(tmp_path):
     names = f.split([(capture, 0.0, 100.0, None), (live, 200.0, 2000.0, spans)], work)
     kept = [(json.loads(l)['window_end'], json.loads(l)['pod_uid']) for l in names['w'].read_text().splitlines()]
     assert kept == [(10.0, 'p'), (99.0, 'p'), (994.9, 'p'), (1025.0, 'p'), (1010.0, 'other')]
+
+
+def test_dump_maxima_writes_the_blocks_the_threshold_uses(tmp_path):
+    write(tmp_path / 'w.jsonl')
+    out, dump = tmp_path / 'out', tmp_path / 'dump'
+    out.mkdir()
+    dump.mkdir()
+    job = ('w', str(tmp_path / 'w.jsonl'), (START, START + 500), (START + 500, START + 10 * CHUNK), 0.0002, 60.0, 2,
+           str(out), 5, CHUNK, 0.9, str(dump))
+    key, row, entry = f.fit_crossfit(job)
+    doc = json.loads(next(dump.glob('*.maxima.json')).read_text())
+    blocks = [b[-1] for b in doc['blocks']]
+    assert doc['workload'] == 'w' and len(blocks) == row['validation_blocks']
+    assert abs(f.threshold(f.trimmed_gumbel(blocks), 0.0002 * 0.9) - entry['threshold']) < 1e-12
+    _, row2, entry2 = f.fit_crossfit(job[:-1])                 # without the dump: same threshold, nothing written
+    assert entry2['threshold'] == entry['threshold']
