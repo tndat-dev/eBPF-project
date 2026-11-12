@@ -156,3 +156,43 @@ def test_an_older_exec_log_gets_the_arrival_column(tmp_path):
     db.execute('create table exec_log(node text, pod text, container text, binary text, at real)'); db.commit(); db.close()
     db = service.database(str(path))
     assert [c[1] for c in db.execute('pragma table_info(exec_log)')][-1] == 'received'
+
+
+def test_an_exec_after_the_alert_window_is_counted_at_the_decision_or_at_the_recheck():
+    """The token model alerts on the launch burst, before the launched binary's exec (pulse-live-v5-1110)."""
+    old = _service(follow_up_on_new_exec=True)
+    old.observe_trigger(_row(100.0), now=100.5)
+    _exec_event(old, 120.3)                                # the binary execs 0.1 s after the alert window ends
+    old.observe_trigger(_row(120.2), now=120.6)
+    assert old.counts['follow_up_refused_no_exec'] == 1 and len(old.db.execute('select 1 from cases').fetchall()) == 1
+
+    svc = _service(follow_up_on_new_exec=True, follow_up_recheck_seconds=2)
+    svc.observe_trigger(_row(100.0), now=100.5)
+    _exec_event(svc, 120.3)
+    svc.observe_trigger(_row(120.2), now=120.6)            # known at the decision: allowed at once
+    assert len(svc.db.execute('select 1 from cases').fetchall()) == 2 and not getattr(svc, 'rechecks', [])
+
+    late = _service(follow_up_on_new_exec=True, follow_up_recheck_seconds=2)
+    late.observe_trigger(_row(100.0), now=100.5)
+    late.observe_trigger(_row(120.2), now=120.6)           # the exec event has not arrived: refused, queued
+    assert late.counts['follow_up_refused_no_exec'] == 1 and len(late.rechecks) == 1
+    late.recheck_follow_ups(121.0)                         # not due yet
+    assert len(late.rechecks) == 1
+    _exec_event(late, 120.3, received=121.5)
+    late.recheck_follow_ups(122.7)
+    cases = late.db.execute('select trigger from cases order by created').fetchall()
+    assert len(cases) == 2 and 'follow_up_of' in cases[1][0] and late.rechecks == []
+    assert late.counts['follow_up_cases_after_recheck'] == 1 and late.counts['positive_decisions_grouped_by_cooldown'] == 0
+    assert late.counts['positive_decisions_observed'] == 2
+
+
+def test_a_recheck_is_tried_once_and_probes_stay_grouped():
+    svc = _service(follow_up_on_new_exec=True, follow_up_recheck_seconds=2, before_seconds=30)
+    _exec_event(svc, 40.0, '/usr/bin/pg_isready')          # a periodic probe, also before the previous case
+    svc.observe_trigger(_row(100.0), now=100.5)
+    _exec_event(svc, 119.0, '/usr/bin/pg_isready')
+    svc.observe_trigger(_row(120.2), now=120.6)
+    assert svc.counts['follow_up_refused_binary_not_new'] == 1 and len(svc.rechecks) == 1
+    svc.recheck_follow_ups(123.0)
+    assert svc.rechecks == [] and svc.counts['follow_up_refused_binary_not_new'] == 2
+    assert len(svc.db.execute('select 1 from cases').fetchall()) == 1 and svc.counts['positive_decisions_grouped_by_cooldown'] == 1

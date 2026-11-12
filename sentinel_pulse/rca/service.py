@@ -278,17 +278,21 @@ class Service:
                 except (ValueError, TypeError, KeyError):
                     self.count('invalid_or_unjoinable_events')
 
-    def observe_trigger(self, row, now):
+    def observe_trigger(self, row, now, recheck=False):
         kind = trigger_kind(row, self.cfg['model_hash'], self.cfg['policy_hash'])
         if kind is None: return
-        self.count('positive_decisions_observed')
+        if not recheck: self.count('positive_decisions_observed')
         key = json.dumps(identity(row))
         recent = self.db.execute('select created, trigger from cases where identity=? order by created desc limit 1',
                                  (key,)).fetchone()
         follow_up_of = None
         if recent and now-recent[0] < self.cfg['case_cooldown_seconds']:
-            if not self.follow_up_allowed(row, key, recent, now):
-                self.count('positive_decisions_grouped_by_cooldown'); return
+            if not self.follow_up_allowed(row, key, recent, now, recheck):
+                if not recheck: self.count('positive_decisions_grouped_by_cooldown')
+                return
+            if recheck:
+                self.count('follow_up_cases_after_recheck')
+                self.counts['positive_decisions_grouped_by_cooldown'] = self.counts.get('positive_decisions_grouped_by_cooldown', 1) - 1
             follow_up_of = case_id(json.loads(recent[1]))
             self.count('follow_up_cases_on_new_exec')
         safe = {k: row.get(k) for k in ('schema', 'status', 'run_id', 'capture_segment', 'node_name',
@@ -302,8 +306,13 @@ class Service:
         self.db.execute('insert or ignore into cases values(?,?,?,?,?)',
             (case_id(row), now, 0, key, json.dumps(safe)))
 
-    def follow_up_allowed(self, row, key, recent, now):
+    def follow_up_allowed(self, row, key, recent, now, recheck=False):
         """Within the cooldown, a new process exec since the previous case opens a follow-up case.
+
+        cfg follow_up_recheck_seconds (0: off): the token model alerts on the first window of a launch, about 0.2 s
+        after kubectl exec starts and before the launched binary's own exec event (pulse-live-v5-1110: 14 attacks
+        refused for that reason). With it, execs are counted up to the moment of the decision instead of the end of
+        the alert window, and a trigger refused for want of a new exec is judged once more after that many seconds.
 
         With a fixed per-container cooldown, a second process started shortly after
         a first (e.g. an attack after a benign launch) never got its own case
@@ -313,8 +322,20 @@ class Service:
             return False
         verdict = self._follow_up_verdict(row, key, recent, now)
         if self.cfg.get('follow_up_audit'):
-            self.audit_follow_up(row, key, recent, now, verdict)
+            self.audit_follow_up(row, key, recent, now, verdict + ('_recheck' if recheck else ''))
+        wait = self.cfg.get('follow_up_recheck_seconds', 0)
+        if wait and not recheck and verdict in ('no_exec', 'binary_not_new'):
+            if not hasattr(self, 'rechecks'): self.rechecks = []
+            self.rechecks.append((now + wait, row))
         return verdict == 'allowed'
+
+    def recheck_follow_ups(self, now):
+        """Judge once more the triggers that were refused for want of a new exec (cfg follow_up_recheck_seconds)."""
+        due = [row for at, row in getattr(self, 'rechecks', []) if at <= now]
+        if due:
+            self.rechecks = [(at, row) for at, row in self.rechecks if at > now]
+            for row in due:
+                self.observe_trigger(row, now, recheck=True)
 
     def audit_follow_up(self, row, key, recent, now, verdict):
         """One line per follow-up decision (cfg follow_up_audit): what the exec log held at that moment, so a grouped
@@ -351,7 +372,8 @@ class Service:
                                                  'and at>? and at<=?', (node, pod, container, lo, hi))}
         # Periodic probes (python health checks, redis-cli, pg_isready) re-run within minutes;
         # a binary counts as new only if it did not run in the lookback before the previous case.
-        new = execs(since, event_time(row['window_end']))
+        until = max(event_time(row['window_end']), now) if self.cfg.get('follow_up_recheck_seconds', 0) else event_time(row['window_end'])
+        new = execs(since, until)
         if not new:
             self.count('follow_up_refused_no_exec'); return 'no_exec'
         if not new - execs(window_start - lookback, window_start):
@@ -592,6 +614,7 @@ class Service:
                     try:
                         if self.cfg.get('alert_trigger_file'): self.tail_alert_triggers()
                         elif not self.cfg.get('decision_stream'): self.tail_decisions()
+                        self.recheck_follow_ups(now)
                         self.emit_cases()
                     except OSError as exc: self.issue('decision_or_case_storage_unavailable', error_type=type(exc).__name__)
                     # streamed decisions arrive continuously; check case readiness more often
