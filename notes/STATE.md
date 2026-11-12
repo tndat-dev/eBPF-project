@@ -1,4 +1,4 @@
-# Trạng thái làm việc (bản ghi cho Claude, cập nhật 09/11/2026)
+# Trạng thái làm việc (bản ghi cho Claude, cập nhật 12/11/2026)
 
 File này thay bốn file trạng thái cũ (`SENTINEL_PULSE_STATUS.md`, `SYSCALL_FEATURE_EXPERIMENT_STATUS.md`,
 `RCA_RUNTIME_STATUS.md`, `RULE_INTEGRATION_STATUS.md`), xoá ngày 07/11 theo yêu cầu của chủ đồ án. Toàn văn còn trong
@@ -17,7 +17,7 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 - Tài liệu họp (docx, pptx): không CI, không biểu đồ phức tạp, không chữ "luận văn"; chủ đồ án tự sửa deck, nên chèn vào bản
   của họ, không dựng lại.
 
-## ML đã chốt: `lidds-ml-v4` (protocol `sentinel_pulse/protocol/lidds-ml-v4.json`, chốt 09/11)
+## Hệ thống hiện tại: `lidds-ml-v5` chỉ token (10/11); trước đó `lidds-ml-v4` (chốt 09/11)
 
 - Khác v3 ở cách học và đặt ngưỡng: token học training + validation; ngưỡng token là Gumbel trên điểm giữ ra của cross-fit 5 fold, bỏ
   1% cao nhất; α 0,0002 chia token 0,9, cây 0,05, support 0,05. Mô hình token, cây và support giữ nguyên như v3.
@@ -45,52 +45,34 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 - Calibration tự làm mới không thắng (29–30/10). Luật phá hoà RCA theo thời điểm khởi chạy: top-1 100% blind.
 - Ngưỡng theo khối thời gian với riêng cây + support trên dữ liệu live: recall chỉ 52–78% → trên cụm, recall phải do nhánh token mang.
 
-## Việc đang làm và tiếp theo
+## Việc đang làm và tiếp theo (kế hoạch 12/11, protocol `ml-final-study-v1`)
 
-1. **Probe token (07/11)**: `make tokens`; mặc định `--token-exit sys_exit` (một raw tracepoint), thư mục đầu bằng đi ngược
-   dentry từ fd (không còn ftrace_ops: `fexit`/`fentry` va chạm kprobe Tetragon, xem amendment 1–2 của
-   `token-probe-overhead-v1`). Worker: `tokens.jsonl`, chấm token (`TokenBranch`), nhánh đếm v3 (`v3_counts`). Proof:
-   `scripts/token_probe_proof.py` (đúng 1 token/syscall). Overhead 3 lần trong `results-20261107/token-probe-overhead/`;
-   bản cuối so với A: getpid +127–174 ns, open + close +0,94–1,23 µs, futex +216–298 ns. Sơ đồ kiến trúc: `docs/architecture/`.
-2. Bản build chính thức `/home/dat/pulse-tokens-20261107/{build,proof}` (46e9039, proof đạt 3 worker); lưu lượng trên pod thật
-   75–290 KB/s mỗi worker (`results-20261107/token-probe-build/`). Sẵn sàng cho lượt thu.
-3. `pulse-live-v3-v1` giai đoạn 1 xong: `pulse-token-capture-1107` (t0 07/11 20:29 = `selection_start` 1794058145.54, học
-   [t0, t0 + 8 h), validation tới hết lượt). Fit v4 theo amendment 2, ra `/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/`.
-   Khoá sha256 trong `results-20261109/pulse-live-v4-fit/`.
-   **Lượt live blind `pulse-live-v4-1109` đang chạy:** t0 09/11 13:59, tấn công từ 15:31, kết thúc 10/11 13:59. Source
-   `runtime-1167481-20261109`, không chạy job nặng tới khi xong. Pha selection (tới 15:29) có một can thiệp: 14:01 tạo lại 5 pod
-   (`payment-service` ×4, `order-service` ×1) restart tại chỗ lúc sau reboot, điểm support 18,8 so với khoảng 1,2 lúc capture.
-   **Sau lượt live:** Prometheus scrape MinIO (`up=0` từ trước capture, STRICT mTLS); sentinel thấy replica Redis ở IP node nên đánh dấu
-   `s_down` (replication vẫn online, nhưng failover qua sentinel có thể không chạy); cả hai làm đổi hành vi workload đã học nên hoãn.
-   **Chờ chủ đồ án:** GitHub CI không chạy được vì tài khoản bị khoá do billing.
-4. Ablation vòng 2: **tạm dừng** 07/11 20:20 theo chủ đồ án (dump worker1 18/49, worker3 46/49, worker4 6/49); chạy lại cùng lệnh
-   systemd-run (trần 42 GB) sau lượt live v3.
-5. **Kết quả live `pulse-live-v4-1109`** (biên nhận `results-20261110/pulse-live-v4-1109/`): tốc độ chính recall 315/315, precision
-   99,06%, control 0,95%, p95 0,49 s tới cuối cửa sổ (khoảng 0,64 s tới decision), gánh 0,52 đợt/replica-giờ; bốn kỳ vọng đạt. Binary
-   vô hại 314/315. Chỉ token cho cùng recall với gánh 0,41. Chưa đưa vào bản LaTeX (viết cùng lượt v5).
-5a0. **`lidds-ml-v5` xong trên LID-DS (10/11 20:55):** không gate nào giữ kết quả v4 (development 315–509/544); ứng viên duy nhất qua là
-   chỉ token: development 530/544, 6 báo nhầm; official 97,40% (1.238), báo nhầm 0,33% (26), p95 1,47 s. Đã đưa vào bản LaTeX.
-   Binary vô hại vẫn là giới hạn mở. Fit cụm với normal mở rộng xong 10/11 22:23 (`pulse-live-v5-fit-1110/token`, 21 workload;
-   `count-thresholds.json` shadow). Bước 2 chọn `token-hold0-poolnone` (không gate): trên trial lượt 1109 chính 315/315, binary vô hại
-   522/525, control 0/525 (`results-20261111/pulse-live-v5-fit/`).
-   **Lượt live blind `pulse-live-v5-1110` đang chạy:** source `runtime-9a506d1-20261110`, khởi chạy 11/11 01:09, selection 01:10–02:40,
-   tấn công từ 02:42, kết thúc khoảng 12/11 01:10; 525 trial tốc độ 1/3/6/12/24, đối chứng lệnh admin bật, nhánh đếm shadow. Không chạy
-   job nặng tới khi xong. RCA của lượt v4 (còn chạy dù unit file đã xoá) dừng 10/11 22:57.
-5a. **Trạng thái 10/11 16:00:** `pulse-live-v4-1109` xong (86.400 s, 0 issue). Đang chạy trên `.234`: `pulse-live-v4-analysis`
-   (ra `/var/tmp/pulse-live-v4-1109-analysis/arms.json`) và `lidds-ml-v5-pool` (ra `/var/tmp/lid-ds-2021/ml-v5-pool`, source a01b843).
-   Tiếp theo, lần lượt: `lidds_ml_v5.py` (development + CB-DS) → fit cụm có `--extra-run` (amendment 2) → `pulse_v5_select.py` →
-   `lidds_ml_v5.py --official <ứng viên>` → live `pulse-live-v5-<MMDD>` với build `/home/dat/pulse-tokens-20261110`, `TOKEN_GATE`,
-   `ADMIN_CONTROL=1`, `count_branch_fit.py --shadow`. Audit code: `notes/CODE_AUDIT.md`, tag `archive/pre-audit-20261110`.
-5b. **`lidds-ml-v5` + amendment 1, 2 (chưa chấm):** đồ án lấy ML làm trọng tâm; hệ thống chỉ còn nhánh token, cây + support tạm bỏ khỏi đường cảnh báo nhưng giữ lại (code, model, ngưỡng, log shadow). Gate: mô hình gộp + ngưỡng riêng cho pha sau `execve` học từ các lần khởi chạy vô hại; luật bỏ 1 s chỉ là ứng viên so sánh. Sau khi `pulse-live-v4-1109` xong:
-   `scripts/lidds_ml_pool_run.sh` (unit có MemoryMax) → `lidds_ml_v5.py` chọn trên development + CB-DS phải giữ số v4 → chọn trên trial của lượt 1109 → `--official` một ứng viên
-   phải giữ 1.238/1.271, 36/7.938, p95 ≤ 1,5 s → fit lại trên capture cũ → live `pulse-live-v5-<MMDD>` có lệnh admin thật (`ADMIN_CONTROL=1`, `TOKEN_GATE`). Trượt thì bỏ gate.
-6. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.
+Hệ thống hiện tại: `lidds-ml-v5` (chỉ token), live `pulse-live-v5-1110` xong, đồ án và tài liệu họp 13/11 đã cập nhật. Lịch sử các
+bước trước: [WORKLOG.md](WORKLOG.md) và git.
+
+**Giai đoạn 1: nghiên cứu offline, không cần lượt live** (protocol `sentinel_pulse/protocol/ml-final-study-v1.json`, đăng ký 12/11 21:50)
+1. A, tách recall live: burst khởi chạy hay hành vi tấn công (`scripts/analysis/live_attribution.py`, unit `ml-final-a` trên `.234`,
+   ra `/var/tmp/ml-final/live-attribution.json`). Mô tả, không đổi hệ thống.
+2. B, học hoạt động quản trị như normal, bỏ-một-lệnh (cùng unit). Đạt tiêu chí thì đề xuất lượt live xác nhận có fit lại.
+3. D, tín hiệu tần suất cho tấn công chỉ dùng chuỗi đã thấy trên cache development (`lidds_token_rate.py`). Đạt tiêu chí thì một lần
+   chấm official đã khai.
+4. C, ngưỡng trên cụm từ phân vị thực nghiệm của cực đại khối 60 s giữ ra (`token_branch_fit.py --dump-maxima`).
+5. Chốt ML cuối (v6) từ kết quả 1–4; ghi vào đồ án như development.
+
+**Giai đoạn 2: rule sau khi chốt ML** (E): R1 hạ cảnh báo khi chỉ có runtime exec của tool có trong image, R2 gắn nhãn drift cho binary
+lạ; đo trên dữ liệu v5, so sánh có và không có rule.
+
+**Giai đoạn 3: một lượt live mới `pulse-live-v6-<MMDD>`** (protocol riêng, đăng ký trước): tấn công trong process đang chạy (không exec),
+tấn công bằng tool của image, thêm kỹ thuật ATT&CK (discovery, credential access, persistence, impact, network scan), thứ tự ngẫu nhiên,
+RCA recheck, lệnh quản trị mới chưa dùng khi học. Đo riêng: chi phí trên request (bật/tắt probe xen kẽ), tải tới khi map đầy.
+
+**Giai đoạn 4:** LID-DS 2019 đúng một lần khi mô hình đạt tầm paper; so sánh có/không có rule; mở lại baseline học sâu.
 
 ## Dữ liệu và tài nguyên
 
 - `.234` (`/var/tmp/lid-ds-2021`): 15 archive LID-DS 2021, `ml-scores-allwin` (cây, support), `ml-tokens` (token v2),
-  `ml-v3-tokens` (full, full1, select1f, mọi bản ghi), `ml-links` (symlink cho scorer). Ablation: `/var/tmp/syscall-loo` (vòng 1 và 2). CB-DS: `/var/tmp/cb-ds/archives`.
-  LID-DS 2019: `/var/tmp/lid-ds-2019`. Bảng cửa sổ các lượt live: `/var/tmp/burden-levers/table-*.npz`.
+  `ml-v3-tokens` (full, full1, select1f, mọi bản ghi), `ml-links` (symlink cho scorer). CB-DS: `/var/tmp/cb-ds/archives`.
+  LID-DS 2019: `/var/tmp/lid-ds-2019`. Cache của token-design-study: `/var/tmp/lid-ds-2021/token-study/cache` (development, CB-DS).
 - NFS `.233`: `/mnt/sentinel-pulse-archive` (các lượt live, bản sao tài liệu). `pulse-alert-bridge-rca-viewer` (xem case RCA trên
   Grafana) mất khi vCenter khởi động lại 09/11 10:19 vì là unit tạm; lượt live dựng bridge riêng trên cùng cổng 9478.
 - Mọi unit phân tích trên `.234`: `systemd-run -p MemoryMax=… -p OOMPolicy=continue`, tổng trần ≤ khoảng 45 GB (balloon dao động tới 70 GB).
