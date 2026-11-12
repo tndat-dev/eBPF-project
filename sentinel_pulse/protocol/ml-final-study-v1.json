@@ -1,0 +1,72 @@
+{
+ "schema": "sentinel-pulse-ml-final-study-v1",
+ "registered_at": "2026-11-12T21:52+07:00",
+ "registered_before": "any code of parts A-E below is written or run; the data of pulse-live-v5-1110 has been analysed only by the registered pulse_live_v4.py, rca_coverage.py, rca_follow_up.py, bridge_delivery.py and delivery-latency analyses",
+ "owner_decision": "12/11: study the remaining weaknesses in depth and push them as far as possible so the final ML model can be fixed, then add rules that reduce the flagging of benign processes; read the whole thesis for points that are not rigorous and design experiments for them; LID-DS 2019 stays untouched until the model is ready for one final run",
+ "system_under_study": "lidds-ml-v5 token model alone (alphabet select1f, per-thread 4-grams, interpolated Witten-Bell, mean of the 10 highest -ln p, moment Gumbel without the top 1 % at alpha' = 0.00018, one window fires); on the cluster the models and thresholds of pulse-live-v5-fit-1110",
+ "rigor_gaps_found": [
+  "G1 live recall: every live attack starts with a kubectl exec, the benign binary of the same trial is flagged 314/314 and 14 attacks alarmed before the attack binary was exec'd, so the 314/314 may measure 'a process was launched' rather than the attack behaviour; the thesis states this risk but does not measure it (part A)",
+  "G2 benign processes: admin commands 419/436 and the benign binary 314/314 are flagged; the registered gates lost real exploits on LID-DS (part B, part E)",
+  "G3 cluster threshold: 14-17 times more held-out 60 s blocks over the threshold than designed; on the cluster there are tens of thousands of held-out blocks, so a nonparametric threshold is possible there although it lost on LID-DS with about 270 recordings (part C)",
+  "G4 seen-only attacks: 0/544 in the simulation; no signal of the system looks at the rate of seen grams (part D)",
+  "G5 RCA order advantage, exec race fix, ATT&CK coverage, request overhead, map-full load, attacks inside a running process: need a new live run (part F, design only here)"
+ ],
+ "A_live_attribution": {
+  "data": "pulse-live-v5-1110: tokens.jsonl of every segment of the three workers (per container and 0.5 s window, the distinct grams and their counts, with the logged token_score and token_threshold) and pulse-development-matrix/INTERVALS.jsonl; models and thresholds of pulse-live-v5-fit-1110 (MODELS.json)",
+  "gate": "the recomputed window score of every window of an attack, benign or admin interval equals the logged token_score within 1e-9; otherwise the part stops",
+  "definitions": {
+   "trial_windows": "windows of the trial's container whose end lies in [start, start + 15 s] of the interval (as pulse_live_v4.py)",
+   "launch_reference": "the set of distinct grams of the same container in the same trial's benign-binary interval and admin interval",
+   "attack_specific_score": "the score of a window over its grams that are not in the launch reference (counts kept), mean of the 10 highest -ln p as the model; 0 when none is left",
+   "attack_specific_detection": "some trial window of the attack interval has an attack-specific score above the workload threshold",
+   "post_launch_detection": "some trial window of the attack interval ending at least 1.5 s after the interval start has a score above the threshold (no gram removed)"
+  },
+  "report": "for all attack trials and the primary set (6, 12, 24 per second): recall as run (T), attack-specific recall, post-launch recall, and both together; by scenario and by rate; the first attack-specific alarm latency from the interval start; trials detected only through launch grams",
+  "decision": "descriptive; no threshold or model changes. If attack-specific recall on the primary set is below 95 %, the thesis reports the live recall with this decomposition next to the headline and the next live run (part F) measures attacks inside a running process",
+  "limits": "a launch gram of the attack binary that the benign binary does not produce (a different binary path, size or library) counts as attack-specific, so the attack-specific recall is an upper bound for 'detected by the attack operation alone'; the post-launch variant has no such bias but also drops attacks that end within 1.5 s"
+ },
+ "B_operator_activity_in_normal": {
+  "idea": "routine operator activity (kubectl exec of image tools) is part of a production container's normal; a model that has seen it should not flag the launch path itself. Learnt, no rule",
+  "data": "pulse-live-v5-1110 admin intervals (10 commands), benign and attack intervals, controls; v5 models",
+  "procedure": "leave one command out: for each command c, every workload model learns (adds to its counts) the grams of every admin interval window of the other 9 commands on that workload's containers; the held-out command's intervals are scored with that model. Attack, benign-binary and control intervals are scored with the model that learnt all 10 commands. Thresholds stay the v5 fit thresholds (approximation declared below)",
+  "report": "held-out admin flagged (all rates, primary set), benign binary flagged, control positives, attack recall as run and attack-specific (part A definitions), all with the v5 model alongside",
+  "criteria_for_a_live_confirmation": "held-out admin flagged <= 20 % (the v5 acceptance level), attack recall on the primary set >= 95 %, attack-specific recall not more than 2 points below the v5 value, control positives <= 5 %. Meeting them only proposes a confirming live run with a proper refit; it does not change the system",
+  "lidds": "the method changes only the cluster's training data; LID-DS 2021 has no operator activity, so its models and result are unchanged by construction (stated, not re-run)",
+  "limits": "development analysis on data already seen; thresholds are not re-fitted, and adding counts can only lower the scores of the learnt grams, so normal burden is not estimated here; the confirming run must refit with cross-fit"
+ },
+ "C_cluster_threshold": {
+  "idea": "replace the moment-Gumbel by the empirical (1 - alpha') quantile of the held-out 60 s block maxima where there are enough blocks",
+  "procedure": "re-run the registered cross-fit of token_branch_fit.py on the v5 fit spans with an added output of the held-out block maxima per workload (no other change; its Gumbel thresholds must equal MODELS.json within 1e-9); thresholds: (a) v5 Gumbel, (b) empirical quantile at the same alpha', (c) empirical quantile at the alpha' that gives the held-out block exceedance the v5 Gumbel actually has; score the v5 run windows already logged against each",
+  "report": "held-out block exceedance against design, control positives, normal burden on the 5 declared segments of every worker (s00010, s00020, s00030, s00040, s00045), attack recall and attack-specific recall, benign and admin flagged",
+  "decision": "descriptive for the thesis section on the threshold; a change of rule needs the LID-DS 2021 development result kept (530/544, <= 6 false alarms) under the same rule, which part C also reports (empirical quantile of the cross-fit recording maxima per scenario)"
+ },
+ "D_seen_only_signal": {
+  "idea": "a rate signal over seen grams: a window is unusual when a gram that normal knows occurs far more often than normal ever shows",
+  "data": "the development caches of token-design-study (LID-DS 2021 development, CB-DS)",
+  "signal": "per gram g of the full model, m_g = the largest count of g in one 0.5 s window over the held-out learning windows (cross-fit, 5 folds as the model); window rate score = max over grams of log((n_g(W) + 1) / (m_g + 1)), grams unseen in learning ignored",
+  "threshold": "the registered rule (moment Gumbel on the trimmed held-out recording maxima at alpha' = 0.00018)",
+  "report": "development: rate signal alone on the full and on the seen-only attack recordings (part q4 simulation), normal false alarms; model OR rate signal at the model's budget; CB-DS",
+  "decision": "the rate signal joins the final model only if, OR-ed with the token model, it keeps 530/544 with at most 12 false alarms on development and 891/891 with at most 3 on CB-DS, and detects at least 1 % (6/544) of the seen-only simulation; then one declared official scoring. Otherwise it is reported as a negative result"
+ },
+ "E_rule_layer_after_ml": {
+  "order": "only after parts A-D fix the ML model (owner rule: ML first, rules after, then compare without and with rules)",
+  "candidates": {
+   "R1_image_tool_exec": "an alert window whose cgroup had, within [window start - 2 s, window end], only runtime execs (parent outside the container's process tree) of binaries that belong to the container image is downgraded to info",
+   "R2_drift": "a runtime exec of a binary not in the image stays an alert and is labelled drift, whatever the model says"
+  },
+  "evaluation": "pulse-live-v5-1110 trials and exec events of the run (RCA exec log): admin flagged with and without R1, benign binary, attack recall with and without; the campaign cannot measure the miss of R1 on living-off-the-land attacks (attacks that exec image tools), so part F adds such attacks before R1 is adopted"
+ },
+ "F_next_live_run_design": {
+  "status": "design only; its own protocol is registered before the run",
+  "items": [
+   "attacks inside an already running process: the fixture starts in the trial's benign phase and performs the operation after a random 20-40 s delay, with no exec at attack time",
+   "random order of benign binary, admin command and attack within a trial (RCA tie-break)",
+   "more ATT&CK for Containers techniques: discovery (service-account token and /proc listing), credential access (reading mounted secrets), persistence (writing a cron or profile file), impact (a CPU-bound loop), network scan (connect to many ports), living off the land (attack steps through image tools: sh, cat, python)",
+   "RCA follow-up recheck (follow_up_recheck_seconds = 2) measured live",
+   "request overhead of the application with and without the probe (load generator against api-gateway, interleaved on and off blocks)",
+   "map-full load: a stress fixture with growing threads and distinct grams until the probe reports drops"
+  ]
+ },
+ "multiple_comparisons": "parts A and C are descriptive; part B and D decisions use the fixed criteria above; no p-values are claimed",
+ "code": "scripts/analysis/live_attribution.py (A, B), token_branch_fit.py --dump-maxima (C), lidds_token_rate.py (D); each with tests"
+}
