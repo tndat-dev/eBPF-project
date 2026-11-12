@@ -1,0 +1,63 @@
+\documentclass[border=6pt]{standalone}
+\usepackage{fontspec}
+\setmainfont{texgyretermes}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic]
+\setmonofont{texgyrecursor}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic,Scale=0.95]
+\usepackage{amsmath,amssymb,tikz,setspace}
+\usetikzlibrary{positioning,arrows.meta,fit,calc}
+% style chung của sơ đồ kiến trúc (thesis/figures/tikz-*.tex)
+\tikzset{
+  pbox/.style={draw, rounded corners=2pt, align=left, inner sep=3pt, font={\setstretch{1}\footnotesize},
+    anchor=north west},
+  kern/.style={pbox, fill=yellow!14, draw=yellow!45!black},
+  usr/.style={pbox, fill=blue!6, draw=blue!55!black},
+  mlb/.style={pbox, fill=green!9, draw=green!40!black},
+  alr/.style={pbox, fill=red!6, draw=red!55!black},
+  ext/.style={pbox, fill=orange!9, draw=orange!65!black},
+  sto/.style={pbox, fill=gray!9, draw=gray!60!black},
+  evl/.style={pbox, dashed, fill=violet!5, draw=violet!60!black},
+  grp/.style={draw, dashed, rounded corners=4pt, inner sep=5pt},
+  grplabel/.style={font=\scriptsize\bfseries, anchor=south west, inner sep=1pt},
+  arr/.style={-{Stealth[length=2mm]}, semithick},
+  arrd/.style={arr, dashed},
+  elab/.style={font=\scriptsize\itshape, fill=white, inner sep=1pt}}
+
+\newcommand{\code}[1]{\\{\scriptsize\color{blue!45!black}\texttt{#1}}}
+\begin{document}
+% Hình probe eBPF trong kernel (bản build make tokens). Style ở main.tex.
+\begin{tikzpicture}
+  % ---- đường đi của một syscall
+  \node[ext, text width=2.9cm, minimum height=1.45cm] (call) at (0,0) {\textbf{syscall(nr, args)}\\của một thread};
+  \node[ext, text width=3.9cm, minimum height=1.45cm] (secc) at ($(call.north east)+(0.55,0)$) {\textbf{seccomp} của container\\có thể trả lỗi, syscall không chạy};
+  \node[ext, text width=3.1cm, minimum height=1.45cm] (body) at ($(secc.north east)+(0.55,0)$) {\textbf{thân syscall}\\trả về $\geq 0$ hoặc $-$errno};
+  \node[ext, text width=2.45cm, minimum height=1.45cm] (ret) at ($(body.north east)+(0.55,0)$) {\textbf{trở về}\\user space};
+  \draw[arr] (call) -- (secc);
+  \draw[arr] (secc) -- node[elab, below=2pt] {cho phép} (body);
+  \draw[arr] (body) -- (ret);
+  % ---- ba chương trình BPF
+  \node[kern, text width=4.6cm] (enter) at ($(call.south west)+(0,-1.0)$) {\textbf{\texttt{raw\_tp/sys\_enter}}\\1. cgroup của task có trong allow-list? không thì thoát\\2. tra hoặc tạo trạng thái thread (map \texttt{pulse\_last\_syscall})\\3. syscall không có hook trả về: phát token tên ngay\\4. syscall có hook: đánh dấu chờ, phát token lúc trả về};
+  \node[kern, text width=3.6cm] (skip) at ($(enter.north east)+(0.35,0)$) {\textbf{\texttt{fexit/}}\\\textbf{\texttt{\_\_seccomp\_filter}}\\syscall bị seccomp bỏ qua không tới \texttt{sys\_exit}: phát token tên ở đây, bỏ đánh dấu chờ};
+  \node[kern, text width=5.4cm] (exit) at ($(skip.north east)+(0.35,0)$) {\textbf{\texttt{raw\_tp/sys\_exit}} (39 syscall có hook)\\lỗi, nhóm 27 syscall: tên + errno\\đọc/ghi thành công: tên + $\min(15, \lfloor\log_2 \text{ret}\rfloor)$\\\texttt{open}, \texttt{openat}, \texttt{openat2}, \texttt{creat} thành công: tên + chế độ (ghi nếu \texttt{O\_WRONLY}, \texttt{O\_RDWR}, \texttt{O\_CREAT}, \texttt{O\_TRUNC} hoặc \texttt{O\_APPEND}) + thư mục đầu\\còn lại: tên};
+  \node[kern, text width=5.4cm] (dir) at ($(exit.south west)+(0,-0.45)$) {\textbf{Thư mục đầu:} fd vừa mở $\to$ \texttt{struct file} $\to$ đi ngược \texttt{d\_parent}, vượt mount, tối đa 64 bước (\texttt{bpf\_loop}) tới gốc của task, tức gốc của container $\to$ băm FNV-1a thành phần đầu, giữ 20 bit; mã riêng cho \texttt{/} và đường dẫn tương đối};
+  \node[kern, text width=14.6cm] (emit) at ($(enter.south west |- dir.south)+(0,-0.45)$) {\textbf{Phát token} (chung cho ba chương trình): gram = (3 token trước của thread, token mới); khoá = (cgroup, cửa sổ = thời gian / 0,5 s, gram); có trong map thì cộng nguyên tử, chưa có thì chèn \texttt{BPF\_NOEXIST}, thua tranh chấp thì tra lại; rồi dịch lịch sử 3 token của thread};
+  \draw[arr] (call.south) -- (call.south |- enter.north);
+  \draw[arr] (secc.south) -- node[elab, right, pos=0.3] {bỏ qua} (secc.south |- skip.north);
+  \draw[arr] (ret.south) -- (ret.south |- exit.north);
+  \draw[arr] (exit.south) -- (dir.north);
+  \draw[arr] (dir.south) -- (dir.south |- emit.north);
+  \draw[arr] (enter.south) -- (enter.south |- emit.north);
+  \draw[arr] (skip.south) -- (skip.south |- emit.north);
+  % ---- map
+  \node[sto, text width=4.3cm] (m1) at ($(emit.south west)+(0,-0.6)$) {\textbf{\texttt{pulse\_cgroups}}\\per-CPU hash, 1.024 cgroup: allow-list và bộ đếm syscall theo cgroup (giữ lại, không dùng để báo)};
+  \node[sto, text width=4.6cm] (m2) at ($(m1.north east)+(0.35,0)$) {\textbf{\texttt{pulse\_last\_syscall}}\\LRU hash, 131.072 thread: cgroup, thời điểm, syscall đang chạy, 3 token gần nhất, cờ chờ};
+  \node[sto, text width=4.9cm] (m3) at ($(m2.north east)+(0.35,0)$) {\textbf{\texttt{pulse\_grams}}\\hash, 262.144 mục; khoá 32 byte (cgroup, cửa sổ, 4 token); giá trị: số lần};
+  \draw[arr] (emit.south -| m2.north) -- node[elab, right] {lịch sử} (m2.north);
+  \draw[arr] (emit.south -| m3.north) -- node[elab, right] {đếm gram} (m3.north);
+  \node[grp, fit=(enter)(skip)(exit)(dir)(emit)(m1)(m2)(m3)] (kgrp) {};
+  \node[grplabel] at (kgrp.north west) {Chương trình BPF trong kernel (CO-RE, BTF)};
+  % ---- token 32 bit và loader
+  \node[usr, text width=7.0cm] (lay) at ($(m1.south west)+(0,-0.75)$) {\textbf{Token 32 bit}\\bit 23--31: số syscall \quad bit 21--22: loại\\loại 0 tên, 1 errno, 2 nhóm cỡ, 3 open (bit 20 = ghi, bit 0--19 = thư mục)\\\texttt{0xFFFFFFFF}: ô lịch sử trống ở đầu thread};
+  \node[usr, text width=7.25cm] (load) at ($(lay.north east)+(0.35,0)$) {\textbf{Loader} (user space, mỗi 0,5 s)\\đọc \texttt{pulse\_grams} theo lô, lấy các cửa sổ đã đóng rồi xoá; in dòng \texttt{token\_grams}: cgroup, cửa sổ, số sự kiện, danh sách (4 token, số lần)\\kiểm khi khởi động: SHA-256 của loader và object, proof theo kernel};
+  \draw[arr] (m3.south -| load.north) -- (load.north);
+\end{tikzpicture}
+
+\end{document}

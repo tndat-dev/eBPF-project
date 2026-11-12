@@ -1,0 +1,269 @@
+{
+ "schema": "ml-final-study-v1-rate-signal",
+ "protocol": "sentinel_pulse/protocol/ml-final-study-v1.json",
+ "arms": {
+  "rate": {
+   "lidds": {
+    "detected": 225,
+    "attack_recordings": 544,
+    "false_alarm_recordings": 7,
+    "normal_recordings": 3403,
+    "latency_p95": 2.434725952148437,
+    "scenarios": {
+     "Bruteforce_CWE-307": [
+      42,
+      1
+     ],
+     "CVE-2012-2122": [
+      27,
+      0
+     ],
+     "CVE-2014-0160": [
+      0,
+      0
+     ],
+     "CVE-2017-12635_6": [
+      2,
+      1
+     ],
+     "CVE-2017-7529": [
+      33,
+      0
+     ],
+     "CVE-2018-3760": [
+      2,
+      2
+     ],
+     "CVE-2019-5418": [
+      0,
+      0
+     ],
+     "CVE-2020-13942": [
+      0,
+      0
+     ],
+     "CVE-2020-23839": [
+      36,
+      2
+     ],
+     "CVE-2020-9484": [
+      36,
+      0
+     ],
+     "CWE-89-SQL-injection": [
+      36,
+      0
+     ],
+     "EPS_CWE-434": [
+      0,
+      0
+     ],
+     "Juice-Shop": [
+      11,
+      1
+     ],
+     "PHP_CWE-434": [
+      0,
+      0
+     ],
+     "ZipSlip": [
+      0,
+      0
+     ]
+    }
+   },
+   "cbds": {
+    "detected": 891,
+    "attack_recordings": 891,
+    "false_alarm_recordings": 3,
+    "normal_recordings": 1410,
+    "latency_p95": 5.536024808883667,
+    "scenarios": {
+     "CB-DS": [
+      891,
+      3
+     ]
+    }
+   }
+  },
+  "model": {
+   "lidds": {
+    "detected": 530,
+    "attack_recordings": 544,
+    "false_alarm_recordings": 6,
+    "normal_recordings": 3403,
+    "latency_p95": 1.516074502468109,
+    "scenarios": {
+     "Bruteforce_CWE-307": [
+      42,
+      0
+     ],
+     "CVE-2012-2122": [
+      36,
+      0
+     ],
+     "CVE-2014-0160": [
+      36,
+      0
+     ],
+     "CVE-2017-12635_6": [
+      36,
+      1
+     ],
+     "CVE-2017-7529": [
+      36,
+      0
+     ],
+     "CVE-2018-3760": [
+      37,
+      0
+     ],
+     "CVE-2019-5418": [
+      36,
+      0
+     ],
+     "CVE-2020-13942": [
+      34,
+      0
+     ],
+     "CVE-2020-23839": [
+      36,
+      1
+     ],
+     "CVE-2020-9484": [
+      36,
+      1
+     ],
+     "CWE-89-SQL-injection": [
+      36,
+      0
+     ],
+     "EPS_CWE-434": [
+      36,
+      2
+     ],
+     "Juice-Shop": [
+      23,
+      1
+     ],
+     "PHP_CWE-434": [
+      35,
+      0
+     ],
+     "ZipSlip": [
+      35,
+      0
+     ]
+    }
+   },
+   "cbds": {
+    "detected": 891,
+    "attack_recordings": 891,
+    "false_alarm_recordings": 3,
+    "normal_recordings": 1410,
+    "latency_p95": 5.229039788246155,
+    "scenarios": {
+     "CB-DS": [
+      891,
+      3
+     ]
+    }
+   }
+  },
+  "model_or_rate": {
+   "lidds": {
+    "detected": 530,
+    "attack_recordings": 544,
+    "false_alarm_recordings": 12,
+    "normal_recordings": 3403,
+    "latency_p95": 1.516074502468109,
+    "scenarios": {
+     "Bruteforce_CWE-307": [
+      42,
+      1
+     ],
+     "CVE-2012-2122": [
+      36,
+      0
+     ],
+     "CVE-2014-0160": [
+      36,
+      0
+     ],
+     "CVE-2017-12635_6": [
+      36,
+      2
+     ],
+     "CVE-2017-7529": [
+      36,
+      0
+     ],
+     "CVE-2018-3760": [
+      37,
+      2
+     ],
+     "CVE-2019-5418": [
+      36,
+      0
+     ],
+     "CVE-2020-13942": [
+      34,
+      0
+     ],
+     "CVE-2020-23839": [
+      36,
+      2
+     ],
+     "CVE-2020-9484": [
+      36,
+      1
+     ],
+     "CWE-89-SQL-injection": [
+      36,
+      0
+     ],
+     "EPS_CWE-434": [
+      36,
+      2
+     ],
+     "Juice-Shop": [
+      23,
+      2
+     ],
+     "PHP_CWE-434": [
+      35,
+      0
+     ],
+     "ZipSlip": [
+      35,
+      0
+     ]
+    }
+   },
+   "cbds": {
+    "detected": 891,
+    "attack_recordings": 891,
+    "false_alarm_recordings": 4,
+    "normal_recordings": 1410,
+    "latency_p95": 5.1754456758499146,
+    "scenarios": {
+     "CB-DS": [
+      891,
+      4
+     ]
+    }
+   }
+  }
+ },
+ "criteria": {
+  "keep": {
+   "detected": 530,
+   "false_alarm_recordings": 12,
+   "cb_detected": 891,
+   "cb_false_alarm_recordings": 3
+  },
+  "seen_only_min": 6
+ },
+ "joins": false,
+ "seen_only_note": "rate detections on the attack recordings equal its detections on the seen-only simulation, since unseen grams never enter the rate score"
+}

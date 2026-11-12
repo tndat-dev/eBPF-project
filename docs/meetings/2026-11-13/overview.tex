@@ -1,0 +1,66 @@
+\documentclass[border=6pt]{standalone}
+\usepackage{fontspec}
+\setmainfont{texgyretermes}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic]
+\setmonofont{texgyrecursor}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic,Scale=0.95]
+\usepackage{amsmath,amssymb,tikz,setspace}
+\usetikzlibrary{positioning,arrows.meta,fit,calc}
+% style chung của sơ đồ kiến trúc (thesis/figures/tikz-*.tex)
+\tikzset{
+  pbox/.style={draw, rounded corners=2pt, align=left, inner sep=3pt, font={\setstretch{1}\footnotesize},
+    anchor=north west},
+  kern/.style={pbox, fill=yellow!14, draw=yellow!45!black},
+  usr/.style={pbox, fill=blue!6, draw=blue!55!black},
+  mlb/.style={pbox, fill=green!9, draw=green!40!black},
+  alr/.style={pbox, fill=red!6, draw=red!55!black},
+  ext/.style={pbox, fill=orange!9, draw=orange!65!black},
+  sto/.style={pbox, fill=gray!9, draw=gray!60!black},
+  evl/.style={pbox, dashed, fill=violet!5, draw=violet!60!black},
+  grp/.style={draw, dashed, rounded corners=4pt, inner sep=5pt},
+  grplabel/.style={font=\scriptsize\bfseries, anchor=south west, inner sep=1pt},
+  arr/.style={-{Stealth[length=2mm]}, semithick},
+  arrd/.style={arr, dashed},
+  elab/.style={font=\scriptsize\itshape, fill=white, inner sep=1pt}}
+
+\newcommand{\code}[1]{\\{\scriptsize\color{blue!45!black}\texttt{#1}}}
+\begin{document}
+% Hình tổng quan kiến trúc Sentinel Pulse (hệ thống lidds-ml-v5). Style ở main.tex.
+\begin{tikzpicture}[node distance=0.55cm]
+  % ---- mỗi worker (cột trái, rộng 7 cm)
+  \node[ext, text width=6.75cm] (app) at (0,0) {\textbf{Container ứng dụng} trong namespace \texttt{production}: AIMS, 21 workload, khoảng 80 pod. Mỗi container là một cgroup; Pulse không sửa ứng dụng hay pod.};
+  \node[kern, text width=4.15cm, minimum height=2.5cm] (probe) at ($(app.south west)+(0,-0.6)$) {\textbf{Probe eBPF} (kernel 6.8)\\hook \texttt{sys\_enter}, \texttt{sys\_exit}, \texttt{\_\_seccomp\_filter}\\token 32 bit cho mỗi syscall\\đếm 4-gram theo thread trong map \texttt{pulse\_grams}};
+  \node[kern, text width=2.25cm, minimum height=2.5cm] (allow) at ($(probe.north east)+(0.3,0)$) {\textbf{Allow-list}\\chỉ cgroup của \texttt{production} được theo dõi};
+  \node[usr, text width=4.15cm, minimum height=1.75cm] (loader) at ($(probe.south west)+(0,-0.6)$) {\textbf{Loader C}\\mỗi 0,5 s đọc các cửa sổ đã đóng; khoá SHA-256 và proof theo kernel};
+  \node[usr, text width=2.25cm, minimum height=1.75cm] (resolver) at ($(loader.north east)+(0.3,0)$) {\textbf{Resolver}\\Pod UID $\to$ cgroup $\to$ workload};
+  \node[mlb, text width=6.75cm] (worker) at ($(loader.south west)+(0,-0.6)$) {\textbf{Worker chấm điểm} (Python; tối đa 3 core, 3 GB)\\cửa sổ token $\to$ mô hình ngôn ngữ của workload $\to$ điểm $s(W)$ $\to$ so với ngưỡng $\tau$; ghi decision bằng thread nền};
+  \node[sto, text width=3.2cm, minimum height=1.3cm] (dec) at ($(worker.south west)+(0,-0.6)$) {\textbf{Decision}\\trên đĩa local};
+  \node[ext, text width=3.2cm, minimum height=1.3cm] (tetra) at ($(dec.north east)+(0.35,0)$) {\textbf{Tetragon}\\exec, fork, kết nối};
+  \node[grp, fit=(app)(probe)(allow)(loader)(resolver)(worker)(dec)(tetra)] (wgrp) {};
+  \node[grplabel] at (wgrp.north west) {Mỗi worker ($\times$3)};
+  % ---- master (cột phải)
+  \node[alr, text width=6.5cm] (bridge) at (8.3,0) {\textbf{Bridge cảnh báo}\\đọc decision local của 3 worker qua SSH; gom cửa sổ báo cùng container cách nhau dưới 15 s thành một đợt; push API v2, thử lại 3 lần};
+  \node[alr, text width=3.05cm] (am) at ($(bridge.south west)+(0,-0.6)$) {\textbf{Alertmanager}\\của cụm};
+  \node[alr, text width=3.05cm] (ppl) at ($(am.north east)+(0.4,0)$) {\textbf{Người vận hành}\\thông báo, Grafana};
+  \node[alr, text width=6.5cm] (rca) at ($(am.south west)+(0,-0.6)$) {\textbf{RCA}\\một case cho mỗi cảnh báo Alertmanager đã nhận; ring sự kiện Tetragon 180 s; xếp hạng nghi phạm; cây bằng chứng};
+  \node[grp, fit=(bridge)(am)(ppl)(rca)] (mgrp) {};
+  \node[grplabel] at (mgrp.north west) {Master (.234)};
+  % ---- lưu trữ và học
+  \node[sto, text width=6.5cm] (nfs) at ($(rca.south west)+(0,-0.9)$) {\textbf{NFS (.233)}\\mỗi worker một segment 30 phút: decision, token, issue; \texttt{CONFIG.json} bất biến của lượt chạy; mô hình};
+  \node[mlb, text width=6.5cm] (fit) at ($(nfs.south west)+(0,-0.6)$) {\textbf{Học mô hình} (offline, trước mỗi lượt)\\normal của cụm $\to$ đếm 4-gram theo workload $\to$ cross-fit 5 fold $\to$ ngưỡng Gumbel $\to$ \texttt{MODELS.json} khoá SHA-256};
+  % ---- mũi tên
+  \draw[arr] (app.south -| probe.north) -- node[elab, right] {syscall} (probe.north);
+  \draw[arr] (probe.south) -- node[elab, right] {map} (loader.north);
+  \draw[arrd] (resolver.north) -- (allow.south);
+  \draw[arr] (loader.south) -- (loader.south |- worker.north);
+  \draw[arrd] (resolver.south) -- (resolver.south |- worker.north);
+  \draw[arr] (worker.south -| dec.north) -- (dec.north);
+  \draw[arr] (dec.south) -- ++(0,-0.3) coordinate (d1) -- (d1 -| 7.6,0) |- ($(bridge.west)+(0,0.3)$);
+  \draw[arr] (tetra.east) -- (7.9,0 |- tetra.east) |- (rca.west);
+  \draw[arr] (am.north |- bridge.south) -- (am.north);
+  \draw[arr] (am.east) -- (ppl.west);
+  \draw[arr] (am.south) -- node[elab, right] {cảnh báo đã nhận} (am.south |- rca.north);
+  \draw[arr] (worker.east) -- (7.3,0 |- worker.east) |- (nfs.west);
+  \draw[arr] (nfs.south) -- node[elab, right] {normal} (nfs.south |- fit.north);
+  \draw[arrd] (fit.south) -- ++(0,-0.3) -| node[elab, pos=0.2, below] {\texttt{MODELS.json} cho worker} ($(worker.south east)+(-0.5,0)$);
+\end{tikzpicture}
+
+\end{document}

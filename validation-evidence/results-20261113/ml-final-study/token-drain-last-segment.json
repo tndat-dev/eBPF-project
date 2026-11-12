@@ -1,0 +1,26 @@
+{
+ "source": "workers/*/STATUS.json token_drain: the loader counters of the last segment (the loader restarts with each 30 min segment)",
+ "workers": {
+  "k8s-worker1.local": {
+   "dir_fail_cumulative": 0,
+   "drain_seconds": 0.006704,
+   "entries_cumulative": 731518,
+   "grams_cumulative": 2328725,
+   "insert_fail_cumulative": 0
+  },
+  "k8s-worker3.local": {
+   "dir_fail_cumulative": 0,
+   "drain_seconds": 0.003057,
+   "entries_cumulative": 413629,
+   "grams_cumulative": 1360802,
+   "insert_fail_cumulative": 0
+  },
+  "k8s-worker4.local": {
+   "dir_fail_cumulative": 0,
+   "drain_seconds": 0.004823,
+   "entries_cumulative": 6457037,
+   "grams_cumulative": 22498004,
+   "insert_fail_cumulative": 0
+  }
+ }
+}

@@ -1,0 +1,345 @@
+{
+ "schema": "ml-final-study-v1-cluster-threshold",
+ "protocol": "sentinel_pulse/protocol/ml-final-study-v1.json",
+ "gumbel_reproduces_v5": {
+  "largest_difference": 0.0,
+  "passed": true
+ },
+ "thresholds": {
+  "production/aims-minio-pool-0:sidecar": {
+   "blocks": 4140,
+   "gumbel": 15.241278577079132,
+   "empirical": 16.45761372713921,
+   "matched": 13.927179409652828,
+   "gumbel_exceedance": 0.00024154589371980676,
+   "design": 0.00018
+  },
+  "production/api-gateway:app": {
+   "blocks": 8298,
+   "gumbel": 13.048885776405534,
+   "empirical": 17.891752186000108,
+   "matched": 13.021874137434558,
+   "gumbel_exceedance": 0.003856350927934442,
+   "design": 0.00018
+  },
+  "production/aims-kafka-entity-operator:user-operator": {
+   "blocks": 2070,
+   "gumbel": 19.833401788130004,
+   "empirical": 19.006097731091355,
+   "matched": 19.833099935242636,
+   "gumbel_exceedance": 0.0,
+   "design": 0.00018
+  },
+  "production/aims-frontend:web": {
+   "blocks": 4146,
+   "gumbel": 11.587471694973825,
+   "empirical": 12.00707537288745,
+   "matched": 11.41415472989432,
+   "gumbel_exceedance": 0.000964785335262904,
+   "design": 0.00018
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "blocks": 6218,
+   "gumbel": 11.9920823420222,
+   "empirical": 55.92417861709824,
+   "matched": 11.97319225518569,
+   "gumbel_exceedance": 0.01061434544869733,
+   "design": 0.00018
+  },
+  "production/aims-minio-pool-0:minio": {
+   "blocks": 4143,
+   "gumbel": 15.906574085635988,
+   "empirical": 49.9446516778733,
+   "matched": 15.813189103969973,
+   "gumbel_exceedance": 0.01255129133478156,
+   "design": 0.00018
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "blocks": 6218,
+   "gumbel": 13.418106038415523,
+   "empirical": 20.2382800959421,
+   "matched": 13.371667439832038,
+   "gumbel_exceedance": 0.003377291733676423,
+   "design": 0.00018
+  },
+  "production/aims-kafka-entity-operator:topic-operator": {
+   "blocks": 2070,
+   "gumbel": 19.520775886548762,
+   "empirical": 16.093279951972466,
+   "matched": 17.052528933332123,
+   "gumbel_exceedance": 0.0,
+   "design": 0.00018
+  },
+  "production/payment-service:app": {
+   "blocks": 8299,
+   "gumbel": 12.270787244930002,
+   "empirical": 13.578506146774867,
+   "matched": 12.186664504219568,
+   "gumbel_exceedance": 0.0013254608989034823,
+   "design": 0.00018
+  },
+  "production/security-telemetry-service:app": {
+   "blocks": 6951,
+   "gumbel": 12.141296444624377,
+   "empirical": 16.1678782041009,
+   "matched": 12.110780078428332,
+   "gumbel_exceedance": 0.0015825061142281686,
+   "design": 0.00018
+  },
+  "production/aims-redis:aims-redis": {
+   "blocks": 6219,
+   "gumbel": 11.025778714978616,
+   "empirical": 13.614702801457607,
+   "matched": 10.867102004376939,
+   "gumbel_exceedance": 0.0025727608940344106,
+   "design": 0.00018
+  },
+  "production/cart-service:app": {
+   "blocks": 8294,
+   "gumbel": 12.864741542400974,
+   "empirical": 13.308817133685451,
+   "matched": 12.662986957790363,
+   "gumbel_exceedance": 0.0006028454304316373,
+   "design": 0.00018
+  },
+  "production/order-service:app": {
+   "blocks": 8300,
+   "gumbel": 12.819379057944424,
+   "empirical": 14.92252854575219,
+   "matched": 12.40008358393143,
+   "gumbel_exceedance": 0.0015662650602409638,
+   "design": 0.00018
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "blocks": 6954,
+   "gumbel": 14.988098599170291,
+   "empirical": 33.02979539203492,
+   "matched": 14.985820454984907,
+   "gumbel_exceedance": 0.0090595340811044,
+   "design": 0.00018
+  },
+  "production/inventory-service:app": {
+   "blocks": 8299,
+   "gumbel": 13.560938530494072,
+   "empirical": 14.317099158984174,
+   "matched": 13.410360916222613,
+   "gumbel_exceedance": 0.0006024822267743102,
+   "design": 0.00018
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "blocks": 6222,
+   "gumbel": 12.260536002236647,
+   "empirical": 16.192321284076435,
+   "matched": 12.152897533688162,
+   "gumbel_exceedance": 0.0009643201542912247,
+   "design": 0.00018
+  },
+  "production/notification-service:app": {
+   "blocks": 8298,
+   "gumbel": 12.751315069442104,
+   "empirical": 13.048863600512279,
+   "matched": 12.73046214821973,
+   "gumbel_exceedance": 0.00024102193299590263,
+   "design": 0.00018
+  },
+  "production/search-recommendation-service:app": {
+   "blocks": 6946,
+   "gumbel": 12.975750717417043,
+   "empirical": 12.215688108118323,
+   "matched": 12.236606319982604,
+   "gumbel_exceedance": 0.00014396775122372588,
+   "design": 0.00018
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "blocks": 6220,
+   "gumbel": 12.487186273388831,
+   "empirical": 44.5397844175098,
+   "matched": 12.461589814051122,
+   "gumbel_exceedance": 0.005305466237942123,
+   "design": 0.00018
+  },
+  "production/catalog-service:app": {
+   "blocks": 8299,
+   "gumbel": 13.751760249494069,
+   "empirical": 18.575523825556918,
+   "matched": 13.680710487088119,
+   "gumbel_exceedance": 0.0008434751174840342,
+   "design": 0.00018
+  },
+  "production/auth-service:app": {
+   "blocks": 8301,
+   "gumbel": 13.10867344761411,
+   "empirical": 12.45382460411296,
+   "matched": 12.460173705428247,
+   "gumbel_exceedance": 0.00012046741356463077,
+   "design": 0.00018
+  }
+ },
+ "trials": {
+  "empirical": {
+   "control": [
+    0,
+    525
+   ],
+   "admin": [
+    359,
+    439
+   ],
+   "admin-primary": [
+    218,
+    262
+   ],
+   "benign": [
+    468,
+    523
+   ],
+   "benign-primary": [
+    283,
+    314
+   ],
+   "attack": [
+    468,
+    522
+   ],
+   "attack-primary": [
+    281,
+    314
+   ],
+   "attack-specific": [
+    411,
+    522
+   ],
+   "attack-specific-primary": [
+    256,
+    314
+   ]
+  },
+  "matched": {
+   "control": [
+    0,
+    525
+   ],
+   "admin": [
+    422,
+    439
+   ],
+   "admin-primary": [
+    256,
+    262
+   ],
+   "benign": [
+    520,
+    523
+   ],
+   "benign-primary": [
+    314,
+    314
+   ],
+   "attack": [
+    521,
+    522
+   ],
+   "attack-primary": [
+    314,
+    314
+   ],
+   "attack-specific": [
+    521,
+    522
+   ],
+   "attack-specific-primary": [
+    314,
+    314
+   ]
+  },
+  "gumbel": {
+   "control": [
+    0,
+    525
+   ],
+   "admin": [
+    422,
+    439
+   ],
+   "admin-primary": [
+    256,
+    262
+   ],
+   "benign": [
+    520,
+    523
+   ],
+   "benign-primary": [
+    314,
+    314
+   ],
+   "attack": [
+    521,
+    522
+   ],
+   "attack-primary": [
+    314,
+    314
+   ],
+   "attack-specific": [
+    521,
+    522
+   ],
+   "attack-specific-primary": [
+    314,
+    314
+   ]
+  }
+ },
+ "burden": {
+  "gumbel": {
+   "episodes": 10,
+   "replica_hours": 94.92208333333333,
+   "per_replica_hour": 0.10534956301879173
+  },
+  "empirical": {
+   "episodes": 5,
+   "replica_hours": 94.92208333333333,
+   "per_replica_hour": 0.05267478150939586
+  },
+  "matched": {
+   "episodes": 11,
+   "replica_hours": 94.92208333333333,
+   "per_replica_hour": 0.1158845193206709
+  }
+ },
+ "lidds": {
+  "gumbel": {
+   "lidds": {
+    "detected": 530,
+    "attack_recordings": 544,
+    "false_alarm_recordings": 6,
+    "normal_recordings": 3403,
+    "latency_p95": 1.516074502468109
+   },
+   "cbds": {
+    "detected": 891,
+    "attack_recordings": 891,
+    "false_alarm_recordings": 3,
+    "normal_recordings": 1410,
+    "latency_p95": 5.229039788246155
+   }
+  },
+  "empirical": {
+   "lidds": {
+    "detected": 498,
+    "attack_recordings": 544,
+    "false_alarm_recordings": 13,
+    "normal_recordings": 3403,
+    "latency_p95": 1.6373692393302914
+   },
+   "cbds": {
+    "detected": 891,
+    "attack_recordings": 891,
+    "false_alarm_recordings": 2,
+    "normal_recordings": 1410,
+    "latency_p95": 7.002533912658691
+   }
+  }
+ }
+}
