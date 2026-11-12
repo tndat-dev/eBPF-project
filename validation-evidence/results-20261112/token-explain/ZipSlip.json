@@ -1,0 +1,392 @@
+{
+ "scenario": "ZipSlip",
+ "alpha": 0.00018,
+ "learning_recordings": 269,
+ "training_events": 25193388,
+ "distinct_tokens": 119,
+ "held_out_maxima": {
+  "n": 269,
+  "kept": 266,
+  "mean": 8.653332904272707,
+  "std": 1.645964796818449,
+  "largest_dropped": 28.678323929323916
+ },
+ "gumbel": {
+  "mu": 7.912581271563273,
+  "beta": 1.2833534870225822
+ },
+ "threshold": 18.978250128099162,
+ "k_sigma": 6.272866372223695,
+ "attack_recordings": 35,
+ "detected": 35,
+ "normal_recordings": 228,
+ "false_alarm_recordings": 0,
+ "example": {
+  "recording": "black_colden_5565",
+  "exploit": 1631172501.4573803,
+  "first_alarm_after_exploit_s": 0.5426197052001953,
+  "windows": 24,
+  "windows_over_threshold_after_exploit": 2,
+  "alarm_window": {
+   "window_end": 1631172502.0,
+   "events": 6474,
+   "distinct_grams": 1479,
+   "score": 28.007356769611572,
+   "top": [
+    {
+     "gram": [
+      "futex!EAGAIN",
+      "futex",
+      "futex",
+      "write#4"
+     ],
+     "count": 1,
+     "nll": 48.600755659965394,
+     "gram_seen": false,
+     "token_seen": false,
+     "used": 1
+    },
+    {
+     "gram": [
+      "open!ENOENT",
+      "write#6",
+      "sendto#6",
+      "sendto#4"
+     ],
+     "count": 1,
+     "nll": 43.47094018023041,
+     "gram_seen": false,
+     "token_seen": false,
+     "used": 1
+    },
+    {
+     "gram": [
+      "futex",
+      "mprotect",
+      "stat",
+      "open:w:/etc"
+     ],
+     "count": 1,
+     "nll": 42.51739616386356,
+     "gram_seen": false,
+     "token_seen": false,
+     "used": 1
+    },
+    {
+     "gram": [
+      "lseek",
+      "read#4",
+      "lseek",
+      "read#3"
+     ],
+     "count": 1,
+     "nll": 35.09404910609563,
+     "gram_seen": false,
+     "token_seen": true,
+     "used": 1
+    },
+    {
+     "gram": [
+      "fstat",
+      "ioctl!ENOTTY",
+      "lseek",
+      "recvfrom#7"
+     ],
+     "count": 1,
+     "nll": 30.061550989862265,
+     "gram_seen": false,
+     "token_seen": true,
+     "used": 1
+    },
+    {
+     "gram": [
+      "read#4",
+      "lseek",
+      "read#3",
+      "write#3"
+     ],
+     "count": 1,
+     "nll": 26.966853763081986,
+     "gram_seen": false,
+     "token_seen": false,
+     "used": 1
+    },
+    {
+     "gram": [
+      "ioctl!ENOTTY",
+      "lseek",
+      "recvfrom#7",
+      "write#7"
+     ],
+     "count": 1,
+     "nll": 24.83526842245952,
+     "gram_seen": false,
+     "token_seen": false,
+     "used": 1
+    },
+    {
+     "gram": [
+      "close",
+      "mmap",
+      "mprotect",
+      "mprotect"
+     ],
+     "count": 1,
+     "nll": 10.327728055582536,
+     "gram_seen": false,
+     "token_seen": true,
+     "used": 1
+    },
+    {
+     "gram": [
+      "mmap",
+      "close",
+      "mmap",
+      "mprotect"
+     ],
+     "count": 1,
+     "nll": 9.671593629153588,
+     "gram_seen": false,
+     "token_seen": true,
+     "used": 1
+    },
+    {
+     "gram": [
+      "lseek",
+      "read#3",
+      "write#3",
+      "pread#9"
+     ],
+     "count": 1,
+     "nll": 8.527431725820842,
+     "gram_seen": false,
+     "token_seen": true,
+     "used": 1
+    }
+   ],
+   "backoff_of_first": [
+    {
+     "k": 0,
+     "p": 1.9846438713064865e-08,
+     "nll": 17.735241255830264
+    },
+    {
+     "k": 1,
+     "context_seen": true,
+     "c_h": 5094129,
+     "T_h": 38,
+     "c_hw": 0,
+     "p": 1.480447482574609e-13,
+     "nll": 29.541261813755103
+    },
+    {
+     "k": 2,
+     "context_seen": true,
+     "c_h": 3600821,
+     "T_h": 34,
+     "c_hw": 0,
+     "p": 1.3978684064628181e-18,
+     "nll": 41.11158316436662
+    },
+    {
+     "k": 3,
+     "context_seen": true,
+     "c_h": 37539,
+     "T_h": 21,
+     "c_hw": 0,
+     "p": 7.815558183098823e-22,
+     "nll": 48.600755659965394
+    }
+   ]
+  },
+  "highest_before_exploit": {
+   "window_end": 1631172495.0,
+   "events": 1,
+   "distinct_grams": 1,
+   "score": 7.15738087049125,
+   "top": [
+    {
+     "gram": [
+      "poll"
+     ],
+     "count": 1,
+     "nll": 7.15738087049125,
+     "gram_seen": null,
+     "token_seen": true,
+     "used": 1
+    }
+   ],
+   "backoff_of_first": [
+    {
+     "k": 0,
+     "p": 0.0007790924272909256,
+     "nll": 7.15738087049125
+    }
+   ]
+  }
+ },
+ "highest_normal": {
+  "recording": "salty_mendel_1166",
+  "score": 18.847931147321475,
+  "fires": false,
+  "window": {
+   "window_end": 1631120399.5,
+   "events": 4972,
+   "distinct_grams": 993,
+   "score": 18.84793114732148,
+   "top": [
+    {
+     "gram": [
+      "mprotect",
+      "stat",
+      "mprotect",
+      "open:w:/dewiki-latest-abstract1_109.xml"
+     ],
+     "count": 1,
+     "nll": 42.73651147071509,
+     "gram_seen": false,
+     "token_seen": false,
+     "used": 1
+    },
+    {
+     "gram": [
+      "mprotect",
+      "stat",
+      "mprotect",
+      "open:w:/dewiki-latest-abstract1_85.xml"
+     ],
+     "count": 1,
+     "nll": 42.73651147071509,
+     "gram_seen": false,
+     "token_seen": false,
+     "used": 1
+    },
+    {
+     "gram": [
+      "mmap",
+      "mprotect",
+      "clone",
+      "mkdir"
+     ],
+     "count": 1,
+     "nll": 35.6695913516369,
+     "gram_seen": false,
+     "token_seen": true,
+     "used": 1
+    },
+    {
+     "gram": [
+      "mprotect",
+      "prctl",
+      "futex",
+      "futex!ERESTARTSYS"
+     ],
+     "count": 1,
+     "nll": 22.529151337519515,
+     "gram_seen": false,
+     "token_seen": true,
+     "used": 1
+    },
+    {
+     "gram": [
+      "gettid",
+      "gettid",
+      "gettid",
+      "futex!ERESTARTSYS"
+     ],
+     "count": 1,
+     "nll": 8.760326779318405,
+     "gram_seen": true,
+     "token_seen": true,
+     "used": 1
+    },
+    {
+     "gram": [
+      "write#5",
+      "write#0",
+      "stat",
+      "open:r:/"
+     ],
+     "count": 1,
+     "nll": 7.6694962771801425,
+     "gram_seen": true,
+     "token_seen": true,
+     "used": 1
+    },
+    {
+     "gram": [
+      "futex",
+      "futex",
+      "futex",
+      "write#11"
+     ],
+     "count": 1,
+     "nll": 7.361284999386194,
+     "gram_seen": true,
+     "token_seen": true,
+     "used": 1
+    },
+    {
+     "gram": [
+      "write#11",
+      "write#11",
+      "write#11",
+      "write#10"
+     ],
+     "count": 2,
+     "nll": 7.137750743795758,
+     "gram_seen": true,
+     "token_seen": true,
+     "used": 2
+    },
+    {
+     "gram": [
+      "gettid",
+      "gettid",
+      "gettid",
+      "open:r:/sys"
+     ],
+     "count": 1,
+     "nll": 6.7409362991519215,
+     "gram_seen": true,
+     "token_seen": true,
+     "used": 1
+    }
+   ],
+   "backoff_of_first": [
+    {
+     "k": 0,
+     "p": 1.9846116467341272e-08,
+     "nll": 17.735257492916645
+    },
+    {
+     "k": 1,
+     "context_seen": true,
+     "c_h": 3675910,
+     "T_h": 49,
+     "c_hw": 0,
+     "p": 2.6454585236117226e-13,
+     "nll": 28.960761803773895
+    },
+    {
+     "k": 2,
+     "context_seen": true,
+     "c_h": 15191,
+     "T_h": 15,
+     "c_hw": 0,
+     "p": 2.609619745769817e-16,
+     "nll": 35.882156968460066
+    },
+    {
+     "k": 3,
+     "context_seen": true,
+     "c_h": 8523,
+     "T_h": 9,
+     "c_hw": 0,
+     "p": 2.7527634449048707e-19,
+     "nll": 42.73651147071509
+    }
+   ]
+  }
+ }
+}
