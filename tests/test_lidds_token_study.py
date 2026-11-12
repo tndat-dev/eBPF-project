@@ -235,3 +235,30 @@ def test_every_step_runs_end_to_end_on_a_small_archive(tmp_path, monkeypatch):
     sim = q4['seen_only_simulation']['pooled']
     assert sim['detected_seen_only'] <= sim['detected'] <= sim['attack_recordings']
     assert set(q4['registered_point']) == {'model', 'unseen_grams', 'unseen_any'}
+
+
+def test_official_scoring_needs_official_caches_a_reproduced_base_and_runs_once(tmp_path, monkeypatch):
+    archive = base._archive(tmp_path)
+    caches = tmp_path / 'caches'
+    caches.mkdir()
+    vocab, recs, events = tc.build(archive, caches / 'SCN.npz', lambda name, split: True)
+    alarms = {name: dict(split=r['split'], exploit=r['exploit'], subset='official') for name, r in recs.items() if r['split'].startswith('test')}
+    q1 = tmp_path / 'q1.json'
+    q1.write_text(json.dumps(dict(removed=['close', 'futex'], smallest_subset=['open', 'read'])))
+    a = types.SimpleNamespace(caches=caches, out=tmp_path / 'out', jobs=1, spec_from=q1,
+                              docs=(dict(scenarios=dict(SCN=dict(alarms=alarms))), dict(scenarios={})))
+    a.out.mkdir()
+    (caches / 'SCN.json').write_text(json.dumps(dict(n=tc.N, vocab=vocab, recordings=recs, events=events, part='development')))
+    with pytest.raises(SystemExit, match='not an official cache'):
+        st.official(a)
+    (caches / 'SCN.json').write_text(json.dumps(dict(n=tc.N, vocab=vocab, recordings=recs, events=events, part='official')))
+    with pytest.raises(SystemExit, match='does not reproduce'):
+        st.official(a)
+    ref = st.Scored(a, 'base').metrics(part='official')
+    monkeypatch.setattr(st, 'OFFICIAL', {k: ref[k] for k in st.OFFICIAL})
+    monkeypatch.setattr(st, 'round', lambda x, n: 1.47, raising=False)
+    st.official(a)
+    doc = json.loads((a.out / 'official-smallest-subset.json').read_text())
+    assert doc['subset']['attack_recordings'] == 10 and doc['removed'] == ['close', 'futex']
+    with pytest.raises(SystemExit, match='scored once'):
+        st.official(a)

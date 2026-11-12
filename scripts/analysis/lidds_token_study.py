@@ -11,6 +11,8 @@ lidds_ml_v2.score / threshold and lidds_ml_v4.trimmed_gumbel.
     q2     parameters one at a time: n, top, alpha', folds, trim
     q3     is the Gumbel threshold right: calibration, goodness of fit, alternatives
     q4     model against the unseen-gram rule, and the seen-only attack simulation
+    official   one declared scoring on the official part (caches built with lidds_token_cache.py --part official):
+               --spec-from q1.json takes the smallest subset; the base spec must first reproduce lidds-ml-v5 official
 
     python3 lidds_token_study.py STEP --caches DIR --out DIR --lidds-alarms a.json.gz --cbds-alarms c.json.gz [--jobs 12]
                                  [--reference ml-xfit-tokens]   (gate)
@@ -265,11 +267,12 @@ class Scored:
         self.lid = {s: load(s) for s in sorted(self.lidds['scenarios']) if (d / f'{s}.npz').exists()}
         self.cb = {s: load(s) for s in sorted(self.cbds['scenarios']) if (d / f'{s}.npz').exists()}
 
-    def metrics(self, alpha=ALPHA):
-        dev, per = m.score(self.lid, self.lidds, ('T',), alpha, 'development')
+    def metrics(self, alpha=ALPHA, part='development'):
+        dev, per = m.score(self.lid, self.lidds, ('T',), alpha, part)
         cb, _ = m.score(self.cb, self.cbds, ('T',), alpha, 'all')
         return dict(detected=dev['detected'], false_alarm_recordings=dev['false_alarm_recordings'], latency_p95=dev['latency_p95'],
                     latency_p50=dev['latency_p50'], attack_recordings=dev['attack_recordings'], normal_recordings=dev['normal_recordings'],
+                    detected_within_3s=dev['detected_within_3s'], recall_ci95=dev['recall_ci95'], false_alarm_ci95=dev['false_alarm_ci95'],
                     cb_detected=cb['detected'], cb_false_alarm_recordings=cb['false_alarm_recordings'],
                     scenarios={s: [v['detected'], v['false_alarm_recordings']] for s, v in per.items()})
 
@@ -596,7 +599,33 @@ def q4(a):
                                                             'the unseen-gram rules score 0 on what is left')))
 
 
-STEPS = dict(gate=gate, q1=q1, q2=q2, q3=q3, q4=q4)
+OFFICIAL = dict(detected=1238, false_alarm_recordings=26, attack_recordings=1271, normal_recordings=7938)
+
+
+def official(a):
+    """The declared official scoring of the smallest subset (protocol q1): once, after the base spec reproduces lidds-ml-v5."""
+    target = Path(a.out) / 'official-smallest-subset.json'
+    if target.exists():
+        raise SystemExit(f'{target} exists: the official part is scored once')
+    for p in Path(a.caches).glob('*.json'):
+        if p.stem != 'CB-DS' and json.loads(p.read_text()).get('part') != 'official':
+            raise SystemExit(f'{p} is not an official cache')
+    q = json.loads(Path(a.spec_from).read_text())
+    un = units()
+    spec = without(base_spec(), set().union(*(un[u] for u in q['removed'])))
+    ensure(a, {'base': base_spec()})
+    ref = Scored(a, 'base').metrics(part='official')
+    if any(ref[k] != v for k, v in OFFICIAL.items()) or round(ref['latency_p95'], 2) != 1.47:
+        raise SystemExit(f'the base spec does not reproduce lidds-ml-v5 official: {ref}')
+    ensure(a, {'smallest-subset': spec})
+    m.write_once(target, dict(schema='token-design-study-official-v1', protocol='sentinel_pulse/protocol/token-design-study-v1.json + amendment 1',
+                              declared='official scoring of the smallest subset S* of q1, a reuse of LID-DS 2021 official',
+                              smallest_subset=q['smallest_subset'], removed=q['removed'], base=ref,
+                              subset=Scored(a, 'smallest-subset').metrics(part='official')))
+    print('wrote', target, flush=True)
+
+
+STEPS = dict(gate=gate, q1=q1, q2=q2, q3=q3, q4=q4, official=official)
 
 
 def main():
@@ -607,6 +636,7 @@ def main():
     ap.add_argument('--lidds-alarms', type=Path, required=True)
     ap.add_argument('--cbds-alarms', type=Path, required=True)
     ap.add_argument('--reference', type=Path, help='gate: directory of the stored lidds_ml_token_crossfit.py scores')
+    ap.add_argument('--spec-from', type=Path, help='official: q1.json of the development study')
     ap.add_argument('--jobs', type=int, default=12)
     a = ap.parse_args()
     a.out.mkdir(parents=True, exist_ok=True)

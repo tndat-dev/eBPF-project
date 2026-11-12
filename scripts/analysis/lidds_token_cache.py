@@ -12,9 +12,10 @@ Per recording the cache holds the distinct (0.5 s window, n-gram of fact ids) ro
 as lidds_ml_token_alphabets.alphabet_windows (exit order; a thread's first grams are shorter, padded with -1 in front).
 Every alphabet of the study maps a fact to a token on its own, so its grams and their counts follow from these rows
 (lidds_token_study.py). Learning recordings (training + validation) are stored as fit/<name>, test recordings by name;
-with --alarms only the development test recordings are read (official is not touched).
+with --alarms only the development test recordings are read (official is not touched), or with --part official only
+the official ones (for a scoring the protocol declares).
 
-    python3 lidds_token_cache.py --archives DIR --scenario NAME [--alarms alarms.json.gz] --output out.npz [--n 6]
+    python3 lidds_token_cache.py --archives DIR --scenario NAME [--alarms alarms.json.gz [--part official]] --output out.npz [--n 6]
 """
 import argparse
 from collections import Counter, defaultdict, deque
@@ -105,20 +106,30 @@ def build(archive, output, wanted, n=N):
     return [list(f) for f in sorted(vocab, key=lambda f: vocab[f])], meta, events
 
 
+def part_only(alarms, scenario, part):
+    """wanted(name, split) for one part (development, official) of the registered split."""
+    import lidds_ml_v2 as m
+    recs = m.load(alarms)['scenarios'][scenario]['alarms']
+    keep = m.part_filter(scenario, recs, part)
+    return lambda name, split: name in recs and keep(name, recs[name])
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--archives', type=Path, required=True)
     ap.add_argument('--scenario', required=True)
     ap.add_argument('--alarms', type=Path, help='keep development test recordings only; without it every recording (CB-DS)')
+    ap.add_argument('--part', choices=('development', 'official'), default='development')
     ap.add_argument('--n', type=int, default=N)
     ap.add_argument('--output', type=Path, required=True)
     a = ap.parse_args()
     t0 = time.time()
-    wanted = al.development_only(a.alarms, a.scenario) if a.alarms else (lambda name, split: True)
+    wanted = part_only(a.alarms, a.scenario, a.part) if a.alarms else (lambda name, split: True)
     partial = a.output.with_suffix('.part')
     vocab, meta, events = build(a.archives / f'{a.scenario}.zip', partial, wanted, a.n)
     partial.rename(a.output)
     a.output.with_suffix('.json').write_text(json.dumps(dict(schema='lidds-token-cache-v1', scenario=a.scenario, n=a.n, vocab=vocab,
+                                                             part=a.part if a.alarms else 'all',
                                                              recordings=meta, events=events, seconds=time.time() - t0)))
     print(json.dumps(dict(scenario=a.scenario, recordings=len(meta), facts=len(vocab), events=events,
                           rows=sum(m['rows'] for m in meta.values()), seconds=round(time.time() - t0))))
