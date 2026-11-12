@@ -1,0 +1,10 @@
+cadence_gap issues (workers/*/segments/*/issues.jsonl), the only issues of the run:
+k8s-worker1.local 50  first 1794379653.7690432  last 1794379864.786812
+k8s-worker3.local 42  first 1794379654.4477053  last 1794379864.6266363
+k8s-worker4.local 20  first 1794379653.9356089  last 1794379832.0181463
+kernel journal of the worker VMs (journalctl -k), UTC:
+2026-11-11T06:47:33 k8s-worker1.local kernel: workqueue: drm_fb_helper_damage_work hogged CPU for >10000us 4 times
+2026-11-11T06:47:38 k8s-worker1.local kernel: workqueue: wait_rcu_exp_gp hogged CPU for >10000us 4 times
+2026-11-11T06:47:33 k8s-worker3.local kernel: workqueue: drm_fb_helper_damage_work hogged CPU for >10000us 8 times
+2026-11-11T06:47:38 k8s-worker3.local kernel: hrtimer: interrupt took 81622731 ns
+2026-11-11T06:47:46 k8s-worker3.local kernel: workqueue: blk_mq_run_work_fn hogged CPU for >10000us 4 times

@@ -1,0 +1,34 @@
+{
+ "schema": "bridge-delivery-v1",
+ "episodes": 2265,
+ "stalled_spans": [
+  [
+   1794379623.769,
+   1794379894.787
+  ]
+ ],
+ "outside_stall": {
+  "episodes": 2075,
+  "delivered": 2075,
+  "not_delivered": 0,
+  "decision_to_receipt_seconds": {
+   "n": 2075,
+   "p50": 0.0344691276550293,
+   "p95": 0.06365609169006348,
+   "p99": 0.07529187202453613,
+   "max": 0.16378498077392578
+  }
+ },
+ "inside_stall": {
+  "episodes": 190,
+  "delivered": 77,
+  "not_delivered": 113,
+  "decision_to_receipt_seconds": {
+   "n": 77,
+   "p50": 0.0691227912902832,
+   "p95": 84.61168932914734,
+   "p99": 89.04485034942627,
+   "max": 111.66441917419434
+  }
+ }
+}

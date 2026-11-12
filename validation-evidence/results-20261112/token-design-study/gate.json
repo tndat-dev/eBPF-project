@@ -1,0 +1,158 @@
+{
+ "schema": "token-design-study-gate-v1",
+ "passed": true,
+ "base": {
+  "detected": 530,
+  "false_alarm_recordings": 6,
+  "latency_p95": 1.516074502468109,
+  "latency_p50": 0.38844144344329834,
+  "attack_recordings": 544,
+  "normal_recordings": 3403,
+  "cb_detected": 891,
+  "cb_false_alarm_recordings": 3,
+  "scenarios": {
+   "Bruteforce_CWE-307": [
+    42,
+    0
+   ],
+   "CVE-2012-2122": [
+    36,
+    0
+   ],
+   "CVE-2014-0160": [
+    36,
+    0
+   ],
+   "CVE-2017-12635_6": [
+    36,
+    1
+   ],
+   "CVE-2017-7529": [
+    36,
+    0
+   ],
+   "CVE-2018-3760": [
+    37,
+    0
+   ],
+   "CVE-2019-5418": [
+    36,
+    0
+   ],
+   "CVE-2020-13942": [
+    34,
+    0
+   ],
+   "CVE-2020-23839": [
+    36,
+    1
+   ],
+   "CVE-2020-9484": [
+    36,
+    1
+   ],
+   "CWE-89-SQL-injection": [
+    36,
+    0
+   ],
+   "EPS_CWE-434": [
+    36,
+    2
+   ],
+   "Juice-Shop": [
+    23,
+    1
+   ],
+   "PHP_CWE-434": [
+    35,
+    0
+   ],
+   "ZipSlip": [
+    35,
+    0
+   ]
+  }
+ },
+ "score_equality": {
+  "Bruteforce_CWE-307": {
+   "compared": 542,
+   "reference_only": 0,
+   "largest_difference": 7.105427357601002e-15
+  },
+  "CB-DS": {
+   "compared": 2591,
+   "reference_only": 0,
+   "largest_difference": 1.4210854715202004e-14
+  },
+  "CVE-2012-2122": {
+   "compared": 535,
+   "reference_only": 0,
+   "largest_difference": 7.105427357601002e-15
+  },
+  "CVE-2014-0160": {
+   "compared": 533,
+   "reference_only": 0,
+   "largest_difference": 1.7763568394002505e-15
+  },
+  "CVE-2017-12635_6": {
+   "compared": 528,
+   "reference_only": 0,
+   "largest_difference": 2.1316282072803006e-14
+  },
+  "CVE-2017-7529": {
+   "compared": 517,
+   "reference_only": 0,
+   "largest_difference": 3.552713678800501e-15
+  },
+  "CVE-2018-3760": {
+   "compared": 528,
+   "reference_only": 0,
+   "largest_difference": 2.842170943040401e-14
+  },
+  "CVE-2019-5418": {
+   "compared": 534,
+   "reference_only": 0,
+   "largest_difference": 7.105427357601002e-15
+  },
+  "CVE-2020-13942": {
+   "compared": 533,
+   "reference_only": 0,
+   "largest_difference": 1.4210854715202004e-14
+  },
+  "CVE-2020-23839": {
+   "compared": 531,
+   "reference_only": 0,
+   "largest_difference": 1.4210854715202004e-14
+  },
+  "CVE-2020-9484": {
+   "compared": 534,
+   "reference_only": 0,
+   "largest_difference": 1.4210854715202004e-14
+  },
+  "CWE-89-SQL-injection": {
+   "compared": 534,
+   "reference_only": 0,
+   "largest_difference": 1.4210854715202004e-14
+  },
+  "EPS_CWE-434": {
+   "compared": 534,
+   "reference_only": 0,
+   "largest_difference": 1.4210854715202004e-14
+  },
+  "Juice-Shop": {
+   "compared": 534,
+   "reference_only": 0,
+   "largest_difference": 1.4210854715202004e-14
+  },
+  "PHP_CWE-434": {
+   "compared": 532,
+   "reference_only": 0,
+   "largest_difference": 7.105427357601002e-15
+  },
+  "ZipSlip": {
+   "compared": 532,
+   "reference_only": 0,
+   "largest_difference": 1.0658141036401503e-14
+  }
+ }
+}

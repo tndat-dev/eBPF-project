@@ -1,0 +1,4 @@
+journalctl -u pulse-matched-worker-pulse-live-v5-1110 (12/11/2026, after the run), unit CPUQuota=300% MemoryMax=3G
+k8s-worker1.local: pulse-matched-worker-pulse-live-v5-1110.service: Consumed 7h 19min 28.169s CPU time.
+k8s-worker4.local: pulse-matched-worker-pulse-live-v5-1110.service: Consumed 7h 5min 38.406s CPU time.
+k8s-worker3.local: pulse-matched-worker-pulse-live-v5-1110.service: Consumed 7h 28min 18.535s CPU time, 3.0G memory peak, 0B memory swap peak.
