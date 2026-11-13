@@ -43,6 +43,46 @@ static __always_inline void pulse_tok_reset(struct pulse_task_state *state)
     state->tok[2] = PULSE_TOK_NONE;
 }
 
+/* The task's pid in its own pid namespace; 0 in the host's namespace. A container's entrypoint is pid 1 there. */
+static __always_inline __u32 pulse_tok_ns_pid(struct task_struct *task)
+{
+    struct pid *pid = BPF_CORE_READ(task, thread_pid);
+    unsigned int level = BPF_CORE_READ(pid, level);
+    struct upid upid = {};
+    if (!pid || level == 0)
+        return 0;
+    const struct upid *first = __builtin_preserve_access_index(&pid->numbers[0]);
+    if (bpf_probe_read_kernel(&upid, sizeof(upid), (const void *)first + (level & 0xff) * bpf_core_type_size(struct upid)) < 0)
+        return 0;
+    return (__u32)upid.nr;
+}
+
+/* Lineage of a task first seen without a state (amendment 2). Children of a watched task get theirs at fork
+ * (pulse_tok_fork), so this covers tasks older than the probe and tasks that moved into the cgroup: the lineage of the
+ * thread-group leader; else of the parent when the parent is in this cgroup; else native when the process is pid 1 of
+ * its pid namespace (the container's entrypoint) and session otherwise (a runtime exec joins an existing pid namespace
+ * from a parent outside the cgroup). */
+static __always_inline __u32 pulse_tok_lineage(__u64 cgroup_id)
+{
+    struct task_struct *task = (struct task_struct *)bpf_get_current_task();
+    __u64 pid_tgid = bpf_get_current_pid_tgid();
+    __u32 tgid = pid_tgid >> 32;
+    struct pulse_task_state *other;
+    if ((__u32)pid_tgid != tgid) {
+        __u64 leader = ((__u64)tgid << 32) | tgid;
+        other = bpf_map_lookup_elem(&pulse_last_syscall, &leader);
+        if (other && other->cgroup_id == cgroup_id)
+            return other->lineage;
+    }
+    struct task_struct *parent = BPF_CORE_READ(task, real_parent);
+    if (BPF_CORE_READ(parent, cgroups, dfl_cgrp, kn, id) == cgroup_id) {
+        __u64 key = ((__u64)BPF_CORE_READ(parent, tgid) << 32) | (__u32)BPF_CORE_READ(parent, pid);
+        other = bpf_map_lookup_elem(&pulse_last_syscall, &key);
+        return other && other->cgroup_id == cgroup_id ? other->lineage : PULSE_LINEAGE_NATIVE;
+    }
+    return pulse_tok_ns_pid(BPF_CORE_READ(task, group_leader)) == 1 ? PULSE_LINEAGE_NATIVE : PULSE_LINEAGE_SESSION;
+}
+
 static __always_inline __u32 pulse_tok_plain(__u32 nr)
 {
     return (nr > PULSE_TOK_NR_MAX ? PULSE_TOK_NR_MAX : nr) << PULSE_TOK_NR_SHIFT;
@@ -69,7 +109,7 @@ static __always_inline void pulse_tok_emit(struct pulse_task_state *state, __u64
             .cgroup_id = cgroup_id,
             .window = (__u32)(now_ns / PULSE_TOK_WINDOW_NS),
             .tok = { state->tok[0], state->tok[1], state->tok[2], tok },
-            .pad = 0,
+            .pad = state->lineage,
         };
         __u64 *count = bpf_map_lookup_elem(&pulse_grams, &key);
         if (count) {
@@ -249,6 +289,30 @@ int pulse_tok_sys_exit(struct bpf_raw_tracepoint_args *context)
     __u32 nr = state->syscall_id;
     return pulse_tok_return(state, cgroup_id, nr, pulse_tok_flags(nr), (const struct pt_regs *)context->args[0],
                             (long)context->args[1]);
+}
+
+/* A child takes its parent's lineage at fork, before it runs: a child that waits for its parent to exit before its
+ * first syscall would otherwise be re-parented to the container's pid 1 and read as native. Runs in the parent. The
+ * child starts with an empty token history, as a thread first seen at its first syscall does. */
+SEC("raw_tp/sched_process_fork")
+int pulse_tok_fork(struct bpf_raw_tracepoint_args *context)
+{
+    __u64 parent_key = bpf_get_current_pid_tgid();
+    struct pulse_task_state *parent = bpf_map_lookup_elem(&pulse_last_syscall, &parent_key);
+    if (!parent)
+        return 0;
+    __u64 cgroup_id = bpf_get_current_cgroup_id();
+    if (parent->cgroup_id != cgroup_id)
+        return 0;
+    struct task_struct *child = (struct task_struct *)context->args[1];
+    struct pulse_task_state state = {
+        .cgroup_id = cgroup_id,
+        .lineage = parent->lineage,
+    };
+    pulse_tok_reset(&state);
+    __u64 child_key = ((__u64)BPF_CORE_READ(child, tgid) << 32) | (__u32)BPF_CORE_READ(child, pid);
+    bpf_map_update_elem(&pulse_last_syscall, &child_key, &state, BPF_ANY);
+    return 0;
 }
 
 #endif

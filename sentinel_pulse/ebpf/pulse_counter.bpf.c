@@ -28,6 +28,7 @@ struct pulse_task_state {
 #ifdef PULSE_TOKENS
     __u32 tok[3];       /* the thread's last three tokens, oldest first; PULSE_TOK_NONE when empty */
     __u32 tok_pending;  /* this call entered and gives its token at return (raw_tp/sys_exit mode) */
+    __u32 lineage;      /* PULSE_LINEAGE_NATIVE: the workload's own process tree; PULSE_LINEAGE_SESSION: entered by a runtime exec */
 #else
     __u32 padding;
 #endif
@@ -105,8 +106,10 @@ static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
      * its name here like an unhooked one. A thread that moved cgroup starts a new history. */
     int token_here = skipped || !pulse_tok_hooked(syscall_id);
     if (previous) {
-        if (previous->cgroup_id != cgroup_id)
+        if (previous->cgroup_id != cgroup_id) {
             pulse_tok_reset(previous);
+            previous->lineage = pulse_tok_lineage(cgroup_id);
+        }
         if (token_here)
             pulse_tok_emit(previous, cgroup_id, now_ns, pulse_tok_plain(syscall_id));
         previous->tok_pending = !token_here;
@@ -129,6 +132,7 @@ static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
     };
 #ifdef PULSE_TOKENS
     pulse_tok_reset(&current);
+    current.lineage = pulse_tok_lineage(cgroup_id);
     if (token_here)
         pulse_tok_emit(&current, cgroup_id, now_ns, pulse_tok_plain(syscall_id));
     current.tok_pending = !token_here;

@@ -186,14 +186,37 @@ các fold khác:
 3. **Tool đa dạng với ít dữ liệu:** chưa tách được bằng một ngưỡng chung. Cần nhiều phiên hơn cho mỗi (image, tool), hoặc exec probe làm
    dữ liệu normal của dòng session, hoặc rule theo danh tính và drift (phần E). Chưa có số đo cho các cách này.
 
-### 5.3 Thiết kế thẻ dòng dõi trong kernel (chưa viết code)
+### 5.3 Thẻ dòng dõi trong kernel (đã viết và đã proof 13/11, chỉ là telemetry)
 
-Ghi lại để dùng khi đăng ký bước tiếp theo.
+Amendment 2 ghi rõ tiêu chí của amendment 1 không đạt và đăng ký một bước hẹp hơn: thẻ dòng dõi **chỉ để ghi thêm**. Worker vẫn chấm
+cả cửa sổ bằng mô hình `lidds-ml-v5` như cũ, nên lượt live sau so sánh được với lượt v5; phần đếm của dòng session được ghi kèm để đo
+dòng native bằng thẻ thật thay cho proxy.
 
-- **Chỗ lưu:** thêm `lineage` (0 native, 1 session) vào `struct pulse_task_state` (`sentinel_pulse/ebpf/pulse_counter.bpf.c`); đưa vào
-  khoá gram qua trường `pad` đang luôn bằng 0 của `struct pulse_gram_key` (`pulse_token_ids.h`). Loader in thêm phần đếm của dòng
-  session cho mỗi cửa sổ; tổng hai dòng vẫn là cửa sổ như hiện nay, nên chấm theo `lidds-ml-v5` không đổi và so sánh được với lượt cũ.
-- **Gán thẻ khi thấy một thread lần đầu** (đường tạo state trong `pulse_record_call`, không nằm trên đường nóng):
+**Proof** (`validation-evidence/results-20261113/lineage-probe/`, build từ working tree trên k8s-worker1, kernel 6.8.0-138):
+
+- Proof token cũ vẫn đạt: 411.052 token bằng đúng 411.052 syscall của cgroup, đường seccomp, các token mẫu, 0 lần chèn thất bại.
+- Proof dòng dõi trên một pod thật (`scripts/lineage_probe_proof.py`, vào container bằng `crictl exec`, cùng đường với `kubectl exec`
+  và exec probe), cả 8 kiểm tra đạt:
+
+| Pha | Cửa sổ | Sự kiện native | Sự kiện session |
+|---|---|---|---|
+| A, chỉ vòng lặp của container (`cat`, `sleep` là con của pid 1) | 5 | 1.157 | 0 |
+| B, exec `ls /; cat /etc/hostname; sleep 1; ls /tmp` | 3 | 712 | 687 |
+| C, nghỉ | 2 | 445 | 0 |
+| D, lệnh exec đã trả về, process con chạy nền của nó còn sống | 3 | 715 | 198 |
+| E, nghỉ | 2 | 445 | 0 |
+
+Con do pid 1 fork ra vẫn là native; exec qua runtime và con của nó là session; process con sống lâu hơn cha vẫn giữ dòng session (pha D),
+tức đường "rửa thẻ" đã bị chặn. Chưa đo: chi phí của hook fork, và proof trên hai worker còn lại (làm cùng bản build của lượt chạy).
+
+Thiết kế:
+
+- **Chỗ lưu:** `lineage` (0 native, 1 session) trong `struct pulse_task_state` (`sentinel_pulse/ebpf/pulse_counter.bpf.c`), đưa vào khoá
+  gram qua trường `pad` của `struct pulse_gram_key` (`pulse_token_ids.h`). Loader (`pulse_counter_loader.c`: `drain_grams`) in `grams` là cả
+  cửa sổ như trước và thêm `session_events`, `session` là phần đếm trên thread session; `sentinel_pulse/collector/token_capture.py`
+  kiểm rằng phần session là tập con của cửa sổ rồi ghi vào `tokens.jsonl`.
+- **Gán thẻ khi thấy một thread lần đầu** (`pulse_tokens.bpf.h`: `pulse_tok_lineage`, gọi ở đường tạo state của `pulse_record_call`, không
+  nằm trên đường nóng):
   - thread không phải leader: lấy thẻ của leader;
   - process có cha ở cùng cgroup: thừa hưởng thẻ của cha;
   - process có cha ở ngoài cgroup: nếu pid trong pid namespace của nó là 1 thì là entrypoint của container (native), nếu không thì là
@@ -202,8 +225,8 @@ Ghi lại để dùng khi đăng ký bước tiếp theo.
   cha của nó (runc, sau đó là containerd-shim) nằm ngoài cgroup và nó vào pid namespace đã có nên pid khác 1. Entrypoint cũng đi qua
   `runc init` nhưng nhận pid 1 của namespace mới.
 - **Lỗ hổng đã thấy trước: rửa thẻ qua đổi cha.** Nếu thẻ chỉ gán ở syscall đầu tiên, kẻ tấn công trong phiên có thể fork, cho cha thoát
-  trước khi con gọi syscall; con được nhận lại bởi pid 1 (native) và thừa hưởng nhầm. Cách chặn: gán thẻ ngay lúc fork bằng một chương
-  trình `raw_tp/sched_process_fork` chép thẻ của cha sang state của con. Chi phí: một lần ghi map cho mỗi fork trong container được theo dõi.
+  trước khi con gọi syscall; con được nhận lại bởi pid 1 (native) và thừa hưởng nhầm. Cách chặn: gán thẻ ngay lúc fork bằng chương
+  trình `raw_tp/sched_process_fork` (`pulse_tok_fork`) chép thẻ của cha sang state của con. Chi phí: một lần ghi map cho mỗi fork trong container được theo dõi.
 - **Giới hạn:** pod bật `shareProcessNamespace` (entrypoint không phải pid 1) sẽ bị gán nhầm; cụm hiện có 0 pod như vậy. Process của phiên
   có từ trước khi probe gắn mà đã mồ côi sẽ được coi là native.
 - **Exec probe:** 47 container của namespace production có liveness, readiness hoặc startup probe kiểu exec (bảng exec của RCA lượt v5:
@@ -298,7 +321,8 @@ viện vượt trần 8 giờ CPU ở ba kịch bản. Còn thiếu: MLP và LST
 
 ## 9. Việc tiếp theo, theo thứ tự
 
-1. Đăng ký bước tiếp cho dòng dõi (mục 5): thẻ trong kernel cho dòng native, và cách xử lý dòng session phù hợp với dữ liệu ít.
+1. Dòng dõi (mục 5): thẻ trong kernel đã có và đã proof. Còn lại: đưa vào bản build của lượt live sau, đo chi phí hook fork, và cách xử
+   lý dòng session phù hợp với dữ liệu ít.
 2. Baseline cùng protocol (mục 8), chạy trên `.234`, không cần cụm.
 3. Dựng kịch bản LID-DS trên cụm (mục 7).
 4. Một lượt live gộp các mục trên; rồi rule, rồi LID-DS 2019.

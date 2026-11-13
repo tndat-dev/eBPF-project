@@ -220,7 +220,15 @@ static int by_cgroup_window(const void *left, const void *right)
     const struct pulse_gram_key *a = &sort_keys[*(const uint32_t *)left], *b = &sort_keys[*(const uint32_t *)right];
     if (a->cgroup_id != b->cgroup_id) return a->cgroup_id < b->cgroup_id ? -1 : 1;
     if (a->window != b->window) return a->window < b->window ? -1 : 1;
+    for (int slot = 0; slot < 4; slot++)
+        if (a->tok[slot] != b->tok[slot]) return a->tok[slot] < b->tok[slot] ? -1 : 1;
+    if (a->pad != b->pad) return a->pad < b->pad ? -1 : 1;
     return 0;
+}
+
+static int same_gram(const struct pulse_gram_key *a, const struct pulse_gram_key *b)
+{
+    return a->tok[0] == b->tok[0] && a->tok[1] == b->tok[1] && a->tok[2] == b->tok[2] && a->tok[3] == b->tok[3];
 }
 
 static int is_target(uint64_t cgroup_id)
@@ -231,7 +239,10 @@ static int is_target(uint64_t cgroup_id)
 }
 
 /* Print and delete every gram of a window that has closed (window < now_window). One line per (cgroup, window):
- * {"type":"token_grams","window":W,"window_end":wall end,"events":sum,"grams":[[t0,t1,t2,t3,count],...]}. */
+ * {"type":"token_grams","window":W,"window_end":wall end,"events":sum,"grams":[[t0,t1,t2,t3,count],...],
+ *  "session_events":sum,"session":[[t0,t1,t2,t3,count],...]}. "grams" is the whole window, both lineages added (what
+ * the build before the lineage tag printed); "session" is the part of it counted on session-lineage threads
+ * (ml-final-study-v1 amendment 2), so native = grams - session. */
 static long drain_grams(int map_fd, uint64_t now_window, double wall_minus_mono, uint64_t *drained_total)
 {
     uint32_t batch = 0, count = 0, total = 0;
@@ -266,10 +277,27 @@ static long drain_grams(int map_fd, uint64_t now_window, double wall_minus_mono,
                    "\"window_end\":%.3f,\"events\":%llu,\"grams\":[",
                    (unsigned long long)head->cgroup_id, head->window,
                    (double)(head->window + 1) * 0.5 + wall_minus_mono, (unsigned long long)events);
+            uint64_t session_events = 0;
+            for (uint32_t index = start; index < end;) {      /* the group is sorted by gram, then lineage */
+                const struct pulse_gram_key *key = &gram_keys[old_index[index]];
+                uint64_t count = 0;
+                uint32_t next = index;
+                while (next < end && same_gram(&gram_keys[old_index[next]], key)) {
+                    if (gram_keys[old_index[next]].pad == PULSE_LINEAGE_SESSION) session_events += gram_values[old_index[next]];
+                    count += gram_values[old_index[next++]];
+                }
+                printf("%s[%u,%u,%u,%u,%llu]", index > start ? "," : "", key->tok[0], key->tok[1], key->tok[2],
+                       key->tok[3], (unsigned long long)count);
+                index = next;
+            }
+            printf("],\"session_events\":%llu,\"session\":[", (unsigned long long)session_events);
+            int first_session = 1;
             for (uint32_t index = start; index < end; index++) {
                 const struct pulse_gram_key *key = &gram_keys[old_index[index]];
-                printf("%s[%u,%u,%u,%u,%llu]", index > start ? "," : "", key->tok[0], key->tok[1], key->tok[2],
+                if (key->pad != PULSE_LINEAGE_SESSION) continue;
+                printf("%s[%u,%u,%u,%u,%llu]", first_session ? "" : ",", key->tok[0], key->tok[1], key->tok[2],
                        key->tok[3], (unsigned long long)gram_values[old_index[index]]);
+                first_session = 0;
             }
             printf("]}\n");
             lines++;
@@ -383,12 +411,16 @@ int main(int argc, char **argv)
     struct bpf_program *token_program = bpf_object__find_program_by_name(object, "pulse_tok_sys_exit");
     struct bpf_link *token_link = token_program ? bpf_program__attach_raw_tracepoint(token_program, "sys_exit") : NULL;
     if (!token_program || libbpf_get_error(token_link)) { fprintf(stderr, "token hook pulse_tok_sys_exit unavailable\n"); return 1; }
+    /* a child takes its parent's lineage at fork (amendment 2) */
+    struct bpf_program *fork_program = bpf_object__find_program_by_name(object, "pulse_tok_fork");
+    struct bpf_link *fork_link = fork_program ? bpf_program__attach_raw_tracepoint(fork_program, "sched_process_fork") : NULL;
+    if (!fork_program || libbpf_get_error(fork_link)) { fprintf(stderr, "lineage hook pulse_tok_fork unavailable\n"); return 1; }
     int grams_fd = bpf_object__find_map_fd_by_name(object, "pulse_grams");
     int token_stats_fd = bpf_object__find_map_fd_by_name(object, "pulse_tok_stats");
     uint64_t *token_scratch = calloc((size_t)cpu_count, sizeof(uint64_t));
     if (grams_fd < 0 || token_stats_fd < 0 || !token_scratch) { fprintf(stderr, "token maps missing\n"); return 1; }
     uint64_t grams_drained = 0;
-    fprintf(stderr, "token probe: mode=%s exit=sys_exit hooks=1\n", token_mode);
+    fprintf(stderr, "token probe: mode=%s exit=sys_exit hooks=1 lineage=fork\n", token_mode);
 #endif
     fprintf(stderr, "sentinel-pulse attached; interval=%ums targets=%d cpus=%d\n", interval_ms, targets, cpu_count);
     uint64_t consistency_retries = 0;
@@ -449,6 +481,7 @@ int main(int argc, char **argv)
         fflush(stdout);
     }
 #ifdef PULSE_TOKENS
+    bpf_link__destroy(fork_link);
     bpf_link__destroy(token_link);
 #endif
     bpf_link__destroy(seccomp_link);

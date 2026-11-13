@@ -35,6 +35,21 @@ def check_grams(grams, events):
         raise ValueError('token gram counts differ from window events')
 
 
+def check_session(session, session_events, grams):
+    """The session-lineage part of a window (ml-final-study-v1 amendment 2): a subset of its grams, count by count."""
+    whole = {tuple(int(v) for v in g[:4]): int(g[4]) for g in grams}
+    total = 0
+    for gram in session:
+        if len(gram) != 5:
+            raise ValueError('session gram is not 4 tokens and a count')
+        *tokens, count = (int(v) for v in gram)
+        if count <= 0 or count > whole.get(tuple(tokens), 0):
+            raise ValueError('session gram count exceeds the window')
+        total += count
+    if total != int(session_events):
+        raise ValueError('session gram counts differ from session events')
+
+
 def token_window(row: dict, metadata: dict):
     if row.get('type') != 'token_grams' or row.get('contract') != CONTRACT:
         raise ValueError('wrong token telemetry contract')
@@ -42,6 +57,10 @@ def token_window(row: dict, metadata: dict):
     if not math.isfinite(window_end) or int(row['window']) < 0:
         raise ValueError('token window out of range')
     check_grams(row['grams'], row['events'])
+    lineage = {}
+    if 'session' in row:                 # builds with the lineage tag; "grams" stays the whole window
+        check_session(row['session'], row.get('session_events', 0), row['grams'])
+        lineage = dict(session_events=int(row.get('session_events', 0)), session=row['session'])
     cg = int(row['cgroup_id'])
     item = metadata.get(str(cg))
     if not item or item.get('namespace') != 'production':
@@ -52,4 +71,4 @@ def token_window(row: dict, metadata: dict):
                 cgroup_id=str(cg), pod_name=item.get('pod_name'), pod_uid=item['pod_uid'],
                 container_name=item['container_name'], workload_revision=item['workload_revision'],
                 node_name=item['node_name'], window=int(row['window']), window_end=window_end,
-                events=int(row['events']), grams=row['grams'])
+                events=int(row['events']), grams=row['grams'], **lineage)

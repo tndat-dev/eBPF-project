@@ -95,8 +95,13 @@ struct pulse_gram_key {
     __u64 cgroup_id;
     __u32 window;   /* CLOCK_MONOTONIC / 0.5 s at emission */
     __u32 tok[4];   /* oldest first; tok[3] is the token just emitted */
-    __u32 pad;      /* always 0 */
+    __u32 pad;      /* the thread's lineage (PULSE_LINEAGE_*); 0 in builds before the lineage tag */
 };
+
+/* ml-final-study-v1 amendment 2: telemetry only. Native = the workload's own process tree; session = a process that
+ * entered the container through a runtime exec (kubectl exec, an exec probe), and its descendants. */
+#define PULSE_LINEAGE_NATIVE 0u
+#define PULSE_LINEAGE_SESSION 1u
 
 /* Set by the loader before load (.rodata.tokcfg), so the verifier prunes the disabled paths. Conditions of the
  * overhead A/B: exit-nofutex = B, exit = C, grams = D. */

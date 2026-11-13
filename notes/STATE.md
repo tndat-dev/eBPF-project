@@ -64,6 +64,10 @@ bước trước: [WORKLOG.md](WORKLOG.md) và git.
 nên chưa dựng thẻ dòng dõi theo tiêu chí đã đăng ký. Chi tiết và thiết kế thẻ dòng dõi: [RESEARCH_NOTES.md](RESEARCH_NOTES.md); lộ trình bài
 báo: [PAPER_PLAN.md](PAPER_PLAN.md).
 
+**Thẻ dòng dõi (amendment 2, 13/11):** probe gắn thẻ native/session cho từng thread (`pulse_tok_lineage`, `pulse_tok_fork`), loader ghi
+thêm phần session của mỗi cửa sổ, đường cảnh báo không đổi. Proof đạt trên k8s-worker1 (`results-20261113/lineage-probe/`). Chưa có bản
+build chính thức cho lượt chạy; chưa đo chi phí hook fork.
+
 **Giai đoạn 2: rule sau khi chốt ML** (E): R1 hạ cảnh báo khi chỉ có runtime exec của tool có trong image, R2 gắn nhãn drift cho binary
 lạ; đo trên dữ liệu v5, so sánh có và không có rule.
 

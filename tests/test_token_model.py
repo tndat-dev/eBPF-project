@@ -216,3 +216,17 @@ def test_no_hold_never_holds_the_execve_window(tmp_path):
     branch = gate_branch(tmp_path, hold=0.0)
     out = branch.score(window(10.0, [[TOK_NONE, TOK_NONE, tok(7), tok(8), 5], [TOK_NONE, TOK_NONE, tok(7), tok(59), 1]]))
     assert out['token_exec_held'] is False and out['token_alert'] is True
+
+
+def test_token_window_carries_the_session_lineage_share():
+    """ml-final-study-v1 amendment 2: "grams" is the whole window, "session" the part counted on session threads."""
+    assert 'session' not in token_window(row(), META)                       # a build without the lineage tag
+    tagged = dict(row(), session_events=3, session=[[1, 2, 3, tok(0, 2, 4), 3]])
+    out = token_window(tagged, META)
+    assert out['events'] == 7 and out['session_events'] == 3 and out['session'] == [[1, 2, 3, tok(0, 2, 4), 3]]
+    with pytest.raises(ValueError):
+        token_window(dict(row(), session_events=6, session=[[1, 2, 3, tok(0, 2, 4), 6]]), META)   # more than the window holds
+    with pytest.raises(ValueError):
+        token_window(dict(row(), session_events=2, session=[[1, 2, 3, tok(0, 2, 4), 3]]), META)   # sum differs
+    with pytest.raises(ValueError):
+        token_window(dict(row(), session_events=1, session=[[9, 9, 9, 9, 1]]), META)              # not a gram of the window

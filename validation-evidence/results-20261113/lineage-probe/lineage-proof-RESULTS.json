@@ -1,0 +1,54 @@
+{
+  "cgroup_id": 46138,
+  "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-besteffort.slice/kubepods-besteffort-podd8cb83d6_d047_4da6_b1e7_b905d9b3e880.slice/cri-containerd-fe10f38431227e5150851aeb4e52d31630ceddff5b3ef34f0363b0f546d73098.scope",
+  "checks": {
+    "exec_is_session": true,
+    "native_children_execve": true,
+    "native_only_at_the_end": true,
+    "native_only_before_exec": true,
+    "native_only_between": true,
+    "one_token_per_syscall": true,
+    "orphan_keeps_session_lineage": true,
+    "own_loop_stays_native_during_exec": true
+  },
+  "full_count_delta": 7561,
+  "phases": {
+    "A": {
+      "native_events": 1157,
+      "session_events": 0,
+      "windows": 5
+    },
+    "B": {
+      "native_events": 712,
+      "session_events": 687,
+      "windows": 3
+    },
+    "C": {
+      "native_events": 445,
+      "session_events": 0,
+      "windows": 2
+    },
+    "D": {
+      "native_events": 715,
+      "session_events": 198,
+      "windows": 3
+    },
+    "E": {
+      "native_events": 445,
+      "session_events": 0,
+      "windows": 2
+    }
+  },
+  "protocol": "sentinel_pulse/protocol/ml-final-study-v1-amendment-2.json",
+  "schema": "pulse-lineage-proof-v1",
+  "times": {
+    "attached": 1794532915.809351,
+    "b0": 1794532919.8094656,
+    "b1": 1794532920.9014165,
+    "d0": 1794532923.9015253,
+    "d1": 1794532923.9840696,
+    "end": 1794532928.9841716
+  },
+  "token_events_after_first_snapshot": 7561,
+  "valid": true
+}
