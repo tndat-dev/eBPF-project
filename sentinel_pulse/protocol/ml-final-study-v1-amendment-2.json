@@ -1,0 +1,22 @@
+{
+ "schema": "sentinel-pulse-ml-final-study-v1-amendment-2",
+ "amends": "sentinel_pulse/protocol/ml-final-study-v1.json and its amendment 1",
+ "registered_at": "2026-11-13T08:17+07:00",
+ "registered_before": "any change of the probe, loader or worker for a lineage tag",
+ "outcome_of_amendment_1": "B3 did not meet its registered criterion: the native arm flagged 0/525 control, 0/439 admin and 0/523 benign intervals and known tools were flagged 0/439, but the session model under the registered Gumbel rule detected 0/522 attacks (thresholds 37.7 and 42.4, above every measured score). The decision of amendment 1 stands: a session model is not made an alert path, and no live confirmation of that design is registered. B2 was negative (372/439 still flagged)",
+ "what_this_amendment_registers": "a narrower step: the lineage tag as telemetry only. The probe marks every thread as native (the workload's own process tree) or session (entered through a runtime exec, and its descendants) and the loader reports, per window, the session share of the gram counts next to the unchanged window. Nothing in the alert path changes: the worker scores the whole window with the lidds-ml-v5 model as before, so the next live run stays comparable with pulse-live-v5-1110",
+ "why": "the proxy of B3 cannot tell a session gram the workload also knows from a native one, and it cannot say which lineage a real attack inside the service falls in. With the kernel's tag the next live run measures the native stream directly",
+ "design": {
+  "tag": "pulse_task_state.lineage, 0 native, 1 session; in the gram key through the pad field",
+  "assignment": "at fork (raw_tp/sched_process_fork) the child takes its parent's tag, so a child cannot change lineage by outliving its parent before its first syscall; a task first seen without a state takes the tag of its thread-group leader, else of its parent when the parent is in the same cgroup, else it is native when its pid in its own pid namespace is 1 (the container's entrypoint) and session otherwise (a runtime exec joins an existing pid namespace from a parent outside the cgroup)",
+  "known_limits": "a pod with a shared process namespace (none in the production namespace on 13/11); a session process orphaned before the probe attached is taken as native"
+ },
+ "proof_before_any_run": "the existing token proof (one token per syscall, counts equal) must still pass with the tag; added checks on one worker: a kubectl exec process and its child are counted as session, the container's own threads as native, and the sum of both lineages equals the window that the untagged build reports",
+ "hypotheses_for_the_next_live_run": {
+  "H1": "the native stream alone, scored with the lidds-ml-v5 workload model and threshold, flags at most 5 % of the admin-command and benign-binary intervals",
+  "H2": "attacks that run inside the workload's own process tree (LID-DS scenarios replayed on the cluster, in-process fixtures) are detected on the native stream at the registered level (recall >= 95 %)",
+  "note": "the run's own protocol fixes trials, sample sizes and the handling of the session stream before it starts; exec probes of the kubelet belong to the session stream and are reported"
+ },
+ "lidds": "LID-DS 2021 recordings contain no runtime exec, every event is native: the registered result is unchanged by construction; the offline scorer is not touched",
+ "code": "sentinel_pulse/ebpf/pulse_counter.bpf.c, pulse_tokens.bpf.h, pulse_token_ids.h, pulse_counter_loader.c; sentinel_pulse/collector/token_capture.py; scripts/token_probe_proof.py; tests"
+}
