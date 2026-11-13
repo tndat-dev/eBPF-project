@@ -22,7 +22,10 @@ import time
 from typing import Iterable
 
 
-EXCLUDED_MARKERS = ("loadgen", "attack-runner", "sentinel-pulse")
+# Pods the workers must not watch: the AIMS load/attack runners, Pulse itself, and (protocol pulse-live-lidds-v1) the
+# LID-DS traffic generators and exploit runners. Only the victim pod of a scenario is watched, so the exploit is seen
+# through the victim's own process tree, as in the dataset.
+EXCLUDED_MARKERS = ("loadgen", "attack-runner", "sentinel-pulse", "lidds-gen", "lidds-atk")
 
 
 def infer_role(pod_name: str) -> str:
