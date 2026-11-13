@@ -20,6 +20,7 @@ probability 0.5 (seeded). Run ``capture`` first, fit the models (see README), th
 """
 import argparse
 import json
+import os
 import random
 import re
 import subprocess
@@ -28,6 +29,7 @@ import time
 from pathlib import Path
 
 NS = "lidds-live"
+NODE = os.environ.get("PULSE_LIDDS_NODE")  # pin all scenario pods to one worker so a single loader sees them
 WARMUP = 30.0
 RECORDING = 150.0
 POLL = 2.0
@@ -62,6 +64,7 @@ def victim_deployment(scn, spec):
         "spec": {"replicas": 1, "selector": {"matchLabels": {"app": name}},
                  "template": {"metadata": {"labels": {"app": name, "lidds": "victim"}},
                               "spec": {"terminationGracePeriodSeconds": 2, "automountServiceAccountToken": False,
+                                       **({"nodeName": NODE} if NODE else {}),
                                        "containers": [{"name": "victim", "image": v["image"], "imagePullPolicy": "Never",
                                                        "ports": [{"containerPort": port}],
                                                        "readinessProbe": dict(probe, initialDelaySeconds=3, periodSeconds=3,
@@ -92,6 +95,7 @@ def runner_pod(name, image, entrypoint, argstr, label, victim_ip, mode, waits=No
     return {"apiVersion": "v1", "kind": "Pod",
             "metadata": {"name": name, "namespace": NS, "labels": {"lidds": label, "app": name}},
             "spec": {"restartPolicy": "Never", "terminationGracePeriodSeconds": 1, "automountServiceAccountToken": False,
+                     **({"nodeName": NODE} if NODE else {}),
                      "containers": [{"name": "run", "image": image, "imagePullPolicy": "Never",
                                      "command": ["/bin/sh", "-c", command]}]}}
 
@@ -119,15 +123,13 @@ def wait_times(users, length, rng):
 
 
 def run_cycle(scn, spec, rng, is_exploit, schedule, cid, gen_image):
-    apply(victim_deployment(scn, spec))
-    kubectl("rollout", "restart", f"deployment/{victim_name(scn)}", check=False)
+    apply(victim_deployment(scn, spec))                         # idempotent: the victim stays up across cycles
     ready = victim_ready(scn)
     if not ready:
         schedule.write(json.dumps(dict(scenario=scn, cycle=cid, skipped="victim not ready")) + "\n")
         schedule.flush()
         return
     uid, ip, pod = ready
-    time.sleep(WARMUP)
     rec_start = time.time()
     users = rng.randint(*spec["normal"]["users"])
     wts = wait_times(users, int(RECORDING), rng)
@@ -135,7 +137,7 @@ def run_cycle(scn, spec, rng, is_exploit, schedule, cid, gen_image):
     for i, w in enumerate(wts):
         pname = f"lidds-gen-{slug(scn)}-{cid}-{i}"
         apply(runner_pod(pname, gen_image, [], spec["normal"]["request"],
-                         "lidds-gen", ip, "normal", w or [1.0]))
+                         "lidds-gen", ip, "normal", w if w else [1.0]))
         pods.append(pname)
     exploit_time = None
     if is_exploit:
