@@ -1,0 +1,86 @@
+{
+ "schema": "lidds-live-score-v1",
+ "protocol": "sentinel_pulse/protocol/pulse-live-lidds-v1.json",
+ "run": "/mnt/sentinel-pulse-archive/pulse-live-lidds-full-1113",
+ "horizon": 30.0,
+ "alpha": 0.00018,
+ "per_scenario": {
+  "CVE-2012-2122": {
+   "note": "too few capture windows",
+   "capture_windows": 0,
+   "workload": "lidds-live/victim-cve-2012-2122:victim",
+   "victim_windows": 14192
+  },
+  "CVE-2017-12635_6": {
+   "workload": "lidds-live/victim-cve-2017-12635-6:victim",
+   "capture_windows": 300,
+   "threshold": 11.062568101449129,
+   "capture_blocks": 4,
+   "exploit_cycles": 1,
+   "detected": 1,
+   "recall": 1.0,
+   "normal_cycles": 1,
+   "false_alarm_cycles": 1,
+   "latency_p50": 3.9785585403442383,
+   "latency_p95": 3.9785585403442383,
+   "alarm_session_share": 0.0
+  },
+  "CVE-2017-7529": {
+   "workload": "lidds-live/victim-cve-2017-7529:victim",
+   "capture_windows": 119,
+   "threshold": 0.7686320411666441,
+   "capture_blocks": 3,
+   "exploit_cycles": 1,
+   "detected": 1,
+   "recall": 1.0,
+   "normal_cycles": 1,
+   "false_alarm_cycles": 0,
+   "latency_p50": 1.410623550415039,
+   "latency_p95": 1.410623550415039,
+   "alarm_session_share": 0.0
+  },
+  "CVE-2019-5418": {
+   "workload": "lidds-live/victim-cve-2019-5418:victim",
+   "capture_windows": 258,
+   "threshold": 8.394882359508019,
+   "capture_blocks": 3,
+   "exploit_cycles": 1,
+   "detected": 1,
+   "recall": 1.0,
+   "normal_cycles": 0,
+   "false_alarm_cycles": 0,
+   "latency_p50": 0.9425077438354492,
+   "latency_p95": 0.9425077438354492,
+   "alarm_session_share": 0.0
+  },
+  "CVE-2020-9484": {
+   "workload": "lidds-live/victim-cve-2020-9484:victim",
+   "capture_windows": 300,
+   "threshold": 15.54116067715221,
+   "capture_blocks": 4,
+   "exploit_cycles": 0,
+   "detected": 0,
+   "recall": null,
+   "normal_cycles": 1,
+   "false_alarm_cycles": 0,
+   "latency_p50": null,
+   "latency_p95": null,
+   "alarm_session_share": null
+  },
+  "ZipSlip": {
+   "note": "too few capture windows",
+   "capture_windows": 0,
+   "workload": "lidds-live/victim-zipslip:victim",
+   "victim_windows": 17346
+  }
+ },
+ "pooled": {
+  "exploit_cycles": 3,
+  "detected": 3,
+  "recall": 1.0,
+  "normal_cycles": 3,
+  "false_alarm_cycles": 1,
+  "latency_p50": 1.410623550415039,
+  "latency_p95": 3.7217650413513184
+ }
+}
