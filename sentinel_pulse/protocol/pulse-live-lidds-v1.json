@@ -1,0 +1,40 @@
+{
+ "schema": "sentinel-pulse-live-lidds-v1",
+ "registered_at": "2026-11-13T09:06+07:00",
+ "registered_before": "any LID-DS scenario image runs on the cluster; images are being built on .234 from github.com/LID-DS/LID-DS (commit 5b8e414) and no build result has been read for the design below",
+ "owner_decision": "13/11: the owner approved running the real CVEs of LID-DS on the cluster",
+ "purpose": "close weakness W2 (notes/PAPER_PLAN.md): the live campaign so far used self-written fixtures that always start with a kubectl exec. Here the 15 LID-DS 2021 scenarios run on Kubernetes under the token probe: real vulnerable services, their own normal clients and their own exploits, the exploit acting inside the service's process tree. Same model, alphabet, threshold rule and decision as lidds-ml-v5; the lineage tag (ml-final-study-v1 amendment 2) is recorded",
+ "scenarios": "every scenario whose victim, normal and exploit images build from the repository unchanged and whose victim passes its own availability check (main.py wait_for_availability) on the cluster; each exclusion is written with its reason before the capture starts. No scenario is chosen or dropped after the capture",
+ "isolation": {
+  "namespace": "lidds-live, not in the Istio ambient mesh",
+  "network": "NetworkPolicy: ingress only from pods of the same namespace; egress only to pods of the same namespace and to the cluster DNS; no Service of type NodePort or LoadBalancer, no Ingress",
+  "images": "built on .234 and imported into containerd of the workers; imagePullPolicy Never",
+  "teardown": "the namespace and the images are deleted when the analysis has read the run"
+ },
+ "cycle": {
+  "definition": "one cycle per scenario: the victim pod is recreated, its availability check passes, warm-up 30 s, then a 150 s recording span; the scenario's normal users act through the whole cycle",
+  "users": "per scenario as its main.py: a user count drawn uniformly from 3 to 20 per cycle, wait times from the LID-DS sampler ('usask', timerange_sampling over the cycle length), the command of the scenario's normal image (stdin line or exec) sent at each wait time",
+  "exploit": "in an exploit cycle the scenario's exploit command(s) run once at a time drawn uniformly in [30 %, 80 %] of the recording span, as main.py; the exploit time is the time the driver sends the command",
+  "seeds": "schedule seed 20261113 for user counts, wait times, exploit cycles and exploit times; the schedule is written before the live phase starts and is not read by the worker"
+ },
+ "phases": {
+  "capture": "12 h of normal cycles only, every scenario in parallel; the worker records token windows (no model)",
+  "fit": "token_branch_fit.py with the registered cluster settings of lidds-ml-v5 (5-fold cross-fit over contiguous 30 min chunks, held-out 60 s block maxima, moment Gumbel without the top 1 %, alpha' = 0.00018), one model per victim workload, from the capture only",
+  "live": "12 h; each cycle is an exploit cycle with probability 0.5 (seeded); the worker scores every victim window with the fitted model and threshold"
+ },
+ "metrics": {
+  "detected": "an exploit cycle with an alarm window of the victim ending in [exploit time, exploit time + 30 s]",
+  "latency": "end of the first such window minus the exploit time; and kernel to Alertmanager when the bridge runs",
+  "false_alarm_cycle": "a normal cycle (no exploit) with an alarm window ending in its recording span (warm-up excluded, as LID-DS records after warm-up)",
+  "warm_up_alarms": "alarms in the warm-up of every cycle are reported separately (the victim's own start)",
+  "lineage": "per scenario, the share of alarm windows whose surprising grams are on the native lineage; H2 of ml-final-study-v1 amendment 2 is read here: native-stream detection of the exploit cycles"
+ },
+ "expectations": {
+  "recall": ">= 95 % pooled over the scenarios that lidds-ml-v5 detects at 100 % on LID-DS 2021 official, and reported per scenario",
+  "latency_p95": "<= 3 s",
+  "false_alarm_cycles": "<= 5 % pooled",
+  "note": "a scenario whose exploit leaves no trace in the dataset (Juice-Shop) is reported, not pooled into the recall expectation; nothing is tuned after the capture"
+ },
+ "limits": "the scenarios' traffic generators are the dataset's, not production traffic; one victim replica per scenario; the cluster is shared by the AIMS workloads, which keep running and are not scored here; the run uses the probe build with the lineage tag",
+ "code": "scripts/lidds_live/ (Kubernetes manifests, image import, driver), sentinel_pulse/collector (namespace allow-list), scripts/analysis/pulse_live_lidds.py"
+}
