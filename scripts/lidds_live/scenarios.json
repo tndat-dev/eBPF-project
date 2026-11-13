@@ -1,5 +1,5 @@
 {
-  "_comment": "Wiring for protocol pulse-live-lidds-v1 (+ amendment 1). ${victim} -> victim pod IP at runtime. The victim and exploit images are the LID-DS dataset's (real vulnerable service, real exploit), built on .234 and imported to the workers (imagePullPolicy Never). Normal traffic is a generic per-scenario generator (image lidds-gen:latest) because the dataset's selenium/chrome normal clients no longer build; normal.request is a shell command hitting the victim, run once per sampled wait time. exploit.kind: exec = run commands[0]; chain = run commands in order; stdin = the exploit image is stdin-driven, fed one blank line.",
+  "_comment": "Wiring of all 15 LID-DS 2021 scenarios for protocol pulse-live-lidds-v1 (+ amendment 1). ${victim} -> victim pod IP at runtime. victim and exploit images are the dataset's (real vulnerable service, real exploit), built on .234 and imported to the workers (imagePullPolicy Never). Normal traffic is a generic per-scenario generator (image lidds-gen:latest): normal.request is a shell command hitting the victim, run once per sampled wait time. exploit.kind: exec = run commands[0]; chain = run commands in order; stdin = the exploit image is stdin-driven (its entrypoint loops on stdin), fed one blank line with entrypoint+args. ready.marker is informational; the driver waits for a readiness probe (httpGet 200 or tcpSocket).",
   "_generator_image": "lidds-gen:latest",
   "CVE-2012-2122": {
     "victim": {"image": "vulhub/mysql:5.5.23", "port": 3306, "ready": {"type": "tcp"}},
@@ -7,33 +7,73 @@
     "exploit": {"kind": "exec", "image": "exploit_mysql:latest", "commands": ["python3 /home/exploit.py -ip ${victim} -speed 1 -extract 1"]}
   },
   "CVE-2017-7529": {
-    "victim": {"image": "victim_overflow:latest", "port": 80, "ready": {"type": "http", "path": "/"}},
+    "victim": {"image": "victim_overflow:latest", "port": 80, "ready": {"type": "http", "path": "/", "marker": "Take on your biggest projects and goals"}},
     "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:80/ ; curl -s -o /dev/null --max-time 3 -r 0-100 http://${victim}:80/", "users": [3, 5]},
     "exploit": {"kind": "exec", "image": "exploit_overflow:latest", "commands": ["python3 /home/exploit.py -ip ${victim}"]}
   },
   "CVE-2017-12635_6": {
-    "victim": {"image": "vulhub/couchdb:2.1.0", "port": 5984, "ready": {"type": "http", "path": "/"}},
+    "victim": {"image": "vulhub/couchdb:2.1.0", "port": 5984, "ready": {"type": "http", "path": "/", "marker": ""}},
     "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:5984/ ; curl -s -o /dev/null --max-time 3 http://${victim}:5984/_all_dbs", "users": [10, 25]},
     "exploit": {"kind": "chain", "image": "exploit_couchdb:latest", "commands": ["sh /app/nmap.sh ${victim}", "python3 /app/reverse-shell.py ${victim}:5984"], "commands_note": "privilege-escalation step from main.py omitted; confirm before use"}
   },
+  "CVE-2018-3760": {
+    "victim": {"image": "victim_sprockets:latest", "port": 3000, "ready": {"type": "http", "path": "/", "marker": "Filmlist"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:3000/", "users": [5, 15]},
+    "exploit": {"kind": "exec", "image": "exploit_sprockets:latest", "commands": ["python3 /home/exploit.py -ip ${victim}"]}
+  },
   "CVE-2019-5418": {
-    "victim": {"image": "victim_rails:latest", "port": 3000, "ready": {"type": "http", "path": "/"}},
+    "victim": {"image": "victim_rails:latest", "port": 3000, "ready": {"type": "http", "path": "/", "marker": "Ruby"}},
     "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:3000/", "users": [10, 15]},
     "exploit": {"kind": "exec", "image": "exploit_rails:latest", "commands": ["sh exploit.sh ${victim}"]}
   },
   "CVE-2020-9484": {
-    "victim": {"image": "victim_tomcat:latest", "port": 8080, "ready": {"type": "http", "path": "/"}},
+    "victim": {"image": "victim_tomcat:latest", "port": 8080, "ready": {"type": "http", "path": "/", "marker": "File to upload"}},
     "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:8080/", "users": [3, 5]},
     "exploit": {"kind": "stdin", "image": "exploit_tomcat:latest", "entrypoint": ["python3", "-u", "/home/exploit.py"], "args": "-ip ${victim} -v 1"}
   },
+  "CVE-2020-13942": {
+    "victim": {"image": "victim_unomi:latest", "port": 8181, "ready": {"type": "http", "path": "/", "marker": "Unomi"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:8181/", "users": [5, 15]},
+    "exploit": {"kind": "exec", "image": "exploit_unomi:latest", "commands": ["python3 /home/exploit.py -ip ${victim} -a ognl"]}
+  },
+  "CVE-2020-23839": {
+    "victim": {"image": "victim_xss:latest", "port": 80, "ready": {"type": "http", "path": "/", "marker": "Home - victim"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:80/", "users": [5, 15]},
+    "exploit": {"kind": "chain", "image": "exploit_xss:latest", "commands": ["python3 /home/trick_admin.py -ip ${victim}", "python3 /home/reverse_shell.py -ip ${victim} -cmd 'cat /etc/passwd'"]}
+  },
+  "CWE-89-SQL-injection": {
+    "victim": {"image": "victim_sql:latest", "port": 80, "ready": {"type": "http", "path": "/login.php", "marker": "Login :: Damn Vulnerable Web Application"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:80/login.php", "users": [5, 15]},
+    "exploit": {"kind": "exec", "image": "exploit_sql:latest", "commands": ["python3 /home/exploit.py -ip ${victim}"]}
+  },
+  "EPS_CWE-434": {
+    "victim": {"image": "victim_eps:latest", "port": 8000, "ready": {"type": "http", "path": "/", "marker": "Directory listing for"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:8000/", "users": [5, 15]},
+    "exploit": {"kind": "exec", "image": "exploit_eps:latest", "commands": ["python3 /home/exploit.py -ip ${victim}"]}
+  },
+  "Juice-Shop": {
+    "victim": {"image": "bkimminich/juice-shop:latest", "port": 3000, "ready": {"type": "http", "path": "/", "marker": "OWASP Juice Shop"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:3000/", "users": [10, 20]},
+    "exploit": {"kind": "stdin", "image": "exploit_juice:latest", "entrypoint": ["python3", "-u", "/home/run_attacker.py"], "args": "-ip ${victim} -a SQLInjectionUser -v 1"}
+  },
   "PHP_CWE-434": {
-    "victim": {"image": "victim_php:latest", "port": 80, "ready": {"type": "http", "path": "/login.php"}},
+    "victim": {"image": "victim_php:latest", "port": 80, "ready": {"type": "http", "path": "/login.php", "marker": "Login :: Damn Vulnerable Web Application"}},
     "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:80/login.php", "users": [10, 20]},
     "exploit": {"kind": "stdin", "image": "exploit_php:latest", "entrypoint": ["python3", "-u", "/home/exploit.py"], "args": "-ip ${victim}"}
   },
   "ZipSlip": {
-    "victim": {"image": "victim_zipslip:latest", "port": 8000, "ready": {"type": "http", "path": "/"}},
+    "victim": {"image": "victim_zipslip:latest", "port": 8000, "ready": {"type": "http", "path": "/", "marker": "READY"}},
     "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:8000/", "users": [3, 10]},
     "exploit": {"kind": "exec", "image": "exploit_zipslip:latest", "commands": ["python3 /home/exploit.py ${victim}"]}
+  },
+  "Bruteforce_CWE-307": {
+    "victim": {"image": "victim_bruteforce:latest", "port": 80, "ready": {"type": "http", "path": "/private/index.html", "marker": "Simple Web App"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:80/private/index.html", "users": [5, 15]},
+    "exploit": {"kind": "exec", "image": "exploit_bruteforce:latest", "commands": ["python3 /exploit.py ${victim}"], "note": "rebased metasploit image (scripts/lidds_live/exploit_metasploit.Dockerfile); exploit.py starts msfrpcd and runs scanner/http/http_login"}
+  },
+  "CVE-2014-0160": {
+    "victim": {"image": "victim_heartbleed:latest", "port": 80, "ready": {"type": "http", "path": "/private/index.html", "marker": "Simple Web App"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:80/private/index.html", "users": [3, 20]},
+    "exploit": {"kind": "exec", "image": "exploit_heartbleed:latest", "commands": ["python3 /exploit.py ${victim}"], "note": "rebased metasploit image; exploit.py starts msfrpcd and runs scanner/ssl/openssl_heartbleed against RHOSTS=${victim} (RPORT 443); victim also serves 443"}
   }
 }
