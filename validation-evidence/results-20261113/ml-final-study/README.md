@@ -73,3 +73,26 @@ The gram map holds 262,144 entries (about two windows live at once); the largest
 counters in the last segment of each worker (`token-drain-last-segment.json`; the loader restarts with each segment, so the
 earlier segments' counters are not in the run's status files): 0 failed inserts, 0 cut directory walks, drain 3-7 ms.
 The run did not drive the probe to its limit; the map-full load test is still to do (part F).
+
+## Amendment 1: B2 and B3 (`scripts/analysis/session_model.py`, `session-model.json`)
+
+B2, admin sessions of the other trial folds learnt into the workload model: held-out admin flagged 372/439 (84.7 %; v5 422/439).
+
+B3, lineage proxy (session = grams unseen by the v5 workload model, native = the rest):
+
+| Arm | Result |
+|---|---|
+| Native arm, v5 model and threshold | control 0/525, admin 0/439, benign 0/523, attack 1/522 |
+| Session model, known tools (cross-fit) | 0/439 flagged, threshold 37.7 |
+| Session model, unseen tool (one command out) | 0/439 |
+| Unknown program (benign binary, tools-only model) | 0/523 |
+| Learnt program (benign binary of other folds learnt) | 0/523, threshold 42.4 |
+| Attack, tools-only model | 0/522 |
+| Attack, tools and benign binary learnt | 0/522 |
+
+Registered decision: native <= 5 % met, known tools <= 20 % met, attack >= 95 % not met (0 %): the lineage tag is not built on
+this basis. The Gumbel rule on a few hundred short sessions gives a threshold above every measured score.
+
+Exploratory (no decision uses it), held-out interval maxima under the tools + benign session model: benign binary median 0.96,
+max 7.47; admin median 11.09, p99 22.14, max 23.81; primary attacks median 17.31, min above the largest benign (314/314), AUC
+attack vs benign 1.00, attack vs admin 0.73; at the p99 of admin and benign maxima 105/314 primary attacks are above.

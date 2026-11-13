@@ -59,6 +59,11 @@ bước trước: [WORKLOG.md](WORKLOG.md) và git.
 4. C, ngưỡng trên cụm từ phân vị thực nghiệm của cực đại khối 60 s giữ ra (`token_branch_fit.py --dump-maxima`).
 5. Chốt ML cuối (v6) từ kết quả 1–4; ghi vào đồ án như development.
 
+**Kết quả giai đoạn 1 (13/11):** A đạt (recall live đo đúng hành vi tấn công); B, B2, C, D không đạt tiêu chí, ML giữ `lidds-ml-v5`. B3
+(amendment 1): dòng native sạch (0 lần báo trên control, lệnh quản trị, binary vô hại), mô hình phiên với ngưỡng Gumbel không bắt tấn công,
+nên chưa dựng thẻ dòng dõi theo tiêu chí đã đăng ký. Chi tiết và thiết kế thẻ dòng dõi: [RESEARCH_NOTES.md](RESEARCH_NOTES.md); lộ trình bài
+báo: [PAPER_PLAN.md](PAPER_PLAN.md).
+
 **Giai đoạn 2: rule sau khi chốt ML** (E): R1 hạ cảnh báo khi chỉ có runtime exec của tool có trong image, R2 gắn nhãn drift cho binary
 lạ; đo trên dữ liệu v5, so sánh có và không có rule.
 

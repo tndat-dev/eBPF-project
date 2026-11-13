@@ -1,0 +1,594 @@
+{
+ "schema": "ml-final-study-v1-session-model",
+ "protocol": "sentinel_pulse/protocol/ml-final-study-v1-amendment-1.json",
+ "run": "/mnt/sentinel-pulse-archive/pulse-live-v5-1110",
+ "models": "/mnt/sentinel-pulse-archive/pulse-live-v5-fit-1110/token/MODELS.json",
+ "segments_read": 87,
+ "B2": {
+  "held_out_admin": {
+   "known": {
+    "k": 372,
+    "n": 439,
+    "rate": 0.8473804100227791
+   },
+   "v5": {
+    "k": 422,
+    "n": 439,
+    "rate": 0.9612756264236902
+   }
+  },
+  "by_command": {
+   "cat": {
+    "known": {
+     "k": 46,
+     "n": 49,
+     "rate": 0.9387755102040817
+    },
+    "v5": {
+     "k": 49,
+     "n": 49,
+     "rate": 1.0
+    }
+   },
+   "date": {
+    "known": {
+     "k": 35,
+     "n": 50,
+     "rate": 0.7
+    },
+    "v5": {
+     "k": 45,
+     "n": 50,
+     "rate": 0.9
+    }
+   },
+   "df": {
+    "known": {
+     "k": 47,
+     "n": 51,
+     "rate": 0.9215686274509803
+    },
+    "v5": {
+     "k": 51,
+     "n": 51,
+     "rate": 1.0
+    }
+   },
+   "env": {
+    "known": {
+     "k": 37,
+     "n": 52,
+     "rate": 0.7115384615384616
+    },
+    "v5": {
+     "k": 52,
+     "n": 52,
+     "rate": 1.0
+    }
+   },
+   "id": {
+    "known": {
+     "k": 49,
+     "n": 51,
+     "rate": 0.9607843137254902
+    },
+    "v5": {
+     "k": 51,
+     "n": 51,
+     "rate": 1.0
+    }
+   },
+   "ls": {
+    "known": {
+     "k": 38,
+     "n": 44,
+     "rate": 0.8636363636363636
+    },
+    "v5": {
+     "k": 44,
+     "n": 44,
+     "rate": 1.0
+    }
+   },
+   "ps": {
+    "known": {
+     "k": 7,
+     "n": 7,
+     "rate": 1.0
+    },
+    "v5": {
+     "k": 7,
+     "n": 7,
+     "rate": 1.0
+    }
+   },
+   "python": {
+    "known": {
+     "k": 33,
+     "n": 38,
+     "rate": 0.868421052631579
+    },
+    "v5": {
+     "k": 34,
+     "n": 38,
+     "rate": 0.8947368421052632
+    }
+   },
+   "sh": {
+    "known": {
+     "k": 45,
+     "n": 48,
+     "rate": 0.9375
+    },
+    "v5": {
+     "k": 46,
+     "n": 48,
+     "rate": 0.9583333333333334
+    }
+   },
+   "uname": {
+    "known": {
+     "k": 35,
+     "n": 49,
+     "rate": 0.7142857142857143
+    },
+    "v5": {
+     "k": 43,
+     "n": 49,
+     "rate": 0.8775510204081632
+    }
+   }
+  }
+ },
+ "B3": {
+  "native_arm": {
+   "control": {
+    "k": 0,
+    "n": 525,
+    "rate": 0.0
+   },
+   "control-primary": {
+    "k": 0,
+    "n": 314,
+    "rate": 0.0
+   },
+   "admin": {
+    "k": 0,
+    "n": 439,
+    "rate": 0.0
+   },
+   "admin-primary": {
+    "k": 0,
+    "n": 261,
+    "rate": 0.0
+   },
+   "benign": {
+    "k": 0,
+    "n": 523,
+    "rate": 0.0
+   },
+   "benign-primary": {
+    "k": 0,
+    "n": 314,
+    "rate": 0.0
+   },
+   "attack": {
+    "k": 1,
+    "n": 522,
+    "rate": 0.0019157088122605363
+   },
+   "attack-primary": {
+    "k": 1,
+    "n": 314,
+    "rate": 0.0031847133757961785
+   }
+  },
+  "session_grams": {
+   "admin_intervals_with_any": 439,
+   "admin_intervals": 439,
+   "distinct_admin_grams": 2015
+  },
+  "known_tools": {
+   "threshold": 37.71820507726365,
+   "flagged": {
+    "k": 0,
+    "n": 439,
+    "rate": 0.0
+   },
+   "by_command": {
+    "cat": {
+     "k": 0,
+     "n": 49,
+     "rate": 0.0
+    },
+    "date": {
+     "k": 0,
+     "n": 50,
+     "rate": 0.0
+    },
+    "df": {
+     "k": 0,
+     "n": 51,
+     "rate": 0.0
+    },
+    "env": {
+     "k": 0,
+     "n": 52,
+     "rate": 0.0
+    },
+    "id": {
+     "k": 0,
+     "n": 51,
+     "rate": 0.0
+    },
+    "ls": {
+     "k": 0,
+     "n": 44,
+     "rate": 0.0
+    },
+    "ps": {
+     "k": 0,
+     "n": 7,
+     "rate": 0.0
+    },
+    "python": {
+     "k": 0,
+     "n": 38,
+     "rate": 0.0
+    },
+    "sh": {
+     "k": 0,
+     "n": 48,
+     "rate": 0.0
+    },
+    "uname": {
+     "k": 0,
+     "n": 49,
+     "rate": 0.0
+    }
+   }
+  },
+  "unseen_tool": {
+   "by_command": {
+    "cat": {
+     "threshold": 38.60225667084801,
+     "k": 0,
+     "n": 49,
+     "rate": 0.0
+    },
+    "date": {
+     "threshold": 36.94269158607164,
+     "k": 0,
+     "n": 50,
+     "rate": 0.0
+    },
+    "df": {
+     "threshold": 38.9808250975998,
+     "k": 0,
+     "n": 51,
+     "rate": 0.0
+    },
+    "env": {
+     "threshold": 36.68119936982536,
+     "k": 0,
+     "n": 52,
+     "rate": 0.0
+    },
+    "id": {
+     "threshold": 35.178397637960536,
+     "k": 0,
+     "n": 51,
+     "rate": 0.0
+    },
+    "ls": {
+     "threshold": 39.04020265447723,
+     "k": 0,
+     "n": 44,
+     "rate": 0.0
+    },
+    "ps": {
+     "threshold": 38.24013290312538,
+     "k": 0,
+     "n": 7,
+     "rate": 0.0
+    },
+    "python": {
+     "threshold": 36.05746360503058,
+     "k": 0,
+     "n": 38,
+     "rate": 0.0
+    },
+    "sh": {
+     "threshold": 38.89080532756207,
+     "k": 0,
+     "n": 48,
+     "rate": 0.0
+    },
+    "uname": {
+     "threshold": 37.13014099916376,
+     "k": 0,
+     "n": 49,
+     "rate": 0.0
+    }
+   },
+   "all": {
+    "k": 0,
+    "n": 439,
+    "rate": 0.0
+   }
+  },
+  "unknown_program": {
+   "all": {
+    "k": 0,
+    "n": 523,
+    "rate": 0.0
+   },
+   "primary": {
+    "k": 0,
+    "n": 314,
+    "rate": 0.0
+   }
+  },
+  "attack_tools_only": {
+   "all": {
+    "k": 0,
+    "n": 522,
+    "rate": 0.0
+   },
+   "primary": {
+    "k": 0,
+    "n": 314,
+    "rate": 0.0
+   }
+  },
+  "learnt_program": {
+   "threshold": 42.3939799761842,
+   "benign": {
+    "all": {
+     "k": 0,
+     "n": 523,
+     "rate": 0.0
+    },
+    "primary": {
+     "k": 0,
+     "n": 314,
+     "rate": 0.0
+    }
+   },
+   "admin": {
+    "all": {
+     "k": 0,
+     "n": 439,
+     "rate": 0.0
+    },
+    "primary": {
+     "k": 0,
+     "n": 261,
+     "rate": 0.0
+    }
+   }
+  },
+  "attack_program_learnt": {
+   "all": {
+    "k": 0,
+    "n": 522,
+    "rate": 0.0
+   },
+   "primary": {
+    "k": 0,
+    "n": 314,
+    "rate": 0.0
+   },
+   "by_scenario": {
+    "anonymous_mprotect_churn": {
+     "k": 0,
+     "n": 63,
+     "rate": 0.0
+    },
+    "child_ptrace_handshake": {
+     "k": 0,
+     "n": 62,
+     "rate": 0.0
+    },
+    "execveat_resolution_probe": {
+     "k": 0,
+     "n": 63,
+     "rate": 0.0
+    },
+    "invalid_setns_burst": {
+     "k": 0,
+     "n": 63,
+     "rate": 0.0
+    },
+    "seccomp_api_probe": {
+     "k": 0,
+     "n": 63,
+     "rate": 0.0
+    }
+   }
+  },
+  "system_native_or_session": {
+   "attack": {
+    "all": {
+     "k": 1,
+     "n": 522,
+     "rate": 0.0019157088122605363
+    },
+    "primary": {
+     "k": 1,
+     "n": 314,
+     "rate": 0.0031847133757961785
+    }
+   },
+   "benign": {
+    "all": {
+     "k": 0,
+     "n": 523,
+     "rate": 0.0
+    },
+    "primary": {
+     "k": 0,
+     "n": 314,
+     "rate": 0.0
+    }
+   },
+   "admin": {
+    "all": {
+     "k": 0,
+     "n": 439,
+     "rate": 0.0
+    },
+    "primary": {
+     "k": 0,
+     "n": 261,
+     "rate": 0.0
+    }
+   },
+   "control": {
+    "all": {
+     "k": 0,
+     "n": 525,
+     "rate": 0.0
+    },
+    "primary": {
+     "k": 0,
+     "n": 314,
+     "rate": 0.0
+    }
+   }
+  },
+  "exploratory": {
+   "note": "held-out interval maxima under the admin + benign session model (cross-fit); no decision uses these",
+   "admin": {
+    "n": 439,
+    "p5": 3.6414188191294996,
+    "p25": 8.086284208552645,
+    "p50": 11.09200584198491,
+    "p75": 14.877182663173706,
+    "p95": 21.249120509761973,
+    "p99": 22.139382415289724,
+    "max": 23.808240636544543
+   },
+   "benign": {
+    "n": 523,
+    "p5": 0.14874708152920343,
+    "p25": 0.2587618201357673,
+    "p50": 0.9592289742655051,
+    "p75": 3.68630339143537,
+    "p95": 5.486187097592655,
+    "p99": 6.326520162435157,
+    "max": 7.467642962029068
+   },
+   "attack": {
+    "n": 522,
+    "p5": 8.66097698542298,
+    "p25": 13.594004486279301,
+    "p50": 15.34145455804712,
+    "p75": 19.527861532569933,
+    "p95": 28.110114942458246,
+    "p99": 28.454808831307503,
+    "max": 28.49966703723004
+   },
+   "attack_primary": {
+    "n": 314,
+    "p5": 9.493480314658056,
+    "p25": 14.62350323190103,
+    "p50": 17.310024809913177,
+    "p75": 25.32093304872895,
+    "p95": 28.140751816095197,
+    "p99": 28.49383547046011,
+    "max": 28.49966703723004
+   },
+   "auc_attack_vs_benign": 0.9998681347662689,
+   "auc_attack_vs_admin": 0.7303432566177048,
+   "auc_attack_primary_vs_benign": 1.0,
+   "attack_primary_above_largest_benign": {
+    "k": 314,
+    "n": 314,
+    "rate": 1.0
+   },
+   "attack_primary_above_p99_admin_and_benign": {
+    "k": 105,
+    "n": 314,
+    "rate": 0.3343949044585987
+   },
+   "flagged_at_p99": {
+    "admin": {
+     "k": 4,
+     "n": 439,
+     "rate": 0.009111617312072893
+    },
+    "benign": {
+     "k": 0,
+     "n": 523,
+     "rate": 0.0
+    }
+   },
+   "by_scenario_primary_above_largest_benign": {
+    "anonymous_mprotect_churn": {
+     "k": 63,
+     "n": 63,
+     "rate": 1.0
+    },
+    "child_ptrace_handshake": {
+     "k": 62,
+     "n": 62,
+     "rate": 1.0
+    },
+    "execveat_resolution_probe": {
+     "k": 63,
+     "n": 63,
+     "rate": 1.0
+    },
+    "invalid_setns_burst": {
+     "k": 63,
+     "n": 63,
+     "rate": 1.0
+    },
+    "seccomp_api_probe": {
+     "k": 63,
+     "n": 63,
+     "rate": 1.0
+    }
+   },
+   "tools_only": {
+    "admin": {
+     "n": 439,
+     "p5": 3.442922959645601,
+     "p25": 7.431947825968332,
+     "p50": 10.083207261291248,
+     "p75": 13.594548865399576,
+     "p95": 19.39629933961736,
+     "p99": 19.53410133615004,
+     "max": 21.769392025574398
+    },
+    "benign": {
+     "n": 523,
+     "p5": 13.049616200728408,
+     "p25": 13.732512842867356,
+     "p50": 15.115833422467801,
+     "p75": 19.743556576678966,
+     "p95": 22.299855156816726,
+     "p99": 22.299855156816726,
+     "max": 22.413186202809854
+    },
+    "attack_primary": {
+     "n": 314,
+     "p5": 16.344519862114844,
+     "p25": 17.32220925232004,
+     "p50": 17.419229823153188,
+     "p75": 20.316903736081066,
+     "p95": 24.15615314718235,
+     "p99": 24.15615314718235,
+     "max": 24.15615314718235
+    }
+   }
+  },
+  "decision": {
+   "native_at_most_5_percent": true,
+   "known_tools_at_most_20_percent": true,
+   "attack_program_learnt_primary_at_least_95_percent": false,
+   "build_lineage_tag": false
+  }
+ }
+}
