@@ -54,5 +54,5 @@ mọi cảnh báo trên dòng native (session share 0.0).
 **Giới hạn của lượt ngắn (cần lượt dài cho số liệu đồ án):** ngưỡng fit trên rất ít block (3–4) nên một kịch bản có báo
 nhầm (CouchDB); vài victim ít lưu lượng (MySQL, ZipSlip) chưa đủ cửa sổ capture, và có lệch ghép timing capture với
 MySQL. Lượt dài hơn (capture và live mỗi pha nhiều giờ, lưu lượng normal đều hơn cho mọi victim) sẽ cho ngưỡng ổn định
-và recall/báo nhầm theo từng kịch bản đầy đủ. 15/15 image đã sẵn sàng cho lượt đó (đã khai 6 trong `scenarios.json`;
+và recall/báo nhầm theo từng kịch bản đầy đủ. 15/15 image đã sẵn sàng và đã khai đủ 15 trong `scenarios.json` (preflight READY 15/15). Lượt dài chỉ cần nạp 9 image mới lên worker rồi chạy driver với `--only` toàn bộ 15.
 9 kịch bản còn lại cần bổ sung wiring victim/exploit vào `scenarios.json`).
