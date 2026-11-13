@@ -67,6 +67,10 @@ def victim_deployment(scn, spec):
                                        **({"nodeName": NODE} if NODE else {}),
                                        "containers": [{"name": "victim", "image": v["image"], "imagePullPolicy": "Never",
                                                        "ports": [{"containerPort": port}],
+                                                       # the dataset victims end their entrypoint in an interactive shell that
+                                                       # exits without a tty; keep it alive. A scenario may override the command.
+                                                       "tty": True, "stdin": True,
+                                                       **({"command": v["command"]} if v.get("command") else {}),
                                                        "readinessProbe": dict(probe, initialDelaySeconds=3, periodSeconds=3,
                                                                               failureThreshold=40)}]}}}}
 
