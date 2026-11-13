@@ -1,0 +1,11 @@
+{
+ "schema": "sentinel-pulse-live-lidds-v1-amendment-1",
+ "amends": "sentinel_pulse/protocol/pulse-live-lidds-v1.json",
+ "registered_at": "2026-11-13T13:54+07:00",
+ "registered_before": "any capture or live cycle runs on the cluster",
+ "reason": "the dataset's normal clients (CVE-2017-7529, ZipSlip, PHP, Bruteforce, Heartbleed and others) install google-chrome-stable and chromedriver 2.42 from URLs that no longer exist and selenium on debian:9, so they do not build. The victim and exploit images (the real vulnerable service and the real exploit) are unchanged",
+ "change": "normal traffic is a generic per-scenario generator (image lidds-gen:latest, python:3.12-alpine with curl and mariadb-client): scenarios.json normal.request is a shell command that reaches the victim's endpoint, run once per sampled wait time by scripts/lidds_live/driver.py. The protocol's 'users' sampling and timing are unchanged",
+ "effect_on_metrics": "the victim's normal syscalls come from real HTTP/DB requests rather than the dataset's browser sessions; the model is still fitted on the cluster's own normal of each victim, and false-alarm cycles are still a normal cycle with a victim alarm. This is the limit already stated in the base protocol ('the scenarios' traffic generators are the dataset's, not production traffic'), now made explicit",
+ "image_rot_fixed": "ubuntu:13.04 and ubuntu:16.04 victim bases (schema-1 manifests) converted to local schema-2 images with skopeo; debian:9 apt sources repointed to archive.debian.org. The metasploit-based exploits (exploit_bruteforce, exploit_heartbleed) still may not build; a scenario is included only when its victim and exploit images build (scripts/lidds_live/preflight.sh), and each exclusion is recorded",
+ "code": "scripts/lidds_live/ (scenarios.json, driver.py, namespace.yaml, import_images.sh, preflight.sh, gen.Dockerfile), scripts/analysis/pulse_live_lidds.py"
+}

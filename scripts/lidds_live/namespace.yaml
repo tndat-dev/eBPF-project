@@ -1,0 +1,48 @@
+# protocol pulse-live-lidds-v1: an isolated namespace for the LID-DS scenarios on the cluster.
+# Not in the Istio ambient mesh; default-deny ingress/egress with only intra-namespace traffic and DNS allowed,
+# so a scenario's exploit cannot reach the AIMS production workloads or the outside network.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lidds-live
+  labels:
+    istio.io/dataplane-mode: none
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: lidds-live
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-intra-and-dns
+  namespace: lidds-live
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: lidds-live
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: lidds-live
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

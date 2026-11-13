@@ -1,0 +1,39 @@
+{
+  "_comment": "Wiring for protocol pulse-live-lidds-v1 (+ amendment 1). ${victim} -> victim pod IP at runtime. The victim and exploit images are the LID-DS dataset's (real vulnerable service, real exploit), built on .234 and imported to the workers (imagePullPolicy Never). Normal traffic is a generic per-scenario generator (image lidds-gen:latest) because the dataset's selenium/chrome normal clients no longer build; normal.request is a shell command hitting the victim, run once per sampled wait time. exploit.kind: exec = run commands[0]; chain = run commands in order; stdin = the exploit image is stdin-driven, fed one blank line.",
+  "_generator_image": "lidds-gen:latest",
+  "CVE-2012-2122": {
+    "victim": {"image": "vulhub/mysql:5.5.23", "port": 3306, "ready": {"type": "tcp"}},
+    "normal": {"request": "mysql -h ${victim} -uroot -p123456 -P 3306 --connect-timeout=3 -e 'show databases; select 1' 2>/dev/null", "users": [5, 15]},
+    "exploit": {"kind": "exec", "image": "exploit_mysql:latest", "commands": ["python3 /home/exploit.py -ip ${victim} -speed 1 -extract 1"]}
+  },
+  "CVE-2017-7529": {
+    "victim": {"image": "victim_overflow:latest", "port": 80, "ready": {"type": "http", "path": "/"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:80/ ; curl -s -o /dev/null --max-time 3 -r 0-100 http://${victim}:80/", "users": [3, 5]},
+    "exploit": {"kind": "exec", "image": "exploit_overflow:latest", "commands": ["python3 /home/exploit.py -ip ${victim}"]}
+  },
+  "CVE-2017-12635_6": {
+    "victim": {"image": "vulhub/couchdb:2.1.0", "port": 5984, "ready": {"type": "http", "path": "/"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:5984/ ; curl -s -o /dev/null --max-time 3 http://${victim}:5984/_all_dbs", "users": [10, 25]},
+    "exploit": {"kind": "chain", "image": "exploit_couchdb:latest", "commands": ["sh /app/nmap.sh ${victim}", "python3 /app/reverse-shell.py ${victim}:5984"], "commands_note": "privilege-escalation step from main.py omitted; confirm before use"}
+  },
+  "CVE-2019-5418": {
+    "victim": {"image": "victim_rails:latest", "port": 3000, "ready": {"type": "http", "path": "/"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:3000/", "users": [10, 15]},
+    "exploit": {"kind": "exec", "image": "exploit_rails:latest", "commands": ["sh exploit.sh ${victim}"]}
+  },
+  "CVE-2020-9484": {
+    "victim": {"image": "victim_tomcat:latest", "port": 8080, "ready": {"type": "http", "path": "/"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:8080/", "users": [3, 5]},
+    "exploit": {"kind": "stdin", "image": "exploit_tomcat:latest", "entrypoint": ["python3", "-u", "/home/exploit.py"], "args": "-ip ${victim} -v 1"}
+  },
+  "PHP_CWE-434": {
+    "victim": {"image": "victim_php:latest", "port": 80, "ready": {"type": "http", "path": "/login.php"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:80/login.php", "users": [10, 20]},
+    "exploit": {"kind": "stdin", "image": "exploit_php:latest", "entrypoint": ["python3", "-u", "/home/exploit.py"], "args": "-ip ${victim}"}
+  },
+  "ZipSlip": {
+    "victim": {"image": "victim_zipslip:latest", "port": 8000, "ready": {"type": "http", "path": "/"}},
+    "normal": {"request": "curl -s -o /dev/null --max-time 3 http://${victim}:8000/", "users": [3, 10]},
+    "exploit": {"kind": "exec", "image": "exploit_zipslip:latest", "commands": ["python3 /home/exploit.py ${victim}"]}
+  }
+}
