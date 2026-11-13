@@ -37,28 +37,32 @@ Mã nguồn: `scripts/lidds_live/` (driver, run_probe, run_all), `scripts/analys
 
 ---
 
-## 2. Mười lăm kịch bản và trạng thái build
+## 2. Mười lăm kịch bản — đã dựng **15/15**
 
 Mã nguồn kịch bản: `github.com/LID-DS/LID-DS` (commit 5b8e414), clone sẵn tại `/var/tmp/lidds-live/LID-DS`. Mỗi kịch bản
-có ba image tự dựng (`victim`, `normal`, `exploit`) hoặc victim là một image công khai pull về.
+có image `victim` và `exploit` (tự dựng hoặc pull image công khai); image `normal` của dataset bị bỏ, thay bằng generator
+chung (mục 3.3). Cột "Phần rã đã vá" cho biết đã phải xử lý gì để dựng được (chi tiết mục 3, nhật ký mục 4).
 
-| Kịch bản | Dịch vụ / lỗ hổng | victim | exploit | Trạng thái |
+| Kịch bản | Dịch vụ / lỗ hổng | victim | exploit | Phần rã đã vá |
 |---|---|---|---|---|
-| CVE-2012-2122 | MySQL 5.5.23 auth bypass | `vulhub/mysql:5.5.23` (pull) | `exploit_mysql` | **chạy được** |
-| CVE-2017-7529 | Nginx range integer overflow | `victim_overflow` | `exploit_overflow` | **chạy được** |
-| CVE-2017-12635_6 | CouchDB 2.1.0 RCE | `vulhub/couchdb:2.1.0` (pull) | `exploit_couchdb` | **chạy được** |
-| CVE-2019-5418 | Rails path traversal | `victim_rails` | `exploit_rails` | **chạy được** |
-| CVE-2020-9484 | Tomcat deserialization | `victim_tomcat` | `exploit_tomcat` | **chạy được** |
-| ZipSlip | giải nén ghi ra ngoài thư mục | `victim_zipslip` | `exploit_zipslip` | **chạy được** |
-| CVE-2018-3760 | Rails sprockets path traversal | `vulhub/rails:5.0.7` + apt | debian:9.2 | vá apt |
-| CVE-2020-13942 | Apache Unomi OGNL RCE | `apache/unomi:1.5.1` | debian:9.2 | vá apt |
-| CVE-2020-23839 | XSS | `php:7.4.9-apache-buster` | debian:9.2 | vá apt |
-| CWE-89-SQL-injection | DVWA SQL injection | `vulnerables/web-dvwa` | debian:9.2 | vá apt |
-| EPS_CWE-434 | upload file độc | `ubuntu:16.04` (schema-1) | debian:9.2 | vá apt + schema-2 |
-| Juice-Shop | OWASP Juice Shop | `bkimminich/juice-shop` (pull) | debian:10 | vá apt |
-| PHP_CWE-434 | DVWA upload | `vulnerables/web-dvwa` + chrome | alpine | bỏ chrome |
-| Bruteforce_CWE-307 | brute force | `ubuntu:13.04` (schema-1) | metasploit 6.1.5 | **khó (metasploit)** |
-| CVE-2014-0160 | Heartbleed OpenSSL | `ubuntu:13.04` (schema-1) | metasploit 6.1.5 | **khó (metasploit)** |
+| CVE-2012-2122 | MySQL 5.5.23 auth bypass | `vulhub/mysql:5.5.23` (pull) | `exploit_mysql` | — |
+| CVE-2017-7529 | Nginx range integer overflow | `victim_overflow` | `exploit_overflow` | — |
+| CVE-2017-12635_6 | CouchDB 2.1.0 RCE | `vulhub/couchdb:2.1.0` (pull) | `exploit_couchdb` | — |
+| CVE-2019-5418 | Rails path traversal | `victim_rails` (ruby:2.5.1) | `exploit_rails` | apt archive stretch + trusted |
+| CVE-2020-9484 | Tomcat deserialization | `victim_tomcat` | `exploit_tomcat` | — |
+| ZipSlip | giải nén ghi ra ngoài thư mục | `victim_zipslip` | `exploit_zipslip` | — |
+| CVE-2018-3760 | Rails sprockets path traversal | `vulhub/rails:5.0.7` + apt | debian:9.2 | apt archive động + trusted |
+| CVE-2020-13942 | Apache Unomi OGNL RCE | `apache/unomi:1.5.1` + apt | debian:9.2 | apt archive động + trusted |
+| CVE-2020-23839 | XSS stored | `php:7.4.9-apache-buster` | debian:9.2 | apt archive buster + giữ python3-pip |
+| CWE-89-SQL-injection | DVWA SQL injection | `vulnerables/web-dvwa` | debian:9.2 | bỏ chrome, giữ python3-pip, apt archive |
+| EPS_CWE-434 | upload file độc | `ubuntu:16.04` (schema-1) | debian:9.2 | schema-2 (skopeo) + apt archive |
+| Juice-Shop | OWASP Juice Shop | `bkimminich/juice-shop` (pull) | debian:10 | apt archive buster + giữ python3-pip |
+| PHP_CWE-434 | DVWA upload | `vulnerables/web-dvwa` + chrome | alpine | bỏ trọn khối chrome (giữ python3-pip) |
+| Bruteforce_CWE-307 | brute force HTTP login | `ubuntu:13.04` (schema-1) | metasploit (rebase) | schema-2 + **rebase image metasploit** |
+| CVE-2014-0160 | Heartbleed OpenSSL | `ubuntu:13.04` (schema-1) | metasploit (rebase) | schema-2 + **rebase image metasploit** |
+
+Kiểm nhanh kịch bản nào đủ cả hai image: `bash scripts/lidds_live/preflight.sh scripts/lidds_live/scenarios.json`
+(với các kịch bản đã khai trong `scenarios.json`), hoặc `docker image inspect <victim> <exploit>`.
 
 ---
 
@@ -95,18 +99,71 @@ RUN apt-get update && apt-get install -o Acquire::AllowInsecureRepositories=true
 
 (buster thì thay `stretch` bằng `buster`.) Script `fix_build.py` tự chèn các dòng này theo codename đọc từ `FROM`.
 
-### 3.3 Client chrome/selenium chết
+### 3.3 Client chrome/selenium chết (và cái bẫy `python3-pip`)
 
-victim/normal của một số kịch bản cài `google-chrome-stable` và `chromedriver 2.42` từ `dl.google.com` và
-`chromedriver.storage.googleapis.com` — đều đã mất. Hai xử lý:
-- **normal:** bỏ hẳn client dataset, dùng generator HTTP/DB chung (amendment 1). Không build normal nữa.
-- **victim** (ví dụ DVWA của PHP_CWE-434 cài kèm chrome): xoá các dòng cài chrome/chromedriver/selenium/xvfb; victim
-  vẫn phục vụ bình thường.
+victim/normal của một số kịch bản cài `google-chrome-stable` + `chromedriver 2.42` + `selenium` từ `dl.google.com`,
+`dl-ssl.google.com` và `chromedriver.storage.googleapis.com` — đều đã mất. Xử lý:
+- **normal:** bỏ hẳn client selenium của dataset, dùng generator HTTP/DB chung (amendment 1). Không build normal nữa.
+- **victim** (ví dụ DVWA của PHP_CWE-434, CWE-89 cài kèm chrome): bỏ các lệnh dựng chrome.
 
-### 3.4 metasploit (Bruteforce, Heartbleed)
+**Bẫy quan trọng (đã mắc một lần):** các Dockerfile này cài `python3-pip` **trên cùng một dòng apt** với
+`xvfb`/`udev`/`google-chrome`, ví dụ `apt-get install -y python3 python3-pip wget unzip xvfb udev`. Nếu xoá cả dòng
+(regex quét từ khoá chrome) thì **mất luôn `pip3`**, và các lệnh `RUN pip3 install ...` ngay sau đó chết với `exit 127`
+(pip3 not found). Cách đúng (fixer v3): chỉ **bỏ từng gói chrome** (`xvfb`, `udev`, `google-chrome-stable`) khỏi dòng
+apt, **giữ** `python3`, `python3-pip`, `wget`, `unzip`; còn các lệnh `RUN` thuần chrome (thêm repo google, `apt-key`,
+tải/giải nén `chromedriver`, `pip install selenium`/`pyvirtualdisplay`) thì thay bằng `RUN true`. Phải nối các dòng có
+`\` thành một lệnh logic trước khi sửa để không cắt giữa một `RUN` nhiều dòng (lỗi đã gặp ở fixer v2).
 
-Hai exploit này clone `metasploit-framework` 6.1.5 rồi `bundle install` trên ruby cũ — hỏng do gem/network. Đây là phần
-rã sâu nhất; tách riêng, không chặn các kịch bản khác.
+### 3.4 Base không ghi rõ codename debian (archive động)
+
+`vulhub/rails:5.0.7`, `apache/unomi:1.5.1`, `php:7.4.9-apache-buster` là ảnh debian nhưng **tên FROM không chứa
+`debian:9`/`debian:10`**, nên không thể suy codename từ dòng FROM để trỏ archive. Giải pháp (fixer v2/v3): chèn một
+`RUN` **tự phát hiện codename trong ảnh** rồi mới trỏ archive, chạy được cho stretch/buster/bất kỳ:
+
+```dockerfile
+RUN if [ -f /etc/debian_version ]; then . /etc/os-release 2>/dev/null; CN=${VERSION_CODENAME:-stretch}; \
+      printf 'deb [trusted=yes] http://archive.debian.org/debian %s main\n\
+deb [trusted=yes] http://archive.debian.org/debian-security %s/updates main\n' "$CN" "$CN" > /etc/apt/sources.list; \
+      printf 'Acquire::Check-Valid-Until "false";\nAcquire::AllowInsecureRepositories "true";\n' > /etc/apt/apt.conf.d/99archive; \
+    fi
+```
+
+(tự no-op trên ảnh không phải debian). Đây là bản thay cho cách chèn cứng codename ở mục 3.2.
+
+### 3.5 Phần rã sâu nhất: metasploit (Bruteforce, Heartbleed) — rebase
+
+Hai exploit này không chỉ cần một thư viện: Dockerfile gốc **clone `metasploit-framework` 6.1.5 từ nguồn rồi
+`bundle install`** trong một khối `RUN` khổng lồ, trên `ubuntu:bionic` (ruby 2.5, đã EOL). Metasploit 6.1.5 cần ruby
+mới hơn và hàng trăm gem phải biên dịch; năm 2026 thì bundle/gem gãy (thoát mã 5, không phải lỗi apt nên vá apt vô ích).
+Đây là phần rã **sâu nhất**.
+
+**Cách vá — rebase sang image metasploit dựng sẵn.** Không build metasploit từ nguồn nữa, mà dùng image chính thức
+`metasploitframework/metasploit-framework:latest` (Alpine, đã có ruby + `msfrpcd` chạy được ở
+`/usr/src/metasploit-framework/`, có sẵn `python3`/`pip3`) làm base, rồi chỉ chồng phần glue python:
+
+```dockerfile
+# scripts/lidds_live/exploit_metasploit.Dockerfile
+FROM metasploitframework/metasploit-framework:latest
+USER root
+RUN (pip3 install --no-cache-dir --break-system-packages pymetasploit3 || pip3 install --no-cache-dir pymetasploit3)
+COPY exploit.py /exploit.py
+WORKDIR /usr/src/metasploit-framework
+ENTRYPOINT ["python3","-u","/exploit.py"]
+```
+
+Chỉnh một dòng trong `exploit.py` của kịch bản: `"./msfrpcd ..."` → `"/usr/src/metasploit-framework/msfrpcd ..."` (image
+mới không để `msfrpcd` trong PATH). Exploit dùng module **auxiliary scanner** qua `msfrpcd`
+(`scanner/ssl/openssl_heartbleed`, `scanner/http/http_login`) nên **không cần database** — bỏ luôn phần postgres/db.sql
+của Dockerfile gốc. Victim của hai kịch bản là `ubuntu:13.04` (đã chuyển schema-2, mục 3.1).
+
+Kiểm chứng image rebase chạy được (không cần victim): `pymetasploit3` import được, `msfrpcd` khởi động, pymetasploit3
+kết nối tới msfrpc, và module nạp được (có tuỳ chọn `RHOSTS`). Nhờ vậy đủ **15/15** kịch bản.
+
+```bash
+# dựng lại hai exploit metasploit (trong thư mục exploit của mỗi kịch bản, sau khi sửa exploit.py)
+docker build -f scripts/lidds_live/exploit_metasploit.Dockerfile -t exploit_heartbleed CVE-2014-0160/exploit
+docker build -f scripts/lidds_live/exploit_metasploit.Dockerfile -t exploit_bruteforce Bruteforce_CWE-307/exploit
+```
 
 ---
 
@@ -128,12 +185,39 @@ sudo skopeo copy --format v2s2 docker://docker.io/library/ubuntu:16.04 docker-da
 
 # 4.4 build từng image (có log riêng cho mỗi image)
 bash /var/tmp/lidds-live/build_ve.sh          # victim + exploit, ghi /var/tmp/lidds-live/VE.txt
-# vá + build nốt các kịch bản rã apt:
-python3 /var/tmp/lidds-live/fix_build.py       # ghi /var/tmp/lidds-live/REFIX.txt
 
-# 4.5 kiểm kịch bản nào đủ image
+# 4.5 vá + build nốt các kịch bản rã (xem mục 4.6 cho thứ tự thực tế)
+python3 /var/tmp/lidds-live/fix_build.py       # (v1) ghi /var/tmp/lidds-live/REFIX.txt
+
+# 4.6 kiểm kịch bản nào đủ image
 bash scripts/lidds_live/preflight.sh scripts/lidds_live/scenarios.json
 ```
+
+### 4.6 Nhật ký dựng thực tế (toàn bộ các vòng)
+
+Dựng không xong trong một lần; mỗi lỗi lộ ra một lớp rã. Thứ tự đã làm (mỗi image một log riêng tại
+`/var/tmp/lidds-live/logs/<scenario>--<image>.log`):
+
+1. **build_ve.sh (vòng 1):** build thẳng victim+exploit của 15 kịch bản. Xong ngay: nginx, tomcat, zipslip, mysql+couchdb
+   (victim pull), vài exploit. Lộ hai lỗi lớn: `ubuntu:13.04/16.04` schema-1 không pull được, và các normal/victim selenium
+   chết. Hai exploit metasploit treo 40 phút rồi bỏ.
+2. **skopeo + bỏ build normal:** chuyển `ubuntu:13.04/16.04` sang `localrot/*` (mục 3.1); bỏ build image normal (thay bằng
+   generator); chỉ build victim+exploit. Rails victim vẫn fail apt (GPG hết hạn) → thêm `[trusted=yes]` +
+   `--allow-unauthenticated` (mục 3.2) → victim_rails ok.
+3. **fix_build.py (v1):** chèn archive theo codename **đọc từ dòng FROM** + bỏ dòng chrome (regex) + nới apt. Thêm được
+   `exploit_sprockets`, `exploit_unomi`, `victim_xss`, `exploit_eps`. Nhưng regex bỏ chrome **xoá nhầm dòng cài
+   `python3-pip`** → nhiều victim fail `pip3: exit 127`; và base `vulhub/rails`, `apache/unomi` không có codename trong
+   FROM nên không được trỏ archive.
+4. **fix_build2.py (v2):** reset Dockerfile, chuyển sang **archive động** (tự phát hiện codename trong ảnh, mục 3.4).
+   Thêm `victim_sprockets`, `victim_unomi`. Nhưng vẫn còn bỏ nhầm `python3-pip`, và regex cắt giữa `RUN` nhiều dòng của
+   Juice-Shop.
+5. **fix_build3.py (v3):** sửa chính xác (mục 3.3): nối dòng `\` trước; chỉ bỏ gói chrome khỏi dòng apt, **giữ
+   python3-pip**; các `RUN` chrome thuần → `RUN true`. Thêm `exploit_xss`, `victim_sql`, `exploit_sql`, `exploit_juice`,
+   `victim_php`. → **13/15**.
+6. **rebase metasploit (mục 3.5):** `exploit_heartbleed`, `exploit_bruteforce` trên image metasploit dựng sẵn. → **15/15**.
+
+Các script `fix_build*.py` nằm ở `/var/tmp/lidds-live/` trên .234 (sinh ra trong quá trình dựng, không nằm trong repo);
+cách vá cốt lõi đã mô tả ở mục 3 để tái lập.
 
 ---
 

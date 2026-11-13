@@ -23,7 +23,7 @@
 
 ## Nghiên cứu theo chủ đề
 
-- [docs/pulse_live_lidds.md](docs/pulse_live_lidds.md) (13/11) — dựng và chạy 15 kịch bản CVE thật của LID-DS 2021 trên cụm dưới probe token (W2): kiến trúc, vá image rã (skopeo schema-2, apt archive, bỏ chrome, metasploit), build, nạp image qua NFS, chạy capture/live, chấm điểm, dọn dẹp.
+- [pulse_live_lidds.md](pulse_live_lidds.md) (13/11) — dựng và chạy 15 kịch bản CVE thật của LID-DS 2021 trên cụm dưới probe token (W2): kiến trúc, vá image rã (skopeo schema-2, apt archive, bỏ chrome, metasploit), build, nạp image qua NFS, chạy capture/live, chấm điểm, dọn dẹp.
 
 - [reports/Cải thiện Pulse trên LID DS.md](reports/Cải%20thiện%20Pulse%20trên%20LID%20DS.md) (29/10) — vì sao Pulse bỏ sót trên LID-DS 2021,
   kết quả đã công bố, kỹ thuật cải thiện và lộ trình 4 bậc; là cơ sở của protocol `lidds-evaluation-v2` (Pulse 5.32).
