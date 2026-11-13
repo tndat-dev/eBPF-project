@@ -53,3 +53,26 @@ class PulseResolverTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ResolverNamespaceListTests(unittest.TestCase):
+    """protocol pulse-live-lidds-v1: the resolver watches a comma-separated namespace list; the collectors keep only those."""
+
+    def test_cri_pods_keeps_each_listed_namespace(self):
+        import json
+        from unittest import mock
+        from sentinel_pulse.collector import cgroup_resolver as r
+        items = [dict(metadata=dict(namespace=ns, name=name, uid=uid), labels={'pod-template-hash': 'h'}, annotations={})
+                 for ns, name, uid in (('production', 'cart-service-7d9f8b6c5d-abcde', 'u1'),
+                                       ('lidds-live', 'victim-zipslip-6c8d9f7b5c-fghij', 'u2'),
+                                       ('kube-system', 'coredns-5d78c9869d-klmno', 'u3'))]
+        done = mock.Mock(stdout=json.dumps(dict(items=items)))
+        with mock.patch.object(r.subprocess, 'run', return_value=done):
+            both = {p['pod_uid']: p['namespace'] for p in r.cri_pods('production,lidds-live')}
+            only = {p['pod_uid'] for p in r.cri_pods('production')}
+        self.assertEqual(both, {'u1': 'production', 'u2': 'lidds-live'})
+        self.assertEqual(only, {'u1'})
+
+    def test_collectors_watch_production_and_lidds_live(self):
+        from sentinel_pulse.collector.capture import WATCHED_NAMESPACES
+        self.assertEqual(set(WATCHED_NAMESPACES), {'production', 'lidds-live'})

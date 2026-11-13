@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import math
 
-from .capture import workload_key
+from .capture import WATCHED_NAMESPACES, workload_key
 
 CONTRACT = 'pulse-token-select1f-v1'
 SCHEMA = 'sentinel-pulse-token-window-v1'
@@ -63,7 +63,7 @@ def token_window(row: dict, metadata: dict):
         lineage = dict(session_events=int(row.get('session_events', 0)), session=row['session'])
     cg = int(row['cgroup_id'])
     item = metadata.get(str(cg))
-    if not item or item.get('namespace') != 'production':
+    if not item or item.get('namespace') not in WATCHED_NAMESPACES:
         return None
     if not all(item.get(k) for k in ('node_name', 'pod_uid', 'container_name', 'workload_revision')):
         return None

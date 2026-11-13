@@ -94,6 +94,7 @@ def workload_revision(labels: dict, annotations: dict | None = None) -> str:
 
 
 def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
+    """Pods of the namespace, or of each of a comma-separated list (protocol pulse-live-lidds-v1 adds lidds-live)."""
     result = subprocess.run(
         [command, "pods", "-o", "json"], capture_output=True, text=True, check=True
     )
@@ -101,7 +102,7 @@ def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
     selected: dict[str, dict] = {}
     for item in payload.get("items", []):
         metadata = item.get("metadata", {})
-        if metadata.get("namespace") != namespace:
+        if metadata.get("namespace") not in namespace.split(","):
             continue
         name = metadata.get("name", "")
         if any(marker in name.lower() for marker in EXCLUDED_MARKERS):
@@ -114,7 +115,7 @@ def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
         selected[uid] = {
             "pod_uid": uid,
             "pod_name": name,
-            "namespace": namespace,
+            "namespace": metadata.get("namespace"),
             "role": infer_role(name),
             "workload_name": infer_workload_name(name),
             "workload_revision": workload_revision(labels, annotations),

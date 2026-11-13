@@ -7,7 +7,7 @@ from __future__ import annotations
 import math
 import numpy as np
 from .features import PulseFeatureBuilder, PulseSnapshot, TRACKED_SYSCALLS
-from .capture import workload_key
+from .capture import workload_key, WATCHED_NAMESPACES
 from ..encoding import compact_record
 
 CONTRACT='pulse-entered-plus-seccomp-skip-v1'
@@ -34,7 +34,7 @@ class ExtendedFeatureStream:
                 or sum(bins)!=total or sum(counts.values())>total or skipped>total
                 or not math.isfinite(boundary) or not math.isfinite(received_at)):
             raise ValueError('extended snapshot integrity violation')
-        if not item or item.get('namespace')!='production':return None
+        if not item or item.get('namespace') not in WATCHED_NAMESPACES:return None
         identity=(item.get('node_name'),item.get('pod_uid'),item.get('container_name'),item.get('workload_revision'),cg)
         if not all(identity[:4]) or 'unknown' in identity[:4]:return None
         previous=self.previous.get(identity)
