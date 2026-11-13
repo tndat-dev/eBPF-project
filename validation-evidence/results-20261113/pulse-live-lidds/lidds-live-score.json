@@ -1,0 +1,46 @@
+{
+ "schema": "lidds-live-score-v1",
+ "protocol": "sentinel_pulse/protocol/pulse-live-lidds-v1.json",
+ "run": "/mnt/sentinel-pulse-archive/pulse-live-lidds-1113",
+ "horizon": 30.0,
+ "alpha": 0.00018,
+ "per_scenario": {
+  "CVE-2017-7529": {
+   "workload": "lidds-live/victim-cve-2017-7529:victim",
+   "capture_windows": 141,
+   "threshold": 0.8204191234724337,
+   "capture_blocks": 4,
+   "exploit_cycles": 1,
+   "detected": 1,
+   "recall": 1.0,
+   "normal_cycles": 0,
+   "false_alarm_cycles": 0,
+   "latency_p50": 1.2695412635803223,
+   "latency_p95": 1.2695412635803223,
+   "alarm_session_share": 0.0
+  },
+  "CVE-2020-9484": {
+   "workload": "lidds-live/victim-cve-2020-9484:victim",
+   "capture_windows": 300,
+   "threshold": 4.343453907707401,
+   "capture_blocks": 3,
+   "exploit_cycles": 2,
+   "detected": 2,
+   "recall": 1.0,
+   "normal_cycles": 0,
+   "false_alarm_cycles": 0,
+   "latency_p50": 1.548497200012207,
+   "latency_p95": 1.6781809329986572,
+   "alarm_session_share": 0.0
+  }
+ },
+ "pooled": {
+  "exploit_cycles": 3,
+  "detected": 3,
+  "recall": 1.0,
+  "normal_cycles": 0,
+  "false_alarm_cycles": 0,
+  "latency_p50": 1.4044041633605957,
+  "latency_p95": 1.663771629333496
+ }
+}

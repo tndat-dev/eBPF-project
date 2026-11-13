@@ -1,0 +1,4 @@
+{"scenario": "CVE-2017-7529", "cycle": 0, "error": "Command '['kubectl', '-n', 'lidds-live', 'apply', '-f', '-']' returned non-zero exit status 1."}
+{"scenario": "CVE-2017-7529", "cycle": 0, "error": "Command '['kubectl', '-n', 'lidds-live', 'apply', '-f', '-']' returned non-zero exit status 1."}
+{"scenario": "CVE-2020-9484", "cycle": 1, "is_exploit": false, "victim_uid": "add9c0d0-a68d-44e0-84ba-bc723e1cbf5e", "victim_pod": "victim-cve-2020-9484-7457b6fd-rphpl", "victim_ip": "10.0.2.20", "recording_start": 1794580331.9862175, "recording_seconds": 150.0, "warmup_seconds": 30.0, "users": 4}
+{"scenario": "CVE-2017-7529", "cycle": 2, "is_exploit": false, "victim_uid": "7610efe1-4f93-4e4b-90b1-c5a39036b2a7", "victim_pod": "victim-cve-2017-7529-895588bfd-fdg5p", "victim_ip": "10.0.2.204", "recording_start": 1794580484.1771297, "recording_seconds": 150.0, "warmup_seconds": 30.0, "users": 5}
