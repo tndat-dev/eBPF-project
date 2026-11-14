@@ -71,8 +71,8 @@ def victim_deployment(scn, spec):
                                                        # exits without a tty; keep it alive. A scenario may override the command.
                                                        "tty": True, "stdin": True,
                                                        **({"command": v["command"]} if v.get("command") else {}),
-                                                       "readinessProbe": dict(probe, initialDelaySeconds=3, periodSeconds=3,
-                                                                              failureThreshold=40)}]}}}}
+                                                       "readinessProbe": dict(probe, initialDelaySeconds=int(v["ready"].get("initial_delay", 3)),
+                                                                              periodSeconds=3, failureThreshold=int(v["ready"].get("failure_threshold", 40)))}]}}}}
 
 
 def runner_pod(name, image, entrypoint, argstr, label, victim_ip, mode, waits=None):
@@ -107,7 +107,7 @@ def runner_pod(name, image, entrypoint, argstr, label, victim_ip, mode, waits=No
 def victim_ready(scn):
     name = victim_name(scn)
     try:
-        kubectl("rollout", "status", f"deployment/{name}", "--timeout=180s", timeout=200)
+        kubectl("rollout", "status", f"deployment/{name}", "--timeout=420s", timeout=440)
     except subprocess.CalledProcessError:
         return None
     pod = kubectl("get", "pods", "-l", f"app={name}", "--field-selector=status.phase=Running",
