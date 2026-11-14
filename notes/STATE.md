@@ -4,18 +4,20 @@ File này thay bốn file trạng thái cũ (`SENTINEL_PULSE_STATUS.md`, `SYSCAL
 `RCA_RUNTIME_STATUS.md`, `RULE_INTEGRATION_STATUS.md`), xoá ngày 07/11 theo yêu cầu của chủ đồ án. Toàn văn còn trong
 git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia). Nhật ký từng bước: [WORKLOG.md](WORKLOG.md).
 
-## Đang chạy (in-flight, 14/11)
+## Lượt live đủ 15 kịch bản LID-DS trên cụm (14/11) — ĐÃ XONG
 
-- Lượt dài `pulse-live-lidds-long-1114` trên cụm, **cluster-resident** (sống qua phiên/VPN): capture 6h + live 4h, đủ 15 kịch
-  bản LID-DS. Unit `lidds-run-master-long` (.234, driver + score) và `lidds-run-worker-long` (k8s-worker1, loader eBPF +
-  resolver). Bắt đầu ~14/11 05:28 UTC. Marker ở `/mnt/sentinel-pulse-archive/pulse-live-lidds-long-1114/`; chờ `SCORED`
-  rồi đọc `lidds-live-score.json`, ghi receipt mới dưới `validation-evidence/`. Cap RAM runtime: master 24G, worker 8G.
-- Mở: scorer (`scripts/analysis/lidds_live_score.py`) giữ toàn bộ window trong RAM; lượt 10h ~2,4GB tokens → ~10–15G.
-  Đã cap 24G chặn OOM node (sự cố 31/10). Nếu `SCORED` không xuất hiện (OOM), chạy lại scoring SAU khi live xong (lúc đó
-  cho phép job nặng) hoặc viết lại scorer kiểu streaming (2 pass: dựng LM từ capture, rồi chấm, chỉ giữ đếm LM + tổng hợp).
-- Lượt ngắn trước đó (`pulse-live-lidds-15b-1114`, 14/11): recall gộp 9/10, p50 1,32s, 7/13 báo nhầm (ngưỡng thưa), mọi
-  cảnh báo native; receipt `validation-evidence/results-20261114/pulse-live-lidds/`. Đã sửa driver `apply()` retry (webhook
-  `failurePolicy=Fail` làm mất cycle 23839).
+- **`pulse-live-lidds-long-1114`** (cluster-resident, capture 6h + live 4h, scorer cap 24G không OOM): gộp 36/53 phát hiện
+  (recall 0.68), 6/42 báo nhầm (0.14), p50 1,26s/p95 4,14s, mọi cảnh báo native (session share 0.0). Receipt
+  `validation-evidence/results-20261114b/pulse-live-lidds/`.
+- **Ranh giới phát hiện rõ, khớp giới hạn đã đăng ký:** 9 kịch bản sinh hành vi hệ thống mới (RCE/traversal/upload-exec/
+  zip-write: CouchDB, Nginx, 2×Rails, Unomi, XSS-23839, Tomcat, EPS, ZipSlip) → recall 36/36 = 1.0, ~1–4s, native. 6 kịch
+  bản tàng hình ở syscall (MySQL auth-bypass, Heartbleed, SQLi DVWA+Juice, brute-force, PHP upload) → 0/17. Đóng W2 +
+  xác nhận H2 ở quy mô 9 CVE thật. Báo nhầm giảm từ 0.54 (lượt ngắn) còn 0.14 nhờ ngưỡng fit 30–36 block.
+- Mục mở (không chặn): Unomi 3/3 báo nhầm (normal JVM biến động), PHP_CWE-434 không bắt dù là upload (EPS upload thì bắt),
+  Heartbleed 0/1. Scorer giữ toàn bộ window trong RAM (lượt này ~đủ dưới cap 24G); nếu lượt sau lớn hơn cần viết streaming.
+- Lượt ngắn tiền trạm (`pulse-live-lidds-15b-1114`): recall 9/10, 7/13 báo nhầm; receipt `results-20261114/`. Fix driver
+  `apply()` retry (webhook `failurePolicy=Fail` làm mất cycle 23839) đã dùng cho lượt dài này.
+- 15 victim deploy vẫn `1/1` trên namespace `lidds-live`; image warm unomi + tar tái lập trên NFS.
 
 ## Mục tiêu và quyết định đang áp dụng
 
