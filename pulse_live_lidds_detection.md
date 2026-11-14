@@ -26,6 +26,7 @@ công. "Dòng" cho biết tín hiệu nằm ở native hay session.
 
 | Kịch bản (dịch vụ) | Lớp lỗi | Tín hiệu quan sát được (cái cần phát hiện) | Dòng |
 |---|---|---|---|
+| CVE-2012-2122 (MySQL) | bỏ qua xác thực (auth bypass) | **Phiên xác thực lặp lại với chuỗi trả lỗi/thành công bất thường** trong tiến trình mysqld: nhiều lần kết nối liên tiếp, chuỗi token của bước xác thực lệch normal; nếu khai thác dẫn tới thao tác file/tiến trình thì thấy thêm token/chuỗi lạ | native |
 | CVE-2014-0160 (OpenSSL/Heartbleed) | lộ bộ nhớ | Phản hồi **lớn hơn hẳn yêu cầu**: tiến trình đọc một bản tin nhỏ (token cỡ đọc nhỏ) rồi ghi/truyền lặp lại các khối lớn (token cỡ ghi lớn) — tỉ lệ ghi/đọc bất thường trong cùng thread | native |
 | CVE-2017-7529 (Nginx) | tràn số nguyên vùng đọc | Đọc file với **cỡ/offset bất thường** so với phục vụ tĩnh thường thấy (token cỡ đọc lạ, chuỗi lseek/read lạ) | native |
 | ZipSlip | ghi ra ngoài thư mục | **Mở để ghi một đường dẫn ngoài thư mục làm việc quen** (token `open:w:<thư mục lạ>`, ví dụ ghi vào `/etc` khi normal chỉ ghi trong thư mục giải nén) | native |
@@ -33,7 +34,7 @@ công. "Dòng" cho biết tín hiệu nằm ở native hay session.
 | CVE-2017-12635_6 (CouchDB) | RCE | Tiến trình dịch vụ **sinh tiến trình con bất ngờ** (execve một binary không thuộc hành vi dịch vụ) và/hoặc **kết nối ra ngoài** chưa từng có; ở token là chuỗi syscall dựng tiến trình/kết nối lạ trong thread của dịch vụ | native |
 | CVE-2020-13942 (Apache Unomi) | RCE qua biểu thức | Như trên: **tiến trình con/thao tác hệ thống bất ngờ** từ tiến trình Java của dịch vụ (execve, kết nối) — lệch khỏi normal chỉ gồm xử lý HTTP/lưu trữ | native |
 | CVE-2020-9484 (Tomcat) | giải tuần tự hoá độc | **Chuỗi syscall giải tuần tự hoá/thao tác file-tiến trình bất thường** trong tiến trình Java; có thể kèm sinh tiến trình con | native |
-| CVE-2020-23839 | XSS lưu trữ dẫn tới thao tác phía máy chủ | Khi tải trọng lưu trữ được kích hoạt, dịch vụ thực hiện **thao tác hệ thống ngoài luồng phục vụ trang** (đọc file nhạy cảm, sinh tiến trình) — biểu hiện token/chuỗi lạ | native |
+| CVE-2020-23839 (GetSimple CMS 3.3.16) | **reflected XSS (CWE-79)** ở trang đăng nhập admin → chiếm phiên admin → webshell/RCE | Bản thân XSS chạy trong trình duyệt nạn nhân, **không** tạo syscall lạ trong tiến trình dịch vụ. Tín hiệu đến từ **thao tác phía máy chủ qua phiên admin bị chiếm**: ghi một file PHP vào webroot (token `open:w:<webroot>` chưa thấy, ví dụ chèn webshell qua `admin/edit-theme.php`), rồi **sinh tiến trình con** (execve shell) và **kết nối ra ngoài** (reverse shell) | native |
 | CWE-89-SQL-injection / PHP_CWE-434 (DVWA) | SQLi / upload | **Thao tác file hoặc tiến trình bất thường do một request** (ví dụ ghi/đọc file ngoài thư mục upload quen, hoặc sinh tiến trình con) — token đường dẫn/cỡ hoặc chuỗi lạ. *Lưu ý giới hạn:* SQLi thuần chỉ đổi ngữ nghĩa truy vấn trong tiến trình, có thể **không** để lại dấu ở tầng syscall (xem §3) | native |
 | EPS_CWE-434 | upload file độc | **Ghi một file vào vị trí bất thường** rồi có thể **thực thi** nó (token mở-ghi đường dẫn lạ, sau đó execve một tiến trình con mới) | native |
 | Juice-Shop | SQLi ở ứng dụng Node | Tương tự DVWA: nếu khai thác dẫn tới thao tác hệ thống thì thấy token/chuỗi lạ; nếu chỉ đổi ngữ nghĩa truy vấn thì có thể không để lại dấu syscall (giới hạn §3) | native |

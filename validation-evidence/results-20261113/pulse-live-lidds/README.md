@@ -56,3 +56,9 @@ nhầm (CouchDB); vài victim ít lưu lượng (MySQL, ZipSlip) chưa đủ c�
 MySQL. Lượt dài hơn (capture và live mỗi pha nhiều giờ, lưu lượng normal đều hơn cho mọi victim) sẽ cho ngưỡng ổn định
 và recall/báo nhầm theo từng kịch bản đầy đủ. 15/15 image đã sẵn sàng và đã khai đủ 15 trong `scenarios.json` (preflight READY 15/15). Lượt dài chỉ cần nạp 9 image mới lên worker rồi chạy driver với `--only` toàn bộ 15.
 9 kịch bản còn lại cần bổ sung wiring victim/exploit vào `scenarios.json`).
+
+## Ghim image (tái lập)
+
+Hai exploit metasploit (Bruteforce, Heartbleed) base trên image dựng sẵn, ghim theo digest (tag `:latest` trôi):
+`metasploitframework/metasploit-framework@sha256:61a435a6376baf982506e754f6203f45b9ea4ac8c66b0e4027f09df36a3c2636`.
+Các image victim/exploit chỉ dùng trong namespace `lidds-live` (cô lập mạng), không đẩy lên registry dùng chung.

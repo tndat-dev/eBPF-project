@@ -10,7 +10,7 @@ Mọi lệnh chạy trên lab (VPN). `.234` là master (có Docker, kubectl); `.
 
 ## 1. Ý tưởng và kiến trúc
 
-- **victim** của mỗi kịch bản = một Deployment `victim-<slug>` trong namespace **`lidds-live`** (cô lập mạng, ngoài
+- **victim** của mỗi kịch bản = một Deployment `victim-<slug>` trong namespace **`lidds-live`** (cô lập mạng bằng NetworkPolicy `default-deny` + `allow-intra-and-dns` trong `scripts/lidds_live/namespace.yaml`: chỉ cho lưu lượng nội namespace và DNS, chặn egress ra ngoài; ngoài
   ambient mesh). Resolver của Pulse theo dõi namespace này, nên syscall của victim đi qua đúng pipeline token như một
   workload production.
 - **normal traffic** và **exploit** chạy từ pod **riêng** (nhãn `lidds-gen` / `lidds-atk`) gọi victim **qua mạng**.
@@ -55,7 +55,7 @@ chung (mục 3.3). Cột "Phần rã đã vá" cho biết đã phải xử lý g
 | ZipSlip | giải nén ghi ra ngoài thư mục | `victim_zipslip` | `exploit_zipslip` | — |
 | CVE-2018-3760 | Rails sprockets path traversal | `vulhub/rails:5.0.7` + apt | debian:9.2 | apt archive động + trusted |
 | CVE-2020-13942 | Apache Unomi OGNL RCE | `apache/unomi:1.5.1` + apt | debian:9.2 | apt archive động + trusted |
-| CVE-2020-23839 | XSS stored | `php:7.4.9-apache-buster` | debian:9.2 | apt archive buster + giữ python3-pip |
+| CVE-2020-23839 | **reflected XSS** (CWE-79, GetSimple CMS 3.3.16) → chiếm phiên admin → RCE | `php:7.4.9-apache-buster` | debian:9.2 | apt archive buster + giữ python3-pip |
 | CWE-89-SQL-injection | DVWA SQL injection | `vulnerables/web-dvwa` | debian:9.2 | bỏ chrome, giữ python3-pip, apt archive |
 | EPS_CWE-434 | upload file độc | `ubuntu:16.04` (schema-1) | debian:9.2 | schema-2 (skopeo) + apt archive |
 | Juice-Shop | OWASP Juice Shop | `bkimminich/juice-shop` (pull) | debian:10 | apt archive buster + giữ python3-pip |
@@ -101,6 +101,8 @@ RUN apt-get update && apt-get install -o Acquire::AllowInsecureRepositories=true
 
 (buster thì thay `stretch` bằng `buster`.) Script `fix_build.py` tự chèn các dòng này theo codename đọc từ `FROM`.
 
+> **An toàn:** `[trusted=yes]`, `AllowInsecureRepositories` và `--allow-unauthenticated` **tắt kiểm chữ ký apt**. Chấp nhận được vì đây là lab tái lập dataset cũ, nhưng các image này **chỉ dùng trong namespace `lidds-live`** (cô lập mạng bằng NetworkPolicy), **không đẩy lên registry dùng chung**; victim là dịch vụ có lỗ hổng thật nên càng không được rời lab.
+
 ### 3.3 Client chrome/selenium chết (và cái bẫy `python3-pip`)
 
 victim/normal của một số kịch bản cài `google-chrome-stable` + `chromedriver 2.42` + `selenium` từ `dl.google.com`,
@@ -144,8 +146,8 @@ mới hơn và hàng trăm gem phải biên dịch; năm 2026 thì bundle/gem g�
 `/usr/src/metasploit-framework/`, có sẵn `python3`/`pip3`) làm base, rồi chỉ chồng phần glue python:
 
 ```dockerfile
-# scripts/lidds_live/exploit_metasploit.Dockerfile
-FROM metasploitframework/metasploit-framework:latest
+# scripts/lidds_live/exploit_metasploit.Dockerfile — ghim theo digest để tái lập (biên nhận lưu digest)
+FROM metasploitframework/metasploit-framework@sha256:61a435a6376baf982506e754f6203f45b9ea4ac8c66b0e4027f09df36a3c2636
 USER root
 RUN (pip3 install --no-cache-dir --break-system-packages pymetasploit3 || pip3 install --no-cache-dir pymetasploit3)
 COPY exploit.py /exploit.py
@@ -159,7 +161,7 @@ mới không để `msfrpcd` trong PATH). Exploit dùng module **auxiliary scann
 của Dockerfile gốc. Victim của hai kịch bản là `ubuntu:13.04` (đã chuyển schema-2, mục 3.1).
 
 Kiểm chứng image rebase chạy được (không cần victim): `pymetasploit3` import được, `msfrpcd` khởi động, pymetasploit3
-kết nối tới msfrpc, và module nạp được (có tuỳ chọn `RHOSTS`). Nhờ vậy đủ **15/15** kịch bản.
+kết nối tới msfrpc, và module nạp được (có tuỳ chọn `RHOSTS`). Nhờ vậy đủ **15/15** kịch bản. **Tái lập:** ghim base theo digest `metasploitframework/metasploit-framework@sha256:61a435a6376baf982506e754f6203f45b9ea4ac8c66b0e4027f09df36a3c2636` (tag `:latest` trôi); digest này được ghi vào biên nhận `validation-evidence/results-*/pulse-live-lidds/`.
 
 ```bash
 # dựng lại hai exploit metasploit (trong thư mục exploit của mỗi kịch bản, sau khi sửa exploit.py)
@@ -195,7 +197,7 @@ python3 /var/tmp/lidds-live/fix_build.py       # (v1) ghi /var/tmp/lidds-live/RE
 bash scripts/lidds_live/preflight.sh scripts/lidds_live/scenarios.json
 ```
 
-### 4.6 Nhật ký dựng thực tế (toàn bộ các vòng)
+### 4.7 Nhật ký dựng thực tế (toàn bộ các vòng)
 
 Dựng không xong trong một lần; mỗi lỗi lộ ra một lớp rã. Thứ tự đã làm (mỗi image một log riêng tại
 `/var/tmp/lidds-live/logs/<scenario>--<image>.log`):
@@ -258,6 +260,8 @@ cfg=json.load(open("scripts/lidds_live/scenarios.json"));[driver.apply(driver.vi
 ["CVE-2012-2122","CVE-2017-7529","CVE-2017-12635_6","CVE-2019-5418","CVE-2020-9484","ZipSlip"]]'
 kubectl -n lidds-live wait --for=condition=available deploy --all --timeout=180s
 
+RUN=/mnt/sentinel-pulse-archive/pulse-live-lidds-$(date +%m%d)   # thư mục lượt chạy trên NFS
+
 # 6.4 probe trên worker (ghi token window + metadata cgroup→victim)
 sudo systemd-run --unit=lidds-probe -p MemoryMax=4G -p OOMPolicy=continue \
    /bin/bash scripts/lidds_live/run_probe.sh /home/dat/pulse-tokens-lineage /var/tmp/lidds-cap /home/dat/eBPF-project
@@ -304,5 +308,5 @@ kubectl delete namespace lidds-live
 ## 9. Kết quả
 
 Biên nhận trong `validation-evidence/results-<date>/pulse-live-lidds/`. Lượt kiểm tuyến đầu tiên
-(`pulse-live-lidds-1113`, 2 kịch bản): 3/3 exploit phát hiện, recall 1.0, độ trễ p50 1,40 s / p95 1,66 s, báo nhầm 0,
+(`pulse-live-lidds-1113`, 2 kịch bản): 3/3 **chu kỳ exploit** được phát hiện (recall theo chu kỳ, mục 7), recall 1.0, độ trễ p50 1,40 s / p95 1,66 s, báo nhầm 0,
 `alarm_session_share = 0.0` (phát hiện trên dòng native). Xem README trong thư mục biên nhận để biết số đầy đủ và giới hạn.
