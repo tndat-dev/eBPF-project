@@ -4,6 +4,19 @@ File này thay bốn file trạng thái cũ (`SENTINEL_PULSE_STATUS.md`, `SYSCAL
 `RCA_RUNTIME_STATUS.md`, `RULE_INTEGRATION_STATUS.md`), xoá ngày 07/11 theo yêu cầu của chủ đồ án. Toàn văn còn trong
 git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia). Nhật ký từng bước: [WORKLOG.md](WORKLOG.md).
 
+## Đang chạy (in-flight, 14/11)
+
+- Lượt dài `pulse-live-lidds-long-1114` trên cụm, **cluster-resident** (sống qua phiên/VPN): capture 6h + live 4h, đủ 15 kịch
+  bản LID-DS. Unit `lidds-run-master-long` (.234, driver + score) và `lidds-run-worker-long` (k8s-worker1, loader eBPF +
+  resolver). Bắt đầu ~14/11 05:28 UTC. Marker ở `/mnt/sentinel-pulse-archive/pulse-live-lidds-long-1114/`; chờ `SCORED`
+  rồi đọc `lidds-live-score.json`, ghi receipt mới dưới `validation-evidence/`. Cap RAM runtime: master 24G, worker 8G.
+- Mở: scorer (`scripts/analysis/lidds_live_score.py`) giữ toàn bộ window trong RAM; lượt 10h ~2,4GB tokens → ~10–15G.
+  Đã cap 24G chặn OOM node (sự cố 31/10). Nếu `SCORED` không xuất hiện (OOM), chạy lại scoring SAU khi live xong (lúc đó
+  cho phép job nặng) hoặc viết lại scorer kiểu streaming (2 pass: dựng LM từ capture, rồi chấm, chỉ giữ đếm LM + tổng hợp).
+- Lượt ngắn trước đó (`pulse-live-lidds-15b-1114`, 14/11): recall gộp 9/10, p50 1,32s, 7/13 báo nhầm (ngưỡng thưa), mọi
+  cảnh báo native; receipt `validation-evidence/results-20261114/pulse-live-lidds/`. Đã sửa driver `apply()` retry (webhook
+  `failurePolicy=Fail` làm mất cycle 23839).
+
 ## Mục tiêu và quyết định đang áp dụng
 
 - Mục tiêu: ML học từ normal phát hiện blind attack; recall ≥ 95%, precision ≥ 95%, p95 ≤ 3 s; binary vô hại và gánh cảnh
