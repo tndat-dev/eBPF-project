@@ -18,10 +18,11 @@
     },
     "exploit": {
       "kind": "exec",
-      "image": "exploit_mysql:latest",
+      "image": "exploit_http:latest",
       "commands": [
-        "python3 /home/exploit.py -ip ${victim} -speed n -extract 1"
-      ]
+        "python3 /home/mysql_bypass.py -ip ${victim}"
+      ],
+      "note": "retry-on-any-error auth-bypass burst (scripts/lidds_live/exploits_http/mysql_bypass.py); the dataset script broke on the first non-ProgrammingError so it never produced the connection burst"
     }
   },
   "CVE-2017-7529": {
