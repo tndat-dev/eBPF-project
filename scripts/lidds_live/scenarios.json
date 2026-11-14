@@ -20,7 +20,7 @@
       "kind": "exec",
       "image": "exploit_mysql:latest",
       "commands": [
-        "python3 /home/exploit.py -ip ${victim} -speed 1 -extract 1"
+        "python3 /home/exploit.py -ip ${victim} -speed n -extract 1"
       ]
     }
   },
@@ -224,10 +224,11 @@
     },
     "exploit": {
       "kind": "exec",
-      "image": "exploit_sql:latest",
+      "image": "exploit_http:latest",
       "commands": [
-        "python3 /home/exploit.py -ip ${victim}"
-      ]
+        "python3 /home/cwe89_sqli.py -ip ${victim}"
+      ],
+      "note": "HTTP re-implementation (scripts/lidds_live/exploits_http/cwe89_sqli.py); the dataset exploit needed selenium"
     }
   },
   "EPS_CWE-434": {
@@ -273,14 +274,12 @@
       ]
     },
     "exploit": {
-      "kind": "stdin",
-      "image": "exploit_juice:latest",
-      "entrypoint": [
-        "python3",
-        "-u",
-        "/home/run_attacker.py"
+      "kind": "exec",
+      "image": "exploit_http:latest",
+      "commands": [
+        "python3 /home/juice_sqli.py -ip ${victim}:3000"
       ],
-      "args": "-ip ${victim} -a SQLInjectionUser -v 1"
+      "note": "HTTP re-implementation (scripts/lidds_live/exploits_http/juice_sqli.py); the dataset exploit needed selenium"
     }
   },
   "PHP_CWE-434": {
@@ -301,14 +300,12 @@
       ]
     },
     "exploit": {
-      "kind": "stdin",
-      "image": "exploit_php:latest",
-      "entrypoint": [
-        "python3",
-        "-u",
-        "/home/exploit.py"
+      "kind": "exec",
+      "image": "exploit_http:latest",
+      "commands": [
+        "python3 /home/php_upload.py -ip ${victim}"
       ],
-      "args": "-ip ${victim}"
+      "note": "HTTP re-implementation (scripts/lidds_live/exploits_http/php_upload.py); the dataset exploit needed selenium"
     }
   },
   "ZipSlip": {
@@ -355,11 +352,11 @@
     },
     "exploit": {
       "kind": "exec",
-      "image": "exploit_bruteforce:latest",
+      "image": "exploit_http:latest",
       "commands": [
-        "python3 /exploit.py ${victim}"
+        "python3 /home/bruteforce.py -ip ${victim} -path /private/index.html"
       ],
-      "note": "rebased metasploit image (scripts/lidds_live/exploit_metasploit.Dockerfile); exploit.py starts msfrpcd and runs scanner/http/http_login"
+      "note": "HTTP Basic brute-force re-implementation (scripts/lidds_live/exploits_http/bruteforce.py); the rebased metasploit image ran but validated no USER_FILE/PASS_FILE so it never tried a login"
     }
   },
   "CVE-2014-0160": {

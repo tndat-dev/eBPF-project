@@ -171,6 +171,17 @@ def run_cycle(scn, spec, rng, is_exploit, schedule, cid, gen_image):
             row["exploit_launched"] = ename
             pods.append(ename)
         time.sleep(POLL)
+    # capture the exploit pod's output before deletion, so a 0-recall cycle can be told apart from an exploit that
+    # never actually ran/landed (the pod is deleted below, after which its logs are gone)
+    ename = row.get("exploit_launched")
+    if ename:
+        logdir = Path(schedule.name).parent / "exploit-logs"
+        logdir.mkdir(exist_ok=True)
+        lg = kubectl("logs", ename, "--tail=300", check=False, timeout=30)
+        body = (lg.stdout or "")
+        if lg.stderr:
+            body += "\n--STDERR--\n" + lg.stderr
+        (logdir / f"{slug(scn)}-cyc{cid}.log").write_text(body)
     schedule.write(json.dumps(row) + "\n")
     schedule.flush()
     for p in pods:
