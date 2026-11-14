@@ -35,6 +35,8 @@ Mọi lệnh chạy trên lab (VPN). `.234` là master (có Docker, kubectl); `.
 
 Mã nguồn: `scripts/lidds_live/` (driver, run_probe, run_all), `scripts/analysis/lidds_live_score.py`.
 
+Tài liệu phòng thủ đi kèm — hành vi quan sát được của từng kịch bản (cái cần phát hiện): [pulse_live_lidds_detection.md](pulse_live_lidds_detection.md).
+
 ---
 
 ## 2. Mười lăm kịch bản — đã dựng **15/15**
