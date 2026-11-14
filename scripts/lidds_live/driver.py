@@ -44,8 +44,20 @@ def kubectl(*args, check=True, inp=None, timeout=120):
                           check=check, input=inp, timeout=timeout)
 
 
-def apply(doc):
-    kubectl("apply", "-f", "-", inp=json.dumps(doc))
+def apply(doc, attempts=5):
+    """kubectl apply with backoff. The cluster has admission webhooks with failurePolicy=Fail (istio sidecar-injector,
+    kyverno, gatekeeper); a momentarily-unready webhook makes apply exit 1 and denies admission. apply is keyed by
+    object name, so retrying is idempotent (no duplicate pods). Raise with the real stderr if every attempt fails,
+    so a lost cycle is diagnosable instead of a bare 'non-zero exit status 1'."""
+    last = None
+    for i in range(attempts):
+        r = kubectl("apply", "-f", "-", inp=json.dumps(doc), check=False)
+        if r.returncode == 0:
+            return r
+        last = r
+        time.sleep(min(2 ** i, 15))
+    err = (last.stderr or "") if last is not None else ""
+    raise RuntimeError("apply failed after %d attempts: %s" % (attempts, err.strip()[:300]))
 
 
 def victim_name(scn):
