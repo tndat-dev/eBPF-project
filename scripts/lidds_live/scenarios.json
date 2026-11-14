@@ -354,7 +354,7 @@
       "kind": "exec",
       "image": "exploit_http:latest",
       "commands": [
-        "python3 /home/bruteforce.py -ip ${victim} -path /private/index.html"
+        "python3 /home/bruteforce.py -ip ${victim}"
       ],
       "note": "HTTP Basic brute-force re-implementation (scripts/lidds_live/exploits_http/bruteforce.py); the rebased metasploit image ran but validated no USER_FILE/PASS_FILE so it never tried a login"
     }
