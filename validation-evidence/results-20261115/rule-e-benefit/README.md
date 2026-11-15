@@ -22,7 +22,7 @@ exec and the attack are non-image, so R1 leaves both and R2 labels them drift.
 
 ## Result — ML-only vs ML+rule, split out
 
-**Primary attack rates (1 / 3 / 6 per second):**
+**Primary attack rates (6 / 12 / 24 per second — `pulse_live_v4.PRIMARY`; the campaign's full set is 1/3/6/12/24):**
 
 | Metric | ML-only | ML+rule |
 |---|---|---|

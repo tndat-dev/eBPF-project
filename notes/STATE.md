@@ -95,7 +95,7 @@ build chính thức cho lượt chạy; chưa đo chi phí hook fork.
 lạ; đo trên dữ liệu v5, so sánh có và không có rule.
 - **Nửa-lợi đã đo (15/11, `validation-evidence/results-20261115/rule-e-benefit/`, `scripts/analysis/rule_e_benefit.py`):** scorer phát
   số **tách hẳn hai hệ** (khối `comparison` trong json): **ML-only** (chỉ mô hình token = alert path v5 đã triển khai) vs **ML+rule**
-  (mô hình + rule part E, alert = mô hình kêu VÀ không bị R1 hạ). Trên campaign v5 — bảng primary 1/3/6 req/s:
+  (mô hình + rule part E, alert = mô hình kêu VÀ không bị R1 hạ). Trên campaign v5 — bảng primary 6/12/24 req/s (`pulse_live_v4.PRIMARY`; full set 1/3/6/12/24):
 
   | Chỉ số | ML-only | ML+rule |
   |---|---|---|
