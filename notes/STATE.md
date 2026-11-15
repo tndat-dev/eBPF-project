@@ -19,8 +19,14 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
   thiếu wordlist + auth ở vhost TLS :443). Nên recall 0.68 là **artifact công cụ hỏng, không phải giới hạn detector**;
   23839 "4/4" ở long-1114 còn đáng nghi (exploit đang crash). Đã viết lại 7 exploit bằng HTTP urllib (+PyMySQL) trong
   `scripts/lidds_live/exploits_http/` (một image `exploit_http`, không chrome), **verify 15/15 landing** (RCE/bypass/leak
-  thật). Cần **re-run đúng protocol (capture 12h + live 12h, `pulse-live-lidds-v1.json`)** với 15 exploit chạy được để có
-  số liệu thật — CHƯA chạy, chờ chủ đồ án duyệt. Trước soak phải restart sạch 15 victim (verify làm bẩn trạng thái).
+  thật). Re-run với 15 exploit chạy được để có số liệu W2 thật.
+- **ĐANG CHẠY (khởi 15/11 ~17:52 VN): `pulse-live-lidds-1115`.** Chủ đồ án duyệt chạy, giao tao tự quyết thời lượng "vừa đủ"
+  (không 24h). **capture 8h + live 4h** theo `pulse-live-lidds-v1-amendment-2.json` (đăng ký trước khi chạy; lý do: live 4h →
+  ~47 chu kỳ exploit/kịch bản như long-1114 là đủ recall; capture 8h → ~40–48 block ngưỡng, ổn hơn long-1114's 6h). Cùng model
+  v5. Cluster-resident: master unit `lidds-1115-master` trên .234 (cap 28G cho score cuối) + worker unit `lidds-1115-worker`
+  trên worker1 (probe lineage), phối hợp qua marker NFS `VICTIMS_READY→START_PROBE→LIVE_DONE→COLLECTED→SCORED` tại
+  `/mnt/sentinel-pulse-archive/pulse-live-lidds-1115`. Dự kiến **SCORED ~06:20–06:30 sáng 16/11**. Victim recreate mỗi cycle
+  (tự dọn trạng thái verify làm bẩn). Khi có `SCORED`: đọc `lidds-live-score.json` + chạy `pulse_live_lidds.py` phân tích.
 - Mục mở (không chặn): Unomi 3/3 báo nhầm (normal JVM biến động); scorer giữ toàn bộ window trong RAM (đủ dưới cap 24G,
   lượt lớn hơn cần viết streaming 2-pass).
 - Lượt ngắn tiền trạm (`pulse-live-lidds-15b-1114`): recall 9/10, 7/13 báo nhầm; receipt `results-20261114/`. Fix driver
