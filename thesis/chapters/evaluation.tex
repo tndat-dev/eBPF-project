@@ -281,6 +281,36 @@ $\leq$ 34 & 531 & 526 \\
   Một phép so trước đó, với bảng chữ cũ và ngưỡng đặt trên 60 bản ghi validation, cho hai bên ngang nhau (luật 530 phát hiện với 14 báo nhầm, mô hình 529 với 22). Bảng trên dùng đúng quy trình của hệ thống hiện tại.
 \end{itemize}
 
+\subsection{Thêm một nhánh tần suất có đáng không}\label{sec:rate-branch}
+
+Mục trên cho thấy mô hình mù với bất thường về \emph{tần suất} của chuỗi quen. Một nhánh bổ sung được dựng để nhắm đúng khoảng trống đó: với mỗi 4-gram đã thấy $g$, gọi $m_g$ là số lần $g$ xuất hiện nhiều nhất trong một cửa sổ 0,5 s của bản ghi học; điểm tần suất của một cửa sổ là $\max$ trên các gram đã thấy của $\log\!\big((n_g{+}1)/(m_g{+}1)\big)$, một cửa sổ không có gram đã thấy thì không bao giờ báo. Nhánh này được đặt ngưỡng và chấm đúng như nhánh token, rồi hợp (OR) với nó.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.44\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.28\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.28\linewidth-2\tabcolsep\relax}@{}}
+\caption{Nhánh token, nhánh tần suất và hợp của hai nhánh, ở cùng ngân sách, development và CB-DS (phát hiện / bản ghi báo nhầm).}\label{tab:rate-branch}\\
+\toprule\noalign{}
+Nhánh & LID-DS development & CB-DS \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Chỉ token (mô hình v5) & 530 / 6 & 891 / 3 \\
+Chỉ tần suất & 225 / 7 & 891 / 3 \\
+Token hoặc tần suất ($\alpha'$ chung) & 530 / 12 & 891 / 4 \\
+Token hoặc tần suất ($\alpha'$ tách 0,9/0,1) & 530 / 7 & 891 / 4 \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Nhánh tần suất không thêm phát hiện nào.} Hợp hai nhánh vẫn 530 trên LID-DS và 891 trên CB-DS, đúng bằng mô hình một mình: mọi bản ghi mà nhánh tần suất bắt được thì mô hình đã bắt. Nó chỉ thêm báo nhầm --- LID-DS 6 lên 12, CB-DS 3 lên 4 --- vì mỗi nhánh tiêu ngân sách báo nhầm riêng.
+\item
+  \textbf{Chia ngân sách cũng không cứu được.} Cho mô hình giữ $\alpha'=0{,}00018$ và nhánh tần suất phần 0,1 còn lại ($\alpha'=0{,}00002$, tổng bằng $\alpha$ của hệ ba nhánh) giảm báo nhầm thừa còn LID-DS 7 và CB-DS 4, nhưng vẫn vượt ngân sách của mô hình một mình (LID-DS 6, CB-DS 3); nên nhánh không được nhận.
+\item
+  Cột ``chỉ token'' tái lập đúng số development của \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} (530/544, 6 báo nhầm), xác nhận phép so dùng đúng mô hình đang dùng.
+\end{itemize}
+
+Kết quả này đúng như kỳ vọng: benchmark tĩnh không có tấn công \emph{pha loãng} (độn chuỗi tần suất cao đã thấy quanh một exploit thật), nên nhánh tần suất không có gì để bắt ở đây. Giá trị của nó --- chống kẻ tấn công thích nghi, bàn ở chương Thảo luận --- chỉ đo được bằng một fixture pha loãng trên cụm; nhánh giữ ở trạng thái shadow, đường cảnh báo vẫn chỉ nhánh token.
+
 \section{RQ3: trên cụm thật}\label{sec:token-live}
 
 Mô hình token đã chạy hai lượt live blind 24 giờ trên cả 21 workload, mỗi lượt một campaign 525 trial. Ngưỡng fit trước khi lượt chạy bắt đầu và không đổi trong lượt.
@@ -365,6 +395,45 @@ Mô hình theo workload trả lời câu hỏi ``container có làm điều chư
 \end{itemize}
 
 Trên trial của lượt 1109 (development cho bước này) với mô hình học lại, các ứng viên bỏ qua hoặc dùng ngưỡng riêng sau \texttt{execve} hạ binary vô hại còn 135--274/525, nhưng chỉ bắt 302--311/315 tấn công tốc độ chính; mô hình gộp một mình chỉ hạ còn 520--522/525. Chỉ mô hình không gate qua được dataset, nên process vô hại mới vẫn là giới hạn mở của mô hình.
+
+\subsection{Luật sau mô hình: tách tool-của-image khỏi tấn công}\label{sec:rule-layer}
+
+Mô hình một mình không tách được process vô hại mới khỏi tấn công, và một gate học \emph{trước} mô hình cũng bị loại (trên). Hướng còn lại, theo đúng thứ tự ``chốt mô hình trước, thêm luật sau'', là một \emph{luật sau mô hình} chạy trên cảnh báo của mô hình:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{R1 (tool-của-image):} một cảnh báo mà cửa sổ của nó chỉ chứa exec thời-gian-chạy của binary thuộc image container bị hạ xuống mức thông tin.
+\item
+  \textbf{R2 (drift):} một cảnh báo mà exec là binary không thuộc image thì giữ nguyên là cảnh báo, gắn nhãn drift.
+\end{itemize}
+
+Trên campaign \texttt{pulse-\allowbreak{}live-\allowbreak{}v5-\allowbreak{}1110}, mỗi trial bơm một trong: control (không exec); một \textbf{lệnh quản trị} (\texttt{cat}, \texttt{ls}, \texttt{ps}\ldots\ --- binary có trong image, lớp mà R1 nhắm tới); một \textbf{exec vô hại} của binary operator không thuộc image; một \textbf{tấn công blind} cũng là binary operator không thuộc image. Bộ chấm của luật dùng lại đúng loader nhánh token của phân tích attribution, nên cảnh báo của nó chính là của mô hình v5; phép so mô hình một mình với mô hình + luật:
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.5\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}@{}}
+\caption{Mô hình một mình và mô hình + luật, campaign v5, tập chính (6, 12, 24 lần/s).}\label{tab:rule-layer}\\
+\toprule\noalign{}
+Chỉ số & Chỉ mô hình & Mô hình + luật \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Recall tấn công & 314/314 & 314/314 \\
+Báo nhầm lệnh quản trị (tool-của-image) & 256/262 (97,7\%) & 0/262 \\
+Exec vô hại non-image ($\to$ drift) & 314/314 & 314/314 (giữ, nhãn drift) \\
+\end{longtable}
+
+Gộp mọi tốc độ: recall 521/522 ở cả hai; lệnh quản trị 422/439 còn 0/439; báo nhầm gộp trên các lớp vô hại 942/1487 còn 520/1487.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{R1 xoá sạch báo nhầm lệnh quản trị (97,7\% về 0) mà không đụng recall tấn công (314/314).} Binary tấn công của campaign là binary operator không thuộc image nên R1 không hạ; lệnh quản trị là tool-của-image nên bị hạ hết. Đây đúng là việc luật cần làm: tách việc dùng tool-của-image hợp lệ khỏi tấn công. Cột ``chỉ mô hình'' khớp phát hiện của mục~\ref{sec:benign} (mô hình gắn cờ gần như mọi lệnh quản trị và mọi binary vô hại).
+\item
+  \textbf{Exec vô hại non-image không đổi (314/314):} nó không phải tool-của-image nên R1 giữ; R2 gắn nhãn drift --- một binary non-image thật sự mới, là tín hiệu thật chứ không phải báo nhầm cần bỏ.
+\end{itemize}
+
+\textbf{Giới hạn: mới đo mặt lợi.} Campaign v5 không có tấn công ``sống nhờ đất'' (living-off-the-land) --- tấn công dùng chính tool-của-image. R1 cũng sẽ hạ một tấn công như vậy (một lần bỏ sót), và campaign này không đo được. Nên chi phí recall của luật \emph{chưa} được đo; chỉ có mặt lợi (xoá báo nhầm lệnh quản trị) và việc nó không đụng các tấn công non-image đã đo. Một lượt live mới phải thêm tấn công dùng tool-của-image trước khi nhận luật vào đường cảnh báo; yêu cầu này đã đăng ký trong protocol.
 
 \section{RQ5: chi phí}\label{sec:overhead}
 
