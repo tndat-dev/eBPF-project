@@ -13,8 +13,16 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
   zip-write: CouchDB, Nginx, 2×Rails, Unomi, XSS-23839, Tomcat, EPS, ZipSlip) → recall 36/36 = 1.0, ~1–4s, native. 6 kịch
   bản tàng hình ở syscall (MySQL auth-bypass, Heartbleed, SQLi DVWA+Juice, brute-force, PHP upload) → 0/17. Đóng W2 +
   xác nhận H2 ở quy mô 9 CVE thật. Báo nhầm giảm từ 0.54 (lượt ngắn) còn 0.14 nhờ ngưỡng fit 30–36 block.
-- Mục mở (không chặn): Unomi 3/3 báo nhầm (normal JVM biến động), PHP_CWE-434 không bắt dù là upload (EPS upload thì bắt),
-  Heartbleed 0/1. Scorer giữ toàn bộ window trong RAM (lượt này ~đủ dưới cap 24G); nếu lượt sau lớn hơn cần viết streaming.
+- **QUAN TRỌNG (15/11): kết quả lượt long-1114 bị bác cho 7 kịch bản.** Verify Phase A (bắn từng exploit vào victim, bắt
+  log — `validation-evidence/results-20261115/exploit-verification/`) cho thấy **7/15 exploit không thực sự chạy** trong
+  long-1114: MySQL (sai arg + host-block 1129), CWE-89/Juice/PHP/XSS-23839 (image bị lược selenium), Bruteforce (metasploit
+  thiếu wordlist + auth ở vhost TLS :443). Nên recall 0.68 là **artifact công cụ hỏng, không phải giới hạn detector**;
+  23839 "4/4" ở long-1114 còn đáng nghi (exploit đang crash). Đã viết lại 7 exploit bằng HTTP urllib (+PyMySQL) trong
+  `scripts/lidds_live/exploits_http/` (một image `exploit_http`, không chrome), **verify 15/15 landing** (RCE/bypass/leak
+  thật). Cần **re-run đúng protocol (capture 12h + live 12h, `pulse-live-lidds-v1.json`)** với 15 exploit chạy được để có
+  số liệu thật — CHƯA chạy, chờ chủ đồ án duyệt. Trước soak phải restart sạch 15 victim (verify làm bẩn trạng thái).
+- Mục mở (không chặn): Unomi 3/3 báo nhầm (normal JVM biến động); scorer giữ toàn bộ window trong RAM (đủ dưới cap 24G,
+  lượt lớn hơn cần viết streaming 2-pass).
 - Lượt ngắn tiền trạm (`pulse-live-lidds-15b-1114`): recall 9/10, 7/13 báo nhầm; receipt `results-20261114/`. Fix driver
   `apply()` retry (webhook `failurePolicy=Fail` làm mất cycle 23839) đã dùng cho lượt dài này.
 - 15 victim deploy vẫn `1/1` trên namespace `lidds-live`; image warm unomi + tar tái lập trên NFS.
