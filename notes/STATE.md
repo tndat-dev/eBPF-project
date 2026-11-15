@@ -93,6 +93,11 @@ build chính thức cho lượt chạy; chưa đo chi phí hook fork.
 
 **Giai đoạn 2: rule sau khi chốt ML** (E): R1 hạ cảnh báo khi chỉ có runtime exec của tool có trong image, R2 gắn nhãn drift cho binary
 lạ; đo trên dữ liệu v5, so sánh có và không có rule.
+- **Nửa-lợi đã đo (15/11, `validation-evidence/results-20261115/rule-e-benefit/`, `scripts/analysis/rule_e_benefit.py`):** trên campaign
+  v5, **R1 xoá sạch báo nhầm lệnh admin (422→0)** (admin chạy tool-của-image cat/ls/ps/sh...) **mà giữ nguyên recall tấn công 314/314**
+  (binary tấn công là `/operator/...` non-image nên R1 không đụng); benign-exec operator (non-image) R1 không giảm (520→520), R2 gắn drift.
+  **Mặt-hại (R1 bỏ sót tấn công dùng tool-của-image, living-off-the-land) CHƯA đo được — cần part F của pulse-live-v6** (đúng protocol).
+  Dùng lại loader token-branch của live_attribution; ML alarms chính là của mô hình v5.
 
 **Giai đoạn 3: một lượt live mới `pulse-live-v6-<MMDD>`** (protocol riêng, đăng ký trước): tấn công trong process đang chạy (không exec),
 tấn công bằng tool của image, thêm kỹ thuật ATT&CK (discovery, credential access, persistence, impact, network scan), thứ tự ngẫu nhiên,

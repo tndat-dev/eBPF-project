@@ -1,0 +1,142 @@
+{
+ "schema": "ml-final-study-v1-rule-e-benefit",
+ "protocol": "sentinel_pulse/protocol/ml-final-study-v1.json",
+ "rules": {
+  "R1": "downgrade an alert whose window had only runtime execs of image binaries (admin on v5)",
+  "R2": "an alert whose exec is a non-image binary stays an alert, labelled drift (benign/attack on v5)"
+ },
+ "run": "/mnt/sentinel-pulse-archive/pulse-live-v5-1110",
+ "models": "/mnt/sentinel-pulse-archive/pulse-live-v5-fit-1110/token/MODELS.json",
+ "segments_read": 87,
+ "scope": "benefit side only; R1 miss on living-off-the-land attacks needs part F of a live run",
+ "by_label": {
+  "admin": {
+   "n": 439,
+   "ml": 422,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.9612756264236902,
+   "after_r1_rate": 0.0
+  },
+  "admin-primary": {
+   "n": 262,
+   "ml": 256,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.9770992366412213,
+   "after_r1_rate": 0.0
+  },
+  "attack": {
+   "n": 522,
+   "ml": 521,
+   "after_r1": 521,
+   "r2_drift": 521,
+   "ml_rate": 0.9980842911877394,
+   "after_r1_rate": 0.9980842911877394
+  },
+  "attack-primary": {
+   "n": 314,
+   "ml": 314,
+   "after_r1": 314,
+   "r2_drift": 314,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "benign": {
+   "n": 523,
+   "ml": 520,
+   "after_r1": 520,
+   "r2_drift": 520,
+   "ml_rate": 0.994263862332696,
+   "after_r1_rate": 0.994263862332696
+  },
+  "benign-primary": {
+   "n": 314,
+   "ml": 314,
+   "after_r1": 314,
+   "r2_drift": 314,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "control": {
+   "n": 525,
+   "ml": 0,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.0,
+   "after_r1_rate": 0.0
+  }
+ },
+ "admin_by_command": {
+  "cat": {
+   "n": 49,
+   "ml": 49,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "date": {
+   "n": 50,
+   "ml": 45,
+   "after_r1": 0,
+   "ml_rate": 0.9,
+   "after_r1_rate": 0.0
+  },
+  "df": {
+   "n": 51,
+   "ml": 51,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "env": {
+   "n": 52,
+   "ml": 52,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "id": {
+   "n": 51,
+   "ml": 51,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "ls": {
+   "n": 44,
+   "ml": 44,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "ps": {
+   "n": 7,
+   "ml": 7,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "python": {
+   "n": 38,
+   "ml": 34,
+   "after_r1": 0,
+   "ml_rate": 0.8947368421052632,
+   "after_r1_rate": 0.0
+  },
+  "sh": {
+   "n": 48,
+   "ml": 46,
+   "after_r1": 0,
+   "ml_rate": 0.9583333333333334,
+   "after_r1_rate": 0.0
+  },
+  "uname": {
+   "n": 49,
+   "ml": 43,
+   "after_r1": 0,
+   "ml_rate": 0.8775510204081632,
+   "after_r1_rate": 0.0
+  }
+ }
+}
