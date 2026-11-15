@@ -93,11 +93,20 @@ build chính thức cho lượt chạy; chưa đo chi phí hook fork.
 
 **Giai đoạn 2: rule sau khi chốt ML** (E): R1 hạ cảnh báo khi chỉ có runtime exec của tool có trong image, R2 gắn nhãn drift cho binary
 lạ; đo trên dữ liệu v5, so sánh có và không có rule.
-- **Nửa-lợi đã đo (15/11, `validation-evidence/results-20261115/rule-e-benefit/`, `scripts/analysis/rule_e_benefit.py`):** trên campaign
-  v5, **R1 xoá sạch báo nhầm lệnh admin (422→0)** (admin chạy tool-của-image cat/ls/ps/sh...) **mà giữ nguyên recall tấn công 314/314**
-  (binary tấn công là `/operator/...` non-image nên R1 không đụng); benign-exec operator (non-image) R1 không giảm (520→520), R2 gắn drift.
-  **Mặt-hại (R1 bỏ sót tấn công dùng tool-của-image, living-off-the-land) CHƯA đo được — cần part F của pulse-live-v6** (đúng protocol).
-  Dùng lại loader token-branch của live_attribution; ML alarms chính là của mô hình v5.
+- **Nửa-lợi đã đo (15/11, `validation-evidence/results-20261115/rule-e-benefit/`, `scripts/analysis/rule_e_benefit.py`):** scorer phát
+  số **tách hẳn hai hệ** (khối `comparison` trong json): **ML-only** (chỉ mô hình token = alert path v5 đã triển khai) vs **ML+rule**
+  (mô hình + rule part E, alert = mô hình kêu VÀ không bị R1 hạ). Trên campaign v5 — bảng primary 1/3/6 req/s:
+
+  | Chỉ số | ML-only | ML+rule |
+  |---|---|---|
+  | Recall tấn công | 314/314 = 1.000 | 314/314 = 1.000 |
+  | Báo nhầm admin (dùng tool-của-image) | 256/262 = 0.977 | **0/262 = 0.000** |
+  | Benign-exec operator (non-image → drift) | 314/314 | 314/314 (giữ, nhãn drift) |
+
+  (pooled mọi rate: recall 521/522; admin 422/439 → **0/439**; benign-drift 520/523 không đổi; báo nhầm gộp 942/1487 → 520/1487.)
+  Kết: **chỉ số rule layer thay đổi là báo nhầm admin 0.977→0, recall tấn công giữ nguyên**. **Mặt-hại (R1 bỏ sót tấn công
+  dùng tool-của-image, living-off-the-land) CHƯA đo được — cần part F của pulse-live-v6** (đúng protocol). Dùng lại loader
+  token-branch của live_attribution; ML alarms chính là của mô hình v5.
 
 **Giai đoạn 3: một lượt live mới `pulse-live-v6-<MMDD>`** (protocol riêng, đăng ký trước): tấn công trong process đang chạy (không exec),
 tấn công bằng tool của image, thêm kỹ thuật ATT&CK (discovery, credential access, persistence, impact, network scan), thứ tự ngẫu nhiên,

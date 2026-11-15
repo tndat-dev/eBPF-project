@@ -9,6 +9,122 @@
  "models": "/mnt/sentinel-pulse-archive/pulse-live-v5-fit-1110/token/MODELS.json",
  "segments_read": 87,
  "scope": "benefit side only; R1 miss on living-off-the-land attacks needs part F of a live run",
+ "systems": {
+  "ml_only": "token model alone is the alert path (deployed v5)",
+  "ml_plus_rule": "token model + Part E rule layer (R1 downgrade image-tool-only windows, R2 drift label)"
+ },
+ "comparison": {
+  "all_rates": {
+   "ml_only": {
+    "attack_recall": {
+     "hit": 521,
+     "n": 522,
+     "rate": 0.9980842911877394
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 422,
+      "n": 439,
+      "rate": 0.9612756264236902
+     },
+     "benign": {
+      "hit": 520,
+      "n": 523,
+      "rate": 0.994263862332696
+     },
+     "control": {
+      "hit": 0,
+      "n": 525,
+      "rate": 0.0
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 942,
+     "n": 1487,
+     "rate": 0.6334902488231339
+    }
+   },
+   "ml_plus_rule": {
+    "attack_recall": {
+     "hit": 521,
+     "n": 522,
+     "rate": 0.9980842911877394
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 0,
+      "n": 439,
+      "rate": 0.0
+     },
+     "benign": {
+      "hit": 520,
+      "n": 523,
+      "rate": 0.994263862332696
+     },
+     "control": {
+      "hit": 0,
+      "n": 525,
+      "rate": 0.0
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 520,
+     "n": 1487,
+     "rate": 0.3496973772696705
+    }
+   }
+  },
+  "primary": {
+   "ml_only": {
+    "attack_recall": {
+     "hit": 314,
+     "n": 314,
+     "rate": 1.0
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 256,
+      "n": 262,
+      "rate": 0.9770992366412213
+     },
+     "benign": {
+      "hit": 314,
+      "n": 314,
+      "rate": 1.0
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 570,
+     "n": 576,
+     "rate": 0.9895833333333334
+    }
+   },
+   "ml_plus_rule": {
+    "attack_recall": {
+     "hit": 314,
+     "n": 314,
+     "rate": 1.0
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 0,
+      "n": 262,
+      "rate": 0.0
+     },
+     "benign": {
+      "hit": 314,
+      "n": 314,
+      "rate": 1.0
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 314,
+     "n": 576,
+     "rate": 0.5451388888888888
+    }
+   }
+  }
+ },
  "by_label": {
   "admin": {
    "n": 439,
