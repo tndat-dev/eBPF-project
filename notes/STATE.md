@@ -107,6 +107,13 @@ lạ; đo trên dữ liệu v5, so sánh có và không có rule.
   Kết: **chỉ số rule layer thay đổi là báo nhầm admin 0.977→0, recall tấn công giữ nguyên**. **Mặt-hại (R1 bỏ sót tấn công
   dùng tool-của-image, living-off-the-land) CHƯA đo được — cần part F của pulse-live-v6** (đúng protocol). Dùng lại loader
   token-branch của live_attribution; ML alarms chính là của mô hình v5.
+- **W3(b) nhánh tần suất — ĐÃ ĐO end-to-end (15/11, `results-20261115/w3b-rate-signal/`, `lidds_token_rate.py`):** input vẫn
+  còn đủ trên `.234` (`token-study/cache` + alarms inventory snapshot + raw zip) — nhận định "blocked/chờ regen" hôm trước là
+  chẩn nhầm thư mục. So ML-only (`model`) vs ML+nhánh (`model_or_rate`): arm `model` tái lập đúng v5 dev **530/544 FA 6**
+  (cross-check không hardcode); **nhánh rate thêm 0 phát hiện** (LID-DS 530→530, CB-DS 891→891), **chỉ thêm báo nhầm** (LID-DS
+  6→12 α chung, →7 với split-α amendment-3; CB-DS 3→4). `joins=False`, `joins_split=False` (LID-DS FA 7>6, CB-DS 4>3). Kết:
+  trên benchmark tĩnh nhánh tần suất **không đáng nhận**; giá trị chống pha-loãng cần **fixture W3(a) của lượt live**. Nhánh giữ
+  shadow, alert path vẫn chỉ token (khớp kết quả D "không đạt tiêu chí" của Giai đoạn 1).
 
 **Giai đoạn 3: một lượt live mới `pulse-live-v6-<MMDD>`** (protocol riêng, đăng ký trước): tấn công trong process đang chạy (không exec),
 tấn công bằng tool của image, thêm kỹ thuật ATT&CK (discovery, credential access, persistence, impact, network scan), thứ tự ngẫu nhiên,
