@@ -35,6 +35,31 @@ from sentinel_pulse.detector.token_model import CountTokenLM  # noqa: E402
 IMAGE_TOOL = {'admin'}
 NON_IMAGE = {'benign', 'attack'}
 
+# the two systems the thesis compares (memory rule-framework-last: ML decided first, then with-vs-without rules):
+#   ml_only      -- the token model alone is the alert path (the deployed v5 system), alert = model fired ('ml')
+#   ml_plus_rule -- the Part E rule layer on top, alert = model fired AND not downgraded by R1 ('after_r1')
+# positive class is attack (recall); the negative classes are benign operator activity (admin = in-image tool use,
+# the class R1 targets), benign (a non-image operator exec -> drift, unchanged by the rule) and control (no exec).
+POS = 'attack'
+NEG = ('admin', 'benign', 'control')
+SYSTEMS = (('ml_only', 'ml'), ('ml_plus_rule', 'after_r1'))
+
+
+def two_system(agg, suffix=''):
+    """ML-only vs ML+rule, split out: attack recall and false-alarm (by negative class and pooled), from agg."""
+    get = lambda label, field: agg[label + suffix][field] if (label + suffix) in agg else 0
+    tot = lambda label: agg[label + suffix]['n'] if (label + suffix) in agg else 0
+    frac = lambda h, n: dict(hit=h, n=n, rate=(h / n if n else None))
+    neg = [label for label in NEG if (label + suffix) in agg]
+    out = {}
+    for name, field in SYSTEMS:
+        nh = sum(get(label, field) for label in neg)
+        nt = sum(tot(label) for label in neg)
+        out[name] = dict(attack_recall=frac(get(POS, field), tot(POS)),
+                         false_alarm_by_class={label: frac(get(label, field), tot(label)) for label in neg},
+                         false_alarm_pooled=frac(nh, nt))
+    return out
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -76,16 +101,26 @@ def main():
     rate = lambda d: dict(d, ml_rate=d['ml'] / d['n'] if d['n'] else None,
                           after_r1_rate=d['after_r1'] / d['n'] if d['n'] else None)
     out = {k: rate(v) for k, v in sorted(agg.items())}
+    comparison = dict(all_rates=two_system(agg), primary=two_system(agg, '-primary'))
     doc = dict(schema='ml-final-study-v1-rule-e-benefit', protocol='sentinel_pulse/protocol/ml-final-study-v1.json',
                rules=dict(R1='downgrade an alert whose window had only runtime execs of image binaries (admin on v5)',
                           R2='an alert whose exec is a non-image binary stays an alert, labelled drift (benign/attack on v5)'),
                run=str(a.run_root), models=str(a.models), segments_read=files,
                scope='benefit side only; R1 miss on living-off-the-land attacks needs part F of a live run',
-               by_label=out, admin_by_command={c: rate(v) for c, v in sorted(per_command.items())})
+               systems=dict(ml_only='token model alone is the alert path (deployed v5)',
+                            ml_plus_rule='token model + Part E rule layer (R1 downgrade image-tool-only windows, R2 drift label)'),
+               comparison=comparison, by_label=out, admin_by_command={c: rate(v) for c, v in sorted(per_command.items())})
     a.output.write_text(json.dumps(doc, indent=1, default=float))
-    head = {k: {'n': out[k]['n'], 'ml': out[k]['ml'], 'after_r1': out[k]['after_r1'], 'r2_drift': out[k]['r2_drift']}
-            for k in out if '-primary' not in k}
-    print(json.dumps(dict(by_label=head), indent=1))
+    for scope, c in (('all_rates', comparison['all_rates']), ('primary(1/3/6 per s)', comparison['primary'])):
+        print('==', scope, '==')
+        for name, _ in SYSTEMS:
+            s = c[name]
+            fa = s['false_alarm_by_class']
+            print(' %-13s attack_recall %d/%d  admin_FA %d/%d  benign_drift %d/%d  control %d/%d  pooled_FA %d/%d' % (
+                name, s['attack_recall']['hit'], s['attack_recall']['n'],
+                fa['admin']['hit'], fa['admin']['n'], fa['benign']['hit'], fa['benign']['n'],
+                fa.get('control', {}).get('hit', 0), fa.get('control', {}).get('n', 0),
+                s['false_alarm_pooled']['hit'], s['false_alarm_pooled']['n']))
 
 
 if __name__ == '__main__':
