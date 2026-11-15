@@ -198,12 +198,12 @@
       ]
     },
     "exploit": {
-      "kind": "chain",
-      "image": "exploit_xss:latest",
+      "kind": "exec",
+      "image": "exploit_http:latest",
       "commands": [
-        "python3 /home/trick_admin.py -ip ${victim}",
-        "python3 /home/reverse_shell.py -ip ${victim} -cmd 'cat /etc/passwd'"
-      ]
+        "python3 /home/xss_rce.py -ip ${victim} -cmd 'cat /etc/passwd'"
+      ],
+      "note": "HTTP re-implementation (scripts/lidds_live/exploits_http/xss_rce.py); the dataset exploit drove the reflected XSS through a selenium admin browser -- this performs the same server-side chain (admin login -> webshell into the theme template via theme-edit.php -> execute via the homepage) directly with the admin creds"
     }
   },
   "CWE-89-SQL-injection": {
