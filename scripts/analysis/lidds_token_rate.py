@@ -122,6 +122,23 @@ class Either:
         return sorted({t for s in self.scns for t in s.firings(branches, alpha, name)})
 
 
+# amendment-3: split the total alpha between the two branches (v4-style 0.9/0.1) so the combined false-alarm budget
+# is the v4 total, not doubled. The model keeps its registered 0.00018; the rate branch gets the freed 0.1 share.
+A_MODEL = st.ALPHA                                           # 0.00018 = v4.ALPHA * SHARES['T']
+A_RATE = st.v4.ALPHA * (1.0 - st.v4.SHARES['T'])            # 0.00002, the 0.1 share
+
+
+class EitherSplit:
+    """model-or-rate with a fixed per-branch alpha (ignores the alpha m.score passes)."""
+
+    def __init__(self, rate, model, a_rate=A_RATE, a_model=A_MODEL):
+        self.rate, self.model, self.a_rate, self.a_model = rate, model, a_rate, a_model
+
+    def firings(self, branches, alpha, name):
+        return sorted(set(self.rate.firings(branches, self.a_rate, name))
+                      | set(self.model.firings(branches, self.a_model, name)))
+
+
 def evaluate(out_dir, docs):
     lidds, cbds = docs
     model_cols = st.columns_of(st.base_spec())
@@ -133,7 +150,8 @@ def evaluate(out_dir, docs):
         rate = {s: load('rate', s, 'rate', COLUMNS) for s in names}
         model = {s: load('model', s, 'top10', model_cols) for s in names}
         both = {s: Either(rate[s], model[s]) for s in names}
-        for arm, scns in (('rate', rate), ('model', model), ('model_or_rate', both)):
+        both_split = {s: EitherSplit(rate[s], model[s]) for s in names}
+        for arm, scns in (('rate', rate), ('model', model), ('model_or_rate', both), ('model_or_rate_split', both_split)):
             pooled, per = m.score(scns, doc, ('T',), st.ALPHA, part)
             arms.setdefault(arm, {})['lidds' if doc is lidds else 'cbds'] = dict(
                 detected=pooled['detected'], attack_recordings=pooled['attack_recordings'],
@@ -141,10 +159,16 @@ def evaluate(out_dir, docs):
                 latency_p95=pooled['latency_p95'], scenarios={s: [v['detected'], v['false_alarm_recordings']] for s, v in per.items()})
     r, b = arms['model_or_rate'], arms['rate']
     res['arms'] = arms
-    res['criteria'] = dict(keep=KEEP, seen_only_min=SEEN_ONLY_MIN)
+    res['criteria'] = dict(keep=KEEP, seen_only_min=SEEN_ONLY_MIN,
+                           split=dict(a_model=A_MODEL, a_rate=A_RATE, lidds_false_alarm_max=6, cb_false_alarm_max=3, detected_min=530))
     res['joins'] = bool(r['lidds']['detected'] >= KEEP['detected'] and r['lidds']['false_alarm_recordings'] <= KEEP['false_alarm_recordings']
                         and r['cbds']['detected'] >= KEEP['cb_detected'] and r['cbds']['false_alarm_recordings'] <= KEEP['cb_false_alarm_recordings']
                         and b['lidds']['detected'] >= SEEN_ONLY_MIN)
+    # amendment-3: split model-or-rate joins at the model-alone budget (LID-DS FA <= 6, CB-DS FA <= 3)
+    sp = arms['model_or_rate_split']
+    res['joins_split'] = bool(sp['lidds']['detected'] >= 530 and sp['lidds']['false_alarm_recordings'] <= 6
+                              and sp['cbds']['detected'] >= KEEP['cb_detected'] and sp['cbds']['false_alarm_recordings'] <= 3
+                              and b['lidds']['detected'] >= SEEN_ONLY_MIN)
     res['seen_only_note'] = ('rate detections on the attack recordings equal its detections on the seen-only simulation, '
                              'since unseen grams never enter the rate score')
     return res

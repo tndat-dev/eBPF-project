@@ -1,0 +1,11 @@
+{
+  "schema": "sentinel-pulse-ml-final-study-v1-amendment-3",
+  "amends": "sentinel_pulse/protocol/ml-final-study-v1.json (part D, frequency/rate signal)",
+  "registered_at": "2026-11-15T00:00+07:00",
+  "registered_before": "the split-alpha combination of the model and the rate branch is scored on any dataset",
+  "why": "In part D the rate (frequency-of-seen-gram) branch and the token model shared one alpha' (0.00018 each), so the combined false-alarm budget was doubled; model-or-rate reached CB-DS 4 false-alarm recordings and missed the registered CB-DS <= 3 by one (RESEARCH_NOTES section 6, open thread 'chia alpha'). This registers the principled split before re-scoring.",
+  "change": "Combine the two branches at a SPLIT of the total alpha the way lidds-ml-v4 split its budget (token 0.9, the rest 0.1): the token model keeps its registered alpha_model = v4.ALPHA * SHARES['T'] = 0.00018 (unchanged, so its detections and false alarms are exactly the v5 model), and the rate branch gets the freed 0.1 share alpha_rate = v4.ALPHA * (1 - SHARES['T']) = 0.00002. Total budget = v4.ALPHA = 0.0002, the v4 total. A new arm model_or_rate_split in scripts/analysis/lidds_token_rate.py; the model and rate scores are unchanged, only the combining thresholds differ.",
+  "criterion_to_adopt_rate_branch": "The split model_or_rate joins the system only if, on the same recordings: development detected >= 530 (no loss of model detections), LID-DS development false-alarm recordings <= 6 (the model-alone budget, not the doubled 12), CB-DS detected = 891 and CB-DS false-alarm recordings <= 3, AND the rate branch alone still detects >= 6 development attack recordings under the seen-only simulation. If any fails, the rate branch does not join; report the numbers either way.",
+  "scope_and_limits": "Simulation only (unseen grams never enter the rate score, so attack-recording detections equal the seen-only detections). The real value of this branch is against an adaptive attacker, which needs the W3(a) dilution fixture of a live run (pulse-live-v6); this amendment only tests whether the split keeps the false-alarm budget. No change to the shipped v5 alert path.",
+  "data": "LID-DS 2021 development (lidds-ml-v5-development alarms) and CB-DS (lidds-evaluation-v2-cbds-alarms), token-study caches on .234; seed and caches unchanged from part D."
+}
