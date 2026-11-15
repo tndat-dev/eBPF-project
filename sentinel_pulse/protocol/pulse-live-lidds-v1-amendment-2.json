@@ -1,0 +1,13 @@
+{
+ "schema": "sentinel-pulse-live-lidds-v1-amendment-2",
+ "amends": "sentinel_pulse/protocol/pulse-live-lidds-v1.json",
+ "registered_at": "2026-11-15T10:50+00:00",
+ "registered_before": "the capture or live phase of run pulse-live-lidds-1115 runs on the cluster",
+ "reason": "the base protocol sets capture 12 h + live 12 h (24 h). The owner directed a shorter, just-sufficient duration for the re-run. The duration is reduced with a justification from the long-1114 run, which was statistically adequate (its weakness was 7 non-executing exploits, now rewritten as HTTP and verified 15/15 landing -- not its duration)",
+ "change": "for run pulse-live-lidds-1115 only: capture 8 h (28800 s), live 4 h (14400 s). Everything else of the base protocol and amendment 1 is unchanged (model, alphabet, threshold rule alpha'=0.00018, cycle = 30 s warm-up + 150 s record, exploit cycle probability 0.5, lineage tag, pooling rule, and the recall/latency/false-alarm targets)",
+ "justification_live_4h": "recall needs enough exploit cycles per scenario. At ~24 cycles/h per scenario (180 s cycle) and exploit probability 0.5, 4 h of live gives ~47 exploit cycles per scenario, as long-1114 observed (94 live cycles/scenario, ~47 exploit). That is ample for a tight per-scenario detect/miss and the pooled recall",
+ "justification_capture_8h": "the false-alarm rate is set by the per-victim Gumbel threshold, fitted by 5-fold cross-fit over contiguous 30-min chunks on held-out 60 s block maxima. long-1114's 6 h capture gave ~30-36 held-out blocks per scenario (pooled false-alarm 14 %, dominated by Unomi JVM variance, a real effect capture length cannot remove). 8 h gives ~40-48 blocks per scenario for a steadier threshold, short of the full 12 h",
+ "unchanged_targets": "recall >= 95 % pooled over the scenarios lidds-ml-v5 detects at 100 % on LID-DS 2021 official (Juice-Shop reported not pooled); latency_p95 <= 3 s; false_alarm_cycles <= 5 % pooled. Nothing is tuned after the capture",
+ "run": "pulse-live-lidds-1115, capture seed 20261115, live seed 20261116, all 15 scenarios, pinned node k8s-worker1.local, same lidds-ml-v5 model as long-1114",
+ "code": "scripts/lidds_live/ (driver.py with apply() webhook-retry, scenarios.json with the HTTP exploits exploits_http/), scripts/analysis/pulse_live_lidds.py, lidds_live_score.py"
+}
