@@ -10,6 +10,8 @@
 #   [RECAL=rolling-12-1 [RECAL_EXCLUDE_CAMPAIGN=1]: rolling calibration in the workers, needs FINAL=1] \
 #   [TOKEN_BUILD=/home/dat/pulse-tokens-YYYYMMDD [TOKEN_MODELS=.../MODELS.json] [V3_COUNTS=.../counts.json]]: lidds-ml-v3
 #   token probe build/proof on every worker, optional token models and count-branch thresholds (pulse-live-v3-v1)
+#   [ADMIN_COMMANDS=v6] [RANDOM_ORDER=1] [LOTL_ATTACK=1] [DILUTION_PADS=30,300 [DILUTION_RATE=12]]: campaign options of the
+#   next live run (attack/preview_campaign.py), all off by default
 #   [LOCAL_DECISIONS=1]: async shared writes + local decision copy without the tripwire (implied by FINAL=1); with it
 #   the bridge runs and RCA builds cases from the alerts Alertmanager delivered, as for FINAL=1
 #   bash launch_run.sh [plan|workers|rca|bridge|master|traffic|all]
@@ -51,6 +53,10 @@ plan() {
   [ -n "${V3_COUNTS:-}" ] && flags+=(--v3-counts "$V3_COUNTS")
   [ -n "${TOKEN_GATE:-}" ] && flags+=(--token-gate "$TOKEN_GATE")
   [ "${ADMIN_CONTROL:-0}" = 1 ] && flags+=(--admin-control)
+  [ -n "${ADMIN_COMMANDS:-}" ] && flags+=(--admin-commands "$ADMIN_COMMANDS")          # v5 (default) or v6
+  [ "${RANDOM_ORDER:-0}" = 1 ] && flags+=(--random-trial-order)
+  [ "${LOTL_ATTACK:-0}" = 1 ] && flags+=(--lotl-attack)
+  [ -n "${DILUTION_PADS:-}" ] && flags+=(--dilution-pads "$DILUTION_PADS" --dilution-rate "${DILUTION_RATE:-12}")
   [ "${LOCAL_DECISIONS:-0}" = 1 ] && flags+=(--local-decisions --stream-root "$STREAM_ROOT")
   [ "${RECAL_EXCLUDE_CAMPAIGN:-0}" = 1 ] && flags+=(--recalibration-exclude-campaign)
   PYTHONPATH=$SNAP /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.plan_matched_run \

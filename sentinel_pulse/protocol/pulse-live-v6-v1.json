@@ -1,0 +1,34 @@
+{
+ "schema": "sentinel-pulse-live-v6-v1",
+ "registered_at": "2026-11-16T13:55+07:00",
+ "registered_before": "the normal capture of this protocol starts; no window of it, no fit and no trial exists yet",
+ "owner_decisions": "13/11: continue towards a final ML and rules for benign processes; 15/11: no CVE content and no real exploit on the cluster (self-written fixtures only), no deep-learning baseline needed; 16/11: continue implementing",
+ "system_under_test": {
+  "alert_path": "lidds-ml-v5 token model alone (alphabet select1f, per-thread 4-grams, interpolated Witten-Bell, mean of the 10 highest -ln p, moment Gumbel without the top 1 % at alpha' = 0.00018 on held-out 60 s block maxima, 5-fold cross-fit by 30-minute chunks, one window fires), unchanged",
+  "probe": "the token build with the lineage tag (ml-final-study-v1 amendment 2), built on each worker from the commit recorded in the run's CONFIG.json; token proof and lineage proof must pass on all three workers before the capture (done 16/11 on commit 5fc5f37)",
+  "rules_shadow": "rule E of ml-final-study-v1 (R1: downgrade an alert whose cgroup had only runtime execs of image tools around it; R2: drift label for a binary not in the image) computed offline on this run, never in the alert path"
+ },
+ "phases": {
+  "capture": "pulse-token-capture-v6-<MMDD>: 12 h of normal traffic only (traffic generator, no campaign), the lineage build on the three workers",
+  "fit": "scripts/analysis/token_branch_fit.py as for pulse-live-v5-fit-1110: training = the first 8 h of the capture, cross-fit over the whole capture plus the normal of pulse-live-v5-1110 outside its trials (--extra-run), --dump-maxima; no selection step, no gate",
+  "live": "pulse-live-v6-<MMDD>: 30 h; 90-minute selection prefix without trials, then the campaign; soak completes its full cycle, spans of infrastructure trouble are excluded only in a declared sensitivity analysis"
+ },
+ "campaign": {
+  "base": "21 workloads x 5 fixture scenarios (anonymous_mprotect_churn, child_ptrace_handshake, invalid_setns_burst, seccomp_api_probe, execveat_resolution_probe) x rates 1, 3, 6, 12, 24 per second = 525 trials, primary set = rates 6, 12, 24 (315)",
+  "dilution": "21 x 5 scenarios at 12 per second with PAD 30 and PAD 300 (getpid and sched_yield pairs after each operation) = 210 trials",
+  "steps_per_trial": "control idle (15 s), then in a seeded random order per trial: admin command (set v6, tools never used in an earlier run), benign binary, attack fixture, living-off-the-land attack (sh, cat, ls through kubectl exec: reads the service-account token and process, socket and account information to /dev/null, writes and removes a file under /tmp)",
+  "fixtures": "self-written only (testbed/attack/runtime_attack_with_benign_control.c); no CVE, no vulnerable image, no exploit"
+ },
+ "hypotheses": {
+  "H0_replication": "with a fresh capture and fit on the resized cluster: primary recall >= 95 %, control positives <= 5 %, precision (attack vs control) >= 95 %, p95 kernel to end of alarm window <= 3 s",
+  "H1_native_stream": "the native part of each window (window grams minus the session part), scored by the same workload model and threshold, flags at most 5 % of the admin-command and benign-binary intervals; control reported alongside",
+  "H3_dilution": "recall at PAD 30 and PAD 300 is at least 95 % (the score is the mean of the 10 most surprising events, so padding with common calls should not hide the attack's own unseen grams)",
+  "H4_lotl": "living-off-the-land intervals: ML-only detection reported; with rule R1 the share of them downgraded is the harm side of R1 (ml-final-study-v1 part E); no pass level, descriptive",
+  "H5_admin_unseen_tools": "admin intervals of the v6 set flagged by ML-only and by ML + rule; descriptive (the v5 set gave 422/439 and 0/439)",
+  "H6_rca_order": "RCA own case and attack binary at rank 1, split by whether the attack ran before or after the benign binary in its trial; the follow-up recheck (follow_up_recheck_seconds = 2) measured live"
+ },
+ "analyses": "scripts/analysis/pulse_live_v4.py (H0, intervals by label including lotl and pad), live_attribution.py (attack-specific recall), rule_e_benefit.py (H4, H5), a native-stream scorer using the session part of tokens.jsonl (H1, written before the campaign starts), rca_coverage.py and rca_follow_up.py (H6); overhead and map capacity are separate protocols (token-probe-overhead-v1 amendment 3, map-capacity-v1)",
+ "statistics": "Wilson 95 % intervals for rates, workload-clustered bootstrap for burden, as pulse-live-v3-v1",
+ "limits": "every attack enters through kubectl exec, so all of them are in the session lineage: the native stream is not tested against attacks on the cluster in this run (real exploits inside a service are out of scope by owner decision; LID-DS 2021, where every event is native, remains the evidence for that case); labels are by trial design",
+ "resources": "workers 16 vCPU / 36 GB; no other heavy job on any node during the capture and the live run; NFS free space checked before the start (v5 used about 142 GB for 24 h)"
+}
