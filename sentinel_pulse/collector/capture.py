@@ -91,8 +91,8 @@ def read_metadata(path: Path) -> dict[str, dict]:
         return {}
 
 
-# Namespaces whose containers the workers score: the AIMS workloads, and the LID-DS scenarios replayed on the cluster
-# (protocol pulse-live-lidds-v1). The resolver decides which of them are watched on a node (--namespace).
+# Namespaces whose containers the workers score: the AIMS workloads. The resolver decides which are watched on a node
+# (--namespace).
 WATCHED_NAMESPACES = ("production",)
 
 
