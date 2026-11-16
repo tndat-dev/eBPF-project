@@ -1,0 +1,13 @@
+{
+ "schema": "sentinel-pulse-protocol-amendment-v1",
+ "amends": "sentinel_pulse/protocol/token-probe-overhead-v1.json",
+ "registered_at": "2026-11-16T13:46+07:00",
+ "registered_before": "any timed measurement of the lineage build (ml-final-study-v1 amendment 2)",
+ "what_changed": "the token probe now tags each thread native or session: a raw_tp/sched_process_fork program copies the parent's lineage into the child's state at fork, and a thread first seen without a state gets its lineage from its leader, its parent or its pid in the pid namespace; the gram key carries the lineage, so a gram counted on both lineages takes two map entries",
+ "conditions": "tokD_base: the token build of pulse-live-v5-1110 (/home/dat/pulse-tokens-20261110/build), grams mode, benchmark monitored; tokD: the lineage build, same mode, monitored; tokD_filtered: the lineage build, benchmark not monitored; off: no probe",
+ "modes": "getpid, openclose, futex (the syscall paths, unchanged code) and forkwait: fork, the child exits at once, the parent waits (the new fork hook and the first-sight lineage path; ns_per_op is one fork + exit + wait)",
+ "design": "unchanged: 5 rounds, 10 s per mode, conditions rotated each round, the three workers at the same time, only when no live run or collector is active",
+ "report": "per node and mode the median ns/op per condition; tokD against tokD_base (extra cost of the lineage tag) and against off, paired by round",
+ "decision": "none: measured and reported (owner 06/11)",
+ "code": "testbed/bench/syscall_bench.c (mode forkwait), scripts/overhead_ab.sh (TOKEN_LOADER_BASE, TOKEN_OBJECT_BASE: condition tokD_base), scripts/analysis/overhead_ab.py"
+}
