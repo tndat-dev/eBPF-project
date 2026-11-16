@@ -80,6 +80,9 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
             cfg['tokens']['models_document']=dict(path=str(tokens['models']),sha256=sha256_file(Path(tokens['models'])))
         if tokens.get('gate'):cfg['tokens']['gate']=json.loads(Path(tokens['gate']).read_text())
         if tokens.get('admin_control'):cfg['admin_control']=True
+        if tokens.get('admin_commands'):cfg['admin_commands']=tokens['admin_commands']
+        if tokens.get('random_trial_order'):cfg['random_trial_order']=True
+        if tokens.get('lotl_attack'):cfg['lotl_attack']=True
         if tokens.get('v3_counts'):
             cfg['v3_counts']=dict(path=str(tokens['v3_counts']),sha256=sha256_file(Path(tokens['v3_counts'])))
     # evidence discount (policy rule key evidence_discount): every worker serves its window masks on PEER_PORT and
@@ -123,6 +126,11 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
     cfg['schedule']=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
                          scenario=scenario,rate_per_second=rate,seed=seed)
         for key in keys for scenario in scenarios for rate in rates for seed in (61501,)]   # G4: --attack-rates 1,3,6
+    if tokens and tokens.get('dilution_pads'):
+        # adaptive attacker (dilution): the same scenarios at one rate with PAD pairs of common calls after each operation
+        cfg['schedule']+=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
+                               scenario=scenario,rate_per_second=tokens['dilution_rate'],seed=61501,pad=pad)
+                          for key in keys for scenario in scenarios for pad in tokens['dilution_pads']]
     random.Random(20261015).shuffle(cfg['schedule'])
     cfg['traffic_schedule']=[]
     t=start
@@ -155,9 +163,16 @@ if __name__=='__main__':
     p.add_argument('--token-gate',type=Path,help='gate of the token branch, protocol lidds-ml-v5 (GATE.json of token_branch_fit.py)')
     p.add_argument('--admin-control',action='store_true',help='real admin commands as benign controls in every trial')
     p.add_argument('--local-decisions',action='store_true',help='async shared writes + local decision copy (--stream-root) without the tripwire')
+    p.add_argument('--admin-commands',choices=['v5','v6'],help='set of admin commands (attack/preview_campaign.py ADMIN_SETS)')
+    p.add_argument('--random-trial-order',action='store_true',help='shuffle admin, benign and attack within each trial (seeded)')
+    p.add_argument('--lotl-attack',action='store_true',help='add a living-off-the-land attack step made of image tools')
+    p.add_argument('--dilution-pads',help='adaptive attacker: comma-separated PAD values (1-10000), extra trials at --dilution-rate')
+    p.add_argument('--dilution-rate',type=int,default=12)
     a=p.parse_args()
     rates=tuple(int(x) for x in a.attack_rates.split(','))
     if not rates or not all(1<=r<=100 for r in rates):p.error('attack rates must be 1-100 per second')
+    pads=tuple(int(x) for x in a.dilution_pads.split(',')) if a.dilution_pads else ()
+    if not all(1<=x<=10000 for x in pads) or not 1<=a.dilution_rate<=100:p.error('dilution pads must be 1-10000, rate 1-100')
     custom=None
     if a.profile=='custom':
         if not all((a.candidate,a.model_hash,a.policy,a.policy_hash,a.fixture)):
@@ -172,6 +187,8 @@ if __name__=='__main__':
         if not m:p.error('recalibration must be rolling-W-R')
         recal=dict(window_hours=int(m[1]),refresh_hours=int(m[2]),exclude_campaign=a.recalibration_exclude_campaign)
     if (a.token_models or a.v3_counts) and not a.token_build:p.error('token models and count thresholds need --token-build')
-    tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts,gate=a.token_gate,admin_control=a.admin_control) if a.token_build else None
+    tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts,gate=a.token_gate,admin_control=a.admin_control,
+                admin_commands=a.admin_commands,random_trial_order=a.random_trial_order,lotl_attack=a.lotl_attack,
+                dilution_pads=pads,dilution_rate=a.dilution_rate) if a.token_build else None
     plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal,tokens,
          a.stream_root if a.local_decisions else None)

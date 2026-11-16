@@ -9,6 +9,7 @@ import argparse
 import fcntl
 import json
 from pathlib import Path
+import random
 import shlex
 import subprocess
 import time
@@ -31,6 +32,31 @@ class PreviewRuntime(Runtime):
 ADMIN_COMMANDS=(('ls',['ls','/']),('cat',['cat','/etc/os-release']),('ps',['ps']),('env',['env']),('id',['id']),
                 ('sh',['sh','-c','echo ok']),('python',['python3','-c','pass']),('date',['date']),('uname',['uname','-a']),
                 ('df',['df','-h']))
+# A second set of real image tools, none of them in ADMIN_COMMANDS: admin commands that no earlier run's model or rule saw.
+ADMIN_COMMANDS_V6=(('head',['head','-n','1','/etc/passwd']),('wc',['wc','-l','/etc/hostname']),('hostname',['hostname']),
+                   ('whoami',['whoami']),('stat',['stat','/']),('find',['find','/etc','-maxdepth','1','-name','hosts']),
+                   ('grep',['grep','-c','root','/etc/group']),('printenv',['printenv','HOME']),('sleep',['sleep','1']),
+                   ('ls_tmp',['ls','-l','/tmp']))
+ADMIN_SETS={'v5':ADMIN_COMMANDS,'v6':ADMIN_COMMANDS_V6}
+# Living off the land: attack steps made only of tools the image already has (sh, cat, ls), through kubectl exec. Each
+# step reads and discards (credential access: the pod's service-account token; discovery: process list and
+# environment of pid 1, network sockets, accounts) or writes a file under /tmp and removes it (persistence attempt);
+# nothing leaves the container and no state outside /tmp changes. Repeated about once a second for 15 s.
+LOTL_SCRIPT=('i=0; while [ $i -lt 15 ]; do '
+    'cat /var/run/secrets/kubernetes.io/serviceaccount/token >/dev/null 2>&1; '
+    'ls /proc >/dev/null 2>&1; cat /proc/1/cmdline /proc/1/environ >/dev/null 2>&1; '
+    'cat /proc/net/tcp /proc/net/tcp6 >/dev/null 2>&1; cat /etc/passwd /etc/group >/dev/null 2>&1; '
+    'echo "* * * * * true" > /tmp/.sentinel-lotl-cron 2>/dev/null; rm -f /tmp/.sentinel-lotl-cron; '
+    'i=$((i+1)); sleep 1; done; echo lotl-done')
+STEPS=('admin','benign','attack')
+
+
+def step_order(cfg,item,index):
+    """Order of the trial's steps after its control. Fixed (admin, benign, attack, then lotl) unless the run registers
+    random_trial_order: a per-pair shuffle seeded by the item's seed and the pair index, so a rerun repeats it."""
+    steps=list(STEPS)+(['lotl'] if cfg.get('lotl_attack') else [])
+    if cfg.get('random_trial_order'):random.Random(f"{item['seed']}:{index}").shuffle(steps)
+    return steps
 
 
 def tail_rows(runtime,cfg,worker,begin,pod_uid,cgroup_id):
@@ -66,30 +92,65 @@ def one_pair(runtime,cfg,root,item,index):
     time.sleep(17)
     ctl=evaluate_interval(tail_rows(runtime,cfg,worker,control['start_at'],pod['uid'],cg),control,cfg['model_hash'],cfg['policy_hash'])
     atomic_json(trial_dir/'CONTROL.json',ctl)
-    if cfg.get('admin_control'):
-        # protocol lidds-ml-v5: a real command of the image through the same kubectl exec path, as a benign class that
-        # no choice of the gate has seen. A command the image lacks is recorded and left out by the analysis.
-        name,command=ADMIN_COMMANDS[index%len(ADMIN_COMMANDS)]
-        admin=dict(identity,**item,label='expected_normal',control_kind='admin_exec',admin_command=name,
-                   start_at=time.time(),trial_id=f'{index}:admin',duration_seconds=15)
-        append_jsonl(root/'INTERVALS.jsonl',admin)
-        result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',*command],timeout=30,check=False)
-        if result.returncode:admin['infrastructure_issue']='admin_command_failed'
-        atomic_json(trial_dir/'ADMIN.json',dict(command=name,returncode=result.returncode))
-        time.sleep(max(0.,admin['start_at']+20-time.time()))
+    order=step_order(cfg,item,index)
+    marks=dict(order=order)
     path=binary_path_for_controller(item['workload_controller'])
     args=['--container-id',identity['container_id'],'--pod-uid',identity['pod_uid'],
           '--container-name',container,'--binary',cfg['binary'],'--sha256',cfg['binary_hash'],'--path',path]
     prefix=['/usr/bin/env','PYTHONPATH='+cfg['source'],'PYTHONDONTWRITEBYTECODE=1',
             '/opt/sentinel-pulse/runtime-venv/bin/python','-m','sentinel_pulse.attack.preview_target']
     runtime.remote_sudo(worker['host'],shlex.join([*prefix,'stage',*args]))
-    sensor=None;capture=None;staged=True;injection=None;benign=None;benign_args=None
+    sensor=None;capture=None;staged=True;injection=None;benign=None;benign_args=None;lotl=None
     benign_path=path
     if cfg.get('benign_exec_control') and cfg.get('benign_binary_distinct'):
         benign_path=benign_path_for(path)
         benign_args=[*args[:-1],benign_path]
         runtime.remote_sudo(worker['host'],shlex.join([*prefix,'stage',*benign_args]))
-    try:
+
+    def admin_step():
+        if not cfg.get('admin_control'):return
+        # protocol lidds-ml-v5: a real command of the image through the same kubectl exec path, as a benign class that
+        # no choice of the gate has seen. A command the image lacks is recorded and left out by the analysis.
+        name,command=ADMIN_SETS[cfg.get('admin_commands','v5')][index%len(ADMIN_SETS[cfg.get('admin_commands','v5')])]
+        admin=dict(identity,**item,label='expected_normal',control_kind='admin_exec',admin_command=name,
+                   start_at=time.time(),trial_id=f'{index}:admin',duration_seconds=15)
+        append_jsonl(root/'INTERVALS.jsonl',admin)
+        result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',*command],timeout=30,check=False)
+        if result.returncode:admin['infrastructure_issue']='admin_command_failed'
+        atomic_json(trial_dir/'ADMIN.json',dict(command=name,returncode=result.returncode))
+        marks['admin']=admin['start_at']
+        time.sleep(max(0.,admin['start_at']+20-time.time()))
+
+    def benign_step():
+        nonlocal benign
+        if not cfg.get('benign_exec_control'):return
+        # Same launch path and binary, attack-free body: isolates the
+        # effect of "a new process ran" from attack behaviour.
+        benign=dict(identity,**item,label='expected_normal',control_kind='benign_exec',
+            start_at=time.time(),trial_id=f'{index}:benign',binary_path=benign_path,duration_seconds=15)
+        append_jsonl(root/'INTERVALS.jsonl',benign)
+        result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',
+            benign_path,'benign_exec_control','15',str(item['rate_per_second']),str(item['seed'])],timeout=45,check=False)
+        (trial_dir/'benign.stderr').write_bytes(result.stderr)
+        if result.returncode or b'done' not in result.stderr:benign['infrastructure_issue']='benign_fixture_failed'
+        marks['benign']=benign['start_at']
+        time.sleep(5)  # keep benign windows out of the next interval's 3-window history
+
+    def lotl_step():
+        nonlocal lotl
+        lotl=dict(identity,**item,label='attack_lotl',attack_kind='living_off_the_land',start_at=time.time(),
+                  trial_id=f'{index}:lotl',duration_seconds=15)
+        append_jsonl(root/'INTERVALS.jsonl',lotl)
+        result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--','sh','-c',LOTL_SCRIPT],
+                           timeout=45,check=False)
+        (trial_dir/'lotl.stderr').write_bytes(result.stderr)
+        if result.returncode or b'lotl-done' not in result.stdout:lotl['infrastructure_issue']='lotl_failed'
+        atomic_json(trial_dir/'LOTL.json',dict(returncode=result.returncode))
+        marks['lotl']=lotl['start_at']
+        time.sleep(max(0.,lotl['start_at']+20-time.time()))
+
+    def attack_step():
+        nonlocal sensor,capture,injection
         sensors=runtime.kubectl_json('get','pods','-n','kube-system','-l','app.kubernetes.io/name=tetragon','-o','json')
         sensor=next(p['metadata']['name'] for p in sensors['items'] if p['spec'].get('nodeName')==pod['node_name'])
         policies=runtime.run(['kubectl','exec','-n','kube-system',sensor,'-c','tetragon','--','tetra','tracingpolicy','list']).stdout.decode()
@@ -102,39 +163,38 @@ def one_pair(runtime,cfg,root,item,index):
                 '-c','tetragon','--','timeout','24','tetra','getevents','-o','json','--policy-names',EXEC_PROVENANCE_POLICY],
                 stdout=out,stderr=err,env=runtime.environment)
             time.sleep(1)
-            if cfg.get('benign_exec_control'):
-                # Same launch path and binary, attack-free body: isolates the
-                # effect of "a new process ran" from attack behaviour.
-                benign=dict(identity,**item,label='expected_normal',control_kind='benign_exec',
-                    start_at=time.time(),trial_id=f'{index}:benign',binary_path=benign_path,duration_seconds=15)
-                append_jsonl(root/'INTERVALS.jsonl',benign)
-                result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',
-                    benign_path,'benign_exec_control','15',str(item['rate_per_second']),str(item['seed'])],timeout=45,check=False)
-                (trial_dir/'benign.stderr').write_bytes(result.stderr)
-                if result.returncode or b'done' not in result.stderr:benign['infrastructure_issue']='benign_fixture_failed'
-                time.sleep(5)  # keep benign windows out of the attack interval's 3-window history
             injection=dict(identity,**item,label='attack',start_at=time.time(),trial_id=f'{index}:attack',
                 injection_id=f"{cfg['run_id']}:{index:04d}",pod_name=pod['name'],binary_path=path,duration_seconds=15)
             injection['injected_at']=injection['start_at']
             append_jsonl(root/'INTERVALS.jsonl',injection)
             append_jsonl(root/'DISPATCH.jsonl',injection)
             result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',
-                path,item['scenario'],'15',str(item['rate_per_second']),str(item['seed'])],timeout=45,check=False)
+                path,item['scenario'],'15',str(item['rate_per_second']),str(item['seed']),
+                *([str(item['pad'])] if item.get('pad') else [])],timeout=45,check=False)
             (trial_dir/'attack.stdout').write_bytes(result.stdout);(trial_dir/'attack.stderr').write_bytes(result.stderr)
             if result.returncode or b'done' not in result.stderr:injection['infrastructure_issue']='fixture_execution_failed'
             capture.wait(timeout=12);capture=None
+        marks['attack']=injection['start_at']
         time.sleep(2)
         try:
             event=find_execve_kprobe_event((trial_dir/'kernel.jsonl').read_text().splitlines(),injection,
                 expected_binary=path,maximum_delay_seconds=10)
             atomic_json(trial_dir/'KERNEL_EVENT.json',event);injection['kernel_event_at']=event['kernel_event_at']
         except ValueError as exc:injection['infrastructure_issue']='kernel_provenance: '+str(exc)
+        if order.index('attack')<len(order)-1:time.sleep(3)   # keep attack windows out of the next interval's history
+
+    steps=dict(admin=admin_step,benign=benign_step,attack=attack_step,lotl=lotl_step)
+    try:
+        for step in order:steps[step]()
+        atomic_json(trial_dir/'ORDER.json',marks)
         outcome=evaluate_interval(tail_rows(runtime,cfg,worker,injection['start_at'],pod['uid'],cg),injection,cfg['model_hash'],cfg['policy_hash'])
         # Store exact selected rows as evidence so later replay is independent of tail position.
+        last=max(v for k,v in marks.items() if k!='order')
         rows=[r for r in tail_rows(runtime,cfg,worker,control['start_at'],pod['uid'],cg)
               if r.get('pod_uid')==pod['uid'] and str(r.get('cgroup_id'))==str(cg)
-              and r.get('window_end',0)<=injection['start_at']+17]
-        evidence=dict(control=control,attack=injection,decisions=rows)
+              and r.get('window_end',0)<=last+17]
+        evidence=dict(control=control,attack=injection,decisions=rows,order=order)
+        if lotl is not None:evidence['lotl']=lotl
         if benign is None:
             atomic_json(trial_dir/'EVALUATION_INPUT.json',evidence)
             return [ctl,outcome]

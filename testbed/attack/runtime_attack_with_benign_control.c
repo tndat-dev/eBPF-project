@@ -88,14 +88,17 @@ static void execveat_resolution_probe(void) {
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s MODE [SECONDS] [RATE] [SEED]\n", argv[0]);
+        fprintf(stderr, "usage: %s MODE [SECONDS] [RATE] [SEED] [PAD]\n", argv[0]);
         return 2;
     }
     const char *mode = argv[1];
     int seconds = argc > 2 ? atoi(argv[2]) : 45;
     int rate = argc > 3 ? atoi(argv[3]) : 12;
     unsigned long seed = argc > 4 ? strtoul(argv[4], NULL, 10) : 1UL;
-    if (seconds < 1 || seconds > 600 || rate < 1 || rate > 100) return 2;
+    // PAD (adaptive attacker, dilution): after each operation, PAD pairs of common calls (getpid, sched_yield), so the
+    // attack's own calls are a smaller share of its windows. 0, the default, is the fixture of the earlier runs.
+    int pad = argc > 5 ? atoi(argv[5]) : 0;
+    if (seconds < 1 || seconds > 600 || rate < 1 || rate > 100 || pad < 0 || pad > 10000) return 2;
     rng_state = seed ? seed : 1UL;
 
     signal(SIGINT, stop_handler);
@@ -108,8 +111,8 @@ int main(int argc, char **argv) {
     const time_t deadline = time(NULL) + seconds;
     unsigned long iterations = 0;
     fprintf(stderr,
-            "sentinel-runtime-attack start mode=%s seconds=%d rate=%d seed=%lu\n",
-            mode, seconds, rate, seed);
+            "sentinel-runtime-attack start mode=%s seconds=%d rate=%d seed=%lu pad=%d\n",
+            mode, seconds, rate, seed, pad);
 
     while (running && time(NULL) < deadline) {
         if (strcmp(mode, "anonymous_mprotect_churn") == 0)
@@ -127,6 +130,10 @@ int main(int argc, char **argv) {
         else {
             fprintf(stderr, "unknown mode: %s\n", mode);
             return 2;
+        }
+        for (int i = 0; i < pad; i++) {
+            (void)syscall(SYS_getpid);
+            (void)syscall(SYS_sched_yield);
         }
         ++iterations;
         nanosleep(&pause, NULL);

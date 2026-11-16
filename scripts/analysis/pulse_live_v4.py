@@ -83,7 +83,8 @@ def load_trials(campaign):
         if not line:
             continue
         row = json.loads(line)
-        label = ('attack' if row['label'] == 'attack' else 'admin' if row.get('control_kind') == 'admin_exec'
+        label = ('attack' if row['label'] == 'attack' else 'lotl' if row['label'] == 'attack_lotl'
+                 else 'admin' if row.get('control_kind') == 'admin_exec'
                  else 'benign' if row.get('control_kind') else 'control')
         pair = int(str(row['trial_id']).split(':')[0])
         if label == 'admin' and admin_failed(campaign, pair):
@@ -91,7 +92,7 @@ def load_trials(campaign):
         trials.append(dict(label=label, start=float(row['start_at']), key=(row['pod_uid'], row['container_name']),
                            pair=int(str(row['trial_id']).split(':')[0]), workload=row['workload_key'],
                            rate=row.get('rate_per_second'), scenario=row.get('scenario'), kernel=None,
-                           command=row.get('admin_command')))
+                           command=row.get('admin_command'), pad=row.get('pad', 0)))
     for trial in trials:
         if trial['label'] == 'attack':
             path = campaign / 'trials' / f"{trial['pair']:04d}" / 'EVALUATION_INPUT.json'
