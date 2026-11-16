@@ -1,0 +1,10 @@
+{
+ "schema": "sentinel-pulse-protocol-amendment-v1",
+ "amends": "sentinel_pulse/protocol/pulse-live-v6-v1.json",
+ "registered_at": "2026-11-16T16:56+07:00",
+ "registered_before": "the fit and the live run of this protocol; the normal capture is running, no trial exists",
+ "owner_decision": "16/11: 26 h live run, all 735 trials kept",
+ "what_changed": "phases.live: the live run lasts 26 h (SECONDS_TOTAL=93600) instead of 30 h; the 90-minute selection prefix, the campaign (525 base + 210 dilution trials) and every hypothesis are unchanged",
+ "basis": "pulse-live-v5-1110 ran 525 trials in 12.54 h (ATTEMPTS.jsonl: median 86.0 s per trial, p90 87.0 s); the lotl step adds about 20 s (sentinel_pulse/attack/preview_campaign.py), so about 106 s x 735 = 21.6 h (estimate); 1.5 h prefix + 21.6 h leaves about 2.9 h of margin",
+ "risk": "trials not reached before the workers stop are reported as not run, with their count; the run is not extended"
+}
