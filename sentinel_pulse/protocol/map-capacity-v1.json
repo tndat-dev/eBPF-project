@@ -1,0 +1,14 @@
+{
+ "schema": "sentinel-pulse-map-capacity-v1",
+ "registered_at": "2026-11-16T13:50+07:00",
+ "registered_before": "any run of scripts/map_capacity_test.py",
+ "question": "at what load does the token probe's gram map (pulse_grams, 262,144 (cgroup, window, gram) entries, about two 0.5 s windows live) start to drop grams, and how long does the loader's drain take near that point? pulse-live-v5-1110 used at most 2.6 % of the map (6,901 distinct grams in the heaviest node window)",
+ "build": "the lineage build of the token probe (ml-final-study-v1 amendment 2), the build of the next live run",
+ "setup": "one worker, no live run or collector active; a new cgroup that only the test's loader watches; testbed/bench/gram_stress in it, 8 threads, each call a random pick of 32 calls with 32 distinct select1f tokens, so nearly every call is a new 4-gram",
+ "levels": "total calls per second 50,000; 100,000; 200,000; 300,000; 400,000; 600,000; 800,000; 1,200,000; 10 s each, 3 s gap",
+ "primary_measure": "failed gram inserts per level, from the probe's own counter (loader token_drain line, insert_fail_cumulative): the first level with failed inserts is the capacity point",
+ "secondary": "achieved calls per second; distinct grams per window (p50, max); events counted in the level's windows against the calls made (approximate: windows at the level's edges are partial); drain time per frame (p50, max)",
+ "decision": "none: measured and reported. The capacity point is compared with the heaviest node window of pulse-live-v5-1110 (6,901 distinct grams)",
+ "limits": "a synthetic worst case (every call a new gram); real workloads repeat grams, so the map holds more calls per window than here; one node",
+ "code": "testbed/bench/gram_stress.c, scripts/map_capacity_test.py, tests/test_map_capacity.py"
+}
