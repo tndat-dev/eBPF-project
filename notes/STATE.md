@@ -4,36 +4,24 @@ File này thay bốn file trạng thái cũ (`SENTINEL_PULSE_STATUS.md`, `SYSCAL
 `RCA_RUNTIME_STATUS.md`, `RULE_INTEGRATION_STATUS.md`), xoá ngày 07/11 theo yêu cầu của chủ đồ án. Toàn văn còn trong
 git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia). Nhật ký từng bước: [WORKLOG.md](WORKLOG.md).
 
-## Lượt live đủ 15 kịch bản LID-DS trên cụm (14/11) — ĐÃ XONG
+## Lượt live 15 CVE thật LID-DS trên cụm (W2) — ĐÃ XONG, đã chuyển ra ngoài repo (16/11)
 
-- **`pulse-live-lidds-long-1114`** (cluster-resident, capture 6h + live 4h, scorer cap 24G không OOM): gộp 36/53 phát hiện
-  (recall 0.68), 6/42 báo nhầm (0.14), p50 1,26s/p95 4,14s, mọi cảnh báo native (session share 0.0). Receipt
-  `validation-evidence/results-20261114b/pulse-live-lidds/`.
-- **Ranh giới phát hiện rõ, khớp giới hạn đã đăng ký:** 9 kịch bản sinh hành vi hệ thống mới (RCE/traversal/upload-exec/
-  zip-write: CouchDB, Nginx, 2×Rails, Unomi, XSS-23839, Tomcat, EPS, ZipSlip) → recall 36/36 = 1.0, ~1–4s, native. 6 kịch
-  bản tàng hình ở syscall (MySQL auth-bypass, Heartbleed, SQLi DVWA+Juice, brute-force, PHP upload) → 0/17. Đóng W2 +
-  xác nhận H2 ở quy mô 9 CVE thật. Báo nhầm giảm từ 0.54 (lượt ngắn) còn 0.14 nhờ ngưỡng fit 30–36 block.
-- **QUAN TRỌNG (15/11): kết quả lượt long-1114 bị bác cho 7 kịch bản.** Verify Phase A (bắn từng exploit vào victim, bắt
-  log — `validation-evidence/results-20261115/exploit-verification/`) cho thấy **7/15 exploit không thực sự chạy** trong
-  long-1114: MySQL (sai arg + host-block 1129), CWE-89/Juice/PHP/XSS-23839 (image bị lược selenium), Bruteforce (metasploit
-  thiếu wordlist + auth ở vhost TLS :443). Nên recall 0.68 là **artifact công cụ hỏng, không phải giới hạn detector**;
-  23839 "4/4" ở long-1114 còn đáng nghi (exploit đang crash). Đã viết lại 7 exploit bằng HTTP urllib (+PyMySQL) trong
-  `scripts/lidds_live/exploits_http/` (một image `exploit_http`, không chrome), **verify 15/15 landing** (RCE/bypass/leak
-  thật). Re-run với 15 exploit chạy được để có số liệu W2 thật.
-- **XONG (16/11, `validation-evidence/results-20261116/pulse-live-lidds-1115/`): lượt CVE thật `pulse-live-lidds-1115`** đóng
-  W2. capture 8h + live 4h (amendment-2, đăng ký trước), model v5, 15 exploit HTTP verify 15/15 landing. Cluster-resident
-  (master `.234` + worker1, marker NFS). **Kết quả: 14/15 kịch bản recall 100%** (gồm 5 cái trước hỏng: MySQL 3/3, CWE-89 2/2,
-  Juice 4/4, PHP 3/3, Bruteforce 3/3, + 23839 3/3); **chỉ Heartbleed trượt 0/5** (tàng hình syscall thật — v5 bắt nó 84/84 trên
-  dataset nhưng live 0/5 vì exploit HTTP là đọc-lố-bộ-nhớ thuần). **Đạt/trượt target (trung thực):** recall ≥95% **KHÔNG đạt**
-  (pooled tập-v5-100%-official trừ Juice = 39/44 = 0.886, thiếu hụt toàn bộ do Heartbleed); FA ≤5% **KHÔNG đạt** (10/47 = 21%,
-  dồn victim web Tomcat/CWE-89/Juice/PHP, mẫu số nhỏ ở live 4h); **p95 ≤3s ĐẠT** (1.87s); **lineage native (session share 0) →
-  H2 xác nhận**. Bác con số 0.68 của long-1114 (artifact công cụ). Capture 8h cho 41–47 block/kịch bản như dự đoán. Đã đưa vào
-  thesis §RQ3 `sec:lidds-live`.
-- Mục mở (không chặn): Unomi 3/3 báo nhầm (normal JVM biến động); scorer giữ toàn bộ window trong RAM (đủ dưới cap 24G,
-  lượt lớn hơn cần viết streaming 2-pass).
-- Lượt ngắn tiền trạm (`pulse-live-lidds-15b-1114`): recall 9/10, 7/13 báo nhầm; receipt `results-20261114/`. Fix driver
-  `apply()` retry (webhook `failurePolicy=Fail` làm mất cycle 23839) đã dùng cho lượt dài này.
-- 15 victim deploy vẫn `1/1` trên namespace `lidds-live`; image warm unomi + tar tái lập trên NFS.
+- **Kết quả chốt W2, lượt `pulse-live-lidds-1115` (16/11):** capture 8h + live 4h (amendment-2, model v5, 15 exploit HTTP
+  verify 15/15 landing). **14/15 kịch bản recall 100%** (gồm 5 cái long-1114 từng đọc 0 vì exploit hỏng: MySQL, CWE-89,
+  Juice, PHP, Bruteforce; + GetSimple-XSS); **chỉ Heartbleed trượt 0/5** (tàng hình syscall thật — v5 bắt 84/84 trên dataset
+  nhưng live 0/5 vì exploit HTTP là đọc-lố-bộ-nhớ thuần). Đối chiếu target **trung thực:** recall ≥95% **KHÔNG đạt** (pooled
+  tập-v5-100%-official trừ Juice = 39/44 = 0.886, thiếu hụt toàn bộ do Heartbleed); FA ≤5% **KHÔNG đạt** (10/47 = 21%, dồn
+  victim web, mẫu số nhỏ ở live 4h); **p95 ≤3s ĐẠT** (1.87s); **lineage native (session share 0) → H2 xác nhận**. Bác con số
+  0.68 của long-1114 (artifact 7 exploit hỏng, không phải giới hạn detector). Số liệu W2 đã trích vào thesis §RQ3
+  `sec:lidds-live` (+ intro, discussion, conclusion).
+- **Chuyển ra + teardown (16/11, theo quyết định chủ đồ án: không giữ nội dung/exploit CVE trong repo hay trên cụm):**
+  tooling (`scripts/lidds_live/`), chấm (`pulse_live_lidds.py`, `lidds_live_score.py`), tài liệu thiết kế và biên nhận các
+  lượt lidds-live **đã chuyển ra khỏi repo** (chỉ giữ lại trong repo: **protocol `pulse-live-lidds-v1*.json`** cho pre-registration,
+  và số liệu trong thesis). Tài nguyên cụm đã **xóa**: namespace `lidds-live` (15 victim), image victim/exploit trên cả 3 worker,
+  run dir NFS, build dir `.234`. **Giữ lại:** probe build `pulse-tokens-lineage`, dataset LID-DS offline `/var/tmp/lid-ds-2021`
+  (+ caches), test `WATCHED_NAMESPACES` vẫn pass.
+- Điểm yếu mở từ W2 (ghi cho v6): **báo nhầm 21% trên normal HTTP của app web** (Tomcat/CWE-89/Juice/PHP); Heartbleed là
+  giới hạn tàng hình thật.
 
 ## Mục tiêu và quyết định đang áp dụng
 
