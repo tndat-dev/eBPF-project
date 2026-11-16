@@ -25,3 +25,16 @@ def test_end_to_end(tmp_path):
     subprocess.run([sys.executable, str(SCRIPT), str(tmp_path/'w.jsonl'), '--output', str(tmp_path/'o.json')], check=True, capture_output=True)
     d = json.loads((tmp_path/'o.json').read_text())['nodes']['w']['getpid']
     assert abs(d['monitored_overhead']['relative'] - 0.2) < 1e-9 and abs(d['filtered_overhead']['added_ns_per_op'] - 10) < 1e-9
+
+
+def test_lineage_cost_is_paired_against_the_base_token_build(tmp_path):
+    """token-probe-overhead-v1 amendment 3: tokD (lineage build) against tokD_base (build of pulse-live-v5-1110)."""
+    lines = []
+    for r in range(1, 6):
+        for cond, ns in (('off', 100000.0), ('tokD_base', 101000.0), ('tokD', 101500.0)):
+            lines.append(json.dumps(dict(node='w', mode='forkwait', round=r, condition=cond, ns_per_op=ns + r)))
+    (tmp_path/'w.jsonl').write_text('\n'.join(lines))
+    subprocess.run([sys.executable, str(SCRIPT), str(tmp_path/'w.jsonl'), '--output', str(tmp_path/'o.json')], check=True, capture_output=True)
+    d = json.loads((tmp_path/'o.json').read_text())['nodes']['w']['forkwait']
+    assert abs(d['tokD_vs_tokD_base']['added_ns_per_op'] - 500) < 1e-9 and d['tokD_vs_tokD_base']['rounds'] == 5
+    assert abs(d['tokD_base_overhead']['added_ns_per_op'] - 1000) < 1e-9

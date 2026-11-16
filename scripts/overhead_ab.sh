@@ -8,7 +8,9 @@
 #       tokD_filtered (grams, benchmark cgroup not monitored); "monitored" is condition A there.
 #       The conditions monitored2 (exec-intent build) and tokDfx (fexit token hooks) of earlier receipts are at tag
 #       archive/pre-audit-20261110; scripts/analysis/overhead_ab.py still reads them.
-#   [MODES="getpid read4k ..."]  benchmark modes (default all five, futex included)
+#   [TOKEN_LOADER_BASE=... TOKEN_OBJECT_BASE=...]  adds tokD_base: an earlier token build in grams mode, monitored
+#       (amendment 3: the build of pulse-live-v5-1110 against the lineage build, which runs as tokD)
+#   [MODES="getpid read4k ..."]  benchmark modes (default all five, futex included; forkwait on request)
 # Conditions, rotated each round to cancel drift:
 #   off        - no Pulse probe attached on the node;
 #   filtered   - Pulse loader attached, the benchmark's cgroup is NOT in its allow list (cost every unmonitored
@@ -33,8 +35,9 @@ mkdir -p "$(dirname "$OUT")"; : > "$OUT"
 loader_pid=
 stop_loader() { [ -n "$loader_pid" ] && kill "$loader_pid" 2>/dev/null && wait "$loader_pid" 2>/dev/null; loader_pid=; }
 trap 'stop_loader; rm -f "$ALLOW_MON" "$ALLOW_NONE" "${LOG:-}"; rmdir "$CG" 2>/dev/null || true' EXIT
-CONDS=(off filtered monitored)
-[ -n "${TOKEN_LOADER:-}" ] && CONDS+=(tokB tokC tokD tokD_filtered)
+CONDS=(${BASE_CONDS:-off filtered monitored})
+[ -n "${TOKEN_LOADER:-}" ] && CONDS+=(${TOKEN_CONDS:-tokB tokC tokD tokD_filtered})
+[ -n "${TOKEN_LOADER_BASE:-}" ] && CONDS+=(tokD_base)
 # start a loader and wait until it reports attached
 start_loader() {  # loader object allow log [args...]
   local loader=$1 object=$2 allow=$3 log=$4; shift 4
@@ -58,6 +61,7 @@ for round in $(seq 1 "$ROUNDS"); do
       tokC) start_loader "$TOKEN_LOADER" "$TOKEN_OBJECT" "$ALLOW_MON" "$LOG" --tokens exit ;;
       tokD) start_loader "$TOKEN_LOADER" "$TOKEN_OBJECT" "$ALLOW_MON" "$LOG" --tokens grams ;;
       tokD_filtered) start_loader "$TOKEN_LOADER" "$TOKEN_OBJECT" "$ALLOW_NONE" "$LOG" --tokens grams ;;
+      tokD_base) start_loader "$TOKEN_LOADER_BASE" "$TOKEN_OBJECT_BASE" "$ALLOW_MON" "$LOG" --tokens grams ;;
     esac
     for mode in "${MODES[@]}"; do
       line=$(sh -c "echo \$\$ > $CG/cgroup.procs && exec $BENCH $mode $SECS")

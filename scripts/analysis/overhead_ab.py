@@ -15,7 +15,7 @@ from pathlib import Path
 import random
 import statistics
 
-CONDITIONS = ['off', 'filtered', 'monitored', 'monitored2', 'tokB', 'tokC', 'tokD', 'tokD_filtered', 'tokDfx', 'tokDfx_filtered']
+CONDITIONS = ['off', 'filtered', 'monitored', 'monitored2', 'tokB', 'tokC', 'tokD_base', 'tokD', 'tokD_filtered', 'tokDfx', 'tokDfx_filtered']
 
 
 def paired_overhead(rows, condition, reps=10000, seed=7, base='off'):
@@ -56,6 +56,11 @@ def main():
             if o:
                 res[f'{c}_vs_monitored'] = dict(relative=o[0], ci95=o[1], rounds=o[2],
                                                 added_ns_per_op=med[c] - med['monitored'])
+        if 'tokD' in med and 'tokD_base' in med:      # token-probe-overhead-v1 amendment 3: cost of the lineage tag
+            o = paired_overhead(rows, 'tokD', base='tokD_base')
+            if o:
+                res['tokD_vs_tokD_base'] = dict(relative=o[0], ci95=o[1], rounds=o[2],
+                                                added_ns_per_op=med['tokD'] - med['tokD_base'])
         out.setdefault(node, {})[mode] = res
     Path(a.output).write_text(json.dumps(dict(schema='pulse-overhead-ab-v1', protocol=a.protocol,
                                               nodes=out), indent=1))
@@ -63,6 +68,8 @@ def main():
         for mode, r in modes.items():
             added = {k.replace('_overhead', ''): round(v['added_ns_per_op'], 1) for k, v in r.items() if k.endswith('_overhead')}
             over_a = {k.replace('_vs_monitored', '+'): round(v['added_ns_per_op'], 1) for k, v in r.items() if k.endswith('_vs_monitored')}
+            if 'tokD_vs_tokD_base' in r:
+                over_a['lineage'] = round(r['tokD_vs_tokD_base']['added_ns_per_op'], 1)
             print(node, mode, 'off', round(r['median_ns_per_op'].get('off', 0), 1), 'added ns', added, 'over A', over_a)
 
 

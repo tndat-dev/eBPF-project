@@ -7,6 +7,8 @@
 //   openclose   - open + close of a file in /tmp (two syscalls per op)
 //   mmapunmap   - anonymous 4 KiB mmap + munmap (two syscalls per op)
 //   futex       - FUTEX_WAKE on a private word nobody waits on (returns 0 at once): the cost of the futex exit hook
+//   forkwait    - fork, the child exits at once, the parent waits: the token probe's fork hook (lineage tag) and the
+//                 first-sight path of a new thread; one op = fork + exit + wait (16 per time check)
 #define _GNU_SOURCE
 #include <fcntl.h>
 #include <linux/futex.h>
@@ -15,6 +17,7 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/syscall.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -39,8 +42,9 @@ int main(int argc, char **argv) {
     if (zero < 0) return 1;
     unsigned long long ops = 0;
     double start = now(), stop = start + seconds, t = start;
+    int batch = strcmp(mode, "forkwait") ? 1024 : 16;
     while (t < stop) {
-        for (int i = 0; i < 1024; i++) {
+        for (int i = 0; i < batch; i++) {
             if (!strcmp(mode, "getpid")) {
                 (void)syscall(SYS_getpid);
             } else if (!strcmp(mode, "read4k")) {
@@ -56,11 +60,16 @@ int main(int argc, char **argv) {
                 void *p = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
                 if (p == MAP_FAILED) return 1;
                 munmap(p, 4096);
+            } else if (!strcmp(mode, "forkwait")) {
+                pid_t child = fork();
+                if (child < 0) return 1;
+                if (child == 0) _exit(0);
+                if (waitpid(child, NULL, 0) != child) return 1;
             } else {
                 return 2;
             }
         }
-        ops += 1024;
+        ops += batch;
         t = now();
     }
     unlink(path);

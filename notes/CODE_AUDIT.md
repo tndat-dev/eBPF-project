@@ -74,3 +74,22 @@ README đổi hợp đồng: script cũ ở tag, biên nhận mới ghi commit. 
 1. Sau lượt live v5: sửa mục 2 và 7 cùng nhau, rồi chạy một lượt smoke.
 3. Xoá calibration tự làm mới (mục 4) kèm protocol và test của nó.
 4. Sau so sánh có/không luật: quyết định mục 4 (phần còn lại) và mục 5.
+
+## Quét 16/11 (chỉ codebase hiện tại)
+
+Cách quét: mọi file `.py`, `.sh`, `.c`, `.h` đang có trong repo; với mỗi file, tìm file khác import hoặc gọi nó; mọi đường dẫn
+dữ liệu cố định trong `scripts/` và `sentinel_pulse/` được kiểm trên `.234` xem còn tồn tại không. Test: 567 passed.
+
+- **Đã sửa (đường chạy lượt live):** `sentinel_pulse/pipeline/plan_matched_run.py` còn hai profile (`pulse-soak-baseline`,
+  `pulse-live-recalibrated`) và giá trị mặc định `--frozen-source` trỏ tới bundle mô hình và snapshot nguồn không còn trên NFS. Bỏ
+  hai profile; mọi lượt chạy phải truyền đủ giá trị (`--profile custom`, như `scripts/launch_run.sh` vẫn làm) và `--frozen-source`
+  là bắt buộc. Test `tests/test_matched_run_profiles.py` đổi theo.
+- **Không còn chạy được vì dữ liệu đầu vào đã xoá, không file code nào gọi:** `scripts/pulse_baselines.sh`,
+  `scripts/pulse_baselines_tree_ae_dev.sh`, `scripts/lidds_ml_scores_run.sh` (không protocol hay biên nhận nào nhắc tới);
+  `scripts/syscall_loo_stage2.sh` và `scripts/analysis/syscall_loo_stage2_arms.py` (ablation đếm đã dừng, dữ liệu đã xoá);
+  `scripts/final_system_analysis.sh`, `scripts/lidds_ml_alphabets_run.sh` (còn được protocol cũ và biên nhận cũ nhắc tới, nên là
+  bằng chứng lịch sử). Đề xuất xoá ba file đầu và cặp syscall-loo; chờ chủ đồ án đồng ý như các đợt trước.
+- **Đường dẫn cũ chỉ còn trong chú thích hoặc tên biên nhận:** `sentinel_pulse/ops/alert_bridge.py` (docstring),
+  `scripts/audit/headline_numbers.py` và `scripts/figures/thesis_figures.py` (thư mục biên nhận trong repo, vẫn còn). Không sửa.
+- **Entry point không ai import là bình thường:** các script chạy trực tiếp trong `scripts/`, script dựng tài liệu họp trong
+  `docs/meetings/`, script phân tích nằm cạnh biên nhận trong `validation-evidence/`.
