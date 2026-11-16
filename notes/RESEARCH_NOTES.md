@@ -340,3 +340,20 @@ viện vượt trần 8 giờ CPU ở ba kịch bản. Còn thiếu: MLP và LST
 - Mimicry attacks against provenance graph host intrusion detection systems (NDSS 2023): https://par.nsf.gov/servlets/purl/10412012
 - Elastic, container management utility run inside a container: https://detection.fyi/elastic/detection-rules/integrations/cloud_defend/execution_container_management_binary_launched_inside_a_container
 - LID-DS, mã nguồn kịch bản: https://github.com/LID-DS/LID-DS
+
+## 11. Cập nhật 16/11: chi phí thẻ dòng dõi, sức chứa map, exec probe
+
+- **Chi phí thẻ dòng dõi** (`token-probe-overhead-v1` amendment 3, `results-20261116/lineage-overhead/`): so bản build có thẻ với bản build
+  của lượt v5, cùng điều kiện, 5 vòng trên 3 worker, không đo được chênh lệch: khoảng tin cậy của tỉ lệ đều chứa 0 (getpid, futex,
+  open + close, fork + exit + wait), trừ một ô mà bản mới nhanh hơn. Một lần fork + exit + wait mất 330–380 µs trên VM, lớn hơn rất nhiều
+  phần việc của hook fork.
+- **Sức chứa map** (`map-capacity-v1`, `results-20261116/map-capacity/`), trường hợp xấu nhất mọi syscall là gram mới: rơi gram từ 400.000
+  syscall/s trên một cgroup; tới 300.000/s (khoảng 143.000 gram khác nhau mỗi cửa sổ) không rơi. Giới hạn thứ hai là thời gian loader đọc
+  map: 0,33 s ở 143.000 gram, vượt nhịp 0,5 s khi nhiều hơn khoảng 150.000. Lượt v5 nặng nhất 6.901 gram mỗi cửa sổ node: dư khoảng 20 lần.
+- **Exec probe của kubelet chiếm phần lớn "normal" của dịch vụ Python.** Đầu lượt thu v6, 10 dịch vụ Python (exec probe `python -c
+  urllib...` mỗi 5 s và 15 s) có 66–94% sự kiện thuộc dòng session; workload dùng probe HTTP hoặc TCP có 0%. Hệ quả: ở các lượt trước, mô
+  hình của các dịch vụ này học chủ yếu từ lần khởi động Python của probe; tách dòng dõi làm dòng native sạch hơn nhiều so với ước lượng
+  bằng proxy (mục 5.2), và là lý do H1 của `pulse-live-v6-v1` đo được trên dữ liệu thật.
+- **Campaign v6** (mặc định tắt): thứ tự ngẫu nhiên có seed (W7), bộ lệnh quản trị v6 gồm 10 tool chưa dùng, bước living-off-the-land
+  (đọc token service account, `/proc`, socket, tài khoản vào `/dev/null`, ghi và xoá một file trong `/tmp`) để đo mặt hại của R1, lượt pha
+  loãng PAD 30 và 300 (W3a). Mọi tấn công vẫn là fixture tự viết, không CVE.
