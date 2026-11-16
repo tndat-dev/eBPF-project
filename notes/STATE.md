@@ -20,13 +20,15 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
   23839 "4/4" ở long-1114 còn đáng nghi (exploit đang crash). Đã viết lại 7 exploit bằng HTTP urllib (+PyMySQL) trong
   `scripts/lidds_live/exploits_http/` (một image `exploit_http`, không chrome), **verify 15/15 landing** (RCE/bypass/leak
   thật). Re-run với 15 exploit chạy được để có số liệu W2 thật.
-- **ĐANG CHẠY (khởi 15/11 ~17:52 VN): `pulse-live-lidds-1115`.** Chủ đồ án duyệt chạy, giao tao tự quyết thời lượng "vừa đủ"
-  (không 24h). **capture 8h + live 4h** theo `pulse-live-lidds-v1-amendment-2.json` (đăng ký trước khi chạy; lý do: live 4h →
-  ~47 chu kỳ exploit/kịch bản như long-1114 là đủ recall; capture 8h → ~40–48 block ngưỡng, ổn hơn long-1114's 6h). Cùng model
-  v5. Cluster-resident: master unit `lidds-1115-master` trên .234 (cap 28G cho score cuối) + worker unit `lidds-1115-worker`
-  trên worker1 (probe lineage), phối hợp qua marker NFS `VICTIMS_READY→START_PROBE→LIVE_DONE→COLLECTED→SCORED` tại
-  `/mnt/sentinel-pulse-archive/pulse-live-lidds-1115`. Dự kiến **SCORED ~06:20–06:30 sáng 16/11**. Victim recreate mỗi cycle
-  (tự dọn trạng thái verify làm bẩn). Khi có `SCORED`: đọc `lidds-live-score.json` + chạy `pulse_live_lidds.py` phân tích.
+- **XONG (16/11, `validation-evidence/results-20261116/pulse-live-lidds-1115/`): lượt CVE thật `pulse-live-lidds-1115`** đóng
+  W2. capture 8h + live 4h (amendment-2, đăng ký trước), model v5, 15 exploit HTTP verify 15/15 landing. Cluster-resident
+  (master `.234` + worker1, marker NFS). **Kết quả: 14/15 kịch bản recall 100%** (gồm 5 cái trước hỏng: MySQL 3/3, CWE-89 2/2,
+  Juice 4/4, PHP 3/3, Bruteforce 3/3, + 23839 3/3); **chỉ Heartbleed trượt 0/5** (tàng hình syscall thật — v5 bắt nó 84/84 trên
+  dataset nhưng live 0/5 vì exploit HTTP là đọc-lố-bộ-nhớ thuần). **Đạt/trượt target (trung thực):** recall ≥95% **KHÔNG đạt**
+  (pooled tập-v5-100%-official trừ Juice = 39/44 = 0.886, thiếu hụt toàn bộ do Heartbleed); FA ≤5% **KHÔNG đạt** (10/47 = 21%,
+  dồn victim web Tomcat/CWE-89/Juice/PHP, mẫu số nhỏ ở live 4h); **p95 ≤3s ĐẠT** (1.87s); **lineage native (session share 0) →
+  H2 xác nhận**. Bác con số 0.68 của long-1114 (artifact công cụ). Capture 8h cho 41–47 block/kịch bản như dự đoán. Đã đưa vào
+  thesis §RQ3 `sec:lidds-live`.
 - Mục mở (không chặn): Unomi 3/3 báo nhầm (normal JVM biến động); scorer giữ toàn bộ window trong RAM (đủ dưới cap 24G,
   lượt lớn hơn cần viết streaming 2-pass).
 - Lượt ngắn tiền trạm (`pulse-live-lidds-15b-1114`): recall 9/10, 7/13 báo nhầm; receipt `results-20261114/`. Fix driver
