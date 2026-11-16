@@ -88,7 +88,7 @@ dữ liệu cố định trong `scripts/` và `sentinel_pulse/` được kiểm 
   `scripts/pulse_baselines_tree_ae_dev.sh`, `scripts/lidds_ml_scores_run.sh` (không protocol hay biên nhận nào nhắc tới);
   `scripts/syscall_loo_stage2.sh` và `scripts/analysis/syscall_loo_stage2_arms.py` (ablation đếm đã dừng, dữ liệu đã xoá);
   `scripts/final_system_analysis.sh`, `scripts/lidds_ml_alphabets_run.sh` (còn được protocol cũ và biên nhận cũ nhắc tới, nên là
-  bằng chứng lịch sử). Đề xuất xoá ba file đầu và cặp syscall-loo; chờ chủ đồ án đồng ý như các đợt trước.
+  bằng chứng lịch sử). Ba file đầu và cặp syscall-loo đã xoá 16/11 sau khi chủ đồ án đồng ý; hai file lịch sử giữ lại.
 - **Đường dẫn cũ chỉ còn trong chú thích hoặc tên biên nhận:** `sentinel_pulse/ops/alert_bridge.py` (docstring),
   `scripts/audit/headline_numbers.py` và `scripts/figures/thesis_figures.py` (thư mục biên nhận trong repo, vẫn còn). Không sửa.
 - **Entry point không ai import là bình thường:** các script chạy trực tiếp trong `scripts/`, script dựng tài liệu họp trong

@@ -242,6 +242,10 @@ Thiết kế:
 Nếu tách dòng dõi, mọi tấn công hiện tại của campaign (đều qua `kubectl exec`) thuộc dòng session. Muốn đo dòng native trên cụm phải có
 tấn công **trong process của dịch vụ**: kịch bản LID-DS chạy live (mục 7), và fixture nằm sẵn trong cây process của workload.
 
+Cả hai đều không làm: chủ đồ án không đồng ý chạy kịch bản LID-DS trên cụm (15/11) và không đồng ý dịch vụ thử có đường gọi chạy
+thao tác trong process (16/11). Dòng native vì vậy chỉ được thử với normal và hoạt động vô hại trên cụm; với tấn công, bằng chứng là
+LID-DS 2021 offline, nơi mọi sự kiện thuộc dòng native. Đây là giới hạn đã ghi trong `pulse-live-v6-v1`.
+
 ## 6. D: tín hiệu tần suất cho tấn công chỉ dùng chuỗi đã thấy
 
 **Câu hỏi.** Khi bỏ mọi sự kiện có gram hoặc token chưa thấy khỏi bản ghi tấn công, mô hình bắt 0/544. Có tín hiệu nào nhìn vào **tần

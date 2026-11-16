@@ -99,9 +99,10 @@ trần 20 GB trên `.234`), rồi live 30 giờ: `TOKEN_BUILD` như trên, `TOKE
 LOTL_ATTACK=1 DILUTION_PADS=30,300 LOCAL_DECISIONS=1 SECONDS_TOTAL=108000 ATTACK_RATES=1,3,6,12,24`. Đã đo xong trước lượt: chi phí thẻ dòng
 dõi (không đo được, `results-20261116/lineage-overhead/`), sức chứa map (`results-20261116/map-capacity/`).
 
-**Giai đoạn 3: một lượt live mới `pulse-live-v6-<MMDD>`** (protocol riêng, đăng ký trước): tấn công trong process đang chạy (không exec),
-tấn công bằng tool của image, thêm kỹ thuật ATT&CK (discovery, credential access, persistence, impact, network scan), thứ tự ngẫu nhiên,
+**Giai đoạn 3: một lượt live mới `pulse-live-v6-<MMDD>`** (protocol riêng, đăng ký trước): tấn công bằng tool của image, thêm kỹ thuật ATT&CK (discovery, credential access, persistence, impact, network scan), thứ tự ngẫu nhiên,
 RCA recheck, lệnh quản trị mới chưa dùng khi học. Đo riêng: chi phí trên request (bật/tắt probe xen kẽ), tải tới khi map đầy.
+16/11: chủ đồ án không đồng ý dịch vụ thử có đường gọi chạy thao tác trong process; dòng native không được thử với tấn công trên
+cụm (giới hạn của `pulse-live-v6-v1`), bằng chứng cho trường hợp đó là LID-DS 2021.
 
 **Giai đoạn 4:** LID-DS 2019 đúng một lần khi mô hình đạt tầm paper; so sánh có/không có rule; mở lại baseline học sâu.
 
