@@ -5,6 +5,13 @@
  "registered_before": "the fit and the live run of this protocol; the normal capture is running, no trial exists",
  "owner_decision": "16/11: 26 h live run, all 735 trials kept",
  "what_changed": "phases.live: the live run lasts 26 h (SECONDS_TOTAL=93600) instead of 30 h; the 90-minute selection prefix, the campaign (525 base + 210 dilution trials) and every hypothesis are unchanged",
- "basis": "pulse-live-v5-1110 ran 525 trials in 12.54 h (ATTEMPTS.jsonl: median 86.0 s per trial, p90 87.0 s); the lotl step adds about 20 s (sentinel_pulse/attack/preview_campaign.py), so about 106 s x 735 = 21.6 h (estimate); 1.5 h prefix + 21.6 h leaves about 2.9 h of margin",
- "risk": "trials not reached before the workers stop are reported as not run, with their count; the run is not extended"
+ "basis": "pulse-live-v5-1110, INTERVALS.jsonl and ATTEMPTS.jsonl of 521 complete trials (medians): start 2.8 s, control 18.5 s, admin 22.7 s, benign 19.9 s, attack to the next trial 22.0 s, 85.9 s in all (525 trials in 12.54 h); v6 adds the lotl step (same structure as the admin step, about 22.7 s) and the 3 s pause after the attack when it is not the last step (3 of 4 orders), so about 111 s per trial and 22.7 h for 735 trials (estimate); 1.5 h prefix + 22.7 h leaves about 1.8 h of margin (the first version of this amendment said 106 s and 2.9 h, from the code alone)",
+ "risk": "trials not reached before the workers stop are reported as not run, with their count; the run is not extended",
+ "revised_at": "2026-11-16T17:08+07:00",
+ "revised_before": "the capture ends; no capture window has been scored and no fit or trial exists",
+ "added_analysis": {
+  "model_aging": "before the fit, the v5 token models and thresholds (pulse-live-v5-fit-1110/token/MODELS.json), unchanged, score the whole capture pulse-token-capture-v6-<MMDD> (made after the 12/11 resize and recovery): per workload the share of 60 s container blocks whose maximum is above the v5 threshold, against the design level alpha' = 0.00018 and against v5's own held-out share (validation-evidence/results-20261113/ml-final-study/cluster-threshold.json), and episodes per replica-hour over the whole capture (v5's burden in that receipt is on declared segments of its live run, so the two burdens are reported side by side, not tested)",
+  "decision": "none: descriptive (does a count model age across a cluster resize); the live run uses the fresh fit either way",
+  "code": "scripts/analysis/model_aging.py, tests/test_model_aging.py"
+ }
 }

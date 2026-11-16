@@ -94,8 +94,8 @@ lạ; đo trên dữ liệu v5, so sánh có và không có rule.
 
 **Đang chạy (16/11 14:14 → 17/11 02:14): thu normal `pulse-token-capture-v6-1116`** theo `pulse-live-v6-v1`, build có thẻ dòng dõi
 `/home/dat/pulse-tokens-lineage-5fc5f37` (proof token và dòng dõi đạt trên 3 worker), snapshot `runtime-59390d0-20261116`. Không chạy job
-nặng nào trên mọi node tới khi xong. Sau đó: fit (`token_branch_fit.py` như v5, `--extra-run pulse-live-v5-1110`, `--dump-maxima`, tuần tự,
-trần 20 GB trên `.234`), rồi live 26 giờ (amendment 1, giữ đủ 735 trial): `TOKEN_BUILD` như trên, `TOKEN_MODELS` của fit, `ADMIN_CONTROL=1 ADMIN_COMMANDS=v6 RANDOM_ORDER=1
+nặng nào trên mọi node tới khi xong. Sau đó: kiểm lão hoá (mô hình v5 không đổi chấm toàn bộ capture, `scripts/analysis/model_aging.py --heldout validation-evidence/results-20261113/ml-final-study/cluster-threshold.json`, mô tả, không quyết định gì), rồi fit (`token_branch_fit.py` như v5, `--extra-run pulse-live-v5-1110`, `--dump-maxima`, tuần tự,
+trần 20 GB trên `.234`), rồi live 26 giờ (amendment 1, giữ đủ 735 trial; campaign ước lượng 22,7 h, dư khoảng 1,8 h): `TOKEN_BUILD` như trên, `TOKEN_MODELS` của fit, `ADMIN_CONTROL=1 ADMIN_COMMANDS=v6 RANDOM_ORDER=1
 LOTL_ATTACK=1 DILUTION_PADS=30,300 LOCAL_DECISIONS=1 SECONDS_TOTAL=93600 ATTACK_RATES=1,3,6,12,24`. Đã đo xong trước lượt: chi phí thẻ dòng
 dõi (không đo được, `results-20261116/lineage-overhead/`), sức chứa map (`results-20261116/map-capacity/`).
 
