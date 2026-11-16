@@ -31,7 +31,7 @@ Bảy chặng, mỗi chặng một câu hỏi. Đọc đúng thứ tự thì m�
 | 3 | **Mô hình** chấm điểm thế nào? | `sentinel_pulse/detector/token_model.py` (CountTokenLM) |
 | 4 | **Chọn & đặt ngưỡng** mô hình (offline) | `scripts/analysis/lidds_token_study.py` → `scripts/analysis/lidds_ml_v5.py` → biên nhận `validation-evidence/results-20261110/lidds-ml-v5/` |
 | 5 | **Chạy online** trên cụm (kernel→alert) | `sentinel_pulse/collector/cgroup_resolver.py` → `sentinel_pulse/pipeline/matched_worker.py` → `sentinel_pulse/ops/alert_bridge.py` |
-| 6 | **Validate live** | tổng hợp: `scripts/analysis/pulse_live_v4.py` + `live_attribution.py`; CVE thật: `scripts/lidds_live/` + `scripts/analysis/pulse_live_lidds.py` |
+| 6 | **Validate live** | tổng hợp: `scripts/analysis/pulse_live_v4.py` + `live_attribution.py`. (Phần validate CVE thật — W2 — không nằm trong repo này.) |
 | 7 | **Luật & RCA** (thêm sau ML) | `scripts/analysis/rule_e_benefit.py`, `sentinel_pulse/rca/` |
 
 Muốn hiểu nhanh "hệ làm gì" mà chưa cần chi tiết: đọc chặng 1–3 là đủ khung. Muốn tái lập số liệu paper: 4 và 6.
@@ -53,7 +53,6 @@ Muốn hiểu nhanh "hệ làm gì" mà chưa cần chi tiết: đọc chặng 1
 | `sentinel_pulse/attack/` | Campaign tấn công tổng hợp trên cụm: `cluster.py`, `preview_*.py`, `confirmation_study.py`, `rolling_recalibration.py`. |
 | `sentinel_pulse/protocol/` | **Protocol đăng-ký-trước** (JSON): định nghĩa thí nghiệm *trước khi* chạy. Xem §7. |
 | `scripts/analysis/` | **Toàn bộ nghiên cứu offline + live** (Python, mỗi file một thí nghiệm). Xem §4, §6. |
-| `scripts/lidds_live/` | Dựng & chạy **15 CVE thật** trên cụm: `driver.py`, `scenarios.json`, `run_all.sh`, `run_probe.sh`, `exploits_http/`. |
 | `scripts/audit/` | Kiểm toán số: `headline_numbers.py` (tính lại số chủ chốt từ biên nhận, chạy trong test). |
 | `validation-evidence/results-YYYYMMDD/<study>/` | **Biên nhận**: README + JSON cho mỗi lần chạy. Mọi con số trong đồ án truy về đây. |
 | `notes/` | `STATE.md` (hiện trạng), `WORKLOG.md` (nhật ký), `PAPER_PLAN.md` (W1–W8), `RESEARCH_NOTES.md`, `CODE_AUDIT.md`. |
@@ -118,7 +117,7 @@ syscall  ──►  eBPF probe        ──►  loader in "token_grams"  ──
 
 ## 5. Nhánh validate live (chặng 6)
 
-Hai loại lượt live **độc lập** (xem [STATE.md](STATE.md) và [pulse_live_lidds.md](../pulse_live_lidds.md)):
+Hai loại lượt live **độc lập** (xem [STATE.md](STATE.md)):
 
 **(a) Campaign tổng hợp** — operator bơm trial có kiểm soát (control / benign / admin / attack) vào pod đang chạy:
 - `scripts/analysis/pulse_live_v4.py` — định nghĩa trial (`load_trials`), `CAMPAIGN`, `HORIZON`, `PRIMARY` (nhịp
@@ -129,16 +128,9 @@ Hai loại lượt live **độc lập** (xem [STATE.md](STATE.md) và [pulse_li
   `comparison` tách **ML-only vs ML+rule**; biên nhận `results-20261115/rule-e-benefit/`.
 - `session_model.py` — mô hình phiên / thẻ dòng dõi (native/session, amendment 2).
 
-**(b) 15 CVE thật** — ứng dụng dễ bị khai thác thật trong namespace `lidds-live`:
-- `scripts/lidds_live/driver.py` — điều phối `capture` (chỉ normal, để fit) và `live` (cycle tấn công prob 0.5);
-  `apply()` có retry chống webhook `failurePolicy=Fail`.
-- `scripts/lidds_live/scenarios.json` — 15 kịch bản (victim + normal generator + exploit). Exploit nay là HTTP trực
-  tiếp trong `scripts/lidds_live/exploits_http/` (một image `exploit_http`, không chrome).
-- `run_probe.sh` (bật probe lineage trên worker), `preflight.sh`, `import_images.sh`, `namespace.yaml`, `run_all.sh`
-  (điều phối một-node). Hướng dẫn đầy đủ: [pulse_live_lidds.md](../pulse_live_lidds.md).
-- `scripts/analysis/pulse_live_lidds.py` + `lidds_live_score.py` — chấm: recall per-CVE, báo-nhầm cycle, độ trễ,
-  tỉ lệ cửa sổ cảnh báo trên dòng native (≈0 xác nhận bắt trên luồng gốc của victim). Biên nhận gần nhất:
-  `results-20261114b/` (lượt dài) và `results-20261115/exploit-verification/` (verify 15/15 landing).
+**(b) 15 CVE thật** (W2) — **không nằm trong repo này**. Chỉ còn protocol đăng-ký-trước
+`sentinel_pulse/protocol/pulse-live-lidds-v1*.json` ở trong repo; số liệu W2 (14/15 CVE bắt 100%, chỉ Heartbleed trượt)
+đã trích vào thesis §RQ3 `sec:lidds-live`.
 
 ---
 
