@@ -33,7 +33,7 @@ def summarize(level, run, t0, t1, grams, drains):
     before = [d for d in drains if d['observed_at'] < t0]
     fail0 = before[-1]['insert_fail_cumulative'] if before else 0
     fail1 = inside[-1]['insert_fail_cumulative'] if inside else fail0
-    distinct = [len(r['grams']) for r in rows]
+    distinct = [r['distinct'] for r in rows]
     events = sum(r['events'] for r in rows)
     return dict(offered_calls_per_second=level, threads=run['threads'], calls=run['events'],
                 achieved_calls_per_second=run['events'] / run['seconds'], windows=len(rows), window_events=events,
@@ -87,9 +87,18 @@ def main():
         raw.close()
         err.close()
         cg.rmdir()
-    rows = [json.loads(line) for line in (a.out / 'raw.jsonl').read_text().splitlines()]
-    grams = [r for r in rows if r['type'] == 'token_grams' and r['cgroup_id'] == cgid]
-    drains = [r for r in rows if r['type'] == 'token_drain']
+    grams, drains = [], []
+    with (a.out / 'raw.jsonl').open() as stream:            # GBs at the top levels: one line at a time, counts only
+        for line in stream:
+            if line.startswith('{"type":"token_grams"'):
+                r = json.loads(line)
+                if r['cgroup_id'] == cgid:
+                    grams.append(dict(window_end=r['window_end'], events=r['events'], distinct=len(r['grams'])))
+            elif line.startswith('{"type":"token_drain"'):
+                drains.append(json.loads(line))
+    (a.out / 'windows.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in grams))
+    (a.out / 'drains.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in drains))
+    (a.out / 'raw.jsonl').unlink()
     result = dict(schema='pulse-map-capacity-v1', protocol='sentinel_pulse/protocol/map-capacity-v1.json',
                   kernel=platform.release(), node=platform.node(), cgroup_id=cgid, map_entries=262144,
                   levels=[summarize(level, run, t0, t1, grams, drains) for level, run, t0, t1 in spans])

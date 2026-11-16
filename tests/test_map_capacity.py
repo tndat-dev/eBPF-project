@@ -9,9 +9,9 @@ import map_capacity_test as mc  # noqa: E402
 
 
 def test_summarize_counts_losses_inside_the_level():
-    grams = [dict(window_end=10.5, events=400, grams=[[1, 2, 3, 4, 1]] * 300),
-             dict(window_end=11.0, events=500, grams=[[1, 2, 3, 4, 1]] * 400),
-             dict(window_end=30.0, events=99, grams=[])]                         # another level
+    grams = [dict(window_end=10.5, events=400, distinct=300),
+             dict(window_end=11.0, events=500, distinct=400),
+             dict(window_end=30.0, events=99, distinct=0)]                       # another level
     drains = [dict(observed_at=9.0, insert_fail_cumulative=5, drain_seconds=0.01),
               dict(observed_at=10.6, insert_fail_cumulative=5, drain_seconds=0.02),
               dict(observed_at=11.2, insert_fail_cumulative=45, drain_seconds=0.04)]
