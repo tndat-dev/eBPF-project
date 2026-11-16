@@ -1,0 +1,154 @@
+{
+  "schema": "pulse-map-capacity-v1",
+  "protocol": "sentinel_pulse/protocol/map-capacity-v1.json",
+  "kernel": "6.8.0-138-generic",
+  "node": "k8s-worker1.local",
+  "cgroup_id": 1719246,
+  "map_entries": 262144,
+  "levels": [
+    {
+      "offered_calls_per_second": 50000,
+      "threads": 8,
+      "calls": 500224,
+      "achieved_calls_per_second": 50022.4,
+      "windows": 20,
+      "window_events": 484675,
+      "events_lost": 15549,
+      "failed_inserts": 0,
+      "distinct_grams_per_window": {
+        "p50": 25201.5,
+        "max": 25240
+      },
+      "drain_seconds": {
+        "p50": 0.057163500000000006,
+        "max": 0.071136
+      }
+    },
+    {
+      "offered_calls_per_second": 100000,
+      "threads": 8,
+      "calls": 1000448,
+      "achieved_calls_per_second": 100044.8,
+      "windows": 20,
+      "window_events": 971917,
+      "events_lost": 28531,
+      "failed_inserts": 0,
+      "distinct_grams_per_window": {
+        "p50": 49681.5,
+        "max": 49905
+      },
+      "drain_seconds": {
+        "p50": 0.1103465,
+        "max": 0.130878
+      }
+    },
+    {
+      "offered_calls_per_second": 200000,
+      "threads": 8,
+      "calls": 2000384,
+      "achieved_calls_per_second": 200038.4,
+      "windows": 20,
+      "window_events": 1947349,
+      "events_lost": 53035,
+      "failed_inserts": 0,
+      "distinct_grams_per_window": {
+        "p50": 97168.5,
+        "max": 97491
+      },
+      "drain_seconds": {
+        "p50": 0.21978950000000003,
+        "max": 0.272524
+      }
+    },
+    {
+      "offered_calls_per_second": 300000,
+      "threads": 8,
+      "calls": 3000320,
+      "achieved_calls_per_second": 300032.0,
+      "windows": 20,
+      "window_events": 2926557,
+      "events_lost": 73763,
+      "failed_inserts": 0,
+      "distinct_grams_per_window": {
+        "p50": 142609.5,
+        "max": 143026
+      },
+      "drain_seconds": {
+        "p50": 0.333345,
+        "max": 0.414767
+      }
+    },
+    {
+      "offered_calls_per_second": 400000,
+      "threads": 8,
+      "calls": 4000192,
+      "achieved_calls_per_second": 400019.2,
+      "windows": 19,
+      "window_events": 2955637,
+      "events_lost": 1044555,
+      "failed_inserts": 949878,
+      "distinct_grams_per_window": {
+        "p50": 148695,
+        "max": 186267
+      },
+      "drain_seconds": {
+        "p50": 0.441921,
+        "max": 0.634668
+      }
+    },
+    {
+      "offered_calls_per_second": 600000,
+      "threads": 8,
+      "calls": 6000000,
+      "achieved_calls_per_second": 600000.0,
+      "windows": 16,
+      "window_events": 2689930,
+      "events_lost": 3310070,
+      "failed_inserts": 3181096,
+      "distinct_grams_per_window": {
+        "p50": 192047.0,
+        "max": 262144
+      },
+      "drain_seconds": {
+        "p50": 0.632035,
+        "max": 0.693209
+      }
+    },
+    {
+      "offered_calls_per_second": 800000,
+      "threads": 8,
+      "calls": 8000000,
+      "achieved_calls_per_second": 800000.0,
+      "windows": 13,
+      "window_events": 2946941,
+      "events_lost": 5053059,
+      "failed_inserts": 4888620,
+      "distinct_grams_per_window": {
+        "p50": 258401,
+        "max": 262144
+      },
+      "drain_seconds": {
+        "p50": 0.6443220000000001,
+        "max": 0.760036
+      }
+    },
+    {
+      "offered_calls_per_second": 1200000,
+      "threads": 8,
+      "calls": 12000256,
+      "achieved_calls_per_second": 1200025.6,
+      "windows": 14,
+      "window_events": 3472519,
+      "events_lost": 8527737,
+      "failed_inserts": 8353645,
+      "distinct_grams_per_window": {
+        "p50": 253690.5,
+        "max": 262144
+      },
+      "drain_seconds": {
+        "p50": 0.6572579999999999,
+        "max": 0.730907
+      }
+    }
+  ]
+}
