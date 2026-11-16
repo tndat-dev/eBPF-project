@@ -4,25 +4,6 @@ File này thay bốn file trạng thái cũ (`SENTINEL_PULSE_STATUS.md`, `SYSCAL
 `RCA_RUNTIME_STATUS.md`, `RULE_INTEGRATION_STATUS.md`), xoá ngày 07/11 theo yêu cầu của chủ đồ án. Toàn văn còn trong
 git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia). Nhật ký từng bước: [WORKLOG.md](WORKLOG.md).
 
-## Lượt live 15 CVE thật LID-DS trên cụm (W2) — ĐÃ XONG, đã chuyển ra ngoài repo (16/11)
-
-- **Kết quả chốt W2, lượt `pulse-live-lidds-1115` (16/11):** capture 8h + live 4h (amendment-2, model v5, 15 exploit HTTP
-  verify 15/15 landing). **14/15 kịch bản recall 100%** (gồm 5 cái long-1114 từng đọc 0 vì exploit hỏng: MySQL, CWE-89,
-  Juice, PHP, Bruteforce; + GetSimple-XSS); **chỉ Heartbleed trượt 0/5** (tàng hình syscall thật — v5 bắt 84/84 trên dataset
-  nhưng live 0/5 vì exploit HTTP là đọc-lố-bộ-nhớ thuần). Đối chiếu target **trung thực:** recall ≥95% **KHÔNG đạt** (pooled
-  tập-v5-100%-official trừ Juice = 39/44 = 0.886, thiếu hụt toàn bộ do Heartbleed); FA ≤5% **KHÔNG đạt** (10/47 = 21%, dồn
-  victim web, mẫu số nhỏ ở live 4h); **p95 ≤3s ĐẠT** (1.87s); **lineage native (session share 0) → H2 xác nhận**. Bác con số
-  0.68 của long-1114 (artifact 7 exploit hỏng, không phải giới hạn detector). Số liệu W2 đã trích vào thesis §RQ3
-  `sec:lidds-live` (+ intro, discussion, conclusion).
-- **Chuyển ra + teardown (16/11, theo quyết định chủ đồ án: không giữ nội dung/exploit CVE trong repo hay trên cụm):**
-  tooling (`scripts/lidds_live/`), chấm (`pulse_live_lidds.py`, `lidds_live_score.py`), tài liệu thiết kế và biên nhận các
-  lượt lidds-live **đã chuyển ra khỏi repo** (chỉ giữ lại trong repo: **protocol `pulse-live-lidds-v1*.json`** cho pre-registration,
-  và số liệu trong thesis). Tài nguyên cụm đã **xóa**: namespace `lidds-live` (15 victim), image victim/exploit trên cả 3 worker,
-  run dir NFS, build dir `.234`. **Giữ lại:** probe build `pulse-tokens-lineage`, dataset LID-DS offline `/var/tmp/lid-ds-2021`
-  (+ caches), test `WATCHED_NAMESPACES` vẫn pass.
-- Điểm yếu mở từ W2 (ghi cho v6): **báo nhầm 21% trên normal HTTP của app web** (Tomcat/CWE-89/Juice/PHP); Heartbleed là
-  giới hạn tàng hình thật.
-
 ## Mục tiêu và quyết định đang áp dụng
 
 - Mục tiêu: ML học từ normal phát hiện blind attack; recall ≥ 95%, precision ≥ 95%, p95 ≤ 3 s; binary vô hại và gánh cảnh

@@ -12,7 +12,7 @@ Một hệ **phát hiện xâm nhập runtime** cho Kubernetes: một **probe eB
 cửa sổ 0,5 s; một **mô hình ngôn ngữ token** (n-gram học từ hành vi *bình thường*) chấm mỗi cửa sổ; cửa sổ nào "lạ" quá
 ngưỡng thì báo động. Mục tiêu: bắt **tấn công blind** (chưa từng thấy) chỉ bằng việc học normal, với recall ≥ 95%,
 precision ≥ 95%, p95 kernel→alert ≤ 3 s, và càng ít gắn cờ nhầm hành vi hợp lệ càng tốt. Hệ được **chọn và đo offline
-trên LID-DS 2021 + CB-DS**, rồi **validate live trên cụm** (cả fixture tổng hợp lẫn 15 CVE thật). Luật (rule) chỉ thêm
+trên LID-DS 2021 + CB-DS**, rồi **validate live trên cụm** (fixture tổng hợp). Luật (rule) chỉ thêm
 *sau khi* ML chốt, để so sánh có/không có luật.
 
 Hai câu hỏi lớn xuyên suốt code: **(1) mô hình học-từ-normal có bắt được tấn công không?** và **(2) nó có gắn cờ nhầm
@@ -31,7 +31,7 @@ Bảy chặng, mỗi chặng một câu hỏi. Đọc đúng thứ tự thì m�
 | 3 | **Mô hình** chấm điểm thế nào? | `sentinel_pulse/detector/token_model.py` (CountTokenLM) |
 | 4 | **Chọn & đặt ngưỡng** mô hình (offline) | `scripts/analysis/lidds_token_study.py` → `scripts/analysis/lidds_ml_v5.py` → biên nhận `validation-evidence/results-20261110/lidds-ml-v5/` |
 | 5 | **Chạy online** trên cụm (kernel→alert) | `sentinel_pulse/collector/cgroup_resolver.py` → `sentinel_pulse/pipeline/matched_worker.py` → `sentinel_pulse/ops/alert_bridge.py` |
-| 6 | **Validate live** | tổng hợp: `scripts/analysis/pulse_live_v4.py` + `live_attribution.py`. (Phần validate CVE thật — W2 — không nằm trong repo này.) |
+| 6 | **Validate live** | `scripts/analysis/pulse_live_v4.py` + `live_attribution.py` (campaign tổng hợp operator bơm trial). |
 | 7 | **Luật & RCA** (thêm sau ML) | `scripts/analysis/rule_e_benefit.py`, `sentinel_pulse/rca/` |
 
 Muốn hiểu nhanh "hệ làm gì" mà chưa cần chi tiết: đọc chặng 1–3 là đủ khung. Muốn tái lập số liệu paper: 4 và 6.
@@ -117,9 +117,8 @@ syscall  ──►  eBPF probe        ──►  loader in "token_grams"  ──
 
 ## 5. Nhánh validate live (chặng 6)
 
-Hai loại lượt live **độc lập** (xem [STATE.md](STATE.md)):
-
-**(a) Campaign tổng hợp** — operator bơm trial có kiểm soát (control / benign / admin / attack) vào pod đang chạy:
+Campaign tổng hợp trên cụm — operator bơm trial có kiểm soát (control / benign / admin / attack) vào pod đang chạy (xem
+[STATE.md](STATE.md)):
 - `scripts/analysis/pulse_live_v4.py` — định nghĩa trial (`load_trials`), `CAMPAIGN`, `HORIZON`, `PRIMARY` (nhịp
   tấn công primary), các arm chấm. *File này được import như `live` bởi các file dưới.*
 - `live_attribution.py` — **W-part A**: tách recall live là do burst khởi chạy hay hành vi tấn công; dùng
@@ -127,10 +126,6 @@ Hai loại lượt live **độc lập** (xem [STATE.md](STATE.md)):
 - `rule_e_benefit.py` — **part E (luật sau ML)**: R1 (hạ cảnh báo khi chỉ exec tool-của-image), R2 (drift). Phát khối
   `comparison` tách **ML-only vs ML+rule**; biên nhận `results-20261115/rule-e-benefit/`.
 - `session_model.py` — mô hình phiên / thẻ dòng dõi (native/session, amendment 2).
-
-**(b) 15 CVE thật** (W2) — **không nằm trong repo này**. Chỉ còn protocol đăng-ký-trước
-`sentinel_pulse/protocol/pulse-live-lidds-v1*.json` ở trong repo; số liệu W2 (14/15 CVE bắt 100%, chỉ Heartbleed trượt)
-đã trích vào thesis §RQ3 `sec:lidds-live`.
 
 ---
 
@@ -157,7 +152,7 @@ Hai loại lượt live **độc lập** (xem [STATE.md](STATE.md)):
 
 - **Protocol đăng-ký-trước** `sentinel_pulse/protocol/*.json`: định nghĩa thí nghiệm (mô hình, bảng chữ, ngưỡng, tiêu
   chí đạt) *trước khi* chạy, có `registered_at` / `registered_before`. Ví dụ `lidds-ml-v5.json`, `ml-final-study-v1.json`
-  (+ amendment 1/2/3), `pulse-live-lidds-v1.json` (+ amendment 1/2). Sửa thiết kế = thêm amendment, không sửa bản gốc.
+  (+ amendment 1/2/3). Sửa thiết kế = thêm amendment, không sửa bản gốc.
 - **Biên nhận** `validation-evidence/results-YYYYMMDD/<study>/`: mỗi lần chạy một thư mục, README giải thích + JSON số
   thô + lệnh tái lập. Đồ án/paper chỉ trích số từ đây.
 - **Kiểm toán** `scripts/audit/headline_numbers.py` chạy trong test: tính lại số chủ chốt từ biên nhận để không lệch
@@ -172,7 +167,6 @@ Hai loại lượt live **độc lập** (xem [STATE.md](STATE.md)):
   chạy `lidds_ml_v5.py` trên cache `.234:/var/tmp/lid-ds-2021/...`.
 - **ML-only vs ML+rule** (báo nhầm admin 0,977→0): `results-20261115/rule-e-benefit/README.md` → `rule_e_benefit.py`.
 - **W3(b) nhánh tần suất** (âm): `results-20261115/w3b-rate-signal/README.md` → `lidds_token_rate.py`.
-- **Live 15 CVE**: `pulse_live_lidds.md` → `scripts/lidds_live/driver.py` capture/live → `lidds_live_score.py`.
 
 ---
 

@@ -97,7 +97,7 @@ def workload_revision(labels: dict, annotations: dict | None = None) -> str:
 
 
 def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
-    """Pods of the namespace, or of each of a comma-separated list (protocol pulse-live-lidds-v1 adds lidds-live)."""
+    """Pods of the namespace, or of each of a comma-separated list."""
     result = subprocess.run(
         [command, "pods", "-o", "json"], capture_output=True, text=True, check=True
     )
