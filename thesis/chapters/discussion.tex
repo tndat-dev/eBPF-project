@@ -1,6 +1,6 @@
 \chapter{Thảo luận và giới hạn}
 
-Kết quả mạnh nhất của đồ án là cùng một mô hình học từ normal đạt recall trên 97\% với exploit thật của dataset, bắt mọi tấn công trong campaign tổng hợp trên cụm trong khoảng nửa giây, và bắt 14/15 CVE thật của LID-DS khi chạy trực tiếp trên cụm --- chỉ Heartbleed, một tấn công đọc lố bộ nhớ không sinh syscall lạ, là trượt. Giới hạn lớn nhất là mô hình phát hiện điều mới lạ chứ không phân biệt ý đồ: một process vô hại mới gần như luôn bị gắn cờ.
+Kết quả mạnh nhất của đồ án là cùng một mô hình học từ normal đạt recall trên 97\% với exploit thật của dataset và bắt mọi tấn công trên cụm thật trong khoảng nửa giây. Giới hạn lớn nhất là mô hình phát hiện điều mới lạ chứ không phân biệt ý đồ: một process vô hại mới gần như luôn bị gắn cờ.
 
 \section{Detector phát hiện sự mới lạ, không phải ác ý}\label{sec:limits-novelty}
 

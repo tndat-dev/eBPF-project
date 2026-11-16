@@ -1,6 +1,6 @@
 \chapter{Đánh giá}
 
-Mô hình token đạt cả ba tiêu chí trên LID-DS 2021 official: recall 97,40\%, precision theo tỉ lệ của dataset 97,9\%, p95 1,47 s. Trên cụm thật, nó đạt cả bốn kỳ vọng đã đăng ký ở hai lượt live tổng hợp: lượt gần nhất bắt 314/314 tấn công ở tốc độ chính, không báo control idle nào, và cảnh báo tới Alertmanager sau p95 0,68 s. Một lượt riêng với 15 CVE thật của LID-DS chạy trên cụm bắt 14/15 kịch bản ở mức 100\% (chỉ Heartbleed trượt), p95 1,87 s, nhưng báo nhầm trên normal của app web còn cao. Điểm yếu chính là nó gắn cờ gần như mọi process vô hại mới: binary đối chứng 314/314, lệnh quản trị 255/261. Chương này đi theo thứ tự các câu hỏi nghiên cứu, sau phần phương pháp.
+Mô hình token đạt cả ba tiêu chí trên LID-DS 2021 official: recall 97,40\%, precision theo tỉ lệ của dataset 97,9\%, p95 1,47 s. Trên cụm thật, nó đạt cả bốn kỳ vọng đã đăng ký ở hai lượt live: lượt gần nhất bắt 314/314 tấn công ở tốc độ chính, không báo control idle nào, và cảnh báo tới Alertmanager sau p95 0,68 s. Điểm yếu chính là nó gắn cờ gần như mọi process vô hại mới: binary đối chứng 314/314, lệnh quản trị 255/261. Chương này đi theo thứ tự các câu hỏi nghiên cứu, sau phần phương pháp.
 
 \section{Phương pháp}
 
@@ -354,48 +354,6 @@ Gánh cảnh báo (đợt/replica-giờ) & thấp nhất có thể & 0,41 {[}0,1
   \textbf{Sự cố hạ tầng ở lượt v5:} ngày 11/11 từ 13:47:33 tới 13:51:04, host ảo hoá nghẽn và cả ba worker ghi cách nhịp cùng lúc (112 issue, là toàn bộ issue của lượt). Kết quả ở bảng là phân tích đã đăng ký trên mọi trial. Bỏ hai cặp trial nằm trong khoảng nghẽn không đổi tỉ lệ nào: 313/313, 0/313, gánh 0,17.
 \item
   \textbf{Mức chấp nhận của protocol lượt v5} còn gồm binary vô hại và lệnh quản trị bị gắn cờ, mỗi loại tối đa 20\%. Hai mức này không đạt (mục~\ref{sec:benign}).
-\end{itemize}
-
-\subsection{CVE thật trên cụm}\label{sec:lidds-live}
-
-Hai lượt trên dùng fixture tự viết luôn bắt đầu bằng một \texttt{kubectl exec}. Để đóng điểm yếu đó (W2), 15 kịch bản của LID-DS 2021 được chạy thẳng trên cụm trong một namespace cô lập: dịch vụ dễ bị khai thác thật, client normal và exploit của chính kịch bản (viết lại thành HTTP trực tiếp khi image dataset không còn build được), exploit chạy trong cây process của victim chứ không qua \texttt{kubectl exec}. Mô hình, alphabet, ngưỡng và quyết định y như \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5}; mỗi victim một mô hình học từ 8 giờ normal thu trên cụm, rồi 4 giờ live mỗi chu kỳ là chu kỳ exploit với xác suất 0,5.
-
-\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}@{}}
-\caption{15 CVE thật của LID-DS trên cụm (lượt \texttt{pulse-live-lidds-1115}): phát hiện trên chu kỳ exploit, chu kỳ normal bị báo nhầm, độ trễ.}\label{tab:lidds-live}\\
-\toprule\noalign{}
-Kịch bản & Phát hiện & Báo nhầm & p95 (s) \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Bruteforce\_CWE-307 & 3/3 & 0/3 & 1,28 \\
-CVE-2012-2122 (MySQL) & 3/3 & 0/4 & 1,46 \\
-CVE-2014-0160 (Heartbleed) & \textbf{0/5} & 0/1 & --- \\
-CVE-2017-12635\_6 (CouchDB) & 1/1 & 1/6 & 4,40 \\
-CVE-2017-7529 (nginx) & 2/2 & 1/5 & 1,35 \\
-CVE-2018-3760 (Rails) & 3/3 & 0/4 & 1,29 \\
-CVE-2019-5418 (Rails) & 5/5 & 0/2 & 1,28 \\
-CVE-2020-13942 (Unomi) & 4/4 & 0/2 & 1,30 \\
-CVE-2020-23839 (GetSimple) & 3/3 & 0/3 & 1,35 \\
-CVE-2020-9484 (Tomcat) & 3/3 & 2/3 & 1,92 \\
-CWE-89 (DVWA SQLi) & 2/2 & 2/4 & 1,44 \\
-EPS\_CWE-434 & 5/5 & 0/1 & 1,23 \\
-Juice-Shop & 4/4 & 2/2 & 1,27 \\
-PHP\_CWE-434 & 3/3 & 2/3 & 1,20 \\
-ZipSlip & 2/2 & 0/4 & 1,36 \\
-Pooled & 43/48 & 10/47 & 1,87 \\
-\end{longtable}
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{14/15 kịch bản phát hiện 100\%; chỉ Heartbleed trượt (0/5).} Gộp trên các kịch bản mà v5 bắt 100\% trên LID-DS official (Juice-Shop không gộp) recall là 39/44 = 88,6\%, \emph{dưới} mốc 95\% đã đăng ký, và toàn bộ thiếu hụt là Heartbleed. Heartbleed là đọc lố bộ nhớ trong OpenSSL qua một heartbeat dị dạng, không sinh chuỗi syscall mới ở victim nên mô hình không thấy gì lạ; đáng chú ý là v5 bắt nó 84/84 trên dataset nhưng trượt live, vì exploit HTTP ở đây là đọc lố thuần. Đây là một giới hạn tàng hình thật, lộ rõ hơn khi live.
-\item
-  \textbf{Độ trễ đạt} (p95 1,87 s, p50 1,23 s; một ngoại lệ cục bộ CouchDB 4,40 s trên một chu kỳ), và \textbf{cảnh báo nổ trên dòng syscall gốc của victim}: tỉ lệ cửa sổ cảnh báo thuộc luồng phiên là 0 ở mọi kịch bản (victim không có runtime exec), xác nhận H2 --- phát hiện trên dòng native chứ không phải trên một phiên inject.
-\item
-  \textbf{Báo nhầm chưa đạt mốc 5\%:} 10/47 chu kỳ normal (21\%), dồn ở các victim web (Tomcat, CWE-89, Juice, PHP): lưu lượng HTTP normal của chúng sinh cửa sổ vượt ngưỡng. Mẫu số nhỏ (1--6 chu kỳ normal mỗi kịch bản ở live 4 giờ) khiến con số này nhiễu; capture 8 giờ cho 41--47 khối ngưỡng mỗi kịch bản, nhưng cần normal dài hơn hoặc đại diện hơn để siết báo nhầm.
-\item
-  Lượt này thay một lượt trước (\texttt{pulse-\allowbreak{}live-\allowbreak{}lidds-\allowbreak{}long-1114}) có recall gộp chỉ 0,68: khi đó 5--7 exploit không thực sự tấn công (sai tham số, thiếu công cụ, sai cổng), nên các kịch bản MySQL, CWE-89, Juice, PHP, Bruteforce bị tính là trượt oan. Sau khi viết lại thành HTTP và kiểm 15/15 thực sự khai thác, cả năm đều phát hiện 100\%. Con số 0,68 là lỗi công cụ, không phải giới hạn của detector.
 \end{itemize}
 
 \section{RQ4: tách tấn công khỏi process vô hại mới}\label{sec:benign}

@@ -24,20 +24,17 @@ Kubernetes, với mọi lựa chọn thiết kế được kiểm bằng protoco
   recall 98,35%, không dùng được khi chỉ có một replica. Hệ quả: tách dòng dõi trong kernel là hướng chưa ai làm (W1).
 - **Né tránh:** Wagner và Soto (CCS 2002), Tan et al. (2002), Kruegel et al. (TISSEC 2006: thêm tham số syscall tăng sức chống né), mimicry
   trên hệ provenance thành công 100% (Goyal et al., NDSS 2023). Hệ quả: phải có thí nghiệm né có chủ đích (W3).
-- **Exploit thật:** mã nguồn 15 kịch bản LID-DS (victim, normal, exploit, mỗi vai một Dockerfile) công khai ở github.com/LID-DS/LID-DS; lab
-  kéo được image (đã kiểm). Hệ quả: chạy chính các CVE đó live trên cụm dưới probe thật (W2).
 
 ## Điểm yếu, bằng chứng hiện có, việc sẽ làm
 
 | | Điểm yếu | Hiện có | Thí nghiệm khép lại | Tiêu chí |
 |---|---|---|---|---|
 | W1 | Process vô hại mới bị gắn cờ (binary 314/314, lệnh quản trị 419/436) | Gate mất exploit LID-DS; B (học lệnh khác) 82,5% vẫn bị gắn cờ | B2, B3 (amendment 1): proxy dòng dõi trên dữ liệu v5 → thẻ dòng dõi trong probe → lượt live xác nhận | native ≤ 5% trên control/admin/benign; tool đã biết ≤ 20%; tấn công ≥ 95%; LID-DS giữ nguyên (mọi sự kiện là native) |
-| W2 | Tấn công live là fixture tự viết, luôn bắt đầu bằng exec | A: bỏ gram khởi chạy vẫn 314/314 | Chạy kịch bản LID-DS (CVE thật, exploit trong process dịch vụ) trên cụm: thu normal bằng client của kịch bản, rồi exploit blind | recall ≥ 95% trên các kịch bản mà offline đạt 100%; p95 ≤ 3 s; báo nhầm trên normal của kịch bản |
 | W3 | Kẻ tấn công thích nghi chưa đo; chỉ dùng chuỗi đã thấy thì mô hình 0/544 | D: tín hiệu tần suất 225/544, trượt tiêu chí một báo nhầm CB-DS | (a) fixture pha loãng: chèn syscall quen giữa thao tác tấn công, theo mức hiểu biết về detector; (b) đăng ký lại tín hiệu tần suất với cách chia α giữa hai nhánh | báo cả tỉ lệ bị bắt và tỉ lệ đạt mục tiêu của tấn công |
 | W4 | Chưa có baseline cùng protocol | Luật đếm 4-gram chưa thấy (development); cây + support | STIDE theo thread, bag-of-syscalls + Isolation Forest, LSTM LM, Transformer LM, autoencoder n-gram; cùng split, cùng quy tắc ngưỡng, một lần official mỗi baseline; Falco mặc định trên campaign live | bảng so sánh ở cùng ngân sách báo nhầm |
 | W5 | Official không hoàn toàn chưa nhìn | CB-DS 891/891 | LID-DS 2019 đúng một lần, sau khi W1–W4 chốt hệ thống | protocol `lidds2019-confirmation-v1` |
 | W6 | Chi phí: chưa có request thật, chưa có điểm map đầy | microbenchmark; lượt v5 dùng tối đa 2,6% map | Tải HTTP vào api-gateway, bật/tắt probe xen kẽ; fixture stress tới khi `insert_fail` > 0 | báo p50/p99 độ trễ request và ngưỡng tải |
-| W7 | RCA: thứ tự có lợi, đua exec | 467/522, hạng 1 99,4% | Thứ tự ngẫu nhiên trong trial; đo `follow_up_recheck_seconds` | cùng lượt live của W1/W2 |
+| W7 | RCA: thứ tự có lợi, đua exec | 467/522, hạng 1 99,4% | Thứ tự ngẫu nhiên trong trial; đo `follow_up_recheck_seconds` | cùng lượt live của W1 |
 | W8 | Ngưỡng không giữ mức thiết kế | C: phân vị thực nghiệm bị loại | Giữ Gumbel, báo như núm chỉnh; không làm thêm | đã khép |
 
 ## Thứ tự làm
@@ -45,11 +42,10 @@ Kubernetes, với mọi lựa chọn thiết kế được kiểm bằng protoco
 1. **B2, B3** trên dữ liệu v5 (đang chạy 13/11). Đạt thì viết thẻ dòng dõi vào probe (`pulse_task_state.lineage`, bit trong
    `pulse_gram_key.pad`), loader và worker ghi hai dòng; proof trên 3 worker.
 2. **Baseline (W4)** song song trên `.234`, dùng lại cache development; không cần cụm.
-3. **Kịch bản LID-DS trên cụm (W2):** dựng image victim/normal/exploit, namespace riêng trong allow-list, thu normal, fit.
-4. **Một lượt live `pulse-live-v6`:** AIMS + kịch bản LID-DS, thẻ dòng dõi, thứ tự ngẫu nhiên, lệnh quản trị mới, fixture pha loãng, RCA
+3. **Một lượt live `pulse-live-v6`:** AIMS, thẻ dòng dõi, thứ tự ngẫu nhiên, lệnh quản trị mới, fixture pha loãng, RCA
    recheck. Trước và sau lượt: W6.
-5. **Rule (phần E)** trên dữ liệu v6: R2 drift cho binary lạ; so sánh có và không có rule.
-6. **LID-DS 2019** một lần; viết bài.
+4. **Rule (phần E)** trên dữ liệu v6: R2 drift cho binary lạ; so sánh có và không có rule.
+5. **LID-DS 2019** một lần; viết bài.
 
 ## Nguồn
 

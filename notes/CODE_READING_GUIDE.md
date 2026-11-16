@@ -142,9 +142,9 @@ Campaign tổng hợp trên cụm — operator bơm trial có kiểm soát (cont
   "ml-is-the-focus-keep-tree-support".
 - **Thẻ dòng dõi native/session** (amendment 2): probe gắn thread là luồng gốc của app (native) hay phiên admin
   (session); cảnh báo đúng phải nổ trên native.
-- **W1–W8** ([PAPER_PLAN.md](PAPER_PLAN.md)): các điểm yếu cần đóng — W1 gắn cờ hành vi hợp lệ/lineage, W2 CVE thật
-  live, W3 né tránh (W3a pha loãng / W3b nhánh tần suất), W4 baseline, W6 chi phí, W7 thứ tự RCA, W8 ngưỡng. Mỗi lượt
-  chạy ghi rõ nó đóng W nào.
+- **W1–W8** ([PAPER_PLAN.md](PAPER_PLAN.md)): các điểm yếu cần đóng — W1 gắn cờ hành vi hợp lệ/lineage, W3 né tránh
+  (W3a pha loãng / W3b nhánh tần suất), W4 baseline, W6 chi phí, W7 thứ tự RCA, W8 ngưỡng. Mỗi lượt chạy ghi rõ nó
+  đóng W nào.
 
 ---
 
