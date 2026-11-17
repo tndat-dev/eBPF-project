@@ -1,4 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0
+/* [VI] pulse_counter_ids.h — 29 SYSCALL ĐƯỢC THEO DÕI RIÊNG trong ảnh chụp bộ đếm (mô hình đếm cũ, nay chạy shadow).
+ *
+ * Dạng "X-macro": PULSE_TRACKED_ROWS(X) gọi X(số_syscall, slot) cho từng dòng. Nơi dùng tự định nghĩa X để sinh ra thứ
+ * nó cần (ví dụ mảng số syscall trong pulse_counter_projection.h). Nhờ vậy danh sách chỉ viết MỘT lần.
+ *   X(id, slot): id = số syscall x86_64 (0 read, 1 write, 2 open, 3 close, 9 mmap, 10 mprotect, 41 socket, 42 connect,
+ *   43 accept, 44 sendto, 45 recvfrom, 56 clone, 59 execve, 90 chmod, 101 ptrace, 105 setuid, 106 setgid, 126 capset,
+ *   155 pivot_root, 165 mount, 257 openat, 272 unshare, 288 accept4, 299 recvmmsg, 307 sendmmsg, 308 setns,
+ *   317 seccomp, 322 execveat, 435 clone3); slot = vị trí cột trong vector đặc trưng.
+ * Thứ tự PHẢI trùng với danh sách syscall trong sentinel_pulse/collector/features.py (comment gốc bên dưới nói vậy).
+ * Đây là các syscall nhạy cảm về an ninh (đổi quyền, namespace, exec, ptrace, mount...) mà mô hình đếm cũ xem riêng. */
 #ifndef PULSE_COUNTER_IDS_H
 #define PULSE_COUNTER_IDS_H
 
