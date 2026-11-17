@@ -1,0 +1,25 @@
+{
+ "schema": "sentinel-pulse-lidds2019-confirmation-v2",
+ "registered_at": "2026-11-17T12:28+07:00",
+ "registered_before": "any LID-DS 2019 recording is converted, tokenised or scored by any model; on .234 only the release zip exists (/var/tmp/lid-ds-2019/LID-DS-2019.zip, copied 30/10, sha256 checked)",
+ "supersedes": "lidds2019-confirmation-v1 (registered 30/10 for the lidds-evaluation-v2 step3 system, never run); the system changed since (lidds-ml-v5 token model alone), so v1's arms and levels no longer describe the system. Data handling of v1 is kept unchanged",
+ "seen_before_registration": "as in v1: the release README, the archive list (10 scenarios), and for CVE-2017-7529 only runs.csv, five lines of one recording and recording timestamps. No 2019 label has been matched to any output",
+ "question": "Does the final ML model (lidds-ml-v5: token model alone, alphabet select1f, per-thread 4-grams, interpolated Witten-Bell, mean of the 10 highest -ln p, moment Gumbel without the top 1 % at alpha' = 0.00018 on 5-fold cross-fit held-out recording maxima, one window fires), unchanged, reach the project's levels on LID-DS 2019 recordings it was never designed on?",
+ "independence": "PARTIAL, as v1: the 10 vulnerabilities are among the 15 of LID-DS 2021; recordings, OS (Ubuntu 18.04), sysdig version and workload generators differ. Nothing of 2019 has been used for any choice",
+ "data": {
+  "release": "as v1 (13,970,229,196 bytes, sha256 c87e881d5de9f237fe33b1474d68d9887257bd7ed2c9921c500e7ef9241656cf)",
+  "conversion": "sentinel_pulse/lidds/lidds2019.py (2019 sysdig text -> LID-DS 2021 archive layout), then the same token extraction as LID-DS 2021 (alphabet select1f from return lines)",
+  "splits": "runs.csv order as v1: first 200 normal recordings training, next 50 validation, remaining normal test/normal, every exploit recording test/normal_and_attack; all test recordings are blind (no development part)",
+  "exploit_time": "primary: first event + exploit_start_time; sensitivity: first event + warmup_time - 2 s, reported apart"
+ },
+ "model": "per scenario: learnt on training + validation (250 recordings), 5-fold cross-fit with fold = sha256(recording name) mod 5, maxima per recording, trim 1 %, moment Gumbel at alpha' = 0.0002 x 0.9; the scoring model learns all 250. No parameter is changed",
+ "gate_before_reading_2019": "the driver written for this protocol must first reproduce, from the LID-DS 2021 archives through the same code path, the registered official result of lidds-ml-v5 (1,238/1,271 detected, 26/7,938 normal recordings with a false alarm, p95 1.47 s). If it does not, nothing of 2019 is scored until the difference is explained and fixed",
+ "metrics": "detected = an alarm window ending after the exploit time; latency from the exploit time; a normal recording with any alarm is a false alarm; pooled and per scenario; Wilson 95 % CIs; precision at the dataset's base rate",
+ "criteria": {
+  "C1_primary": "pooled over the 10 scenarios: recall >= 95 % AND normal recordings with a false alarm <= 1.0 % AND latency p95 <= 3 s",
+  "C2_reported": "per scenario recall and false-alarm rate; scenarios below 90 % recall or above 3 % false alarms are named",
+  "reporting": "both exploit-time conventions; next to the published LID-DS 2019 numbers of the dataset authors and CHIDS with the metric differences stated; a failure is reported as a failure, no re-run with other settings"
+ },
+ "runs": "exactly once, after pulse-live-v6-1117 has ended (no heavy job during a live run); on .234 under systemd-run with MemoryMax and OOMPolicy=continue",
+ "code": "sentinel_pulse/lidds/lidds2019.py (tests/test_lidds2019.py); the 2019 driver (to be written and tested before the run, path recorded in the receipt)"
+}

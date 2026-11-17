@@ -48,3 +48,13 @@ def test_score_drop_matches_window_score():
     grams = [(A, B, A, B, 3), (L, X, X, X, 2)]
     assert la.score(lm, grams) == lm.window_score(grams)
     assert la.score(lm, grams, frozenset({(L, X, X, X)})) == lm.window_score([(A, B, A, B, 3)])
+
+
+def test_dilution_rows_are_reported_apart_from_the_base_sets():
+    row = lambda pair, rate, pad, hit: dict(pair=pair, workload='w', scenario='s', rate=rate, pad=pad, start=0.0,
+                                           reference_grams=0, as_run=1.0 if hit else None,
+                                           attack_specific=1.0 if hit else None, post_launch=None)
+    out = la.summary_a([row(1, 12, 0, True), row(2, 1, 0, False), row(3, 12, 300, False), row(4, 12, 30, True)])
+    assert (out['primary']['trials'], out['primary']['attack_specific']) == (1, 1)
+    assert out['all']['trials'] == 2
+    assert out['dilution']['pad300']['attack_specific'] == 0 and out['dilution']['pad30']['attack_specific'] == 1

@@ -124,3 +124,26 @@ def test_admin_commands_are_reported_by_command(tmp_path):
     t = m.analyse(tmp_path, reps=50)['arms']['T']
     assert t['admin_by_command'] == {'ls': dict(hits=1, n=1, rate=1.0, ci95=m.wilson(1, 1))}
     assert (t['all_rates']['admin']['hits'], t['all_rates']['admin']['n']) == (1, 1)
+
+
+def test_dilution_pairs_stay_out_of_the_base_sets_and_lotl_is_counted(tmp_path):
+    """pulse-live-v6-v1: a PAD pair at 12/s is reported under dilution, never in the primary set; lotl is its own label."""
+    write_run(tmp_path, [token(2041.0, True), token(2306.0, True), token(2321.0, True)])
+    camp = tmp_path / m.CAMPAIGN
+    base = dict(pod_uid='p', container_name='c', workload_key='w')
+    extra = [dict(base, label='expected_normal', trial_id='3:control', start_at=2280.0),
+             dict(base, label='attack', trial_id='3:attack', start_at=2300.0, rate_per_second=12, scenario='s', pad=300),
+             dict(base, label='attack_lotl', trial_id='1:lotl', start_at=2320.0, rate_per_second=12, scenario='s')]
+    with (camp / 'INTERVALS.jsonl').open('a') as f:
+        f.write(''.join(json.dumps(r) + '\n' for r in extra))
+    trial = camp / 'trials' / '0003'
+    trial.mkdir(parents=True)
+    (trial / 'EVALUATION_INPUT.json').write_text(json.dumps(dict(attack=dict(kernel_event_at=2300.5))))
+    out = m.analyse(tmp_path, reps=20)
+    t = out['arms']['T']
+    assert (t['primary']['attack']['hits'], t['primary']['attack']['n']) == (1, 1)          # pair 3 (PAD 300) left out
+    assert (t['primary']['control']['n'], t['all_rates']['control']['n']) == (1, 2)
+    assert (t['dilution']['pad300']['attack']['hits'], t['dilution']['pad300']['attack']['n']) == (1, 1)
+    assert t['dilution']['pad300']['control']['n'] == 1
+    assert (t['primary']['lotl']['hits'], t['primary']['lotl']['n']) == (1, 1)
+    assert t['recall_by_rate']['12']['n'] == 1

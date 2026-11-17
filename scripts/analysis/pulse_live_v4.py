@@ -148,12 +148,13 @@ def rate_row(hits, n):
     return dict(hits=hits, n=n, rate=hits / n if n else None, ci95=wilson(hits, n))
 
 
-def trial_metrics(trials, at, keep):
-    """Rates of one arm on the trials kept (a predicate on the pair's rate, applied through its attack)."""
-    pair_rate = {t['pair']: t['rate'] for t in trials if t['label'] == 'attack'}
+def trial_metrics(trials, at, keep, pad=0):
+    """Rates of one arm on the trials kept (a predicate on the pair's rate, applied through its attack). Only pairs whose
+    attack has the given PAD count (pulse-live-v6-v1: dilution pairs, PAD > 0, are their own sets, never in the base)."""
+    pair_rate = {t['pair']: t['rate'] for t in trials if t['label'] == 'attack' and (t.get('pad') or 0) == pad}
     idx = [i for i, t in enumerate(trials) if keep(pair_rate.get(t['pair']))]
     out = {}
-    for label in ('attack', 'control', 'benign', 'admin'):
+    for label in ('attack', 'control', 'benign', 'admin', 'lotl'):
         members = [i for i in idx if trials[i]['label'] == label]
         out[label] = rate_row(sum(at[i] is not None for i in members), len(members))
     tp, fp = out['attack']['hits'], out['control']['hits']
@@ -166,9 +167,11 @@ def trial_metrics(trials, at, keep):
 
 
 def by_field(trials, at, field, label='attack'):
+    """Recall of one label by a field, on the base pairs only (dilution pairs are reported under 'dilution')."""
+    base = {t['pair'] for t in trials if t['label'] == 'attack' and not t.get('pad')}
     out = {}
-    for value in sorted({t[field] for t in trials if t['label'] == label}, key=str):
-        members = [i for i, t in enumerate(trials) if t['label'] == label and t[field] == value]
+    for value in sorted({t[field] for t in trials if t['label'] == label and t['pair'] in base}, key=str):
+        members = [i for i, t in enumerate(trials) if t['label'] == label and t[field] == value and t['pair'] in base]
         out[str(value)] = rate_row(sum(at[i] is not None for i in members), len(members))
     return out
 
@@ -243,7 +246,9 @@ def analyse(root, reps, stalls=(), protocol='sentinel_pulse/protocol/pulse-live-
     for arm in ARMS:
         at = table[arm]
         primary = trial_metrics(trials, at, lambda rate: rate in PRIMARY)
+        pads = sorted({t.get('pad') or 0 for t in trials if t['label'] == 'attack'} - {0})
         arms[arm] = dict(primary=primary, all_rates=trial_metrics(trials, at, lambda rate: rate is not None),
+                         dilution={f'pad{p}': trial_metrics(trials, at, lambda rate: rate is not None, pad=p) for p in pads},
                          recall_by_rate=by_field(trials, at, 'rate'), recall_by_scenario=by_field(trials, at, 'scenario'),
                          admin_by_command=by_field(trials, at, 'command', 'admin'),
                          expectations=expectations(primary),

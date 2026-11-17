@@ -41,3 +41,15 @@ def test_a_session_only_tool_flags_the_whole_window_but_not_the_native_stream():
     assert res['admin']['whole']['k'] == 1 and res['admin']['native']['k'] == 0
     assert res['attack']['native']['k'] == 1          # the same grams counted on native threads
     assert 0 < res['admin']['session_share'] < 1
+
+
+def test_control_of_a_dilution_pair_goes_to_its_pad_set():
+    lm = model()
+    win = [(101.0, [[A, B, A, B, 40]], [])]
+    trials = [dict(label='control', start=100.0, key=('p', 'c'), pair=1, workload='w', rate=None),
+              dict(label='attack', start=100.0, key=('p', 'c'), pair=1, workload='w', rate=12, pad=300),
+              dict(label='control', start=100.0, key=('p', 'c'), pair=2, workload='w', rate=None),
+              dict(label='attack', start=100.0, key=('p', 'c'), pair=2, workload='w', rate=12)]
+    res = ns.evaluate(trials, {('p', 'c'): win}, {'w': ('unused', 5.0)}, {'w': lm})
+    assert res['control-pad300']['native']['n'] == 1 and res['control']['native']['n'] == 1
+    assert res['control-primary']['native']['n'] == 1

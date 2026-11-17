@@ -32,7 +32,7 @@ from sentinel_pulse.detector.token_model import CountTokenLM  # noqa: E402
 
 # v5 exec identity per trial label: admin runs image binaries (cat/ls/sh/...); the operator benign exec and the
 # blind attack are /operator/ binaries injected into the container, not part of the image.
-IMAGE_TOOL = {'admin'}
+IMAGE_TOOL = {'admin', 'lotl'}      # pulse-live-v6-v1: the living-off-the-land step runs sh, cat, ls of the image
 NON_IMAGE = {'benign', 'attack'}
 
 # the two systems the thesis compares (memory rule-framework-last: ML decided first, then with-vs-without rules):
@@ -56,9 +56,43 @@ def two_system(agg, suffix=''):
         nh = sum(get(label, field) for label in neg)
         nt = sum(tot(label) for label in neg)
         out[name] = dict(attack_recall=frac(get(POS, field), tot(POS)),
+                         lotl_recall=frac(get('lotl', field), tot('lotl')),     # H4: the harm side of R1
                          false_alarm_by_class={label: frac(get(label, field), tot(label)) for label in neg},
                          false_alarm_pooled=frac(nh, nt))
     return out
+
+
+def tally(trials, models, is_flagged):
+    """Per set (label, label-primary, label-padN): n, ML alarms, alarms left after R1, R2 drift labels; admin per command."""
+    # per (label[, -primary]) counts: n, ml alarms, alarms after R1, R2 drift labels
+    agg = defaultdict(lambda: dict(n=0, ml=0, after_r1=0, r2_drift=0))
+    per_command = defaultdict(lambda: dict(n=0, ml=0, after_r1=0))   # admin commands, to show which tools R1 covers
+    pair_pad = {t['pair']: t.get('pad') or 0 for t in trials if t['label'] == 'attack'}
+    pair_rate = {t['pair']: t.get('rate') for t in trials if t['label'] == 'attack'}   # control rows carry no rate
+    for t in trials:
+        w = t['workload']
+        if w not in models:
+            continue
+        label = t['label']
+        pad = pair_pad.get(t['pair'], 0)
+        alarmed = is_flagged(t)
+        downgraded = alarmed and label in IMAGE_TOOL           # R1 downgrades image-tool-only alerts
+        drift = alarmed and label in NON_IMAGE                 # R2 labels non-image execs drift (still an alert)
+        names = ([label] + ([label + '-primary'] if pair_rate.get(t['pair']) in la.PRIMARY else []) if not pad
+                 else [f'{label}-pad{pad}'])            # dilution pairs (pulse-live-v6-v1) are their own sets
+        for name in names:
+            d = agg[name]
+            d['n'] += 1
+            d['ml'] += int(alarmed)
+            d['after_r1'] += int(alarmed and not downgraded)
+            d['r2_drift'] += int(drift)
+        if label == 'admin' and not pad:
+            c = per_command[t['command']]
+            c['n'] += 1
+            c['ml'] += int(alarmed)
+            c['after_r1'] += int(alarmed and not downgraded)
+
+    return agg, per_command
 
 
 def main():
@@ -74,29 +108,7 @@ def main():
     windows, files = la.collect(a.run_root, trials, a.jobs)
     lms = {w: CountTokenLM.load(Path(models[w][0])) for w in sorted({t['workload'] for t in trials} & set(models))}
 
-    # per (label[, -primary]) counts: n, ml alarms, alarms after R1, R2 drift labels
-    agg = defaultdict(lambda: dict(n=0, ml=0, after_r1=0, r2_drift=0))
-    per_command = defaultdict(lambda: dict(n=0, ml=0, after_r1=0))   # admin commands, to show which tools R1 covers
-    for t in trials:
-        w = t['workload']
-        if w not in models:
-            continue
-        label = t['label']
-        alarmed = la.flagged(lms[w], models[w][1], windows, t)
-        downgraded = alarmed and label in IMAGE_TOOL           # R1 downgrades image-tool-only alerts
-        drift = alarmed and label in NON_IMAGE                 # R2 labels non-image execs drift (still an alert)
-        names = [label] + ([label + '-primary'] if t.get('rate') in la.PRIMARY else [])
-        for name in names:
-            d = agg[name]
-            d['n'] += 1
-            d['ml'] += int(alarmed)
-            d['after_r1'] += int(alarmed and not downgraded)
-            d['r2_drift'] += int(drift)
-        if label == 'admin':
-            c = per_command[t['command']]
-            c['n'] += 1
-            c['ml'] += int(alarmed)
-            c['after_r1'] += int(alarmed and not downgraded)
+    agg, per_command = tally(trials, models, lambda t: la.flagged(lms[t['workload']], models[t['workload']][1], windows, t))
 
     rate = lambda d: dict(d, ml_rate=d['ml'] / d['n'] if d['n'] else None,
                           after_r1_rate=d['after_r1'] / d['n'] if d['n'] else None)
@@ -106,7 +118,8 @@ def main():
                rules=dict(R1='downgrade an alert whose window had only runtime execs of image binaries (admin on v5)',
                           R2='an alert whose exec is a non-image binary stays an alert, labelled drift (benign/attack on v5)'),
                run=str(a.run_root), models=str(a.models), segments_read=files,
-               scope='benefit side only; R1 miss on living-off-the-land attacks needs part F of a live run',
+               scope='benefit side (admin) and, on runs with a living-off-the-land step (pulse-live-v6-v1 H4), the harm '
+                     'side: lotl_recall under ml_only vs ml_plus_rule',
                systems=dict(ml_only='token model alone is the alert path (deployed v5)',
                             ml_plus_rule='token model + Part E rule layer (R1 downgrade image-tool-only windows, R2 drift label)'),
                comparison=comparison, by_label=out, admin_by_command={c: rate(v) for c, v in sorted(per_command.items())})

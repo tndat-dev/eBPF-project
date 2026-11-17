@@ -6,8 +6,22 @@ trigger window ends within [start, start+20 s] counts as the attack's case; othe
 classified as grouped by an earlier case (cooldown), expired by retention, or without a case.
 Also reports the rank of the fixture binary among stored suspects, flow presence and
 preview->case latency. Ranking with a corrected baseline is rca.evaluate_ranking --rerank-db.
+pulse-live-v6-v1 H6: when a trial has ORDER.json (seeded random step order), the rank-1 share is also reported by
+whether the attack ran before or after the benign binary of its trial.
 """
-import argparse, glob, json, statistics, time
+import argparse, glob, json, os, statistics, time
+
+
+def order_group(trial_dir):
+    """'attack_after_benign', 'attack_before_benign' or None (no ORDER.json, or no benign step)."""
+    path = os.path.join(trial_dir, 'ORDER.json')
+    if not os.path.exists(path):
+        return None
+    order = json.load(open(path)).get('order') or []
+    if 'attack' not in order or 'benign' not in order:
+        return None
+    return 'attack_after_benign' if order.index('attack') > order.index('benign') else 'attack_before_benign'
+
 
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--cases', required=True); p.add_argument('--campaign', required=True)
@@ -20,6 +34,7 @@ for path in glob.glob(a.cases + '/*.json'):
 cases.sort(key=lambda c: c[0])
 first = cases[0][0] if cases else float('inf')
 classes, ranks, latency, flow, follow = {}, [], [], 0, 0
+by_order = {}
 for path in sorted(glob.glob(a.campaign + '/trials/*/EVALUATION_INPUT.json')):
     d = json.load(open(path)); at = d['attack']; start = float(at['start_at'])
     if start < a.since: continue
@@ -28,6 +43,9 @@ for path in sorted(glob.glob(a.campaign + '/trials/*/EVALUATION_INPUT.json')):
     if match:
         w, t, trig = match; key = 'attack_case'
         ranks.append(next((s['rank'] for s in t.get('suspects', []) if s.get('binary') == at['binary_path']), None))
+        group = order_group(os.path.dirname(path))
+        if group:
+            by_order.setdefault(group, []).append(ranks[-1])
         flow += bool(t.get('matched_flow_events')); follow += bool(trig.get('follow_up_of'))
         latency.append(t['created_at'] - float(trig.get('preview_emitted_at') or w))
     elif start - 300 < first:
@@ -45,6 +63,8 @@ result = dict(schema='rca-campaign-coverage-v1', cases_dir=a.cases, campaign=a.c
               stored_rank_top1=sum(r == 1 for r in ranks) / n if n else None,
               stored_rank_top5=sum(r is not None and r <= 5 for r in ranks) / n if n else None,
               cases_with_flow=flow,
+              rank_top1_by_order={g: dict(cases=len(r), top1=sum(x == 1 for x in r), share=sum(x == 1 for x in r) / len(r))
+                                  for g, r in sorted(by_order.items())},
               preview_to_case_seconds=dict(p50=statistics.median(latency), p95=sorted(latency)[max(0, int(.95*len(latency))-1)]) if latency else None,
               computed_at_unix=time.time())
 json.dump(result, open(a.output, 'w'), indent=2); print(json.dumps(result))

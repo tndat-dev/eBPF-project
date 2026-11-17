@@ -1,0 +1,269 @@
+[
+ {
+  "key": "abed2016",
+  "title": "Intrusion Detection System for Applications using Linux Containers",
+  "year": 2016
+ },
+ {
+  "key": "alahmadi2022",
+  "title": "99% False Positives: A Qualitative Study of SOC Analysts' Perspectives on Security Alarms",
+  "year": 2022
+ },
+ {
+  "key": "arp2022",
+  "title": "Dos and Don'ts of Machine Learning in Computer Security",
+  "year": 2022
+ },
+ {
+  "key": "barber2023",
+  "title": "Conformal prediction beyond exchangeability",
+  "year": 2023
+ },
+ {
+  "key": "bates2021",
+  "title": "Testing for Outliers with Conformal p-values",
+  "year": 2021
+ },
+ {
+  "key": "bortolini2025",
+  "title": "Detecção Eficiente de Anomalias em Hosts usando Transformer com Categorização de Chamadas de Sistema",
+  "year": 2025
+ },
+ {
+  "key": "castanhel2020",
+  "title": "Sliding Window: The Impact of Trace Size in Anomaly Detection System for Containers Through Machine Learning",
+  "year": 2020
+ },
+ {
+  "key": "cheng2023",
+  "title": "Kairos: Practical Intrusion Detection and Investigation using Whole-system Provenance",
+  "year": 2023
+ },
+ {
+  "key": "efron1993",
+  "title": "An Introduction to the Bootstrap",
+  "year": 1993
+ },
+ {
+  "key": "elkhairi2022",
+  "title": "Contextualizing System Calls in Containers for Anomaly-Based Intrusion Detection",
+  "year": 2022
+ },
+ {
+  "key": "elkhairi2024",
+  "title": "REPLICAWATCHER: Training-less Anomaly Detection in Containerized Microservices",
+  "year": 2024
+ },
+ {
+  "key": "forrest1996",
+  "title": "A sense of self for Unix processes",
+  "year": 1996
+ },
+ {
+  "key": "geurts2006",
+  "title": "Extremely randomized trees",
+  "year": 2006
+ },
+ {
+  "key": "ghavamnia2020a",
+  "title": "Confine: Automated System Call Policy Generation for Container Attack Surface Reduction",
+  "year": 2020
+ },
+ {
+  "key": "ghavamnia2020b",
+  "title": "Temporal System Call Specialization for Attack Surface Reduction",
+  "year": 2020
+ },
+ {
+  "key": "gibbs2021",
+  "title": "Adaptive Conformal Inference Under Distribution Shift",
+  "year": 2021
+ },
+ {
+  "key": "goyal2023",
+  "title": "Sometimes, You Aren't What You Do: Mimicry Attacks against Provenance Graph Host Intrusion Detection Systems",
+  "year": 2023
+ },
+ {
+  "key": "grimmer2022",
+  "title": "Extended Abstract: LID-DS 2021",
+  "year": 2022
+ },
+ {
+  "key": "hassan2019",
+  "title": "NoDoze: Combatting Threat Alert Fatigue with Automated Provenance Triage",
+  "year": 2019
+ },
+ {
+  "key": "jiang2025",
+  "title": "ORTHRUS: Achieving High Quality of Attribution in Provenance-based Intrusion Detection Systems",
+  "year": 2025
+ },
+ {
+  "key": "kim2016",
+  "title": "LSTM-Based System-Call Language Modeling and Robust Ensemble Method for Designing Host-Based Intrusion Detection Systems",
+  "year": 2016
+ },
+ {
+  "key": "lorden1971",
+  "title": "Procedures for Reacting to a Change in Distribution",
+  "year": 1971
+ },
+ {
+  "key": "moustakides1986",
+  "title": "Optimal Stopping Times for Detecting Changes in Distributions",
+  "year": 1986
+ },
+ {
+  "key": "osaki2024",
+  "title": "Dynamic Fixed-point Values in eBPF: a Case for Fully In-kernel Anomaly Detection",
+  "year": 2024
+ },
+ {
+  "key": "page1954",
+  "title": "Continuous Inspection Schemes",
+  "year": 1954
+ },
+ {
+  "key": "syairozi2025",
+  "title": "Comparative Analysis of eBPF-Based Runtime Security Monitoring Tools in Monitoring and Threat Detection on Kubernetes",
+  "year": 2025
+ },
+ {
+  "key": "vovk2005",
+  "title": "Algorithmic Learning in a Random World",
+  "year": 2005
+ },
+ {
+  "key": "wagner2002",
+  "title": "Mimicry Attacks on Host-Based Intrusion Detection Systems",
+  "year": 2002
+ },
+ {
+  "key": "wei2025",
+  "title": "CORTEX: Collaborative LLM Agents for High-Stakes Alert Triage",
+  "year": 2025
+ },
+ {
+  "key": "wilson1927",
+  "title": "Probable Inference, the Law of Succession, and Statistical Inference",
+  "year": 1927
+ },
+ {
+  "key": "zehra2025",
+  "title": "FedMon: Federated eBPF Monitoring for Distributed Anomaly Detection in Multi-Cluster Cloud Environments",
+  "year": 2025
+ },
+ {
+  "key": "zhou2026",
+  "title": "An Abnormal File Access Detection Model for Containers Based on eBPF Listening",
+  "year": 2026
+ },
+ {
+  "key": "tan2002",
+  "title": "Undermining an Anomaly-Based Intrusion Detection System Using Common Exploits",
+  "year": 2002
+ },
+ {
+  "key": "bashari2025",
+  "title": "Robust Conformal Outlier Detection under Contaminated Reference Data",
+  "year": 2025
+ },
+ {
+  "key": "angelopoulos2023",
+  "title": "Conformal PID Control for Time Series Prediction",
+  "year": 2023
+ },
+ {
+  "key": "armo2025",
+  "title": "io_uring rootkit bypasses Linux security (ARMO research blog)",
+  "year": 2025,
+  "kind": "web"
+ },
+ {
+  "key": "tetragon_eventcache",
+  "title": "pkg/eventcache/eventcache.go and pkg/defaults/defaults.go (event cache retries)",
+  "year": 2025,
+  "kind": "web"
+ },
+ {
+  "key": "witten1991",
+  "title": "The zero-frequency problem: estimating the probabilities of novel events in adaptive text compression",
+  "year": 1991
+ },
+ {
+  "key": "chen1999",
+  "title": "An empirical study of smoothing techniques for language modeling",
+  "year": 1999
+ },
+ {
+  "key": "warrender1999",
+  "title": "Detecting intrusions using system calls: alternative data models",
+  "year": 1999
+ },
+ {
+  "key": "fournier2023",
+  "title": "Language Models for Novelty Detection in System Call Traces",
+  "year": 2023
+ },
+ {
+  "key": "coles2001",
+  "title": "An Introduction to Statistical Modeling of Extreme Values",
+  "year": 2001
+ },
+ {
+  "key": "siffer2017",
+  "title": "Anomaly Detection in Streams with Extreme Value Theory",
+  "year": 2017
+ },
+ {
+  "key": "barber2021",
+  "title": "Predictive inference with the jackknife+",
+  "year": 2021
+ },
+ {
+  "key": "mutz2006",
+  "title": "Anomalous system call detection",
+  "year": 2006
+ },
+ {
+  "key": "maggi2010",
+  "title": "Detecting intrusions through system call sequence and argument analysis",
+  "year": 2010
+ },
+ {
+  "key": "creech2013",
+  "title": "Generation of a new IDS test dataset: Time to retire the KDD collection",
+  "year": 2013
+ },
+ {
+  "key": "grimmer2019",
+  "title": "A modern and sophisticated host based intrusion detection data set",
+  "year": 2019
+ },
+ {
+  "key": "sekar2001",
+  "title": "A fast automaton-based method for detecting anomalous program behaviors",
+  "year": 2001
+ },
+ {
+  "key": "falco",
+  "title": "Falco: cloud native runtime security",
+  "kind": "software"
+ },
+ {
+  "key": "tetragon",
+  "title": "Tetragon: eBPF-based security observability and runtime enforcement",
+  "kind": "software"
+ },
+ {
+  "key": "tracee",
+  "title": "Tracee: runtime security and forensics using eBPF",
+  "kind": "software"
+ },
+ {
+  "key": "attack_containers",
+  "title": "MITRE ATT&CK Containers Matrix",
+  "kind": "web"
+ }
+]

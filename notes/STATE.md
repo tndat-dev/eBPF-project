@@ -104,7 +104,7 @@ RCA recheck, lệnh quản trị mới chưa dùng khi học. Đo riêng: chi ph
 16/11: chủ đồ án không đồng ý dịch vụ thử có đường gọi chạy thao tác trong process; dòng native không được thử với tấn công trên
 cụm (giới hạn của `pulse-live-v6-v1`), bằng chứng cho trường hợp đó là LID-DS 2021.
 
-**Giai đoạn 4:** LID-DS 2019 đúng một lần khi mô hình đạt tầm paper; so sánh có/không có rule; mở lại baseline học sâu.
+**Giai đoạn 4:** LID-DS 2019 đúng một lần theo `lidds2019-confirmation-v2` (đăng ký 17/11 12:28, sau lượt v6; cần viết driver và gate tái lập official 2021); paper USENIX Security '27 trong `paper/` (README ghi bước); so sánh có/không có rule; mở lại baseline học sâu.
 
 ## Dữ liệu và tài nguyên
 

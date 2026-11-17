@@ -166,7 +166,7 @@ def part_a(trials, windows, models, lms):
                 specific = end
             if post is None and end >= t['start'] + POST_LAUNCH and score(lm, grams) > thr:
                 post = end
-        rows.append(dict(pair=t['pair'], workload=t['workload'], scenario=t['scenario'], rate=t['rate'],
+        rows.append(dict(pair=t['pair'], workload=t['workload'], scenario=t['scenario'], rate=t['rate'], pad=t.get('pad') or 0,
                          start=t['start'], reference_grams=len(ref), as_run=run, attack_specific=specific, post_launch=post))
     gate['passed'] = gate['windows'] > 0 and gate['largest_difference'] <= GATE_TOLERANCE
     return gate, rows
@@ -185,8 +185,11 @@ def summary_a(rows):
                     attack_specific_wilson=live.wilson(k('attack_specific'), n),
                     attack_specific_latency_p50=float(np.percentile(lat, 50)) if lat else None,
                     attack_specific_latency_p95=float(np.percentile(lat, 95)) if lat else None)
+    pads = sorted({r.get('pad') or 0 for r in rows} - {0})
+    padded = {f'pad{p}': rates([r for r in rows if r.get('pad') == p]) for p in pads}   # pulse-live-v6-v1 dilution
+    rows = [r for r in rows if not r.get('pad')]
     primary = [r for r in rows if r['rate'] in PRIMARY]
-    return dict(all=rates(rows), primary=rates(primary),
+    return dict(all=rates(rows), primary=rates(primary), dilution=padded,
                 by_scenario={s: rates([r for r in primary if r['scenario'] == s]) for s in sorted({r['scenario'] for r in rows})},
                 by_rate={str(v): rates([r for r in rows if r['rate'] == v]) for v in sorted({r['rate'] for r in rows})})
 

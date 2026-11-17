@@ -73,6 +73,8 @@ def collect(root, trials, jobs):
 
 def evaluate(trials, windows, models, lms):
     out = defaultdict(lambda: dict(native=[0, 0], whole=[0, 0], session_events=0, events=0))
+    pair_rate = {t['pair']: t.get('rate') for t in trials if t['label'] == 'attack'}       # control rows carry neither
+    pair_pad = {t['pair']: t.get('pad') or 0 for t in trials if t['label'] == 'attack'}
     for t in trials:
         if t['workload'] not in models or t['label'] not in LABELS:
             continue
@@ -81,9 +83,10 @@ def evaluate(trials, windows, models, lms):
         wins = [w for w in windows.get(t['key'], ()) if a <= w[0] <= b]
         native = any(lm.window_score(native_of(g, s), TOP) > thr for _, g, s in wins)
         whole = any(lm.window_score(g, TOP) > thr for _, g, _ in wins)
-        sets = [t['label']] + ([f"{t['label']}-primary"] if t.get('rate') in la.PRIMARY else [])
-        if t.get('pad'):
-            sets = [f"{t['label']}-pad{t['pad']}"]
+        pad = pair_pad.get(t['pair'], 0)
+        sets = [t['label']] + ([f"{t['label']}-primary"] if pair_rate.get(t['pair']) in la.PRIMARY else [])
+        if pad:
+            sets = [f"{t['label']}-pad{pad}"]
         for name in sets:
             row = out[name]
             row['native'][0] += native
