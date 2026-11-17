@@ -10,6 +10,7 @@ tree_p, support_p and joint_p must be equal (float equality, same arithmetic).
 Also reported: whether the three workers swapped the same array sizes for the same hour, and the decision rows per
 epoch. Usage: live_recalibration_check.py <run root> --output <json>
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 from collections import Counter, defaultdict
 import glob

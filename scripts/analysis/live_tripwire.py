@@ -14,6 +14,7 @@ One pass over every worker's decisions.jsonl(.gz):
     python3 live_tripwire.py --workers-root RUN/workers --campaign RUN/pulse-development-matrix \\
         --normal-span SEL_END:CAPTURE_END [--offline tripwire-a1-offline.json] --output live-tripwire.json
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 from array import array
 from collections import Counter, defaultdict

@@ -19,6 +19,7 @@ decision of the v1 ML arm). Outcomes are v2 rows per configuration; the p-values
 
     python3 lidds_ml_groups.py --converted DIR --archives DIR --scenario NAME --output part.json [--fix-a 0.05]
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 from collections import Counter, defaultdict
 import json

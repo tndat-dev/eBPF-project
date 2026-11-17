@@ -9,6 +9,8 @@ its window events fall short of the calls made.
 
     python3 map_capacity_test.py --build DIR --out DIR [--levels 50000,100000,...] [--threads 8] [--seconds 10]
 """
+# [VI] ĐO SỨC CHỨA MAP 4-GRAM (map-capacity-v1): chạy gram_stress trong cgroup riêng ở các mức syscall/s tăng dần, đọc dòng
+# [VI] loader: gram rơi (insert_fail), số gram mỗi cửa sổ, thời gian xả.
 import argparse
 import json
 import os

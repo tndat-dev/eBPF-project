@@ -8,6 +8,7 @@ where the campaign has them, the benign-launch positive rate. Unknown outcomes a
 ``--by rate`` (or ``scenario_rate``) groups by the fixture's attack rate instead (G4: does a slower attacker
 escape?), and every group also reports the p50/p95 first-alarm delay of its attacks.
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse, collections, glob, json, time
 from pathlib import Path
 

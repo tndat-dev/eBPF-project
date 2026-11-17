@@ -16,6 +16,7 @@ were copied off the nodes after the campaign. Definitions fixed before the first
 
 Falco's event time is printed without a date; the date comes from the kubelet log timestamp of the same line.
 """
+# [VI] Baseline luật: Falco mặc định trên các trial của campaign.
 import argparse
 from collections import Counter, defaultdict
 from datetime import datetime, timezone

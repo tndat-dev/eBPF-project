@@ -22,6 +22,7 @@ arms that use Falco (B1, B_all) are left out, without --cases those that use tri
 (protocol final-system-confirmation-v1) compares A with B2, the tripwire stream taken from the live decisions
 (live_tripwire.py).
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 from collections import defaultdict
 import glob

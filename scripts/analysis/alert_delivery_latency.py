@@ -16,6 +16,7 @@ without them (``push_window_inside_trial``), on the campaign's footing.
 Only trials that start after ``--since`` count, so that every path was live for every counted trial.
 Standard library only (runs on the system Python of .234).
 """
+# [VI] Độ trễ kernel → người nhận theo từng đường giao (push qua bridge vs Prometheus scrape), ghép theo trial.
 import argparse
 from collections import Counter, defaultdict
 import json

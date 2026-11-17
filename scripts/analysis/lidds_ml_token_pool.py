@@ -6,6 +6,7 @@ window score are those of lidds_ml_token_crossfit.py. The cluster's pool is toke
 
     python3 lidds_ml_token_pool.py --scenario ARCHIVE_DIR NAME [--scenario ...] --work DIR --output DIR [--jobs 6]
 """
+# [VI] (Gate v5, đã loại) Mô hình "pool" gộp mọi kịch bản và điểm của nó cho từng bản ghi.
 import argparse
 from collections import Counter
 import json

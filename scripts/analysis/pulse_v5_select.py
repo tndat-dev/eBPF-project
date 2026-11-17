@@ -15,6 +15,7 @@ Writes SELECT.json and, for the chosen candidate, MODELS.json and GATE.json for 
 
     python3 pulse_v5_select.py --lidds lidds-ml-v5.json --fit DIR --run-root ROOT --output DIR [--jobs 8]
 """
+# [VI] Bước 2 của lidds-ml-v5: chọn gate cho cụm trên trial của lượt v4 (chỉ còn ứng viên không gate).
 import argparse
 from collections import defaultdict
 import json

@@ -15,6 +15,8 @@ file must not exist yet, so the official split is scored once.
 lidds-ml-v3 is the same rule with another token alphabet: --tokens points at lidds_ml_token_alphabets.py output and
 --token-column names the alphabet (select1f), --protocol names the registered protocol.
 """
+# [VI] Bộ khung đánh giá dùng chung (Scenario, rows, part_filter, gumbel, threshold) mà v4/v5 và lidds2019_token.py kế thừa;
+# [VI] bản thân nó là lượt chọn lidds-ml-v2.
 import argparse
 import gzip
 import json

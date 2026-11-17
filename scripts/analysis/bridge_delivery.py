@@ -7,6 +7,7 @@ Standard library only.
 
     python3 bridge_delivery.py --bridge DIR --output out.json [--stall A B]
 """
+# [VI] Mọi đợt cảnh báo của bridge có tới Alertmanager không, và nhanh thế nào.
 import argparse
 import json
 from pathlib import Path

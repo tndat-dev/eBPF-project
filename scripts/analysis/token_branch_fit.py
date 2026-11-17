@@ -16,6 +16,18 @@ block maxima without their top 1 % (rule R4 of lidds_ml_v4.py), at alpha x --sha
     python3 token_branch_fit.py --run-root ROOT --train START END --validation START END --alpha 0.0002 \
         --block 60 --output DIR [--jobs 8 --work /var/tmp/...] [--folds 5 --fold-seconds 1800 --share 0.9]
 """
+# [VI] ==============================================================================================================
+# [VI] token_branch_fit.py — HỌC MÔ HÌNH TOKEN VÀ ĐẶT NGƯỠNG CHO TỪNG WORKLOAD TRÊN CỤM (ra MODELS.json cho worker).
+# [VI] Đầu vào: tokens.jsonl của một lượt thu normal (và tuỳ chọn normal của một lượt live trước, ngoài các trial).
+# [VI] Các bước (chế độ --folds, dùng từ lidds-ml-v4):
+# [VI]   1) split(): đọc mọi tokens.jsonl, tách dòng theo workload_key ra file riêng (bỏ cửa sổ nằm trong khoảng trial).
+# [VI]   2) crossfit_one() cho từng workload: cắt thời gian thành đoạn 30 phút liền nhau, chia lần lượt vào 5 fold; mỗi fold được
+# [VI]      chấm bằng mô hình học 4 fold kia → điểm "giữ ra"; lấy điểm lớn nhất của mỗi (container, khối 60 s) → cực đại.
+# [VI]   3) fit_crossfit(): Gumbel theo moment trên các cực đại sau khi bỏ 1% lớn nhất (trimmed_gumbel), ngưỡng tại
+# [VI]      α′ = α × share = 0,0002 × 0,9; mô hình cuối học TOÀN BỘ dữ liệu; lưu <hash>.lm.json.gz.
+# [VI]   4) MODELS.json = {workload: {lm, lm_sha256, threshold}}; FIT.json ghi mọi tham số và số khối vượt ngưỡng.
+# [VI] Workload có ít hơn --minimum-blocks khối thì không có mô hình (không bị chấm).
+# [VI] ==============================================================================================================
 import argparse
 from collections import Counter
 import gzip
@@ -35,6 +47,7 @@ from lidds_ml_v2 import gumbel, threshold  # noqa: E402
 TOP_DROP = 0.01
 
 
+# [VI] Gumbel theo moment (μ, β) trên các cực đại đã bỏ 1% lớn nhất (ít nhất 1 giá trị).
 def trimmed_gumbel(maxima, drop=TOP_DROP):
     """Moment Gumbel without the top share of the maxima, at least one (rule R4, as lidds_ml_v4.trimmed_gumbel)."""
     x = np.sort(np.asarray(maxima, float))
@@ -48,6 +61,7 @@ def sha(path):
 EXCLUDE_BEFORE, EXCLUDE_AFTER = 5.0, 25.0
 
 
+# [VI] Các khoảng [bắt đầu − 5 s, bắt đầu + 25 s] quanh mỗi interval của campaign — bỏ ra khỏi dữ liệu normal.
 def trial_spans(campaign):
     """{(pod_uid, container): [(start - 5 s, start + 25 s), ...]} of every campaign interval: a trial's process runs
     15 s from its start; the margins cover the launch through kubectl exec and its exit."""
@@ -60,6 +74,7 @@ def trial_spans(campaign):
     return out
 
 
+# [VI] Tách dòng tokens.jsonl theo workload ra file tạm (đọc mỗi file nguồn đúng một lần).
 def split(sources, work):
     """One pass over each run: the lines of each workload into their own file (name: sha256 prefix). sources:
     [(run root, lo, hi, excluded spans per container or None)]; a window is kept when lo <= window_end < hi and it
@@ -86,6 +101,7 @@ def split(sources, work):
     return names
 
 
+# [VI] Mở rộng khoảng cross-fit để gồm normal bổ sung nằm sau HOẶC trước capture (sửa 17/11 cho lượt v6).
 def crossfit_span(train, validation, extra):
     """(train, validation) whose outer ends bound the cross-fit (crossfit_one learns and scores [train[0], validation[1]]):
     an extra normal after the capture extends the end (pulse-live-v5-fit-1110), one before it the start (pulse-live-v6-v1)."""
@@ -96,11 +112,13 @@ def crossfit_span(train, validation, extra):
     raise ValueError('the extra span overlaps the capture')
 
 
+# [VI] Fold của một cửa sổ: số thứ tự đoạn 30 phút chứa nó, lấy dư cho số fold.
 def fold_of(window_end, start, seconds, folds):
     """Contiguous chunks of the capture dealt to the folds in turn: a held-out window is far from most learnt windows."""
     return int((window_end - start) // seconds) % folds
 
 
+# [VI] Lõi cross-fit cho MỘT workload: đếm gram theo fold, chấm mỗi fold bằng mô hình các fold khác, gom cực đại khối 60 s.
 def crossfit_one(path, start, end, block, folds, seconds):
     """(final model on every window, held-out block maxima, windows learnt): one parse to count, one to score each fold."""
     grams = [Counter() for _ in range(folds)]
@@ -139,6 +157,7 @@ def crossfit_one(path, start, end, block, folds, seconds):
     return final.finalize(), maxima, windows
 
 
+# [VI] Một workload trọn vẹn: cross-fit → ngưỡng Gumbel → lưu mô hình; (tuỳ chọn) dump cực đại giữ ra cho phân tích ngưỡng.
 def fit_crossfit(job):
     """lidds-ml-v4 on the cluster; (key, report row, spec entry or None)."""
     key, path, train, validation, alpha, block, minimum, output, folds, seconds, share, *dump = job
@@ -159,6 +178,7 @@ def fit_crossfit(job):
     return key, row, dict(lm=str(model), lm_sha256=sha(model), threshold=thr)
 
 
+# [VI] (Gate v5, đã loại) Gộp mô hình mọi workload thành mô hình "pool".
 def merge_models(paths):
     """The model of all workloads together: the sum of their counts (protocol lidds-ml-v5)."""
     pool = CountTokenLM()
@@ -201,6 +221,7 @@ def fit_pool_threshold(job):
     return key, fits, {h: len(m) for h, m in maxima.items()}
 
 
+# [VI] Chế độ cũ (không --folds): học trên training, ngưỡng trên cực đại của validation.
 def fit_one(job):
     """Learn on the training span, score the validation span, fit the Gumbel; (key, report row, spec entry or None)."""
     key, path, train, validation, alpha, block, minimum, output = job

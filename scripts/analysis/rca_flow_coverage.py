@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Share of RCA cases (modified after --since) that contain sampled flow events, per workload; JSON receipt."""
+# [VI] Tỉ lệ case RCA có sự kiện mạng (flow) theo workload.
 import argparse, collections, glob, json, os, time
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--cases', required=True); p.add_argument('--since', type=float, required=True); p.add_argument('--output', required=True)

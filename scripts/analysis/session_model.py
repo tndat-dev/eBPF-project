@@ -17,6 +17,7 @@ the registered rule on held-out interval maxima:
 
     python3 session_model.py --run-root RUN --models FIT/token/MODELS.json --output out.json [--jobs 6]
 """
+# [VI] B2/B3 của ml-final-study-v1: học lệnh quản trị của fold khác; proxy dòng dõi (native/session) và mô hình phiên riêng.
 import argparse
 from collections import Counter, defaultdict
 import json

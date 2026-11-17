@@ -16,6 +16,7 @@ reported. When the table carries the live ``preview`` column, the burden of what
 the window agreement between the live previews and the recomputed rule the run ran (``--live-rule``: ``stable``
 by default; ``le3s`` for the run of the adopted replica-discount choice) are reported too.
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse, json, sys, time
 from collections import defaultdict
 from pathlib import Path

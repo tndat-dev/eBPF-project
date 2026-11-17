@@ -17,6 +17,8 @@ token branch: moment Gumbel without the top 1 % of the held-out maxima (lidds_ml
     python3 lidds2019_token.py gate --tokens DIR2021 --alarms lidds-alarms.json.gz --output gate.json
     python3 lidds2019_token.py score --tokens DIR2019 --archives DIR2019 --gate gate.json --output lidds2019.json
 """
+# [VI] LID-DS 2019 (lidds2019-confirmation-v2): gate tái lập official 2021 bằng chính code này, rồi chấm 2019 đúng một lần với
+# [VI] hai quy ước thời điểm exploit.
 import argparse
 import io
 import json

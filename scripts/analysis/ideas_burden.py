@@ -11,6 +11,7 @@ campaign spans excluded, and counts episodes per replica-hour for:
 
 Parameters were frozen on 21/10 (``ideas-screen-v1.json``) before the evaluated run existed.
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse, json, math, sys, time
 from collections import defaultdict
 from pathlib import Path

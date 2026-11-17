@@ -23,6 +23,7 @@ and the v2 summaries apply unchanged.
         --v2 lidds-evaluation-v2.json.gz --models DIR --workers 8 --output part.json
     python3 lidds_dl_baselines.py --merge part.json ... --output lidds-dl-baselines.json
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 import gzip
 import json

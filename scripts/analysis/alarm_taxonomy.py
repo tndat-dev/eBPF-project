@@ -37,6 +37,7 @@ arguments (not kept in the case) the rule matches binaries, not full command lin
 probe's interpreter through ``kubectl exec`` would be held back too, so a deployable version must also match
 the probe's argument vector.
 """
+# [VI] Phân loại case RCA ngoài campaign: cảnh báo normal trùng với gì (exec probe, tác vụ định kỳ...).
 import argparse
 from collections import Counter, defaultdict
 from datetime import datetime

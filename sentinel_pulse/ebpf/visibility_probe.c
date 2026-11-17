@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
+// [VI] Phần user space của probe chẩn đoán seccomp: tạo process con có bộ lọc seccomp, gọi 20 setns + 20 seccomp để đo.
 #define _GNU_SOURCE
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>

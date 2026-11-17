@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Hourly count of matched-worker issues (cadence gaps, loader errors) per node; JSON receipt."""
+# [VI] Đếm issue (khoảng trống nhịp, lỗi loader) theo giờ và node của một lượt.
 import argparse, collections, glob, json, time
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--workers-root', required=True); p.add_argument('--output', required=True)

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# [VI] ĐO CHI PHÍ PROBE A/B trên một worker (chỉ khi không có lượt chạy): xoay vòng các điều kiện off / probe theo dõi / probe
+# [VI] không theo dõi / (tuỳ chọn) build so sánh, chạy syscall_bench mỗi điều kiện, ghi một dòng JSON mỗi lần đo.
 # Pulse eBPF overhead A/B on one worker (protocol overhead-ab-v1), as root, only when no live run is active.
 #   BENCH=/path/syscall_bench LOADER=.../pulse_counter_extended_loader OBJECT=.../pulse_counter_extended.bpf.o \
 #   OUT=/var/tmp/overhead-ab/<node>.jsonl [ROUNDS=5] [SECONDS_PER_MODE=10] bash overhead_ab.sh

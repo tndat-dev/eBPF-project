@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# [VI] (Gate v5, đã loại) Chạy lidds_ml_token_pool.py.
 # Pool matrices of lidds-ml-v5 (lidds_ml_token_pool.py), every recording, on .234 as dat under systemd-run with MemoryMax,
 # never during a live run. Finished parts are kept.
 #   SRC=/var/tmp/lid-ds-2021/source-<sha> [JOBS=6 OUT=dir WORK=dir] bash lidds_ml_pool_run.sh

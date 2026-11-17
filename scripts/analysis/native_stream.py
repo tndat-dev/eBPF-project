@@ -9,6 +9,8 @@ whole window under the same rule is reported next to it (what the alert path saw
 
     python3 native_stream.py --run-root RUN --models FIT/token/MODELS.json --output out.json [--jobs 6]
 """
+# [VI] H1 của pulse-live-v6-v1: chấm riêng phần NATIVE của mỗi cửa sổ (grams − session) bằng cùng mô hình và ngưỡng; tỉ lệ gắn cờ
+# [VI] lệnh quản trị và binary vô hại phải ≤ 5%.
 import argparse
 from collections import defaultdict
 import json

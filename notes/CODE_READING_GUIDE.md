@@ -191,10 +191,18 @@ syscall ─► pulse_counter.bpf.c ─► pulse_tokens.bpf.h ─► map pulse_gr
 
 ## 10. Trạng thái chú thích `[VI]` trong code
 
-| Phần | Trạng thái |
+Xong 18/11, theo thứ tự §1. Mọi đợt được kiểm bằng máy là chỉ thêm chú thích (Python: AST không đổi; C: code sau khi bỏ chú
+thích không đổi; shell: các dòng không phải chú thích không đổi).
+
+| Phần | Mức chú thích |
 |---|---|
-| `sentinel_pulse/ebpf/` (kernel + header) | xong 18/11 (`pulse_counter.bpf.c`, `pulse_tokens.bpf.h`, `pulse_token_ids.h`, `pulse_counter_ids.h`, `pulse_counter_projection.h`) |
-| `sentinel_pulse/ebpf/pulse_counter_loader.c` | xong 18/11 |
-| `sentinel_pulse/detector/token_model.py` | xong 18/11 |
-| `sentinel_pulse/collector/token_capture.py`, `cgroup_resolver.py` | xong 18/11 |
-| pipeline (`matched_worker.py`, `plan_matched_run.py`...), attack + testbed, ops + rca, lidds + scripts phân tích | lần lượt, theo thứ tự §1 |
+| `sentinel_pulse/ebpf/` (kernel, header, loader, fixture, Makefile) | chi tiết từng hàm, struct, map, hook |
+| `sentinel_pulse/detector/token_model.py` | chi tiết: công thức P₀, Witten–Bell, điểm top-10, TokenBranch |
+| `sentinel_pulse/collector/token_capture.py`, `cgroup_resolver.py` | chi tiết |
+| `sentinel_pulse/pipeline/plan_matched_run.py`, `matched_worker.py` | chi tiết (vòng segment, frame, phần token, niêm phong) |
+| `sentinel_pulse/attack/preview_campaign.py`, `testbed/attack/runtime_attack_with_benign_control.c` | chi tiết (trial, bước, PAD, lotl, 5 kịch bản) |
+| `sentinel_pulse/ops/alert_bridge.py`, `sentinel_pulse/rca/service.py`, `ranking.py` | chi tiết |
+| `scripts/launch_run.sh`, `scripts/analysis/token_branch_fit.py`, `pulse_live_v4.py` | chi tiết từng bước / hàm |
+| Các module còn lại của `sentinel_pulse/` | đoạn mô tả đầu file; module của hệ thống cũ ghi rõ "(Hệ thống cũ ... shadow)" hoặc "(Lịch sử)" |
+| Mọi script trong `scripts/` (62 script phân tích + script vận hành), `paper/tools/` | đoạn mô tả đầu file: làm gì, thuộc chặng nào, còn dùng hay lịch sử |
+| `tests/`, script trong `validation-evidence/`, `docs/meetings/` | không chú thích (tên test tự mô tả; script cạnh biên nhận giữ nguyên như lúc tạo biên nhận) |

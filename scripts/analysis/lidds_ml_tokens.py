@@ -14,6 +14,8 @@ No decision or metric is computed here.
 
     python3 lidds_ml_tokens.py --archives DIR --scenario NAME --output out.npz
 """
+# [VI] TokenLM bản OFFLINE (đọc trace LID-DS): token từ dòng trả về của syscall, 4-gram theo thread, Witten–Bell, điểm top-10.
+# [VI] Cùng số học với sentinel_pulse/detector/token_model.py (CountTokenLM) — test kiểm sai lệch < 1e-12.
 import argparse
 from collections import Counter, defaultdict, deque
 import io

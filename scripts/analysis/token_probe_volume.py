@@ -8,6 +8,7 @@ probe does not invert). No decision is made here.
 
     python3 token_probe_volume.py --loader out.jsonl --cgroups cgroups.json --output volume.json
 """
+# [VI] Dung lượng và nội dung đầu ra của probe token trên pod thật (lúc dựng probe).
 import argparse
 from collections import Counter, defaultdict
 import json

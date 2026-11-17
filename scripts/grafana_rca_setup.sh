@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# [VI] Thiết lập một lần các trang xem case RCA trong Grafana (chạy SAU lượt chạy, vì Grafana khởi động lại).
 # One-time setup of the RCA views (30/10), run on .234 as root after a live run, never during one (Grafana restarts):
 # - Graphviz, so the alert bridge can draw the evidence tree of a case as SVG (scripts/analysis/rca_case_graph.py);
 # - the free Grafana plugin yesoreyeram-infinity-datasource (RCA case table), through the kube-prometheus-stack

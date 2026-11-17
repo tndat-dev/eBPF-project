@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# [VI] (Lịch sử, protocol v1 cho hệ thống cũ, chưa chạy) Thay bằng lidds2019-confirmation-v2 + scripts/analysis/lidds2019_token.py.
 # lidds2019-confirmation-v1 on .234 as dat, once the live run's analysis unit has finished (no heavy job during a live
 # run). The release must already be at $D/LID-DS-2019.zip (copied from 10.1.16.254 after the live run, sha256 checked).
 # Builds the 10 LID-DS 2021-layout archives, converts them (6 in parallel), evaluates the frozen v2 arms in 4 parallel

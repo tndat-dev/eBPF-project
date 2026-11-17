@@ -2,6 +2,7 @@
 """Per-scenario positive rates of attack, benign-launch and idle-control intervals, plus how
 persistent positives are inside each 15 s interval (fraction of positive windows); JSON receipt.
 Uses the decision rows stored in each trial's EVALUATION_INPUT.json (policy as run)."""
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse, collections, glob, json, time
 import numpy as np
 

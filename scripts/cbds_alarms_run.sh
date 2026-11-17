@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# [VI] (Lịch sử) Chạy lại các nhánh v2 trên CB-DS, giữ thời điểm báo.
 # lidds-evaluation-v4 on .234 as dat: rerun the v2 branches on CB-DS (existing conversion) keeping alarm times, and
 # check every per-recording outcome against the cbds-confirmation-v1 receipt.
 #   SRC=/var/tmp/lid-ds-2021/source-<sha> bash cbds_alarms_run.sh

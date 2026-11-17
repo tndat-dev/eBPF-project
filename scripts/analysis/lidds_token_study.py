@@ -17,6 +17,8 @@ lidds_ml_v2.score / threshold and lidds_ml_v4.trimmed_gumbel.
     python3 lidds_token_study.py STEP --caches DIR --out DIR --lidds-alarms a.json.gz --cbds-alarms c.json.gz [--jobs 12]
                                  [--reference ml-xfit-tokens]   (gate)
 """
+# [VI] BỘ KHUNG NGHIÊN CỨU THIẾT KẾ (RQ2, token-design-study-v1): bảng chữ, bỏ từng syscall, tập con nhỏ nhất (5 syscall), tham số,
+# [VI] quy tắc ngưỡng, mô hình vs luật đếm 4-gram chưa thấy, mô phỏng kẻ tấn công chỉ dùng chuỗi đã thấy. Chỉ development + CB-DS.
 import argparse
 from collections import Counter
 import hashlib

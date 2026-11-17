@@ -9,6 +9,7 @@ sections are written; a cited key that is not verified (or not a known software/
     python3 make_bib.py --map citation_map.json --thesis-bib thesis/references.bib --software software.bib \
         --sections paper/latex/sections --output paper/latex/references.bib
 """
+# [VI] Sinh references.bib của paper CHỈ từ metadata đã kiểm (không sửa tay); năm/nơi đăng lấy từ Crossref theo DOI.
 import argparse
 import json
 from pathlib import Path

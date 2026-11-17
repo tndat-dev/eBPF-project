@@ -23,6 +23,7 @@ Figures (PNG at 200 dpi):
 Colours: the validated categorical order (blue, orange, aqua, yellow); every series also has its own marker and
 line style and a direct label, so identity never rests on colour alone (print, colour-vision deficiency).
 """
+# [VI] Vẽ hình cho đồ án/paper chỉ từ biên nhận trong validation-evidence/ (không cần truy cập cụm).
 from __future__ import annotations
 
 import argparse

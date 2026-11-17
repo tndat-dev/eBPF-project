@@ -16,6 +16,8 @@ Gate: the recomputed score of every interval window equals the logged token_scor
 
     python3 live_attribution.py --run-root RUN --models FIT/token/MODELS.json --output out.json [--jobs 6]
 """
+# [VI] Phần A/B của ml-final-study-v1: recall live có phải do hành vi tấn công không (bỏ gram đã có trong khoảng vô hại cùng trial,
+# [VI] chỉ tính cửa sổ sau 1,5 s), và học thêm lệnh quản trị có hết báo nhầm không (B). Trial PAD báo riêng.
 import argparse
 from collections import Counter, defaultdict
 import json

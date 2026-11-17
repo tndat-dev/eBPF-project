@@ -11,6 +11,8 @@ receipt does not appear in it (the report and the receipt disagree). No cluster 
 
 Exit status 1 on any failure. tests/test_headline_numbers.py runs it in the test suite.
 """
+# [VI] KIỂM TOÁN SỐ LIỆU: mỗi "câu khẳng định" = một câu nguyên văn trong đồ án + các số tính lại từ biên nhận; câu bị sửa mà
+# [VI] không cập nhật kiểm toán, hoặc số lệch biên nhận, đều làm test thất bại.
 from __future__ import annotations
 
 import argparse

@@ -8,6 +8,7 @@ recordings (attack and normal resampled apart, 10,000 draws).
 
     python3 scripts/analysis/cbds_confirmation.py lidds-evaluation-v2-cbds.json --output cbds-confirmation.json
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.) Xác nhận trên CB-DS cho hệ thống cũ.
 from __future__ import annotations
 
 import argparse

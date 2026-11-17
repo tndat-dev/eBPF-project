@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# [VI] (Lịch sử) Baseline MLP/LSTM của thư viện LID-DS — đã dừng theo quyết định 15/11.
 # lidds-dl-baseline-v1 on .234 as dat: the LID-DS library's MLP and LSTM over the 15 LID-DS 2021 scenarios, smallest
 # first, JOBS (scenario, arm) parts at a time; each scenario is extracted once from /var/tmp/lid-ds-2021 (outer zip ->
 # training/validation/test directories of recording zips, the layout the library reads). Parts already written are

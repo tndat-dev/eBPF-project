@@ -13,6 +13,8 @@ recordings by name; columns window_end, xfit) and .json. With --alarms only deve
 
     python3 lidds_ml_token_crossfit.py --archives DIR --scenario NAME [--alarms alarms.json.gz] --output out.npz [--folds 5]
 """
+# [VI] MA TRẬN ĐIỂM CROSS-FIT của mỗi kịch bản LID-DS/CB-DS (đường của con số official): 5 fold theo sha256(tên bản ghi); bản ghi
+# [VI] training/validation chấm bằng mô hình 4 fold kia (val/<tên>), bản ghi test chấm bằng mô hình học hết. Ra <kịch bản>.npz + .json.
 import argparse
 from collections import Counter
 import hashlib

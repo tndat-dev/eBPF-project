@@ -10,6 +10,7 @@ per replica-hour, a replica-hour being 7,200 windows of one container.
 
     python3 model_aging.py --run-root CAPTURE --models FIT/token/MODELS.json [--heldout cluster-threshold.json] --output out.json [--jobs 4]
 """
+# [VI] Mô hình v5 KHÔNG ĐỔI chấm normal mới sau khi đổi cấu hình cụm: tỉ lệ khối vượt ngưỡng so với mức giữ ra của chính nó.
 import argparse
 from collections import defaultdict
 import json

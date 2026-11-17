@@ -1,4 +1,6 @@
 CLANG ?= clang
+# [VI] Biên dịch probe. `make tokens TOKENS_BUILD_DIR=...` tạo pulse_counter_tokens.bpf.o + pulse_counter_tokens_loader (bản -DPULSE_TOKENS
+# [VI] dùng trong mọi lượt chạy hiện tại), seccomp_fixture và syscall_bench; vmlinux.h sinh từ BTF của chính kernel đang chạy.
 CC ?= cc
 ARCH ?= x86
 BPF_CFLAGS := -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH) -I.

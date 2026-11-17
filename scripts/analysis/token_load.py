@@ -9,6 +9,7 @@ counted, map entries drained, inserts that failed because the map was full, dire
 
     python3 token_load.py --run-root RUN --output out.json [--segments s00010 s00020 ...]
 """
+# [VI] Tải của probe token trong một lượt: sự kiện và số gram khác nhau mỗi cửa sổ, độ chiếm map, số gram rơi.
 import argparse
 from collections import defaultdict
 import json

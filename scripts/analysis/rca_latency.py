@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Split RCA preview->case latency: preview_emitted_at -> subscriber saw the decision (cases.created)
 -> case written (case JSON created_at); JSON receipt."""
+# [VI] Tách độ trễ RCA: decision → dịch vụ thấy → case được ghi.
 import argparse, glob, json, sqlite3, statistics, time
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--copy-dir', required=True); p.add_argument('--output', required=True)

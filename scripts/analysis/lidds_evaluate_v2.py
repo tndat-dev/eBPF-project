@@ -25,6 +25,8 @@ Every output keeps the outcome of every recording and arm (``recordings``), so p
 and, per scenario, the alarm window ends of the arms in WINDOW_ARMS for every test recording (``alarms``, for the
 time-horizon vote of lidds-evaluation-v3 amendment 1).
 """
+# [VI] Sinh "alarms inventory" (mỗi bản ghi: split, phần dev/official, thời điểm exploit) và chấm các arm tín hiệu cũ trên LID-DS;
+# [VI] file *-alarms.json.gz mà mọi bộ chấm token dùng lại. Hàm split_recordings đọc archive theo split.
 import argparse
 from collections import defaultdict
 import json

@@ -8,6 +8,7 @@ the entry line, file or socket); proc: process name prefix; n3, n5: context orde
 
     python3 lidds_ml_token_variants.py --archives DIR --scenario NAME --output out.npz
 """
+# [VI] Biến thể bảng chữ và độ dài ngữ cảnh để so sánh development sau lidds-ml-v2.
 import argparse
 from collections import defaultdict, deque
 import json

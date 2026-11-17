@@ -18,6 +18,8 @@ so R1's miss on such an attack is NOT measured here; part F of a live run adds t
 Reuses the token-branch loader and the exact flagged() of live_attribution.py, so the ML alarms are the v5 model's.
     python3 rule_e_benefit.py --run-root RUN --models FIT/token/MODELS.json --output out.json [--jobs 6]
 """
+# [VI] Luật sau ML (phần E): R1 hạ cảnh báo khi chỉ có exec tool-của-image, R2 gắn nhãn drift cho binary lạ; so ML-only vs ML+luật.
+# [VI] Trên v6: bước lotl (tấn công bằng tool của image) đo MẶT HẠI của R1 (H4).
 import argparse
 import json
 from collections import defaultdict

@@ -15,6 +15,7 @@ Idle-control positives are also counted per container (workload@node). ``--exclu
 for a sensitivity analysis decided after seeing data (Pulse 5.24/5.25); its output is marked ``post_hoc`` and never
 replaces the registered verdict.
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse, glob, json, math, time
 from collections import Counter, defaultdict
 from pathlib import Path

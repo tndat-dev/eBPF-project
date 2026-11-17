@@ -12,6 +12,7 @@ official data and, unchanged, on every other dataset given.
 
     python3 lidds_v3_combine.py --select lidds-evaluation-v2.json [--confirm NAME=other-v2.json ...] --output v3.json
 """
+# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 from __future__ import annotations
 
 import argparse
