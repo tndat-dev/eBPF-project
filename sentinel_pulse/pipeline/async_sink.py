@@ -8,6 +8,9 @@ and is counted. ``close`` drains the queue, fsyncs and closes, so a sealed segme
 
 ``AsyncState`` keeps only the newest state document and writes it atomically from a background thread.
 """
+# [VI] async_sink.py — GHI FILE LÊN NFS BẰNG LUỒNG NỀN để vòng chấm điểm không bao giờ phải chờ ổ đĩa mạng (NFS có lúc
+# [VI] chậm nhiều giây). write() chỉ đưa dòng vào hàng đợi; luồng nền ghi, flush mỗi 0,5 s, fdatasync và bỏ page cache mỗi
+# [VI] 30 s (page cache tính vào MemoryMax của unit). Hàng đợi đầy thì write() chờ chứ không bỏ dòng (đếm vào stats.waits).
 from __future__ import annotations
 
 import os

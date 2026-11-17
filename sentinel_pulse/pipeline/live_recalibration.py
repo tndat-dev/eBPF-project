@@ -25,6 +25,8 @@ is left out of that refresh (logged).
 registered control/benign/attack interval are left out of every calibration, as offline (campaign_spans). An
 operational deployment has no such list; an evaluation run states whether it uses it.
 """
+# [VI] (Hệ thống cũ — mô hình cây+support) Hiệu chỉnh lại conformal theo cửa sổ trượt ngay trong worker. Thử nghiệm
+# [VI] 29–30/10 không thắng; lượt hiện tại không bật. Mô hình token không dùng file này.
 from __future__ import annotations
 
 import json

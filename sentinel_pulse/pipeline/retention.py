@@ -15,6 +15,8 @@ windows per hour) instead of growing with the run.
 - ``decisions``: "full" (default) | "positives" (rows that passed the window threshold or raised a preview,
   plus one sampled scored row in every ``sample_every`` for audits).
 """
+# [VI] retention.py — (hệ thống cũ) bộ đệm điểm cây/support cho hiệu chỉnh lại định kỳ, và chính sách giữ file ở chế độ
+# [VI] vận hành. Lượt hiện tại không bật (thiếu khoá cfg → giữ mọi dòng như thí nghiệm).
 from __future__ import annotations
 
 import json

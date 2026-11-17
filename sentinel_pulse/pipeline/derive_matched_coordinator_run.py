@@ -1,4 +1,6 @@
 """Fork study/campaign coordinators while keeping an active worker capture."""
+# [VI] (Hệ thống cũ, công cụ vận hành) Tách các thành phần điều phối (study/campaign) sang lượt mới mà vẫn giữ worker
+# [VI] đang thu dữ liệu. Không dùng trong các lượt hiện tại.
 import argparse
 import json
 import math

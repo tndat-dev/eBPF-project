@@ -7,6 +7,8 @@ live in threads and meet it through queues.
 Failure is one-sided by design: a slow subscriber loses messages (counted) instead of slowing the scoring loop,
 and a lost peer only means fewer peer windows, i.e. less discount, so the detector alerts more, never less.
 """
+# [VI] (Hệ thống cũ — evidence discount và tripwire) Trao đổi mặt nạ syscall mỗi cửa sổ giữa các worker qua socket để
+# [VI] giảm cảnh báo khi replica khác cũng có hành vi đó. Đã bỏ khỏi ML ngày 01/11; lượt hiện tại không bật.
 from __future__ import annotations
 
 import json

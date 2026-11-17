@@ -1,4 +1,9 @@
 """Install a new named matched-capture/campaign service without overwrites."""
+# [VI] matched_services.py — CÀI UNIT systemd CHO MỘT VAI TRÒ CỦA LƯỢT CHẠY (launch_run.sh gọi với quyền root).
+# [VI] Vai trò: worker (trên mỗi node: chép phần cấu hình của node đó + băm loader/object + phiên bản kernel vào
+# [VI] /etc/sentinel-pulse/matched-worker-<run>.json), campaign, traffic (trên .234). Unit tự khởi động lại khi lỗi
+# [VI] (Restart=on-failure), giới hạn CPU/bộ nhớ (worker: 3 core, 3 GB), chạy từ snapshot nguồn (PYTHONPATH=source).
+# [VI] Không bao giờ ghi đè unit hay config đã có — muốn chạy lại phải xem và xử lý bằng tay.
 import argparse
 import json
 import os
