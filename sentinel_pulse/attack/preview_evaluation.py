@@ -1,4 +1,6 @@
 """Interval evaluation for the pinned idle-aware candidate preview stream."""
+# [VI] Đánh giá MỘT khoảng (control/benign/attack) trên các decision đã đọc: có cửa sổ báo nào trong khoảng không, cửa sổ
+# [VI] báo đầu tiên lúc nào. Chỉ dùng cho STATUS của campaign; số chính thức tính lại trong scripts/analysis/pulse_live_v4.py.
 from __future__ import annotations
 
 import math

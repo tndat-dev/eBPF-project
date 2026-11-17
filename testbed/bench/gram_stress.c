@@ -4,6 +4,8 @@
 // 4-grams of a thread are random over 32^4 (about one million) values: almost every event of a window is a new
 // gram until the window holds about a million, which is what fills the probe's (cgroup, window, gram) map.
 // Prints one JSON line: {"threads": T, "rate": R, "seconds": S, "events": N}.
+// [VI] Bộ sinh tải tệ nhất cho map 4-gram: mỗi lời gọi là read/write ngẫu nhiên trong 32 token khác nhau nên gần như mọi
+// [VI] sự kiện là một gram mới; scripts/map_capacity_test.py tăng dần syscall/s tới khi map đầy (map-capacity-v1).
 #define _GNU_SOURCE
 #include <fcntl.h>
 #include <pthread.h>

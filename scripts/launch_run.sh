@@ -22,6 +22,17 @@
 # scoring loop, decisions also on each worker's local disk (STREAM_ROOT) for the bridge, RCA and campaign, benign
 # control from its own file name, RCA built from alerts Alertmanager delivered (bridge triggers), bridge before
 # the campaign.
+# [VI] =================================================================================================================
+# [VI] launch_run.sh — KHỞI CHẠY MỘT LƯỢT LIVE (chạy trên .234, user dat, từ thư mục snapshot $SNAP). Các bước:
+# [VI]   plan    : dựng CONFIG.json (pipeline/plan_matched_run.py), biên dịch fixture tấn công.
+# [VI]   workers : trên từng worker, tạo thư mục decision local rồi cài + bật unit worker (pipeline/matched_services.py).
+# [VI]   rca     : chờ 3 worker chạy, chép snapshot cho RCA, ghi config RCA, cài unit rca-<run> (rca/service.py).
+# [VI]   bridge  : dựng alert bridge (scripts/alert_bridge.sh → ops/alert_bridge.py) đẩy cảnh báo tới Alertmanager.
+# [VI]   master  : cài unit traffic (lịch tải) và campaign (attack/preview_campaign.py).
+# [VI]   traffic : chỉ bộ sinh tải — dùng cho lượt thu normal (không campaign).
+# [VI]   all     : plan → workers → rca → bridge → master.
+# [VI] Biến môi trường bắt buộc và tuỳ chọn liệt kê ở đầu file; lệnh đầy đủ của lượt v6 ghi trong notes/STATE.md.
+# [VI] =================================================================================================================
 set -euo pipefail
 : "${LAB_SSH_PASSWORD:?}" "${RUN:?}" "${SNAP:?}" "${CANDIDATE:?}" "${MODEL_HASH:?}" "${POLICY:?}" "${POLICY_HASH:?}"
 FIXTURE=${FIXTURE:-testbed/attack/runtime_attack_with_benign_control.c}
@@ -41,6 +52,7 @@ export SSHPASS=$LAB_SSH_PASSWORD
 
 as_root() { printf '%s\n' "$LAB_SSH_PASSWORD" | sudo -S -p '' "$@"; }
 
+# [VI] Bước plan: ghép cờ dòng lệnh từ biến môi trường rồi gọi plan_matched_run (mọi giá trị ghim nằm trong CONFIG.json).
 plan() {
   cd /tmp
   flags=(--benign-exec-control --no-raw-frames)
@@ -65,6 +77,7 @@ plan() {
     --fixture "$FIXTURE" --seconds "$SECONDS_TOTAL" "${flags[@]}"
 }
 
+# [VI] Bước workers: với mỗi worker, tạo $STREAM_ROOT/$RUN (decision local) và cài unit worker qua ssh + sudo.
 workers() {
   for host in "${WORKERS[@]}"; do
     # local decision copy: root writes (UMask 0027), group dat reads (bridge and RCA followers run as dat)
@@ -76,6 +89,7 @@ workers() {
   done
 }
 
+# [VI] Chờ tối đa 5 phút cho cả 3 worker báo current_segment (đã chạy loader).
 wait_for_workers() {
   for _ in $(seq 60); do
     ready=0
@@ -89,6 +103,7 @@ wait_for_workers() {
   echo 'workers did not report a current segment' >&2; return 1
 }
 
+# [VI] Bước rca: config RCA (đọc decision trên worker qua ssh, mở case cho mỗi alert bridge giao — triggers.jsonl, recheck 2 s).
 rca() {
   wait_for_workers
   as_root mkdir -p "/opt/sentinel-pulse-rca/$RCA_NAME"
@@ -152,6 +167,7 @@ UNIT
   as_root systemctl enable --now "$RCA_UNIT.service"
 }
 
+# [VI] Bước bridge: dựng alert bridge cho lượt này (đọc decision local, đẩy Alertmanager, ghi triggers.jsonl cho RCA).
 bridge() {
   as_root bash "$SNAP/scripts/alert_bridge.sh" "$RUN"
 }
@@ -162,6 +178,7 @@ traffic() {
     --config "$ROOT/CONFIG.json" --role traffic
 }
 
+# [VI] Bước master: bộ sinh tải + campaign (campaign tự chờ hết 90 phút đầu lượt rồi mới bắt đầu trial).
 master() {
   cd /tmp
   as_root env PYTHONPATH="$SNAP" /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.matched_services \

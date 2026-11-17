@@ -3,6 +3,22 @@
 Previously exposed scenarios diagnose the present candidate. They are never
 called a fresh blind set. No outcome changes a model, alpha or policy.
 """
+# [VI] ==============================================================================================================
+# [VI] preview_campaign.py — CAMPAIGN CỦA LƯỢT LIVE (unit pulse-matched-campaign-<run> trên .234).
+# [VI] ------------------------------------------------------------------------------------------------------------
+# [VI] Đi lần lượt qua lịch trial trong CONFIG.json. Mỗi trial ("pair") nhắm MỘT container của MỘT replica:
+# [VI]   1) control: 17 s không làm gì (đo báo nhầm khi container chạy bình thường);
+# [VI]   2) các bước sau, thứ tự cố định hoặc xáo có seed (step_order), mỗi bước một khoảng 15 s:
+# [VI]        admin  — một lệnh quản trị thật của image qua `kubectl exec` (mẫu âm khó: process mới nhưng vô hại);
+# [VI]        benign — binary vô hại của operator qua cùng đường exec (chỉ getpid + clock_nanosleep);
+# [VI]        attack — binary fixture chạy một kịch bản tấn công ở tốc độ đăng ký (có thể kèm PAD pha loãng);
+# [VI]        lotl   — tấn công "sống nhờ đất" chỉ bằng sh/cat/ls của image (từ lượt v6);
+# [VI]   3) đọc decision của worker cho các khoảng đó, ghi kết quả từng trial vào trials/NNNN/ (EVALUATION_INPUT.json,
+# [VI]      ORDER.json, CONTROL.json...), và nối INTERVALS.jsonl (mốc bắt đầu, nhãn của từng khoảng).
+# [VI] Nhãn là NHÃN THEO THIẾT KẾ (khoảng attack là tấn công, còn lại là normal); phân tích chính thức đọc INTERVALS.jsonl
+# [VI] + decisions (scripts/analysis/pulse_live_v4.py), không dựa vào STATUS.json của file này.
+# [VI] Mọi binary tấn công là fixture tự viết (testbed/attack/...), không exploit CVE, không image có lỗ hổng.
+# [VI] ==============================================================================================================
 from __future__ import annotations
 
 import argparse
@@ -21,6 +37,7 @@ from .preview_evaluation import evaluate_interval, summarize
 from .tetragon_evidence import EXEC_PROVENANCE_POLICY, find_execve_kprobe_event
 
 
+# [VI] Chạy lệnh root trên worker qua ssh + sudo (mật khẩu đọc từ file credential, truyền qua stdin, không in ra).
 class PreviewRuntime(Runtime):
     def remote_sudo(self,host,command,*,payload=b'',timeout=30):
         return self.run(['sshpass','-e','ssh','-o','StrictHostKeyChecking=yes',
@@ -29,6 +46,7 @@ class PreviewRuntime(Runtime):
             input_bytes=self.password.encode()+b'\n'+payload,timeout=timeout)
 
 
+# [VI] Bộ lệnh quản trị v5 (lượt v5): mỗi trial một lệnh, lần lượt theo chỉ số trial.
 ADMIN_COMMANDS=(('ls',['ls','/']),('cat',['cat','/etc/os-release']),('ps',['ps']),('env',['env']),('id',['id']),
                 ('sh',['sh','-c','echo ok']),('python',['python3','-c','pass']),('date',['date']),('uname',['uname','-a']),
                 ('df',['df','-h']))
@@ -42,6 +60,7 @@ ADMIN_SETS={'v5':ADMIN_COMMANDS,'v6':ADMIN_COMMANDS_V6}
 # step reads and discards (credential access: the pod's service-account token; discovery: process list and
 # environment of pid 1, network sockets, accounts) or writes a file under /tmp and removes it (persistence attempt);
 # nothing leaves the container and no state outside /tmp changes. Repeated about once a second for 15 s.
+# [VI] Bước lotl lặp 15 lần (~1 lần/giây): đọc token service account, /proc, socket, tài khoản → /dev/null; ghi rồi xoá một file /tmp.
 LOTL_SCRIPT=('i=0; while [ $i -lt 15 ]; do '
     'cat /var/run/secrets/kubernetes.io/serviceaccount/token >/dev/null 2>&1; '
     'ls /proc >/dev/null 2>&1; cat /proc/1/cmdline /proc/1/environ >/dev/null 2>&1; '
@@ -51,6 +70,7 @@ LOTL_SCRIPT=('i=0; while [ $i -lt 15 ]; do '
 STEPS=('admin','benign','attack')
 
 
+# [VI] Thứ tự các bước sau control. Xáo có seed (seed của item + chỉ số trial) → chạy lại cho đúng thứ tự cũ; dùng cho H6 (RCA).
 def step_order(cfg,item,index):
     """Order of the trial's steps after its control. Fixed (admin, benign, attack, then lotl) unless the run registers
     random_trial_order: a per-pair shuffle seeded by the item's seed and the pair index, so a rerun repeats it."""
@@ -59,6 +79,7 @@ def step_order(cfg,item,index):
     return steps
 
 
+# [VI] Đọc decision của một container kể từ `begin` NGAY TRÊN worker (bản local), tránh cache NFS của máy khác che dòng mới.
 def tail_rows(runtime,cfg,worker,begin,pod_uid,cgroup_id):
     # Read on the writer's client. A second NFS client's attribute/page cache
     # can temporarily hide appended rows even after Python flushes on worker.
@@ -69,6 +90,7 @@ def tail_rows(runtime,cfg,worker,begin,pod_uid,cgroup_id):
     return [json.loads(line) for line in result.stdout.splitlines()]
 
 
+# [VI] Danh tính đầy đủ của container được nhắm (pod UID, cgroup, phiên bản...) — dùng để khớp decision với trial.
 def target_identity(runtime,pod,container,cg,worker):
     data=runtime.kubectl_json('get','pod',pod['name'],'-n','production','-o','json')
     if data['metadata']['uid']!=pod['uid']:raise ValueError('pod changed during selection')
@@ -78,6 +100,9 @@ def target_identity(runtime,pod,container,cg,worker):
         workload_revision=meta['workload_revision'],cgroup_id=cg,container_id=status['containerID'])
 
 
+# [VI] CHẠY MỘT TRIAL. Chọn container mục tiêu (select_target), đo control, "stage" binary vào container (preview_target),
+# [VI] chạy các bước theo thứ tự, rồi đánh giá. Khoảng tấn công còn bật thu sự kiện exec của Tetragon để biết thời điểm kernel
+# [VI] đầu tiên của tấn công (dùng tính độ trễ). Khối finally luôn dọn binary đã stage khỏi container.
 def one_pair(runtime,cfg,root,item,index):
     trial_dir=root/'trials'/f'{index:04d}';trial_dir.mkdir(parents=True,exist_ok=True)
     node_workers={w['node_name']:dict(w,host=host) for host,w in cfg['workers'].items()}
@@ -214,6 +239,9 @@ def one_pair(runtime,cfg,root,item,index):
             runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*benign_args]))
 
 
+# [VI] VÒNG CAMPAIGN: kiểm binary/policy đúng SHA-256 đã đăng ký → chờ hết đoạn normal đầu lượt (attack_not_before) → với mỗi
+# [VI] trial: chờ worker còn "nhịp tim" (STATUS cập nhật < 20 s), ghi ATTEMPTS.jsonl TRƯỚC khi chạy (trial bị ngắt giữa chừng
+# [VI] sẽ ghi "unknown" chứ không chạy lại), chạy one_pair, lưu RESULTS.json. Hết lịch → TERMINAL.json.
 def run(config,credential):
     cfg=json.loads(config.read_text());root=Path(cfg['campaign_output']);root.mkdir(parents=True,exist_ok=True)
     lock=(root/'campaign.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)

@@ -4,6 +4,8 @@ Extracted from the retired 500 ms blind-matrix runner. Targets are resolved
 from pod UID + container + cgroup identity, never from a pod-name prefix, and
 attack outcomes are never consulted while choosing one.
 """
+# [VI] Truy cập cụm (kubectl, ssh) và CHỌN container mục tiêu cho từng trial theo pod UID + container + cgroup (không theo
+# [VI] tiền tố tên pod); chọn không bao giờ dựa trên kết quả phát hiện. Cũng quyết định đường dẫn đặt binary theo image.
 from __future__ import annotations
 
 import json

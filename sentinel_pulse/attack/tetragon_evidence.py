@@ -4,6 +4,8 @@ Only Tetragon ``process_exec`` records for the frozen static attack binary are
 accepted.  This module does not decide whether an attack was detected; it only
 establishes an independently timestamped kernel origin for latency evaluation.
 """
+# [VI] Tìm sự kiện process_exec của Tetragon cho binary tấn công → thời điểm KERNEL đầu tiên của tấn công, mốc để đo độ trễ
+# [VI] (kernel → cuối cửa sổ báo → Alertmanager). Không quyết định phát hiện hay không.
 
 from __future__ import annotations
 

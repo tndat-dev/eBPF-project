@@ -31,6 +31,7 @@ excluded. Attack/control trials (pulse-attack-dev) are rescored with the calibra
 that was active when each trial started (ACI: the alpha of the trial's workload when the trial started).
 Evidence class: development, unadjudicated normal.
 """
+# [VI] (Hệ thống cũ) Phân tích offline: hiệu chỉnh conformal định kỳ có giữ gánh cảnh báo thấp không (kết luận: không thắng).
 from __future__ import annotations
 
 import argparse
