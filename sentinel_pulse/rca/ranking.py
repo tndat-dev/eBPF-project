@@ -28,6 +28,11 @@ pulse-live-recal-confirm. RCA 5.19: the alphabetical order put the benign launch
 (426/426) with recency and 15.3 % by name, top-3 100 % with both. Limitation stated before the test: the benign
 launch always precedes the attack in the campaign, so recency is favoured by design.
 """
+# [VI] ranking.py — XẾP HẠNG NGHI PHẠM trong một case RCA. Pulse chỉ nói CONTAINER nào bất thường, không nói PROCESS nào;
+# [VI] file này cho mỗi process một điểm heuristic có lý do rõ ràng (bảng trọng số ở docstring trên): binary mới với workload
+# [VI] (4), không có trong bản ghi (2), khởi chạy trong cửa sổ (2), thao tác bảo mật (3 mỗi loại, tối đa 9), syscall thất bại
+# [VI] (1, tối đa 3), là cha của nghi phạm khác (1). Hoà điểm → process khởi chạy GẦN cảnh báo nhất lên trước ("recency").
+# [VI] Lưu ý trong đồ án: campaign v5 luôn chạy tấn công SAU binary vô hại nên recency có lợi thế; lượt v6 xáo thứ tự (H6).
 from __future__ import annotations
 
 from collections import defaultdict

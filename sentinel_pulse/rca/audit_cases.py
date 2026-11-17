@@ -1,4 +1,5 @@
 """Read-only structural and provenance audit of retained live RCA evidence trees."""
+# [VI] Kiểm tra cấu trúc và nguồn gốc của các case đã lưu (chỉ đọc) — dùng khi rà soát chất lượng RCA.
 from __future__ import annotations
 
 import argparse

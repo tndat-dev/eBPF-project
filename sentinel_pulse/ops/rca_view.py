@@ -18,6 +18,7 @@ case id of the first trigger of an alert episode equals the bridge's episode id.
 - ``render_html`` / ``case_svg``: a static English page per case and the tree drawing of
   ``scripts/analysis/rca_case_graph.py`` (Graphviz ``dot``, when installed).
 """
+# [VI] Đọc case RCA (JSON/Markdown) để bridge gắn chú thích vào alert và hiển thị trang /cases (HTML, JSON cho Grafana, SVG).
 from __future__ import annotations
 
 import html

@@ -1,4 +1,5 @@
 """Add observed lifecycle, file, credential and security objects to RCA graphs."""
+# [VI] Thêm các nút quan sát được (vòng đời process, file, credential, thao tác bảo mật) vào cây bằng chứng của case.
 from __future__ import annotations
 
 from collections import Counter

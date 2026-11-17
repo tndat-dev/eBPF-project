@@ -11,6 +11,8 @@ a campaign and only later in normal is left out too (conservative).
 ``seed``: inserts them into a new run's database with first_seen = 0, i.e. known before the run, so they score
 neither ``novel_binary`` nor ``unknown_binary``. Binaries first seen in the new run are unaffected.
 """
+# [VI] Mang "baseline binary" (binary mỗi workload đã chạy, thấy lần đầu NGOÀI campaign) sang lượt sau, để tác vụ định kỳ
+# [VI] hiếm (vd. WAL archiving của Postgres) không bị xếp là binary mới.
 from __future__ import annotations
 
 import argparse
