@@ -1,0 +1,7 @@
+{
+ "fig_system_overview": {"source": "thesis/figures/tikz-overview.tex", "status": "Vietnamese labels, to translate", "caption_hint": "Architecture: per-worker probe, loader and worker; master bridge, Alertmanager and RCA; offline fit."},
+ "fig_probe_pipeline": {"source": "thesis/figures/tikz-probe.tex", "status": "Vietnamese labels, to translate", "caption_hint": "Three BPF programs build one token per syscall and count per-thread 4-grams in a map; the loader drains closed windows."},
+ "fig_token_model": {"source": "thesis/figures/tikz-model.tex", "status": "Vietnamese labels, to translate", "caption_hint": "Scoring a window (steps 1-6) and learning plus thresholding from normal only (steps a-f)."},
+ "fig_alert_rca": {"source": "thesis/figures/tikz-alert.tex", "status": "Vietnamese labels, to translate", "caption_hint": "Alert path from decision to Alertmanager and the RCA case."},
+ "fig_eval_flow": {"source": "thesis/figures/tikz-eval.tex", "status": "Vietnamese labels, to translate", "caption_hint": "Development -> official -> live blind evaluation order."}
+}

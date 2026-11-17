@@ -1,0 +1,80 @@
+{
+ "plotting_plan": [
+  {"figure_id": "fig_system_overview", "title": "System overview", "plot_type": "diagram", "data_source": "idea.md",
+   "objective": "Per-worker probe (three BPF programs, gram map, loader), scoring worker, bridge to Alertmanager, RCA on Tetragon events, offline fit from normal; control data dashed. Translated from the thesis TikZ figure.", "aspect_ratio": "16:9"},
+  {"figure_id": "fig_token_pipeline", "title": "From syscall to window score", "plot_type": "diagram", "data_source": "idea.md",
+   "objective": "One syscall -> 32-bit token (errno / open mode+dir / size bucket / name) -> per-thread 4-gram -> interpolated Witten-Bell probability -> top-10 mean surprise -> Gumbel threshold from held-out 60 s block maxima.", "aspect_ratio": "21:9"},
+  {"figure_id": "fig_model_vs_rule_budget", "title": "Model vs unseen-4-gram rule across false-alarm budgets", "plot_type": "plot", "data_source": "experimental_log.md",
+   "objective": "Line chart: detected development recordings (of 544) at false-alarm budgets 3, 6, 12, 20, 34 for the model and the count rule (E2).", "aspect_ratio": "4:3"},
+  {"figure_id": "fig_map_capacity", "title": "Gram map under worst-case load", "plot_type": "plot", "data_source": "experimental_log.md",
+   "objective": "Two-axis line chart over calls/s (50k-1.2M): distinct grams per window and failed inserts; drain time p50 with the 0.5 s frame marked; heaviest real window (6,901) as a reference line (E5).", "aspect_ratio": "4:3"}
+ ],
+ "intro_related_work_plan": {
+  "introduction_strategy": {
+   "hook_hypothesis": "Container runtime security in production relies on hand-written rules (Falco, Tetragon), which miss behaviour nobody anticipated; syscall anomaly detection could cover that gap but must be fast, cheap and quiet enough to run on a live cluster.",
+   "problem_gap_hypothesis": "Most syscall anomaly detectors are evaluated offline on recorded traces with labels used for tuning; few measure kernel-to-responder latency, alert burden on a real workload, or the confusion between attacks and harmless new processes (operator kubectl exec). Scope: one cluster with one 21-workload application, LID-DS 2021 and CB-DS.",
+   "search_directions": [
+    "Foundational sequence-based syscall anomaly detection (Forrest et al. 1996 'A sense of self for Unix processes'; Warrender et al. 1999)",
+    "Surveys or SoK of host-based intrusion detection with system calls and of pitfalls in ML for security (Arp et al. 'Dos and Don'ts of Machine Learning in Computer Security')",
+    "Container and Kubernetes runtime security monitoring with eBPF in practice (Falco, Tetragon, Tracee comparisons)",
+    "Language-model approaches to system call sequences (Kim et al. 2016 LSTM-based system call language modeling)"
+   ]
+  },
+  "related_work_strategy": {
+   "overview": "Three clusters that precede or compete with the design, each with the limitation the paper addresses.",
+   "subsections": [
+    {"subsection_title": "Syscall anomaly detection on datasets", "methodology_cluster": "n-gram, STIDE, HMM, LSTM/Transformer models over syscall traces",
+     "sota_investigation_mission": "Find recent work evaluated on LID-DS 2021 / LID-DS 2019 / ADFA-LD and how thresholds are set.",
+     "limitation_hypothesis": "Thresholds tuned with attack labels or per-scenario; names-only tokens; no live deployment, latency or burden.",
+     "limitation_search_queries": ["LID-DS 2021 anomaly detection results threshold selection", "system call arguments return values anomaly detection improvement"],
+     "bridge_to_our_method": "Return-value tokens built in the kernel; normal-only threshold rule; same model evaluated offline and live blind."},
+    {"subsection_title": "Runtime detection for containers and microservices", "methodology_cluster": "rule engines (Falco, Tetragon), replica comparison (ReplicaWatcher), container breakout detection (CB-DS)",
+     "sota_investigation_mission": "Find container/microservice anomaly detection systems and how they handle benign operator activity and single-replica services.",
+     "limitation_hypothesis": "Rules need prior knowledge; replica comparison needs several replicas; benign exec sessions handled by allow-lists, not learnt.",
+     "limitation_search_queries": ["ReplicaWatcher training-less anomaly detection containerized microservices", "container escape detection system call dataset"],
+     "bridge_to_our_method": "Per-workload learnt model on one replica; kernel lineage tag separating the workload's process tree from operator sessions."},
+    {"subsection_title": "Evasion and adaptive attackers", "methodology_cluster": "mimicry attacks on syscall and provenance detectors",
+     "sota_investigation_mission": "Find mimicry and evasion results against sequence-based and provenance-based detectors.",
+     "limitation_hypothesis": "Sequence detectors are blind to attacks built from seen sequences; arguments raise the bar.",
+     "limitation_search_queries": ["mimicry attacks host-based intrusion detection Wagner Soto", "provenance-based intrusion detection mimicry evasion"],
+     "bridge_to_our_method": "We measure the seen-only blind spot (0/544) and dilution trials, and report them as limits."}
+   ]
+  }
+ },
+ "section_plan": [
+  {"section_title": "Abstract", "subsections": [{"subsection_title": "Abstract Content", "content_bullets": [
+    "Problem: rule-based runtime security misses unknown behaviour; syscall anomaly detection rarely measured live.",
+    "Method: in-kernel return-value tokens, per-thread 4-gram counts, per-workload count language model, normal-only Gumbel threshold, one-window alarm, push to Alertmanager.",
+    "Results: LID-DS 2021 official 97.40 % recall at 0.33 % false-alarm recordings, p95 1.47 s; CB-DS 891/891; blind live 314/314 primary attacks, 0/314 control, kernel->Alertmanager p95 0.68 s; overhead 0.4-0.5 us per simple syscall.",
+    "Honest limits: flags harmless new processes; blind to seen-only attackers; lineage separation as the next step (v6 results when available). <= 200 words."], "citation_hints": []}]},
+  {"section_title": "1. Introduction", "subsections": [{"subsection_title": "Introduction", "content_bullets": [
+    "Hook and gap per introduction_strategy.", "Three measured requirements: latency to the responder, burden on a real workload, separation from benign new processes.",
+    "Contributions list (idea.md 'Contributions'), each with its headline number from experimental_log.md E1, E3, E5, E4/E7.",
+    "Pre-registration and development/blind split stated up front."], "citation_hints": ["Forrest et al. (A Sense of Self for Unix Processes)", "research paper or technical report introducing 'Falco'", "research paper or technical report introducing 'Tetragon'", "Grimmer et al. (dataset report introducing 'LID-DS 2021')"]}]},
+  {"section_title": "2. Background and Threat Model", "subsections": [
+   {"subsection_title": "2.1 eBPF and syscall tracing on Kubernetes", "content_bullets": ["raw tracepoints sys_enter/sys_exit, fexit on __seccomp_filter, cgroup filtering, maps; why per-syscall fexit was rejected (Tetragon kprobe trampoline cost)."], "citation_hints": ["research paper or technical report introducing 'eBPF'"]},
+   {"subsection_title": "2.2 Threat model", "content_bullets": ["idea.md threat model verbatim in scope; ATT&CK for Containers coverage stated as partial."], "citation_hints": ["research paper or technical report introducing 'MITRE ATT&CK for Containers'"]}]},
+  {"section_title": "3. Related Work", "subsections": [{"subsection_title": "Related Work", "content_bullets": ["Per related_work_strategy (three clusters)."], "citation_hints": []}]},
+  {"section_title": "4. Design", "subsections": [
+   {"subsection_title": "4.1 Tokens with return values", "content_bullets": ["select1f rules, 27 errno syscalls, size buckets, open mode and first directory; 32-bit encoding."], "citation_hints": []},
+   {"subsection_title": "4.2 Per-thread 4-grams in the kernel", "content_bullets": ["thread history, window assignment, gram map, loader drain; lineage tag as an extra key field."], "citation_hints": []},
+   {"subsection_title": "4.3 Count language model and window score", "content_bullets": ["P_0 base with name/variant factorisation; interpolated Witten-Bell equation; top-10 mean surprise; worked RabbitMQ example."], "citation_hints": ["Witten and Bell (The zero-frequency problem: estimating the probabilities of novel events in adaptive text compression)", "Chen and Goodman (An empirical study of smoothing techniques for language modeling)", "Kim et al. (LSTM-based system call language modeling and robust ensemble method for designing host-based intrusion detection systems)"]},
+   {"subsection_title": "4.4 Normal-only threshold", "content_bullets": ["cross-fit (sha256 folds / 30-min chunks), trim 1 %, moment Gumbel, tau = mean + 6.27 sd; alpha' as a knob, not a guarantee."], "citation_hints": ["Coles (An Introduction to Statistical Modeling of Extreme Values)"]},
+   {"subsection_title": "4.5 Alert path and RCA", "content_bullets": ["push bridge vs scrape; RCA evidence tree, ranking, recheck."], "citation_hints": []}]},
+  {"section_title": "5. Implementation", "subsections": [{"subsection_title": "Implementation", "content_bullets": ["probe sizes, proof per kernel/build, SHA-256-locked models, worker scoring loop off shared storage, cluster (3 workers 16 vCPU / 36 GB, 21 workloads), model size 1.5 MB."], "citation_hints": []}]},
+  {"section_title": "6. Evaluation", "subsections": [
+   {"subsection_title": "6.1 Methodology", "content_bullets": ["pre-registration; datasets and splits; campaign design (5 fixtures, rates, primary set); metrics; Wilson and clustered bootstrap."], "citation_hints": ["Wilson (Probable inference, the law of succession, and statistical inference)", "El Khairi et al. (dataset introducing 'CB-DS' container breakout)", "Arp et al. (Dos and Don'ts of Machine Learning in Computer Security)"]},
+   {"subsection_title": "6.2 Public datasets", "content_bullets": ["E1 table and per-scenario table; Juice-Shop ceiling; base-rate precision; STIDE comparison; counting model contrast."], "citation_hints": ["Grimmer et al. (LID-DS 2021 STIDE results)"]},
+   {"subsection_title": "6.3 Which design choices matter", "content_bullets": ["E2 alphabets, leave-one-syscall-out, 5-syscall subset, parameter flatness, threshold rules, model vs rule, rate branch."], "citation_hints": []},
+   {"subsection_title": "6.4 Blind live runs", "content_bullets": ["E3 table, attribution, burden; v6 replication (H0) when available."], "citation_hints": []},
+   {"subsection_title": "6.5 Benign new processes", "content_bullets": ["E4: why flagged, gate rejected, B/B2/B3, lineage tag, rule layer benefit; v6 H1, H4, H5 when available."], "citation_hints": ["Elkhairi et al. (ReplicaWatcher)"]},
+   {"subsection_title": "6.6 Cost", "content_bullets": ["E5 overhead table, worker CPU, lineage cost, map capacity figure."], "citation_hints": []},
+   {"subsection_title": "6.7 Alert latency and RCA", "content_bullets": ["E6; v6 H6 when available."], "citation_hints": []}]},
+  {"section_title": "7. Discussion and Limitations", "subsections": [{"subsection_title": "Discussion", "content_bullets": [
+    "Novelty, not malice (Juice-Shop SQL injection; harmless binaries).", "Seen-only attackers 0/544; dilution (v6 H3 when available); map-full evasion.",
+    "Threshold calibration and model aging (E7).", "Scope: one cluster, one application, self-written fixtures, labels by design, no in-service exploit on the cluster."], "citation_hints": ["Wagner and Soto (Mimicry attacks on host-based intrusion detection systems)", "Goyal et al. (provenance-based intrusion detection evasion)"]}]},
+  {"section_title": "8. Conclusion", "subsections": [{"subsection_title": "Conclusion", "content_bullets": ["Restate contributions with numbers; next steps: lineage-aware scoring, LID-DS 2019 once."], "citation_hints": []}]},
+  {"section_title": "Appendix: Ethical Considerations", "subsections": [{"subsection_title": "Ethics", "content_bullets": ["own testbed; self-written fixtures only, no CVE exploit or vulnerable image on the cluster; public datasets; no human subjects; dual use of evasion findings."], "citation_hints": []}]},
+  {"section_title": "Appendix: Open Science", "subsections": [{"subsection_title": "Artifacts", "content_bullets": ["probe sources, model and threshold code, protocols, receipts, analysis scripts, audit script; anonymous link; what cannot be shared (cluster credentials)."], "citation_hints": []}]}
+ ]
+}
