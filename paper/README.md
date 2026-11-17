@@ -10,7 +10,7 @@ step by step; two of its rules are overridden (see `templates/usenix-security/gu
 | raw materials | thesis, receipts | `raw_materials/idea_dense.md`, `raw_materials/experimental_log.md`, `raw_materials/figures/info.json` | done 17/11 (v6, LID-DS 2019 PENDING) |
 | template + guidelines | USENIX Security '27 CFP and template | `templates/usenix-security/` | done 17/11 |
 | 1. outline agent | the above | `outline.json` | done 17/11 |
-| 2. literature agent | outline | `literature/citation_map.json`, `literature/references.bib` (each entry verified on Semantic Scholar) | next |
+| 2. literature agent | outline | `literature/citation_map.json` (Semantic Scholar; Crossref by DOI when S2 has no record) | running 17/11; the submitted `references.bib` will be generated from the verified metadata, never edited by hand (an author name was nearly mistyped on 17/11) |
 | 3. section writing agent | outline, citation map | `latex/paper.tex`, `latex/sections/*.tex` | 17/11: background, design, implementation, evaluation written (v6 and LID-DS 2019 parts PENDING); introduction, related work, discussion, conclusion, appendices next |
 | 4. content refinement (AgentReview reviewer, USENIX rubric) | paper | `latex/paper.tex`, `refinement/worklog.json` | |
 | 5. plotting / format | outline plotting plan | `latex/figures/` | |
