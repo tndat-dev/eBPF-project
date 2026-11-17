@@ -1,2 +1,42 @@
-\section{related}
-\pending{related}
+\section{Related Work}\label{sec:related}
+
+\paragraph{Anomaly detection from system calls.} Forrest et al.\ modelled a program's normal behaviour as its set of
+short system-call sequences~\cite{forrest1996}, and Warrender et al.\ compared enumeration of sequences, relative
+frequencies, rule induction and hidden Markov models on the same task~\cite{warrender1999}. Later work learnt automata
+of program behaviour~\cite{sekar2001} and showed that system-call arguments, not only names, help to separate attacks
+from normal behaviour~\cite{mutz2006,maggi2010}. Kim et al.\ treated system calls as a language and scored sequences
+with an LSTM language model and an ensemble of thresholds~\cite{kim2016}; Fournier et al.\ applied language models to
+novelty detection in system-call traces~\cite{fournier2023}. Datasets moved from ADFA-LD~\cite{creech2013} to LID-DS,
+whose 2019 and 2021 releases record real vulnerabilities in containers with exploit timestamps~\cite{grimmer2019,
+grimmer2022}; the dataset authors report STIDE on all 15 scenarios of LID-DS~2021~\cite{grimmer2022}. Recent work on
+containers studies window sizes~\cite{castanhel2020} or cheaper Transformer representations of system-call
+bigrams~\cite{bortolini2025}. Our model belongs to the language-model family but is a count model with interpolated
+Witten--Bell smoothing~\cite{witten1991,chen1999} over tokens that carry return values (error code, returned size,
+first directory), built in the kernel; we use no attack label to set thresholds, evaluate the same model offline and
+live, and report latency to the responder and alert burden, which these works do not measure.
+
+\paragraph{Runtime detection for containers and microservices.} Rule engines such as Falco, Tetragon and Tracee are the
+practice~\cite{falco,tetragon,tracee}; a recent comparison on Kubernetes evaluated them on container escape, denial of
+service and cryptomining and reported full detection without false positives on that campaign~\cite{syairozi2025}, but
+rules only cover anticipated behaviour. Learnt detectors for containers include bags of system calls monitored from the
+host~\cite{abed2016}, a graph of system calls with their properties in context, evaluated on container-breakout data
+that we reuse as CB-DS~\cite{elkhairi2022}, eBPF-based detection of abnormal file accesses~\cite{zhou2026},
+federated eBPF monitoring across clusters~\cite{zehra2025}, and fixed-point arithmetic to run detection fully inside
+eBPF~\cite{osaki2024}. ReplicaWatcher avoids training altogether by comparing replicas of the same microservice,
+reaching an average precision of 91.08\,\% and recall of 98.35\,\%, and motivates this by the aging of learnt
+baselines in microservice deployments~\cite{elkhairi2024}; it needs several replicas doing similar work. We learn a
+model per workload that works on a single replica, measure its aging after a cluster change directly
+(\cref{sec:eval-v6}), and address harmless operator activity, which the cited learnt detectors do not separate from
+attacks, with a kernel lineage tag. Attack-surface reduction by system-call filtering~\cite{ghavamnia2020a,
+ghavamnia2020b} is complementary: it removes calls a container never needs, while we watch the calls it makes.
+
+\paragraph{Alert fatigue and provenance.} Security operations centres face far more alarms than they can
+investigate~\cite{alahmadi2022}; provenance-based systems triage alerts~\cite{hassan2019} or detect and investigate
+intrusions on whole-system provenance graphs~\cite{cheng2023,jiang2025}. Our RCA builds a much simpler evidence tree
+from process events and is evaluated only by coverage and rank. We measure burden as alarm episodes per replica-hour and
+report that it remains above our reference budget.
+
+\paragraph{Evasion.} Mimicry attacks hide an exploit in sequences the detector considers normal~\cite{wagner2002}, and
+common exploits can be modified to avoid anomaly detectors~\cite{tan2002}; mimicry also defeats provenance-based
+detectors~\cite{goyal2023}. We do not claim robustness against such attackers: we measure the seen-only blind spot of our
+model and of a simpler rule, and dilution trials in the latest live run (\cref{sec:discussion}).

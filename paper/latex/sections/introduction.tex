@@ -1,2 +1,41 @@
-\section{introduction}
-\pending{introduction}
+\section{Introduction}\label{sec:intro}
+
+Kubernetes clusters run many containers that share one kernel, and their runtime security in practice rests on rules:
+Falco~\cite{falco}, Tetragon~\cite{tetragon} and Tracee~\cite{tracee} watch system calls and kernel functions through
+eBPF and raise an alert when an event matches a pattern someone wrote. Rules are precise and cheap, but they only see
+what their authors anticipated. Anomaly detection from system calls promises the complement, flagging behaviour a
+workload never showed before, and the idea is thirty years old~\cite{forrest1996}. Yet most of that line of work is
+evaluated offline, on recorded traces, often with thresholds tuned on labelled attacks~\cite{arp2022}. Three
+questions that decide whether such a detector can run next to the rules on a live cluster are rarely measured: how long
+an alert takes from the kernel event to the person who must act, how many alarms a real workload produces per hour of
+normal operation, and whether the detector can tell an attack from a new but harmless process, such as an operator's
+\texttt{kubectl exec}.
+
+We present \sys, an eBPF-based detector that learns each workload's normal behaviour as a language over system-call
+tokens. Each token keeps, besides the system-call name, the part of the return information that exploits change while
+keeping the set of calls: the error code of a failure, the size class of a read or write, or the mode and first
+directory of an opened file. The kernel builds one token per call, counts 4-token sequences per thread in a map, and
+hands closed 0.5\,s windows to user space; a count language model with Witten--Bell smoothing scores each window by its
+most surprising events, and a threshold fitted on held-out normal data only decides an alarm, which a bridge pushes
+straight to Alertmanager.
+
+We evaluate \sys under protocols registered before the data they concern was read, separating development results from
+blind ones. Our contributions are:
+\begin{itemize}
+\item \textbf{In-kernel return-value tokens.} A probe that builds one 32-bit token per system call with its error code,
+  returned size or opened directory, counts per-thread 4-grams in an eBPF map, and is checked by a proof of one token per
+  call. It adds 0.4--0.5\,\textmu s per simple system call of a watched container (\cref{sec:eval-cost}).
+\item \textbf{A label-free model that holds on datasets and live.} On the official split of LID-DS~2021 the model
+  detects 97.40\,\% of attack recordings with 0.33\,\% of normal recordings raising a false alarm and p95 latency
+  1.47\,s; on CB-DS 891/891 breakouts. In two blind 24-hour runs on a 21-workload application it detects every attack of
+  the primary set (315/315 and 314/314) with at most 3/315 idle false alarms, and alerts reach Alertmanager within
+  0.68\,s at p95 (\cref{sec:eval-datasets,sec:eval-live}).
+\item \textbf{Which choices matter.} Returned sizes carry most of the signal; five of the 39 hooked system calls suffice
+  on LID-DS; a moment Gumbel rule is not a correct distribution but the best normal-only threshold rule we tried; and
+  the model beats a count rule on the same tokens at low false-alarm budgets (\cref{sec:eval-design}).
+\item \textbf{Honest limits and a direction.} The model flags harmless new processes, is blind to attacks built from
+  seen sequences (0/544), and ages after a cluster change (2.3$\times$ more threshold exceedances). We show that learning
+  operator activity or gating the model does not fix the first limit, and introduce a kernel lineage tag that separates a
+  workload's own process tree from operator sessions (\cref{sec:lineage,sec:eval-benign}).
+\end{itemize}
+\pending{one sentence with the headline of the latest live run and LID-DS 2019}

@@ -1,0 +1,190 @@
+{
+ "10.1007/978-3-319-24858-5_8": {
+  "year": 2015,
+  "venue": "Security and Trust Management",
+  "series": "Lecture Notes in Computer Science",
+  "pages": "123-135",
+  "type": "book-chapter"
+ },
+ "10.5753/sbseg.2025.10695": {
+  "year": 2025,
+  "venue": "Anais do XXV Simpósio Brasileiro de Cibersegurança (SBSeg 2025)",
+  "series": null,
+  "pages": "1019-1026",
+  "type": "proceedings-article"
+ },
+ "10.5753/ERRC.2020.15203": {
+  "year": 2020,
+  "venue": "Anais da XVIII Escola Regional de Redes de Computadores (ERRC 2020)",
+  "series": null,
+  "pages": "141-146",
+  "type": "proceedings-article"
+ },
+ "10.3115/981863.981904": {
+  "year": 1996,
+  "venue": "Proceedings of the 34th annual meeting on Association for Computational Linguistics  -",
+  "series": null,
+  "pages": "310-318",
+  "type": "proceedings-article"
+ },
+ "10.1109/SP54263.2024.00005": {
+  "year": 2024,
+  "venue": "2024 IEEE Symposium on Security and Privacy (SP)",
+  "series": null,
+  "pages": "3533-3551",
+  "type": "proceedings-article"
+ },
+ "10.1198/jasa.2002.s232": {
+  "year": 2002,
+  "venue": "Journal of the American Statistical Association",
+  "series": null,
+  "pages": "1204-1204",
+  "type": "journal-article"
+ },
+ "10.1109/WCNC.2013.6555301": {
+  "year": 2013,
+  "venue": "2013 IEEE Wireless Communications and Networking Conference (WCNC)",
+  "series": null,
+  "pages": "4487-4492",
+  "type": "proceedings-article"
+ },
+ "10.1145/3560810.3564266": {
+  "year": 2022,
+  "venue": "Proceedings of the 2022 on Cloud Computing Security Workshop",
+  "series": null,
+  "pages": "9-21",
+  "type": "proceedings-article"
+ },
+ "10.14722/ndss.2024.24286": {
+  "year": 2024,
+  "venue": "Proceedings 2024 Network and Distributed System Security Symposium",
+  "series": null,
+  "pages": null,
+  "type": "proceedings-article"
+ },
+ "10.1109/SECPRI.1996.502675": {
+  "year": null,
+  "venue": "Proceedings 1996 IEEE Symposium on Security and Privacy",
+  "series": null,
+  "pages": "120-128",
+  "type": "proceedings-article"
+ },
+ "10.48550/arXiv.2309.02206": {
+  "error": "HTTP Error 404: Not Found"
+ },
+ "10.1007/s10994-006-6226-1": {
+  "year": 2006,
+  "venue": "Machine Learning",
+  "series": null,
+  "pages": "3-42",
+  "type": "journal-article"
+ },
+ "10.14722/ndss.2023.24207": {
+  "year": 2023,
+  "venue": "Proceedings 2023 Network and Distributed System Security Symposium",
+  "series": null,
+  "pages": null,
+  "type": "proceedings-article"
+ },
+ "10.1007/978-3-031-35190-7_6": {
+  "year": 2023,
+  "venue": "Critical Information Infrastructures Security",
+  "series": "Lecture Notes in Computer Science",
+  "pages": "63-73",
+  "type": "book-chapter"
+ },
+ "10.14722/ndss.2019.23349": {
+  "year": 2019,
+  "venue": "Proceedings 2019 Network and Distributed System Security Symposium",
+  "series": null,
+  "pages": null,
+  "type": "proceedings-article"
+ },
+ "10.48550/arXiv.1611.01726": {
+  "error": "HTTP Error 404: Not Found"
+ },
+ "10.1109/TDSC.2008.69": {
+  "year": 2010,
+  "venue": "IEEE Transactions on Dependable and Secure Computing",
+  "series": null,
+  "pages": "381-395",
+  "type": "journal-article"
+ },
+ "10.1145/1127345.1127348": {
+  "year": 2006,
+  "venue": "ACM Transactions on Information and System Security",
+  "series": null,
+  "pages": "61-93",
+  "type": "journal-article"
+ },
+ "10.1145/3674213.3674219": {
+  "year": 2024,
+  "venue": "Proceedings of the 19th Asian Internet Engineering Conference",
+  "series": null,
+  "pages": "46-54",
+  "type": "proceedings-article"
+ },
+ "10.1109/SECPRI.2001.924295": {
+  "year": null,
+  "venue": "Proceedings 2001 IEEE Symposium on Security and Privacy. S&amp;P 2001",
+  "series": null,
+  "pages": "144-155",
+  "type": "proceedings-article"
+ },
+ "10.5220/0014272700004928": {
+  "year": 2025,
+  "venue": "Proceedings of the 1st International Conference on Research and Innovations in Information and Engineering Technology",
+  "series": null,
+  "pages": "136-141",
+  "type": "proceedings-article"
+ },
+ "10.1007/3-540-36084-0_4": {
+  "year": 2002,
+  "venue": "Recent Advances in Intrusion Detection",
+  "series": "Lecture Notes in Computer Science",
+  "pages": "54-73",
+  "type": "book-chapter"
+ },
+ "10.1145/586110.586145": {
+  "year": 2002,
+  "venue": "Proceedings of the 9th ACM conference on Computer and communications security",
+  "series": null,
+  "pages": "255-264",
+  "type": "proceedings-article"
+ },
+ "10.1109/SECPRI.1999.766910": {
+  "year": null,
+  "venue": "Proceedings of the 1999 IEEE Symposium on Security and Privacy (Cat. No.99CB36344)",
+  "series": null,
+  "pages": "133-145",
+  "type": "proceedings-article"
+ },
+ "10.1080/01621459.1927.10502953": {
+  "year": 1927,
+  "venue": "Journal of the American Statistical Association",
+  "series": null,
+  "pages": "209-212",
+  "type": "journal-article"
+ },
+ "10.1109/18.87000": {
+  "year": 1991,
+  "venue": "IEEE Transactions on Information Theory",
+  "series": null,
+  "pages": "1085-1094",
+  "type": "journal-article"
+ },
+ "10.1109/ICET66147.2025.11321420": {
+  "year": 2025,
+  "venue": "2025 20th International Conference on Emerging Technologies (ICET)",
+  "series": null,
+  "pages": "1-7",
+  "type": "proceedings-article"
+ },
+ "10.3390/math14060991": {
+  "year": 2026,
+  "venue": "Mathematics",
+  "series": null,
+  "pages": "991",
+  "type": "journal-article"
+ }
+}
