@@ -86,6 +86,16 @@ def split(sources, work):
     return names
 
 
+def crossfit_span(train, validation, extra):
+    """(train, validation) whose outer ends bound the cross-fit (crossfit_one learns and scores [train[0], validation[1]]):
+    an extra normal after the capture extends the end (pulse-live-v5-fit-1110), one before it the start (pulse-live-v6-v1)."""
+    if extra[0] >= validation[1]:
+        return list(train), [validation[0], extra[1]]
+    if extra[1] <= train[0]:
+        return [extra[0], train[1]], list(validation)
+    raise ValueError('the extra span overlaps the capture')
+
+
 def fold_of(window_end, start, seconds, folds):
     """Contiguous chunks of the capture dealt to the folds in turn: a held-out window is far from most learnt windows."""
     return int((window_end - start) // seconds) % folds
@@ -250,12 +260,13 @@ def main():
     work.mkdir(parents=True, exist_ok=True)
     if bool(a.extra_run) != bool(a.extra_span) or (a.extra_run and not a.folds):
         raise SystemExit('--extra-run needs --extra-span and --folds')
-    if a.extra_run and not a.validation[1] <= a.extra_span[0] < a.extra_span[1]:
-        raise SystemExit('the extra span must follow the capture')
+    if a.extra_run and not (a.extra_span[0] < a.extra_span[1]
+                            and (a.validation[1] <= a.extra_span[0] or a.extra_span[1] <= a.train[0])):
+        raise SystemExit('the extra span must not overlap the capture')
     sources = [(a.run_root, a.train[0], a.validation[1], None)]
     if a.extra_run:
         sources.append((a.extra_run, a.extra_span[0], a.extra_span[1], trial_spans(a.extra_run / 'pulse-development-matrix')))
-        a.validation = [a.validation[0], a.extra_span[1]]      # the cross-fit span runs to the end of the extra normal
+        a.train, a.validation = crossfit_span(a.train, a.validation, a.extra_span)
     names = split(sources, work)
     jobs = [(k, str(v), a.train, a.validation, a.alpha, a.block, a.minimum_blocks, str(a.output)) for k, v in sorted(names.items())]
     worker = fit_one

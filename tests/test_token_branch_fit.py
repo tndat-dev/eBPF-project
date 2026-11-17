@@ -98,3 +98,20 @@ def test_dump_maxima_writes_the_blocks_the_threshold_uses(tmp_path):
     assert abs(f.threshold(f.trimmed_gumbel(blocks), 0.0002 * 0.9) - entry['threshold']) < 1e-12
     _, row2, entry2 = f.fit_crossfit(job[:-1])                 # without the dump: same threshold, nothing written
     assert entry2['threshold'] == entry['threshold']
+
+
+def test_crossfit_span_takes_an_extra_normal_before_or_after_the_capture():
+    import pytest
+    assert f.crossfit_span((100, 180), (180, 220), (300, 400)) == ([100, 180], [180, 400])    # v5: later live run
+    assert f.crossfit_span((100, 180), (180, 220), (10, 90)) == ([10, 180], [180, 220])       # v6: earlier live run
+    with pytest.raises(ValueError):
+        f.crossfit_span((100, 180), (180, 220), (150, 300))
+
+
+def test_an_earlier_extra_normal_is_learnt_and_held_out(tmp_path):
+    path = tmp_path / 'w.jsonl'
+    rows = [dict(window_end=e, workload_key='w', pod_uid='p', container_name='c', grams=COMMON) for e in (50.0, 1050.0)]
+    path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+    train, validation = f.crossfit_span((1000.0, 1040.0), (1040.0, 1100.0), (0.0, 100.0))
+    _, maxima, windows = f.crossfit_one(str(path), train[0], validation[1], 60.0, 5, 30.0)
+    assert windows == 2 and ('p', 'c', 0) in maxima
