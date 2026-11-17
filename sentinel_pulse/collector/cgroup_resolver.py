@@ -7,6 +7,17 @@ Runtimes without visible container cgroups retain the deepest pod-slice
 fallback (for example, a gVisor sentry scope).
 """
 
+# [VI] ==============================================================================================================
+# [VI] cgroup_resolver.py — TRẢ LỜI "CGROUP NÀO LÀ CONTAINER NÀO" MÀ KHÔNG CẦN QUYỀN KUBERNETES API.
+# [VI] Chạy root trên mỗi worker node (unit riêng), lặp mỗi 15 s:
+# [VI]   1) `crictl pods` / `crictl ps`: lấy pod và container của namespace production đang chạy trên node (qua CRI —
+# [VI]      giao diện của container runtime — nên không cần RBAC của API server).
+# [VI]   2) Quét cây cgroup v2 (/sys/fs/cgroup), khớp thư mục theo UID của pod và ID của container; cgroup id = số inode
+# [VI]      của thư mục (đúng giá trị bpf_get_current_cgroup_id() trả về trong kernel).
+# [VI]   3) Ghi hai file (ghi nguyên tử): allow-list (mỗi dòng một cgroup id — loader đọc file này) và metadata JSON
+# [VI]      (cgroup id → pod, container, vai trò, tên workload, phiên bản — worker dùng để gắn danh tính).
+# [VI] Pod của bộ sinh tải, runner tấn công và chính Sentinel Pulse bị loại (EXCLUDED_MARKERS).
+# [VI] ==============================================================================================================
 from __future__ import annotations
 
 import argparse
@@ -26,6 +37,7 @@ from typing import Iterable
 EXCLUDED_MARKERS = ("loadgen", "attack-runner", "sentinel-pulse")
 
 
+# [VI] Đoán vai trò từ tên pod (chỉ để ghi metadata và nhóm báo cáo; mô hình theo workload_key, không theo vai trò).
 def infer_role(pod_name: str) -> str:
     name = pod_name.lower()
     if "kafka-entity-operator" in name:
@@ -51,6 +63,7 @@ def infer_role(pod_name: str) -> str:
     return "other-production"
 
 
+# [VI] Tên controller ổn định từ tên pod: bỏ đuôi hash của Deployment (-<hash>-<5 ký tự>) hoặc số thứ tự của StatefulSet.
 def infer_workload_name(pod_name: str) -> str:
     """Remove rollout identity while retaining the stable controller name."""
     deployment = re.match(r"^(.+)-[0-9a-f]{8,10}-[a-z0-9]{5}$", pod_name)
@@ -62,6 +75,8 @@ def infer_workload_name(pod_name: str) -> str:
     return pod_name
 
 
+# [VI] Phiên bản template sinh ra pod (đổi khi image/cấu hình đổi, KHÔNG đổi khi pod khởi động lại) — từ nhãn hash của
+# [VI] Deployment/Argo Rollouts/StatefulSet, annotation của Strimzi (Kafka) hoặc băm podSpec của CloudNativePG (Postgres).
 def workload_revision(labels: dict, annotations: dict | None = None) -> str:
     """Return the controller revision that produced a pod.
 
@@ -94,6 +109,7 @@ def workload_revision(labels: dict, annotations: dict | None = None) -> str:
     return "unknown"
 
 
+# [VI] Danh sách pod của namespace trên node này qua `crictl pods -o json`.
 def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
     """Pods of the namespace, or of each of a comma-separated list."""
     result = subprocess.run(
@@ -124,6 +140,7 @@ def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
     return list(selected.values())
 
 
+# [VI] Danh sách container (id, tên, pod UID) qua `crictl ps -a -o json`.
 def cri_containers(command: str = "crictl") -> list[dict]:
     result = subprocess.run(
         [command, "ps", "-a", "-o", "json"], capture_output=True, text=True, check=True
@@ -146,6 +163,9 @@ def cri_containers(command: str = "crictl") -> list[dict]:
     return containers
 
 
+# [VI] Ghép pod/container với thư mục cgroup. Ưu tiên cgroup của CONTAINER (nơi syscall thật sự xảy ra); chỉ khi runtime
+# [VI] không lộ cgroup container (vd. gVisor) mới dùng cgroup sâu nhất của pod. Không lấy "pod slice" cha vì nó không có
+# [VI] task nào → sẽ sinh ra một mô hình toàn số 0.
 def resolve_cgroups(
     pods: Iterable[dict], cgroup_root: Path, containers: Iterable[dict] = ()
 ) -> dict[int, dict]:
@@ -195,6 +215,7 @@ def resolve_cgroups(
     return resolved
 
 
+# [VI] Ghi file nguyên tử: ghi file tạm, fsync, rồi rename đè — loader/worker không bao giờ đọc phải file ghi dở.
 def atomic_write(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
@@ -209,6 +230,7 @@ def atomic_write(path: Path, text: str) -> None:
             os.unlink(temporary)
 
 
+# [VI] Một vòng làm mới: CRI → ghép cgroup → ghi allow-list và metadata.
 def refresh(namespace: str, cgroup_root: Path, allow_file: Path, metadata_file: Path) -> dict:
     pods = cri_pods(namespace)
     containers = cri_containers()

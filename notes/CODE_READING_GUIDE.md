@@ -194,5 +194,7 @@ syscall ─► pulse_counter.bpf.c ─► pulse_tokens.bpf.h ─► map pulse_gr
 | Phần | Trạng thái |
 |---|---|
 | `sentinel_pulse/ebpf/` (kernel + header) | xong 18/11 (`pulse_counter.bpf.c`, `pulse_tokens.bpf.h`, `pulse_token_ids.h`, `pulse_counter_ids.h`, `pulse_counter_projection.h`) |
-| `sentinel_pulse/ebpf/pulse_counter_loader.c` | đang làm |
-| collector, detector, pipeline, attack + testbed, ops + rca, lidds + scripts phân tích | lần lượt, theo thứ tự §1 |
+| `sentinel_pulse/ebpf/pulse_counter_loader.c` | xong 18/11 |
+| `sentinel_pulse/detector/token_model.py` | xong 18/11 |
+| `sentinel_pulse/collector/token_capture.py`, `cgroup_resolver.py` | xong 18/11 |
+| pipeline (`matched_worker.py`, `plan_matched_run.py`...), attack + testbed, ops + rca, lidds + scripts phân tích | lần lượt, theo thứ tự §1 |

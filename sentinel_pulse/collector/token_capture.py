@@ -5,6 +5,12 @@ distinct 4-grams and their counts, and one ``token_drain`` line per frame. ``tok
 it the identity the feature records carry (workload_key, pod, container, revision), or None for a cgroup outside the
 production namespace, as ExtendedFeatureStream does.
 """
+# [VI] ==============================================================================================================
+# [VI] token_capture.py — KIỂM TRA MỘT DÒNG "token_grams" CỦA LOADER VÀ GẮN DANH TÍNH CONTAINER CHO NÓ.
+# [VI] matched_worker.py gọi token_window(row, metadata) cho mỗi dòng token_grams. Kết quả là "cửa sổ token" mà mô hình
+# [VI] chấm (TokenBranch.score) và được ghi vào tokens.jsonl của segment. Kiểm tra chặt để dữ liệu hỏng không lọt vào mô
+# [VI] hình: mỗi gram đúng 4 token + 1 số đếm > 0, ô trống chỉ được ở ĐẦU gram, tổng số đếm = số sự kiện của cửa sổ.
+# [VI] ==============================================================================================================
 from __future__ import annotations
 
 import math
@@ -16,6 +22,7 @@ SCHEMA = 'sentinel-pulse-token-window-v1'
 TOK_NONE = 0xFFFFFFFF
 
 
+# [VI] Kiểm phần "grams" (cả cửa sổ): định dạng từng gram và tổng số đếm khớp trường "events". Sai → ValueError.
 def check_grams(grams, events):
     total = 0
     for gram in grams:
@@ -35,6 +42,7 @@ def check_grams(grams, events):
         raise ValueError('token gram counts differ from window events')
 
 
+# [VI] Kiểm phần "session" (bản build có thẻ dòng dõi): mỗi gram session phải có trong cửa sổ, với số đếm không lớn hơn.
 def check_session(session, session_events, grams):
     """The session-lineage part of a window (ml-final-study-v1 amendment 2): a subset of its grams, count by count."""
     whole = {tuple(int(v) for v in g[:4]): int(g[4]) for g in grams}
@@ -50,6 +58,9 @@ def check_session(session, session_events, grams):
         raise ValueError('session gram counts differ from session events')
 
 
+# [VI] Dựng "cửa sổ token" có danh tính. `metadata` là file do cgroup_resolver.py ghi (cgroup id → pod, container,
+# [VI] namespace, phiên bản workload). Trả None nếu cgroup không thuộc namespace được theo dõi hoặc thiếu danh tính.
+# [VI] workload_key = "namespace/tên-controller:tên-container" (vd. production/payment-service:app) — khoá chọn mô hình.
 def token_window(row: dict, metadata: dict):
     if row.get('type') != 'token_grams' or row.get('contract') != CONTRACT:
         raise ValueError('wrong token telemetry contract')
