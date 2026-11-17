@@ -1,0 +1,344 @@
+{
+ "schema": "pulse-model-aging-v1",
+ "protocol": "sentinel_pulse/protocol/pulse-live-v6-v1-amendment-1.json",
+ "run": "/mnt/sentinel-pulse-archive/pulse-token-capture-v6-1116",
+ "models": "/mnt/sentinel-pulse-archive/pulse-live-v5-fit-1110/token/MODELS.json",
+ "segments_read": 72,
+ "pooled": {
+  "blocks": 47082,
+  "above": 278,
+  "rate": 0.005904591988445691,
+  "design": 0.00018,
+  "replica_hours": 769.0954166666667,
+  "episodes": 291,
+  "per_replica_hour": 0.37836657675223434,
+  "v5_heldout": {
+   "blocks": 134905,
+   "above": 350,
+   "rate": 0.002594418294355287
+  },
+  "v5_burden": {
+   "episodes": 10,
+   "replica_hours": 94.92208333333333,
+   "per_replica_hour": 0.10534956301879173
+  }
+ },
+ "workloads": {
+  "production/aims-frontend:web": {
+   "blocks": 1452,
+   "above": 0,
+   "rate": 0.0,
+   "design": 0.00018,
+   "windows": 149003,
+   "replica_hours": 20.694861111111113,
+   "episodes": 0,
+   "per_replica_hour": 0.0,
+   "v5_heldout": {
+    "blocks": 4146,
+    "above": 4,
+    "rate": 0.000964785335262904
+   }
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "blocks": 2178,
+   "above": 34,
+   "rate": 0.015610651974288337,
+   "design": 0.00018,
+   "windows": 259376,
+   "replica_hours": 36.02444444444444,
+   "episodes": 34,
+   "per_replica_hour": 0.9438035901548332,
+   "v5_heldout": {
+    "blocks": 6220,
+    "above": 33,
+    "rate": 0.005305466237942123
+   }
+  },
+  "production/aims-kafka-entity-operator:topic-operator": {
+   "blocks": 726,
+   "above": 0,
+   "rate": 0.0,
+   "design": 0.00018,
+   "windows": 86460,
+   "replica_hours": 12.008333333333333,
+   "episodes": 0,
+   "per_replica_hour": 0.0,
+   "v5_heldout": {
+    "blocks": 2070,
+    "above": 0,
+    "rate": 0.0
+   }
+  },
+  "production/aims-kafka-entity-operator:user-operator": {
+   "blocks": 726,
+   "above": 0,
+   "rate": 0.0,
+   "design": 0.00018,
+   "windows": 86461,
+   "replica_hours": 12.008472222222222,
+   "episodes": 0,
+   "per_replica_hour": 0.0,
+   "v5_heldout": {
+    "blocks": 2070,
+    "above": 0,
+    "rate": 0.0
+   }
+  },
+  "production/aims-minio-pool-0:minio": {
+   "blocks": 1452,
+   "above": 8,
+   "rate": 0.005509641873278237,
+   "design": 0.00018,
+   "windows": 157474,
+   "replica_hours": 21.871388888888887,
+   "episodes": 8,
+   "per_replica_hour": 0.3657746675641693,
+   "v5_heldout": {
+    "blocks": 4143,
+    "above": 52,
+    "rate": 0.01255129133478156
+   }
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "blocks": 1452,
+   "above": 0,
+   "rate": 0.0,
+   "design": 0.00018,
+   "windows": 143962,
+   "replica_hours": 19.994722222222222,
+   "episodes": 0,
+   "per_replica_hour": 0.0,
+   "v5_heldout": {
+    "blocks": 4140,
+    "above": 1,
+    "rate": 0.00024154589371980676
+   }
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "blocks": 2178,
+   "above": 14,
+   "rate": 0.006427915518824609,
+   "design": 0.00018,
+   "windows": 259356,
+   "replica_hours": 36.02166666666667,
+   "episodes": 14,
+   "per_replica_hour": 0.3886549761717485,
+   "v5_heldout": {
+    "blocks": 6218,
+    "above": 21,
+    "rate": 0.003377291733676423
+   }
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "blocks": 2178,
+   "above": 25,
+   "rate": 0.01147842056932966,
+   "design": 0.00018,
+   "windows": 259374,
+   "replica_hours": 36.024166666666666,
+   "episodes": 25,
+   "per_replica_hour": 0.6939785791945222,
+   "v5_heldout": {
+    "blocks": 6218,
+    "above": 66,
+    "rate": 0.01061434544869733
+   }
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "blocks": 2178,
+   "above": 4,
+   "rate": 0.0018365472910927456,
+   "design": 0.00018,
+   "windows": 259372,
+   "replica_hours": 36.02388888888889,
+   "episodes": 4,
+   "per_replica_hour": 0.11103742886664712,
+   "v5_heldout": {
+    "blocks": 6222,
+    "above": 6,
+    "rate": 0.0009643201542912247
+   }
+  },
+  "production/aims-redis:aims-redis": {
+   "blocks": 2178,
+   "above": 83,
+   "rate": 0.03810835629017447,
+   "design": 0.00018,
+   "windows": 259370,
+   "replica_hours": 36.02361111111111,
+   "episodes": 87,
+   "per_replica_hour": 2.415082700389405,
+   "v5_heldout": {
+    "blocks": 6219,
+    "above": 16,
+    "rate": 0.0025727608940344106
+   }
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "blocks": 1608,
+   "above": 25,
+   "rate": 0.01554726368159204,
+   "design": 0.00018,
+   "windows": 190451,
+   "replica_hours": 26.451527777777777,
+   "episodes": 25,
+   "per_replica_hour": 0.9451249927802953,
+   "v5_heldout": {
+    "blocks": 6954,
+    "above": 63,
+    "rate": 0.0090595340811044
+   }
+  },
+  "production/api-gateway:app": {
+   "blocks": 2904,
+   "above": 45,
+   "rate": 0.015495867768595042,
+   "design": 0.00018,
+   "windows": 345837,
+   "replica_hours": 48.032916666666665,
+   "episodes": 53,
+   "per_replica_hour": 1.1034099879422965,
+   "v5_heldout": {
+    "blocks": 8298,
+    "above": 32,
+    "rate": 0.003856350927934442
+   }
+  },
+  "production/auth-service:app": {
+   "blocks": 2820,
+   "above": 2,
+   "rate": 0.0007092198581560284,
+   "design": 0.00018,
+   "windows": 335820,
+   "replica_hours": 46.641666666666666,
+   "episodes": 3,
+   "per_replica_hour": 0.0643201715204574,
+   "v5_heldout": {
+    "blocks": 8301,
+    "above": 1,
+    "rate": 0.00012046741356463077
+   }
+  },
+  "production/cart-service:app": {
+   "blocks": 2904,
+   "above": 0,
+   "rate": 0.0,
+   "design": 0.00018,
+   "windows": 345822,
+   "replica_hours": 48.030833333333334,
+   "episodes": 0,
+   "per_replica_hour": 0.0,
+   "v5_heldout": {
+    "blocks": 8294,
+    "above": 5,
+    "rate": 0.0006028454304316373
+   }
+  },
+  "production/catalog-service:app": {
+   "blocks": 2904,
+   "above": 10,
+   "rate": 0.003443526170798898,
+   "design": 0.00018,
+   "windows": 345845,
+   "replica_hours": 48.03402777777778,
+   "episodes": 10,
+   "per_replica_hour": 0.20818574795067155,
+   "v5_heldout": {
+    "blocks": 8299,
+    "above": 7,
+    "rate": 0.0008434751174840342
+   }
+  },
+  "production/inventory-service:app": {
+   "blocks": 2904,
+   "above": 14,
+   "rate": 0.0048209366391184574,
+   "design": 0.00018,
+   "windows": 345834,
+   "replica_hours": 48.0325,
+   "episodes": 14,
+   "per_replica_hour": 0.2914693176495082,
+   "v5_heldout": {
+    "blocks": 8299,
+    "above": 5,
+    "rate": 0.0006024822267743102
+   }
+  },
+  "production/notification-service:app": {
+   "blocks": 2904,
+   "above": 7,
+   "rate": 0.0024104683195592287,
+   "design": 0.00018,
+   "windows": 345824,
+   "replica_hours": 48.03111111111111,
+   "episodes": 7,
+   "per_replica_hour": 0.14573887295271584,
+   "v5_heldout": {
+    "blocks": 8298,
+    "above": 2,
+    "rate": 0.00024102193299590263
+   }
+  },
+  "production/order-service:app": {
+   "blocks": 2904,
+   "above": 1,
+   "rate": 0.0003443526170798898,
+   "design": 0.00018,
+   "windows": 345828,
+   "replica_hours": 48.031666666666666,
+   "episodes": 1,
+   "per_replica_hour": 0.020819598181755092,
+   "v5_heldout": {
+    "blocks": 8300,
+    "above": 13,
+    "rate": 0.0015662650602409638
+   }
+  },
+  "production/payment-service:app": {
+   "blocks": 2904,
+   "above": 5,
+   "rate": 0.001721763085399449,
+   "design": 0.00018,
+   "windows": 345824,
+   "replica_hours": 48.03111111111111,
+   "episodes": 5,
+   "per_replica_hour": 0.1040991949662256,
+   "v5_heldout": {
+    "blocks": 8299,
+    "above": 11,
+    "rate": 0.0013254608989034823
+   }
+  },
+  "production/search-recommendation-service:app": {
+   "blocks": 2904,
+   "above": 1,
+   "rate": 0.0003443526170798898,
+   "design": 0.00018,
+   "windows": 345824,
+   "replica_hours": 48.03111111111111,
+   "episodes": 1,
+   "per_replica_hour": 0.02081983899324512,
+   "v5_heldout": {
+    "blocks": 6946,
+    "above": 1,
+    "rate": 0.00014396775122372588
+   }
+  },
+  "production/security-telemetry-service:app": {
+   "blocks": 2724,
+   "above": 0,
+   "rate": 0.0,
+   "design": 0.00018,
+   "windows": 324370,
+   "replica_hours": 45.05138888888889,
+   "episodes": 0,
+   "per_replica_hour": 0.0,
+   "v5_heldout": {
+    "blocks": 6951,
+    "above": 11,
+    "rate": 0.0015825061142281686
+   }
+  }
+ },
+ "without_model": {}
+}

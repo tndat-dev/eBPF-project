@@ -92,7 +92,7 @@ lạ; đo trên dữ liệu v5, so sánh có và không có rule.
   trên benchmark tĩnh nhánh tần suất **không đáng nhận**; giá trị chống pha-loãng cần **fixture W3(a) của lượt live**. Nhánh giữ
   shadow, alert path vẫn chỉ token (khớp kết quả D "không đạt tiêu chí" của Giai đoạn 1).
 
-**Đang chạy (16/11 14:14 → 17/11 02:14): thu normal `pulse-token-capture-v6-1116`** theo `pulse-live-v6-v1`, build có thẻ dòng dõi
+**17/11: capture `pulse-token-capture-v6-1116` xong; kiểm lão hoá xong (v5 trên normal mới 0,59% khối vượt ngưỡng so với 0,26% giữ ra, `results-20261117/model-aging/`); đang fit `pulse-live-v6-fit-1117` (unit `pulse-v6-token-fit`), snapshot `runtime-8b997df-20261117`.** Trước đó: thu normal `pulse-token-capture-v6-1116` theo `pulse-live-v6-v1`, build có thẻ dòng dõi
 `/home/dat/pulse-tokens-lineage-5fc5f37` (proof token và dòng dõi đạt trên 3 worker), snapshot `runtime-59390d0-20261116`. Không chạy job
 nặng nào trên mọi node tới khi xong. Sau đó: kiểm lão hoá (mô hình v5 không đổi chấm toàn bộ capture, `scripts/analysis/model_aging.py --heldout validation-evidence/results-20261113/ml-final-study/cluster-threshold.json`, mô tả, không quyết định gì), rồi fit (`token_branch_fit.py` như v5, `--extra-run pulse-live-v5-1110`, `--dump-maxima`, tuần tự,
 trần 20 GB trên `.234`), rồi live 26 giờ (amendment 1, giữ đủ 735 trial; campaign ước lượng 22,7 h, dư khoảng 1,8 h): `TOKEN_BUILD` như trên, `TOKEN_MODELS` của fit, `ADMIN_CONTROL=1 ADMIN_COMMANDS=v6 RANDOM_ORDER=1
