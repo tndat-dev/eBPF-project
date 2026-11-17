@@ -3,6 +3,8 @@
 Never feed these records into a frozen v1 model: counts now include skips,
 and seccomp_skipped_or_emulated is not universally a denial/attack label.
 """
+# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Luồng đặc trưng "mở rộng" (gồm syscall bị seccomp bỏ qua); lấy hiệu giữa
+# [VI] hai ảnh chụp tích luỹ của cùng container để có số đếm mỗi cửa sổ.
 from __future__ import annotations
 import math
 import numpy as np

@@ -5,6 +5,7 @@ sampled event counts cannot represent the true syscall distribution.  Pulse
 therefore consumes cumulative eBPF map snapshots, computes exact deltas, and
 uses Tetragon only as a sparse semantic channel.
 """
+# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Dựng vector đặc trưng đếm (29 syscall, 64 ô băm, 64 ô chuyển tiếp...).
 
 from __future__ import annotations
 

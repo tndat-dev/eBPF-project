@@ -6,6 +6,7 @@ re-scores the same sealed segments with the same frozen models and writes,
 per segment, every window's tree/support score for every arm/seed model.
 Per-segment counts must reproduce the registered evaluation exactly.
 """
+# [VI] (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
 from __future__ import annotations
 
 import argparse

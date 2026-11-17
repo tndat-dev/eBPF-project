@@ -1,4 +1,5 @@
 """Frozen, model-only alert preview policy for the idle-aware candidate."""
+# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Chính sách xem trước (alert preview) của mô hình cũ.
 from __future__ import annotations
 
 import hashlib

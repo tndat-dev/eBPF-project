@@ -11,6 +11,7 @@ separation (recall - benign rate), their differences to base29, and 95% CIs (two
 plus the one-sided 95% lower bound used by the selection rule: recall difference > -3 points).
 A campaign without benign-launch controls (pulse-attack-dev) reports the benign columns as None.
 """
+# [VI] (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
 from __future__ import annotations
 
 import argparse

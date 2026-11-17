@@ -3,6 +3,7 @@
 These used to be copied into several experiment modules; runtime code now
 imports them from here so it no longer depends on retired experiment runners.
 """
+# [VI] Tiện ích chung: ghi JSON nguyên tử (atomic_json), nối JSONL, mở file đã niêm phong (open_sealed: tự đọc .gz), nguồn gốc mã.
 from __future__ import annotations
 
 import json

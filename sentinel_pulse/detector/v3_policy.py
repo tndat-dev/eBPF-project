@@ -6,6 +6,8 @@ scripts/analysis/count_branch_fit.py). One window above either threshold fires, 
 The tree score enters as its logit (lidds_ml_v2 transform 'tree_plain': clip to [1e-4, 1 - 1e-4]), the support
 score as it is.
 """
+# [VI] Nhánh đếm (cây + support) của mô hình cũ trên cụm, mỗi nhánh so ngưỡng Gumbel riêng theo workload (count-thresholds.json
+# [VI] của count_branch_fit.py). Từ lidds-ml-v5 chỉ ghi kết quả SHADOW cạnh nhánh token, không báo.
 from __future__ import annotations
 
 import json

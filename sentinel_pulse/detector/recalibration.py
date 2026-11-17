@@ -5,6 +5,7 @@ the frozen model, so p-values can be re-derived offline against a different
 normal calibration sample without touching the model. Combination is the same
 as ``PulseSupportEnsemble``: ``joint_p = min(1, 2 * min(tree_p, support_p))``.
 """
+# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Tính lại p-value conformal của decision đã ghi.
 from __future__ import annotations
 
 from collections import defaultdict

@@ -4,6 +4,7 @@ This is an offline/shadow evaluation adapter. It intentionally has no alert
 policy, output sink, collector integration, or promotion path. A positive score
 must never be interpreted as a production alert.
 """
+# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Nạp mô hình cũ (kiểm SHA-256) và chấm.
 from __future__ import annotations
 
 import json

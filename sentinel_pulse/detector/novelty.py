@@ -5,6 +5,7 @@ burden-reduction-v1) and the live preview path (``PeerNovelty``; Pulse 5.22 choi
 ``Signals`` moved here unchanged from ``window_table`` on 24/10 so the live worker can import it without the
 offline analysis stack.
 """
+# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Độ mới của tập syscall so với replica khác (evidence discount, đã bỏ 01/11).
 from __future__ import annotations
 
 from collections import defaultdict, deque

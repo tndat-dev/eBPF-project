@@ -1,4 +1,5 @@
 """Normal-only matched 500ms addition/group-ablation fits, with checkpoints."""
+# [VI] (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
 from __future__ import annotations
 
 import argparse

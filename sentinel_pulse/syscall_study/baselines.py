@@ -20,6 +20,7 @@ Combined arms (protocol baseline-fresh-replication-v1): ``tree_ae`` keeps base29
 autoencoder score (same seed) in the second branch, i.e. Pulse with the autoencoder in place of the support branch.
 ``score`` computes it on the fly; ``combine`` derives it from an existing evaluation's dumps and replay.
 """
+# [VI] (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
 from __future__ import annotations
 
 import argparse

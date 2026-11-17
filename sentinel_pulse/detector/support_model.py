@@ -6,6 +6,7 @@ corruption training. Both p-values are calibrated on normal suffixes; the
 combination pays a two-branch multiple-testing budget, not an uncorrected OR.
 This module does not plug into the frozen production detector/policy.
 """
+# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Nhánh "support": điểm cho đặc trưng nằm ngoài vùng đã thấy trong normal.
 from __future__ import annotations
 
 import math

@@ -3,6 +3,7 @@
 This contract is deliberately separate from the legacy formal telemetry gate.
 Availability is evaluated at the end, not waived when an incident recovers.
 """
+# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Cách ly dữ liệu khi telemetry gián đoạn; không bao giờ coi dữ liệu thiếu là normal.
 from __future__ import annotations
 
 import hashlib

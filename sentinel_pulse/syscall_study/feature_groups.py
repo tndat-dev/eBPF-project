@@ -21,6 +21,7 @@ support branch sees only the current vector, so "no history at all" is the suppo
 Evaluation-time variants of the p-value (tree branch only / support branch only) need no refit and
 are handled by ``arm_budget --pvalue``.
 """
+# [VI] (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
 from __future__ import annotations
 
 import argparse

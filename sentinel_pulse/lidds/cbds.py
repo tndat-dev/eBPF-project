@@ -16,6 +16,8 @@ line format ``timestamp_ns user_id process_id process_name thread_id syscall dir
 container, so only the events of the recording's main container (the non-host container id with the most events)
 are kept; events of other containers and of the host are counted in SUMMARY, never scored.
 """
+# [VI] Đóng gói CB-DS (dataset thoát container, 9 kịch bản × 99 bản ghi, 1.700 bản ghi normal của e-shop) thành MỘT archive theo
+# [VI] bố cục LID-DS 2021, để mọi script đánh giá LID-DS chạy nguyên trên nó.
 from __future__ import annotations
 
 from collections import Counter
