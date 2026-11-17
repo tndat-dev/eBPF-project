@@ -1,2 +1,14 @@
 \section*{Ethical Considerations}
-\pending{ethics}
+
+\paragraph{Stakeholders and harms of the research.} All live experiments ran on a cluster the authors operate, with
+synthetic traffic and no user data. The attack fixtures were written for this study; each one only affects its own
+process or fails before changing host state, and no exploit of real vulnerable software and no vulnerable image was
+deployed on the cluster. The public datasets (LID-DS~2021, LID-DS~2019, CB-DS) were used offline under their published
+terms; they contain recorded system calls of the dataset authors' testbeds and no personal data. No human subjects took
+part.
+
+\paragraph{Harms of publication.} The paper documents blind spots of syscall-based anomaly detection: attacks built only
+from seen sequences, data-only attacks inside a process, a gram map that can be filled, and a rule that downgrades
+image-tool executions. These limits follow from known mimicry results and are needed by defenders to deploy such a
+detector with the right complements (application-layer monitoring, durable alert queues, refit hygiene). We do not
+release attack tooling beyond the self-contained fixtures used in the evaluation.

@@ -1,2 +1,11 @@
-\section{conclusion}
-\pending{conclusion}
+\section{Conclusion}\label{sec:conclusion}
+
+A count language model over system-call tokens that keep error codes, returned sizes and the first directory of opened
+files, counted per thread in the kernel and thresholded from normal behaviour only, detects 97.40\,\% of LID-DS~2021
+attack recordings at 0.33\,\% false-alarm recordings, and in blind live runs on a Kubernetes cluster every
+primary-rate attack with no idle false alarm, delivering alerts to Alertmanager within 0.68\,s at p95 for about
+0.4--0.5\,\textmu s per watched system call. The same evaluation shows where it stops: it flags harmless new processes,
+it is blind to attacks built from seen sequences and to data-only attacks inside a process, its threshold is a measured
+knob rather than a guarantee, and its models age when the cluster changes. Separating a workload's own processes from
+operator sessions in the kernel is the direction we take for the first of these limits.
+\pending{latest run and LID-DS 2019 results}

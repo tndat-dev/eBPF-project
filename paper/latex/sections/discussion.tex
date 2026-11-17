@@ -1,2 +1,38 @@
-\section{discussion}
-\pending{discussion}
+\section{Discussion and Limitations}\label{sec:discussion}
+
+\paragraph{Novelty, not malice.} The model answers whether a container did something it never did. Two consequences
+follow from our measurements. First, an attack that changes only the meaning of data inside a process is invisible to
+it: the Juice-Shop SQL injections that LID-DS records are login requests to the same endpoint as normal logins, with a
+longer body, no new process, path, error or size, and the traces keep only the first ${\sim}80$ bytes of each buffer.
+No detector that reads system calls alone can see them; an application-layer monitor (a web application firewall,
+runtime application self-protection, or query monitoring in the database driver) is the right complement. We did not
+add a signal for this exploit after seeing it missed, which would be tuning on the test data. Second, a harmless new
+process looks new too. The kernel lineage tag separates the workload's own process tree from operator sessions; whether
+the native stream alone stays quiet on operator activity on a live cluster is the question of our latest run
+\pending{H1}.
+
+\paragraph{Adaptive attackers.} Every detection on LID-DS~2021 rests on sequences the workload never produced: an
+attacker who removes all of them is caught 0/544 times in our semi-synthetic test, by the model and by the simpler
+count rule alike. This matches the classic mimicry results against sequence-based detectors~\cite{wagner2002,tan2002}
+and the more recent ones against provenance-based detectors~\cite{goyal2023}. Return values raise the cost of mimicry,
+because the attacker must also reproduce sizes, paths and error codes, but they do not remove it. A rate signal over seen
+sequences did not add detections on the datasets; its value against an attacker who pads an exploit with frequent seen
+calls is what the dilution trials of the latest run measure \pending{H3}. Two further evasion paths are structural: a
+load above about 400{,}000 new grams per second per cgroup fills the gram map, and the worker cannot tell an incomplete
+window from a complete one; and a living-off-the-land attack with tools shipped in the image is exactly what the R1
+rule would downgrade \pending{H4}.
+
+\paragraph{Thresholds and changing normal behaviour.} The Gumbel assumption fails on both the datasets and the
+cluster; held-out exceedances are 10 to 17 times the design level, so $\alpha'$ is a knob whose false-alarm rate must be
+measured. Normal behaviour also changes with load, versions and incidents: after a cluster change, unchanged models put
+2.3 times more blocks above threshold. Periodic refits are the natural answer, with a risk in the other direction: if an
+attack enters the learning data, the model learns its sequences. Our fits exclude the spans around every trial because
+we know the campaign schedule; an operational system would have to exclude alarms confirmed as attacks before refitting.
+
+\paragraph{Scope of the evidence.} The live evidence comes from one cluster running one application, with self-written
+attack fixtures and labels given by the trial design rather than by independent review. All campaign attacks enter
+through \texttt{kubectl exec}; we did not run exploits of vulnerable software inside services on the cluster, so the
+native stream is tested against attacks only offline, on LID-DS, where every event is native. The bridge has no durable
+queue, and lost 113 of 190 alert episodes during a 3.5-minute host stall. RCA quality is measured by coverage and the
+rank of the attack binary on one attack type, not by investigators. The overhead was measured with microbenchmarks, not
+per request of a real application.
