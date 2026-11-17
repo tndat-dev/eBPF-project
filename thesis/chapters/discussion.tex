@@ -70,6 +70,16 @@ Ngưỡng Gumbel giả thiết cực đại của các khối normal độc lậ
   normal đổi theo tải, phiên bản và sự cố; mô hình học một lần trước lượt chạy và không đổi trong lượt.
 \end{itemize}
 
+\textbf{Mô hình lão hoá qua một lần đổi cụm.} Ngày 12/11, cấu hình cả 6 VM được đổi; khi khôi phục cụm, Redis, các sentinel của nó và một số dịch vụ được tạo lại. Amendment 1 của \texttt{pulse-\allowbreak{}live-\allowbreak{}v6-\allowbreak{}v1} đăng ký trước một phép kiểm: mô hình và ngưỡng v5, không đổi, chấm toàn bộ 12 giờ normal thu sau sự kiện đó. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}model\_\allowbreak{}aging.py}.
+\begin{itemize}
+\tightlist
+\item
+  Trên normal mới, 278/47.082 khối 60 s của container (0,59\%, khoảng tin cậy 95\% 0,53--0,66\%) vượt ngưỡng, so với 350/134.905 (0,26\%, 0,23--0,29\%) trên dữ liệu giữ ra của chính v5: gấp khoảng 2,3 lần.
+\item
+  Phần tăng dồn vào vài workload: Redis 83/2.178 (3,81\%, trước đó 0,26\%), rồi tới api-gateway, Kafka và inventory. Một số workload khác lại giảm (MinIO, order, security-telemetry).
+\end{itemize}
+Phép kiểm không xác định được thay đổi nào gây ra mức tăng ở từng workload. Nó chỉ cho thấy một mô hình đếm học trước một lần đổi cụm sẽ báo nhầm nhiều hơn ở một số workload sau đó. Vì vậy lượt v6 dùng mô hình học lại từ normal mới.
+
 Học lại định kỳ từ normal gần nhất là cách tự nhiên, nhưng có một rủi ro ngược: nếu tấn công lọt vào dữ liệu học, mô hình sẽ coi chuỗi của nó là quen và mất khả năng thấy lần sau. Bản fit hiện tại bỏ khoảng quanh mỗi trial vì đồ án biết lịch campaign; hệ thống vận hành thật không biết lúc nào bị tấn công, nên cần bỏ các khoảng đã báo và đã được người xác nhận là tấn công trước khi học lại.
 
 \section{Phạm vi của bằng chứng}

@@ -387,6 +387,65 @@ def claims():
         unm = [x['tokD_filtered_overhead']['added_ns_per_op'] for x in v]
         relr = f"{round(min(rel))}--{round(max(rel))}"
         add(f'overhead-{op}', thesis, f"{label} & {rng(off)} & {rng(add_)} & {relr} & {rng(unm)} \\\\", [], OV)
+    # ml-final-study-v1 parts B, B2, B3 (thesis RQ4, lineage subsection)
+    MF = 'results-20261113/ml-final-study'
+    lb = receipt(f'{MF}/live-attribution.json')['B']
+    ho, iv = lb['held_out_admin_all'], lb['intervals']
+    kn = lambda x: f"{x['k']}/{x['n']}"
+    add('b-held-out-admin', thesis, tex(f"lệnh bị giữ ra vẫn bị gắn cờ {kn(ho['operator'])} lần ({pct(ho['operator']['rate'])}), so với "
+        f"{kn(ho['v5'])} ({pct(ho['v5']['rate'])}) của mô hình v5"), [], f'{MF}/live-attribution.json')
+    add('b-learnt-cost', thesis, f"recall tập chính giảm từ {kn(iv['attack-primary']['v5'])} xuống {kn(iv['attack-primary']['operator'])} "
+        f"và tấn công theo đúng hành vi riêng của nó (bỏ các gram đã có trong khoảng vô hại cùng trial) còn "
+        f"{kn(iv['attack-specific-primary']['operator'])}", [], f'{MF}/live-attribution.json')
+    sm = receipt(f'{MF}/session-model.json')
+    b2, b3 = sm['B2']['held_out_admin']['known'], sm['B3']
+    add('b2-held-out-admin', thesis, tex(f"cũng chỉ hạ còn {kn(b2)} ({pct(b2['rate'])})"), [], f'{MF}/session-model.json')
+    na = b3['native_arm']
+    add('b3-native', thesis, f"control bị gắn cờ {kn(na['control'])}, lệnh quản trị {kn(na['admin'])} và binary vô hại {kn(na['benign'])}",
+        [], f'{MF}/session-model.json')
+    add('b3-session-threshold', thesis, f"cho ngưỡng {num(b3['known_tools']['threshold'], 1)} (và {num(b3['learnt_program']['threshold'], 1)} "
+        f"khi học cả binary vô hại)", [], f'{MF}/session-model.json')
+    assert b3['attack_tools_only']['all'] == b3['attack_program_learnt']['all']
+    add('b3-session-attack', thesis, f"nó bắt {kn(b3['attack_tools_only']['all'])} tấn công", [], f'{MF}/session-model.json')
+    # lineage tag cost (token-probe-overhead-v1 amendment 3)
+    LO = 'results-20261116/lineage-overhead/overhead-lineage.json'
+    ln = receipt(LO)['nodes']
+    cells = [(n, op, ln[n][op]['tokD_vs_tokD_base']) for n in ln for op in ln[n]]
+    away = [(n, op, r) for n, op, r in cells if not r['ci95'][0] <= 0 <= r['ci95'][1]]
+    assert len(cells) == 12 and len(away) == 1 and away[0][2]['ci95'][1] < 0
+    n1, op1, r1 = away[0]
+    fork = [ln[n]['forkwait']['median_ns_per_op'][c] / 1000 for n in ln for c in ('off', 'tokD_base', 'tokD')]
+    add('lineage-cost', thesis, f"trừ một ô âm (\\texttt{{{op1}}} trên {n1.split('.')[0].replace('k8s-', '')}, $-${num(-100 * r1['relative'], 1)}\\%). "
+        f"Một lần fork + exit + wait tốn {round(min(fork))}--{round(max(fork))} µs", [], LO)
+    # gram map capacity (map-capacity-v1) and the v5 load (ml-final-study token_load)
+    MC = 'results-20261116/map-capacity/RESULTS.json'
+    lv = {r['offered_calls_per_second']: r for r in receipt(MC)['levels']}
+    first = min(k for k, r in lv.items() if r['failed_inserts'])
+    assert all(not r['failed_inserts'] for k, r in lv.items() if k < first)
+    for k, r in sorted(lv.items()):
+        add(f'map-capacity-{k}', thesis, f"{thousands(k)} & {thousands(round(r['distinct_grams_per_window']['p50']))} & "
+            f"{thousands(r['failed_inserts'])} & {num(r['drain_seconds']['p50'], 2)} s \\\\", [], MC)
+    below = lv[max(k for k in lv if k < first)]
+    add('map-capacity-first-loss', thesis, f"Map bắt đầu bỏ gram ở {thousands(first)} syscall/s trên một cgroup; tới {thousands(max(k for k in lv if k < first))} "
+        f"syscall/s, khoảng {thousands(round(below['distinct_grams_per_window']['p50']))} gram mỗi cửa sổ, chưa mất gram nào", [], MC)
+    add('map-capacity-drain', thesis, f"{num(below['drain_seconds']['p50'], 2)} s (lâu nhất {num(below['drain_seconds']['max'], 2)} s) ở "
+        f"{thousands(max(k for k in lv if k < first))} syscall/s, còn ở {thousands(first)} syscall/s lần đọc lâu nhất là "
+        f"{num(lv[first]['drain_seconds']['max'], 2)} s, vượt nhịp 0,5 s", [], MC)
+    tl = receipt(f'{MF}/token-load.json')['node_window']['distinct_grams']['max']
+    add('map-capacity-v5-load', thesis, f"Cửa sổ nặng nhất của cả node ở lượt v5 chỉ có {thousands(round(tl))} gram", [], f'{MF}/token-load.json')
+    # model aging (pulse-live-v6-v1 amendment 1)
+    MA = 'results-20261117/model-aging/model-aging.json'
+    ag = receipt(MA)
+    p, h = ag['pooled'], ag['pooled']['v5_heldout']
+    w1, w2 = wilson(p['above'], p['blocks']), wilson(h['above'], h['blocks'])
+    pc = lambda x: num(100 * x, 2)
+    add('aging-pooled', 'thesis/chapters/discussion.tex',
+        f"{p['above']}/{thousands(p['blocks'])} khối 60 s của container ({pc(p['rate'])}\\%, khoảng tin cậy 95\\% {pc(w1[0])}--{pc(w1[1])}\\%) "
+        f"vượt ngưỡng, so với {h['above']}/{thousands(h['blocks'])} ({pc(h['rate'])}\\%, {pc(w2[0])}--{pc(w2[1])}\\%) trên dữ liệu giữ ra "
+        f"của chính v5: gấp khoảng {num(p['rate'] / h['rate'], 1)} lần", [], MA)
+    rd = ag['workloads']['production/aims-redis:aims-redis']
+    add('aging-redis', 'thesis/chapters/discussion.tex', f"Redis {rd['above']}/{thousands(rd['blocks'])} ({pc(rd['rate'])}\\%, trước đó "
+        f"{pc(rd['v5_heldout']['rate'])}\\%)", [], MA)
     # the four status reports were removed on 07/11 (owner); their claims are retired, the LaTeX and TODO claims stay
     return [c for c in out if c['doc'] not in RETIRED]
 

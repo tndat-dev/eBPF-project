@@ -396,6 +396,28 @@ Mô hình theo workload trả lời câu hỏi ``container có làm điều chư
 
 Trên trial của lượt 1109 (development cho bước này) với mô hình học lại, các ứng viên bỏ qua hoặc dùng ngưỡng riêng sau \texttt{execve} hạ binary vô hại còn 135--274/525, nhưng chỉ bắt 302--311/315 tấn công tốc độ chính; mô hình gộp một mình chỉ hạ còn 520--522/525. Chỉ mô hình không gate qua được dataset, nên process vô hại mới vẫn là giới hạn mở của mô hình.
 
+\subsection{Học thêm hoạt động quản trị, và tách theo dòng dõi process}\label{sec:lineage}
+
+Protocol \texttt{ml-\allowbreak{}final-\allowbreak{}study-\allowbreak{}v1} (đăng ký 12/11, trước mọi dòng code của nó, cùng amendment 1 và 2) thử hai hướng học, không dùng luật, trên dữ liệu của lượt v5. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}live\_\allowbreak{}attribution.py} (B), \texttt{scripts/\allowbreak{}analysis/\allowbreak{}session\_\allowbreak{}model.py} (B2, B3).
+
+\textbf{Học hoạt động quản trị như normal không đủ.} Khi mô hình của workload học thêm mọi lệnh quản trị trừ lệnh đang thử (B), lệnh bị giữ ra vẫn bị gắn cờ 362/439 lần (82,5\%), so với 422/439 (96,1\%) của mô hình v5. Học lệnh quản trị của các fold khác vào mô hình (B2) cũng chỉ hạ còn 372/439 (84,7\%). Học thêm còn có giá: khi mô hình học mọi lệnh quản trị, recall tập chính giảm từ 314/314 xuống 303/314 và tấn công theo đúng hành vi riêng của nó (bỏ các gram đã có trong khoảng vô hại cùng trial) còn 299/314. Mức chấp nhận đã đăng ký (lệnh giữ ra $\le$ 20\%, recall theo hành vi riêng không giảm quá 2 điểm) không đạt, nên hệ thống không đổi.
+
+\textbf{Tách theo dòng dõi.} Nhận xét dẫn tới hướng thứ hai: process của dịch vụ và process đi vào qua runtime exec là hai luồng khác nhau. Một mô hình của workload học luồng thứ nhất; luồng thứ hai là việc của người vận hành. B3 thử ý này bằng một proxy trên dữ liệu v5: gram mà mô hình v5 chưa thấy coi là của phiên exec, phần còn lại là native. Chấm phần native bằng đúng mô hình và ngưỡng v5 thì control bị gắn cờ 0/525, lệnh quản trị 0/439 và binary vô hại 0/523. Nhưng một mô hình riêng cho phiên exec, với cùng quy tắc ngưỡng Gumbel trên vài trăm phiên ngắn, cho ngưỡng 37,7 (và 42,4 khi học cả binary vô hại), cao hơn mọi điểm đã đo: nó bắt 0/522 tấn công. Mức chấp nhận về tấn công ($\ge$ 95\%) không đạt, nên luồng phiên không trở thành đường cảnh báo.
+
+Proxy có hai điểm mù: nó không phân biệt một gram của phiên exec mà workload cũng biết, và không nói được một tấn công thật bên trong dịch vụ thuộc luồng nào. Amendment 2 vì vậy chỉ thêm \emph{thẻ dòng dõi} vào probe như telemetry (mục~\ref{sec:token-impl}). Đường cảnh báo không đổi: worker vẫn chấm cả cửa sổ bằng mô hình v5, nên lượt sau vẫn so được với lượt v5. Proof trên một pod thử, vào bằng \texttt{crictl exec}, đạt cả 8 kiểm tra:
+\begin{itemize}
+\tightlist
+\item
+  vòng lặp của chính container, kể cả các process con mà pid 1 fork, là native;
+\item
+  lệnh vào qua exec và các process con của nó là session;
+\item
+  một process con chạy nền sống lâu hơn phiên đã thoát vẫn giữ thẻ session, vì thẻ được chép lúc fork.
+\end{itemize}
+Proof token cũ vẫn đạt (mỗi syscall đúng một token) trên cả ba worker. LID-DS 2021 không có runtime exec nên mọi sự kiện là native và kết quả của mục~\ref{sec:lidds} không đổi.
+
+Lượt live \texttt{pulse-\allowbreak{}live-\allowbreak{}v6} (protocol \texttt{pulse-\allowbreak{}live-\allowbreak{}v6-\allowbreak{}v1}, đăng ký trước khi thu normal) đo trực tiếp luồng native bằng thẻ của kernel. Giới hạn đã ghi trước: mọi tấn công của campaign vào qua \texttt{kubectl exec}, nên chúng đều thuộc luồng session. Luồng native chỉ được thử với normal và hoạt động vô hại trên cụm; với tấn công chạy bên trong dịch vụ, bằng chứng là LID-DS 2021.
+
 \subsection{Luật sau mô hình: tách tool-của-image khỏi tấn công}\label{sec:rule-layer}
 
 Mô hình một mình không tách được process vô hại mới khỏi tấn công, và một gate học \emph{trước} mô hình cũng bị loại (trên). Hướng còn lại, theo đúng thứ tự ``chốt mô hình trước, thêm luật sau'', là một \emph{luật sau mô hình} chạy trên cảnh báo của mô hình:
@@ -470,7 +492,31 @@ Thao tác & Không probe (ns) & Container được theo dõi: thêm (ns) & Thêm
 
 \textbf{CPU của worker.} Ở lượt v5, unit worker trên mỗi node (loader cùng worker Python) dùng 7 giờ 05 phút tới 7 giờ 28 phút CPU trong 24 giờ, tức trung bình 0,30--0,31 core trên node 24 core. Con số này gồm cả phần tính cây và support để so sánh, nên là cận trên cho riêng mô hình token. Thời gian chấm là p50 0,15 s, p95 0,18 s mỗi cửa sổ.
 
-\textbf{Chưa đo:} chi phí trên request của ứng dụng thật với probe token, và tải cực đại mà map 4-gram còn chứa đủ.
+\textbf{Thẻ dòng dõi không có chi phí đo được.} Amendment 3 của protocol chi phí so bản build có thẻ với bản build của lượt v5, cùng cách đo, thêm một thao tác \texttt{forkwait} (fork, process con thoát ngay, cha chờ) để đi qua hook fork mới. Ở 12 ô (3 worker $\times$ 4 thao tác), khoảng tin cậy 95\% của tỉ lệ ghép theo vòng đều chứa 0, trừ một ô âm (\texttt{futex} trên worker1, $-$2,4\%). Một lần fork + exit + wait tốn 332--385 µs trên các VM này, lớn hơn nhiều phần việc của hook. Code: \texttt{scripts/\allowbreak{}overhead\_\allowbreak{}ab.sh}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}overhead\_\allowbreak{}ab.py}, \texttt{testbed/\allowbreak{}bench/\allowbreak{}syscall\_\allowbreak{}bench.c}.
+
+\textbf{Sức chứa của map 4-gram.} Protocol \texttt{map-\allowbreak{}capacity-\allowbreak{}v1} chạy một bộ sinh tải trong một cgroup riêng trên k8s-worker1: mỗi lời gọi là một \texttt{read} hoặc \texttt{write} ngẫu nhiên trong 32 token, nên gần như mọi sự kiện là một 4-gram mới, trường hợp xấu nhất cho map. Code: \texttt{testbed/\allowbreak{}bench/\allowbreak{}gram\_\allowbreak{}stress.c}, \texttt{scripts/\allowbreak{}map\_\allowbreak{}capacity\_\allowbreak{}test.py}.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}@{}}
+\caption{Map 4-gram (262.144 mục) dưới tải mà mọi syscall là gram mới, một cgroup.}\label{tab:map-capacity}\\
+\toprule\noalign{}
+Syscall/s & Gram khác nhau mỗi cửa sổ (trung vị) & Gram không ghi được & Thời gian đọc map (trung vị) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+50.000 & 25.202 & 0 & 0,06 s \\
+100.000 & 49.682 & 0 & 0,11 s \\
+200.000 & 97.168 & 0 & 0,22 s \\
+300.000 & 142.610 & 0 & 0,33 s \\
+400.000 & 148.695 & 949.878 & 0,44 s \\
+600.000 & 192.047 & 3.181.096 & 0,63 s \\
+800.000 & 258.401 & 4.888.620 & 0,64 s \\
+1.200.000 & 253.690 & 8.353.645 & 0,66 s \\
+\end{longtable}
+
+Map bắt đầu bỏ gram ở 400.000 syscall/s trên một cgroup; tới 300.000 syscall/s, khoảng 142.610 gram mỗi cửa sổ, chưa mất gram nào. Thời gian loader đọc map tăng theo số gram: 0,33 s (lâu nhất 0,41 s) ở 300.000 syscall/s, còn ở 400.000 syscall/s lần đọc lâu nhất là 0,63 s, vượt nhịp 0,5 s. Cửa sổ nặng nhất của cả node ở lượt v5 chỉ có 6.901 gram, nên tải thật còn cách giới hạn khoảng 20 lần. Khi map đầy, gram bị bỏ và loader đếm số lần ghi hỏng; worker không biết cửa sổ đó thiếu, nên đây là một đường né mà kẻ tấn công tạo tải lớn có thể dùng (mục~\ref{sec:limits-adaptive}).
+
+\textbf{Chưa đo:} chi phí trên request của ứng dụng thật với probe token.
 
 \section{RQ6: đường tới người nhận và RCA}\label{sec:alert-rca}
 
