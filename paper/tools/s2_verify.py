@@ -50,6 +50,22 @@ def match(title, sleep, tries=6):
     return 'rate-limited'
 
 
+def crossref(ref):
+    """Verification of a DOI on Crossref (used when Semantic Scholar has no record): title similarity and year."""
+    req = urllib.request.Request('https://api.crossref.org/works/' + urllib.parse.quote(ref['doi']),
+                                 headers={'User-Agent': 'paper-reference-check/1.0'})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        m = json.load(r)['message']
+    title = (m.get('title') or [''])[0]
+    year = ((m.get('published') or m.get('issued') or {}).get('date-parts') or [[None]])[0][0]
+    sim = similar(ref['title'], title)
+    year_ok = ref.get('year') is None or year is None or abs(int(ref['year']) - int(year)) <= 1
+    return dict(verified=bool(sim >= 0.85 and year_ok), similarity=round(sim, 3), source='crossref', s2_title=title,
+                s2_year=year, venue='; '.join(m.get('container-title') or []), pages=m.get('page'),
+                authors=[(x.get('given', '') + ' ' + x.get('family', '')).strip() for x in m.get('author') or []],
+                external_ids=dict(DOI=m.get('DOI')), abstract=None)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--refs', type=Path, required=True)
@@ -63,6 +79,12 @@ def main():
             continue
         if ref.get('kind') in ('software', 'web'):
             out[key] = dict(ref, verified='not-a-paper')
+            a.out.write_text(json.dumps(out, indent=1, ensure_ascii=False) + '\n')
+            continue
+        if ref.get('doi'):                                  # no Semantic Scholar record: Crossref by DOI
+            out[key] = dict(ref, **crossref(ref))
+            a.out.write_text(json.dumps(out, indent=1, ensure_ascii=False) + '\n')
+            print(f"{key:22s} {out[key]['verified']!s:12s} crossref {out[key].get('s2_title', '')[:60]}", flush=True)
             continue
         p = match(ref['title'], a.sleep)
         time.sleep(a.sleep)

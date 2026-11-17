@@ -404,13 +404,6 @@
   },
   "abstract": "—Modern-day provenance-based threat-hunting tools have become a valuable asset in the repertoire of system analysts. Given a system alert, threat-hunting tools guide the system analyst during attack forensics to recover the entire attack footprint of the adversary. However, many of these tools face an onslaught of false positive alerts from static rule sets used in enterprise settings. Many threat-detecting systems combat this by ranking outputted alerts so system analysts focus on alerts correlating to attack activity. In [1], Goyal et al. showed that the current landscape of Prov-IDSs is susceptible to evasion against an active attacker who introduces additional benign behavior alongside their attack. We look to extend this work by applying a similar technique to many modern-day threat-hunting tools. Our goal is to evaluate the efficacy of these systems when paired up against an adaptive attacker that executes innocuous activity alongside their malicious behavior. Our results show that one of the quintessential threat-hunting tools is vulnerable to attack, mis-ranking alerts such that 100% of the false positive alerts occur before the true positive alerts."
  },
- "grimmer2022": {
-  "key": "grimmer2022",
-  "title": "Extended Abstract: LID-DS 2021",
-  "year": 2022,
-  "verified": false,
-  "reason": "no match"
- },
  "hassan2019": {
   "key": "hassan2019",
   "title": "NoDoze: Combatting Threat Alert Fatigue with Automated Provenance Triage",
@@ -773,5 +766,400 @@
    "CorpusId": 276235532
   },
   "abstract": "Conformal prediction is a flexible framework for calibrating machine learning predictions, providing distribution-free statistical guarantees. In outlier detection, this calibration relies on a reference set of labeled inlier data to control the type-I error rate. However, obtaining a perfectly labeled inlier reference set is often unrealistic, and a more practical scenario involves access to a contaminated reference set containing a small fraction of outliers. This paper analyzes the impact of such contamination on the validity of conformal methods. We prove that under realistic, non-adversarial settings, calibration on contaminated data yields conservative type-I error control, shedding light on the inherent robustness of conformal methods. This conservativeness, however, typically results in a loss of power. To alleviate this limitation, we propose a novel, active data-cleaning framework that leverages a limited labeling budget and an outlier detection model to selectively annotate data points in the contaminated reference set that are suspected as outliers. By removing only the annotated outliers in this ``suspicious'' subset, we can effectively enhance power while mitigating the risk of inflating the type-I error rate, as supported by our theoretical analysis. Experiments on real datasets validate the conservative behavior of conformal methods under contamination and show that the proposed data-cleaning strategy improves power without sacrificing validity."
+ },
+ "armo2025": {
+  "key": "armo2025",
+  "title": "io_uring rootkit bypasses Linux security (ARMO research blog)",
+  "year": 2025,
+  "kind": "web",
+  "verified": "not-a-paper"
+ },
+ "tetragon_eventcache": {
+  "key": "tetragon_eventcache",
+  "title": "pkg/eventcache/eventcache.go and pkg/defaults/defaults.go (event cache retries)",
+  "year": 2025,
+  "kind": "web",
+  "verified": "not-a-paper"
+ },
+ "witten1991": {
+  "key": "witten1991",
+  "title": "The zero-frequency problem: estimating the probabilities of novel events in adaptive text compression",
+  "year": 1991,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "1f5d21625f8264f455591b3c7cbdac18b983b3c0",
+  "s2_title": "The zero-frequency problem: Estimating the probabilities of novel events in adaptive text compression",
+  "s2_year": 1991,
+  "venue": "IEEE Transactions on Information Theory",
+  "authors": [
+   "I. Witten",
+   "Tim Bell"
+  ],
+  "external_ids": {
+   "MAG": "2113641473",
+   "DBLP": "journals/tit/WittenB91",
+   "DOI": "10.1109/18.87000",
+   "CorpusId": 10314497
+  },
+  "abstract": null
+ },
+ "chen1999": {
+  "key": "chen1999",
+  "title": "An empirical study of smoothing techniques for language modeling",
+  "year": 1999,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": "S2 year differs (preprint or reprint): check the venue year",
+  "s2_id": "d4e8bed3b50a035e1eabad614fe4218a34b3b178",
+  "s2_title": "An Empirical Study of Smoothing Techniques for Language Modeling",
+  "s2_year": 1996,
+  "venue": "Annual Meeting of the Association for Computational Linguistics",
+  "authors": [
+   "Stanley F. Chen",
+   "Joshua Goodman"
+  ],
+  "external_ids": {
+   "MAG": "2158195707",
+   "ACL": "P96-1041",
+   "DBLP": "journals/csl/ChenG99",
+   "ArXiv": "cmp-lg/9606011",
+   "DOI": "10.3115/981863.981904",
+   "CorpusId": 215842252
+  },
+  "abstract": "We present an extensive empirical comparison of several smoothing techniques in the domain of language modeling, including those described by Jelinek and Mercer (1980), Katz (1987), and Church and Gale (1991). We investigate for the first time how factors such as training data size, corpus (e.g., Brown versus Wall Street Journal), and n-gram order (bigram versus trigram) affect the relative performance of these methods, which we measure through the cross-entropy of test data. In addition, we introduce two novel smoothing techniques, one a variation of Jelinek-Mercer smoothing and one a very simple linear interpolation technique, both of which outperform existing methods."
+ },
+ "warrender1999": {
+  "key": "warrender1999",
+  "title": "Detecting intrusions using system calls: alternative data models",
+  "year": 1999,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "686b8d68bbbd6a84efaf41f30ff56c9bc0f5279d",
+  "s2_title": "Detecting intrusions using system calls: alternative data models",
+  "s2_year": 1999,
+  "venue": "Proceedings of the 1999 IEEE Symposium on Security and Privacy (Cat. No.99CB36344)",
+  "authors": [
+   "C. Warrender",
+   "S. Forrest",
+   "Barak A. Pearlmutter"
+  ],
+  "external_ids": {
+   "MAG": "2129860818",
+   "DBLP": "conf/sp/WarrenderFP99",
+   "DOI": "10.1109/SECPRI.1999.766910",
+   "CorpusId": 2430214
+  },
+  "abstract": "Intrusion detection systems rely on a wide variety of observable data to distinguish between legitimate and illegitimate activities. We study one such observable-sequences of system calls into the kernel of an operating system. Using system-call data sets generated by several different programs, we compare the ability of different data modeling methods to represent normal behavior accurately and to recognize intrusions. We compare the following methods: simple enumeration of observed sequences; comparison of relative frequencies of different sequences; a rule induction technique; and hidden Markov models (HMMs). We discuss the factors affecting the performance of each method and conclude that for this particular problem, weaker methods than HMMs are likely sufficient."
+ },
+ "fournier2023": {
+  "key": "fournier2023",
+  "title": "Language Models for Novelty Detection in System Call Traces",
+  "year": 2023,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "9178f3607d73f7fd8cfedee7a9506e7767f49d4a",
+  "s2_title": "Language Models for Novelty Detection in System Call Traces",
+  "s2_year": 2023,
+  "venue": "arXiv.org",
+  "authors": [
+   "Quentin Fournier",
+   "D. Aloise",
+   "L. R. Costa"
+  ],
+  "external_ids": {
+   "ArXiv": "2309.02206",
+   "DBLP": "journals/corr/abs-2309-02206",
+   "DOI": "10.48550/arXiv.2309.02206",
+   "CorpusId": 261557284
+  },
+  "abstract": "Due to the complexity of modern computer systems, novel and unexpected behaviors frequently occur. Such deviations are either normal occurrences, such as software updates and new user activities, or abnormalities, such as misconfigurations, latency issues, intrusions, and software bugs. Regardless, novel behaviors are of great interest to developers, and there is a genuine need for efficient and effective methods to detect them. Nowadays, researchers consider system calls to be the most fine-grained and accurate source of information to investigate the behavior of computer systems. Accordingly, this paper introduces a novelty detection methodology that relies on a probability distribution over sequences of system calls, which can be seen as a language model. Language models estimate the likelihood of sequences, and since novelties deviate from previously observed behaviors by definition, they would be unlikely under the model. Following the success of neural networks for language models, three architectures are evaluated in this work: the widespread LSTM, the state-of-the-art Transformer, and the lower-complexity Longformer. However, large neural networks typically require an enormous amount of data to be trained effectively, and to the best of our knowledge, no massive modern datasets of kernel traces are publicly available. This paper addresses this limitation by introducing a new open-source dataset of kernel traces comprising over 2 million web requests with seven distinct behaviors. The proposed methodology requires minimal expert hand-crafting and achieves an F-score and AuROC greater than 95% on most novelties while being data- and task-agnostic. The source code and trained models are publicly available on GitHub while the datasets are available on Zenodo."
+ },
+ "coles2001": {
+  "key": "coles2001",
+  "title": "An Introduction to Statistical Modeling of Extreme Values",
+  "year": 2001,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "222449231d0720a982b44799041e6535c1fc0e2c",
+  "s2_title": "An Introduction to Statistical Modeling of Extreme Values",
+  "s2_year": 2001,
+  "venue": "",
+  "authors": [
+   "S. Coles"
+  ],
+  "external_ids": {
+   "MAG": "1500657154",
+   "DOI": "10.1198/jasa.2002.s232",
+   "CorpusId": 19678794
+  },
+  "abstract": null
+ },
+ "siffer2017": {
+  "key": "siffer2017",
+  "title": "Anomaly Detection in Streams with Extreme Value Theory",
+  "year": 2017,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "0cfe631a0f99242a751a5a8bfd28dfb18f37f23e",
+  "s2_title": "Anomaly Detection in Streams with Extreme Value Theory",
+  "s2_year": 2017,
+  "venue": "Knowledge Discovery and Data Mining",
+  "authors": [
+   "Alban Siffer",
+   "Pierre-Alain Fouque",
+   "A. Termier",
+   "C. Largouet"
+  ],
+  "external_ids": {
+   "MAG": "2743617586",
+   "DBLP": "conf/kdd/SifferFTL17",
+   "DOI": "10.1145/3097983.3098144",
+   "CorpusId": 22057
+  },
+  "abstract": null
+ },
+ "barber2021": {
+  "key": "barber2021",
+  "title": "Predictive inference with the jackknife+",
+  "year": 2021,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": "S2 year differs (preprint or reprint): check the venue year",
+  "s2_id": "1896136f931aa080599e1c1314d48bccbaa14e81",
+  "s2_title": "Predictive inference with the jackknife+",
+  "s2_year": 2019,
+  "venue": "Annals of Statistics",
+  "authors": [
+   "R. Barber",
+   "E. Candès",
+   "Aaditya Ramdas",
+   "R. Tibshirani"
+  ],
+  "external_ids": {
+   "MAG": "2943913950",
+   "ArXiv": "1905.02928",
+   "DOI": "10.1214/20-AOS1965",
+   "CorpusId": 147704029
+  },
+  "abstract": "This paper introduces the jackknife+, which is a novel method for constructing predictive confidence intervals. Whereas the jackknife outputs an interval centered at the predicted response of a test point, with the width of the interval determined by the quantiles of leave-one-out residuals, the jackknife+ also uses the leave-one-out predictions at the test point to account for the variability in the fitted regression function. Assuming exchangeable training samples, we prove that this crucial modification permits rigorous coverage guarantees regardless of the distribution of the data points, for any algorithm that treats the training points symmetrically. Such guarantees are not possible for the original jackknife and we demonstrate examples where the coverage rate may actually vanish. Our theoretical and empirical analysis reveals that the jackknife and the jackknife+ intervals achieve nearly exact coverage and have similar lengths whenever the fitting algorithm obeys some form of stability. Further, we extend the jackknife+ to K-fold cross validation and similarly establish rigorous coverage properties. Our methods are related to cross-conformal prediction proposed by Vovk [2015] and we discuss connections."
+ },
+ "mutz2006": {
+  "key": "mutz2006",
+  "title": "Anomalous system call detection",
+  "year": 2006,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "72f6ac503cad5d6017348b501d0a81a565b2da4c",
+  "s2_title": "Anomalous system call detection",
+  "s2_year": 2006,
+  "venue": "TSEC",
+  "authors": [
+   "D. Mutz",
+   "Fredrik Valeur",
+   "Giovanni Vigna",
+   "Christopher Kruegel"
+  ],
+  "external_ids": {
+   "MAG": "1984350393",
+   "DBLP": "journals/tissec/MutzVVK06",
+   "DOI": "10.1145/1127345.1127348",
+   "CorpusId": 6192320
+  },
+  "abstract": null
+ },
+ "maggi2010": {
+  "key": "maggi2010",
+  "title": "Detecting intrusions through system call sequence and argument analysis",
+  "year": 2010,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "eaafdcdcc9c37582a21cae6705e909b290192bd0",
+  "s2_title": "Detecting Intrusions through System Call Sequence and Argument Analysis",
+  "s2_year": 2010,
+  "venue": "IEEE Transactions on Dependable and Secure Computing",
+  "authors": [
+   "F. Maggi",
+   "M. Matteucci",
+   "S. Zanero"
+  ],
+  "external_ids": {
+   "DBLP": "journals/tdsc/MaggiMZ10",
+   "MAG": "2118372007",
+   "DOI": "10.1109/TDSC.2008.69",
+   "CorpusId": 14703237
+  },
+  "abstract": null
+ },
+ "creech2013": {
+  "key": "creech2013",
+  "title": "Generation of a new IDS test dataset: Time to retire the KDD collection",
+  "year": 2013,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "1a3f697d2951d65708558583c35a0bbd6b2de175",
+  "s2_title": "Generation of a new IDS test dataset: Time to retire the KDD collection",
+  "s2_year": 2013,
+  "venue": "IEEE Wireless Communications and Networking Conference",
+  "authors": [
+   "Gideon Creech",
+   "Jian-Kun Hu"
+  ],
+  "external_ids": {
+   "DBLP": "conf/wcnc/CreechH13",
+   "MAG": "1981738628",
+   "DOI": "10.1109/WCNC.2013.6555301",
+   "CorpusId": 16699394
+  },
+  "abstract": null
+ },
+ "grimmer2019": {
+  "key": "grimmer2019",
+  "title": "A modern and sophisticated host based intrusion detection data set",
+  "year": 2019,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "6c848407684b609b239a4ec6aa6dc62d491b485a",
+  "s2_title": "A Modern and Sophisticated Host Based Intrusion Detection Data Set",
+  "s2_year": 2019,
+  "venue": "",
+  "authors": [
+   "Martin Grimmer",
+   "Martin Max Röhling",
+   "Dennis Kreußel",
+   "Simon Ganz"
+  ],
+  "external_ids": {
+   "CorpusId": 216077392
+  },
+  "abstract": null
+ },
+ "sekar2001": {
+  "key": "sekar2001",
+  "title": "A fast automaton-based method for detecting anomalous program behaviors",
+  "year": 2001,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "47a77932347be19e1a8fb24cadd74a8a43a387f3",
+  "s2_title": "A fast automaton-based method for detecting anomalous program behaviors",
+  "s2_year": 2001,
+  "venue": "Proceedings 2001 IEEE Symposium on Security and Privacy. S&P 2001",
+  "authors": [
+   "R. Sekar",
+   "M. Bendre",
+   "Dinakar Dhurjati",
+   "P. Bollineni"
+  ],
+  "external_ids": {
+   "DBLP": "conf/sp/SekarBDB01",
+   "MAG": "2106649514",
+   "DOI": "10.1109/SECPRI.2001.924295",
+   "CorpusId": 15352648
+  },
+  "abstract": null
+ },
+ "syairozi2025": {
+  "key": "syairozi2025",
+  "title": "Comparative Analysis of eBPF-Based Runtime Security Monitoring Tools in Monitoring and Threat Detection on Kubernetes",
+  "year": 2025,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "50c56a288743eaacf0dbfd5fdc33a94791492dd3",
+  "s2_title": "Comparative Analysis of eBPF-Based Runtime Security Monitoring Tools in Monitoring and Threat Detection on Kubernetes",
+  "s2_year": 2025,
+  "venue": "Proceedings of the 1st International Conference on Research and Innovations in Information and Engineering Technology",
+  "authors": [
+   "Aldien Asy Syairozi",
+   "Arizal"
+  ],
+  "external_ids": {
+   "DOI": "10.5220/0014272700004928",
+   "CorpusId": 283970468
+  },
+  "abstract": ": The rapid adoption of Kubernetes for managing cloud-native applications has increased the importance of runtime security. Extended Berkeley Packet Filter (eBPF)-based monitoring tools, such as Falco, Tetragon, and Tracee, offer real-time visibility and effective threat detection. This study evaluates and compares the Key Performance Indicator (KPI) and efficiency of these tools in addressing Container Escape, Denial of Service (DoS), and Cloud Cryptomining attacks based on the OWASP Kubernetes Top 10. Evaluation metrics include Mean Time to Detect (MTTD), Detection Rate (DR), False Positive Rate (FPR), as well as CPU and memory usage. The results show that Tetragon excels in detection time for Container Escape and Cryptomining threats, Falco excels in detecting DoS attacks, while Tracee has relatively lower detection speed. All tools can detect attacks with full accuracy without false positives. Resource usage analysis revealed minimal differences between baseline and attack conditions, indicating that detection activities did not significantly increase system load. Among the tools, Tetragon was the most efficient in CPU usage, Falco in memory consumption, while Tracee offered balanced resource utilization."
+ },
+ "angelopoulos2023": {
+  "key": "angelopoulos2023",
+  "title": "Conformal PID Control for Time Series Prediction",
+  "year": 2023,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "0062fc95d78412b2c5b1b397fe1154abd3ef945c",
+  "s2_title": "Conformal PID Control for Time Series Prediction",
+  "s2_year": 2023,
+  "venue": "Neural Information Processing Systems",
+  "authors": [
+   "Anastasios Nikolas Angelopoulos",
+   "E. Candès",
+   "R. Tibshirani"
+  ],
+  "external_ids": {
+   "ArXiv": "2307.16895",
+   "DBLP": "conf/nips/AngelopoulosCT23",
+   "DOI": "10.48550/arXiv.2307.16895",
+   "CorpusId": 260334484
+  },
+  "abstract": "We study the problem of uncertainty quantification for time series prediction, with the goal of providing easy-to-use algorithms with formal guarantees. The algorithms we present build upon ideas from conformal prediction and control theory, are able to prospectively model conformal scores in an online setting, and adapt to the presence of systematic errors due to seasonality, trends, and general distribution shifts. Our theory both simplifies and strengthens existing analyses in online conformal prediction. Experiments on 4-week-ahead forecasting of statewide COVID-19 death counts in the U.S. show an improvement in coverage over the ensemble forecaster used in official CDC communications. We also run experiments on predicting electricity demand, market returns, and temperature using autoregressive, Theta, Prophet, and Transformer models. We provide an extendable codebase for testing our methods and for the integration of new algorithms, data sets, and forecasting rules."
+ },
+ "grimmer2022": {
+  "key": "grimmer2022",
+  "title": "Dataset Report: LID-DS 2021",
+  "year": 2023,
+  "doi": "10.1007/978-3-031-35190-7_6",
+  "verified": true,
+  "similarity": 1.0,
+  "source": "crossref",
+  "s2_title": "Dataset Report: LID-DS 2021",
+  "s2_year": 2023,
+  "venue": "Lecture Notes in Computer Science; Critical Information Infrastructures Security",
+  "pages": "63-73",
+  "authors": [
+   "Martin Grimmer",
+   "Tim Kaelble",
+   "Felix Nirsberger",
+   "Emmely Schulze",
+   "Toni Rucks",
+   "Jörn Hoffmann",
+   "Erhard Rahm"
+  ],
+  "external_ids": {
+   "DOI": "10.1007/978-3-031-35190-7_6"
+  },
+  "abstract": null
+ },
+ "falco": {
+  "key": "falco",
+  "title": "Falco: cloud native runtime security",
+  "kind": "software",
+  "verified": "not-a-paper"
+ },
+ "tetragon": {
+  "key": "tetragon",
+  "title": "Tetragon: eBPF-based security observability and runtime enforcement",
+  "kind": "software",
+  "verified": "not-a-paper"
+ },
+ "tracee": {
+  "key": "tracee",
+  "title": "Tracee: runtime security and forensics using eBPF",
+  "kind": "software",
+  "verified": "not-a-paper"
+ },
+ "attack_containers": {
+  "key": "attack_containers",
+  "title": "MITRE ATT&CK Containers Matrix",
+  "kind": "web",
+  "verified": "not-a-paper"
  }
 }
