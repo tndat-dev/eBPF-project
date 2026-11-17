@@ -1,0 +1,777 @@
+{
+ "abed2016": {
+  "key": "abed2016",
+  "title": "Intrusion Detection System for Applications using Linux Containers",
+  "year": 2016,
+  "verified": true,
+  "similarity": 1.0,
+  "s2_id": "7eb85034b404da9232c6dbd18f54f7af04e4cd13",
+  "s2_title": "Intrusion Detection System for Applications Using Linux Containers",
+  "s2_year": 2015,
+  "venue": "International Workshop on Security and Trust Management",
+  "authors": [
+   "A. Abed",
+   "T. Clancy",
+   "David S. Levy"
+  ],
+  "external_ids": {
+   "MAG": "3105822541",
+   "DBLP": "journals/corr/AbedCL16a",
+   "ArXiv": "1611.03056",
+   "DOI": "10.1007/978-3-319-24858-5_8",
+   "CorpusId": 12404390
+  },
+  "abstract": "Linux containers are gaining increasing traction in both individual and industrial use, and as these containers get integrated into mission-critical systems, real-time detection of malicious cyber attacks becomes a critical operational requirement. This paper introduces a real-time host-based intrusion detection system that can be used to passively detect malfeasance against applications within Linux containers running in a standalone or in a cloud multi-tenancy environment. The demonstrated intrusion detection system uses bags of system calls monitored from the host kernel for learning the behavior of an application running within a Linux container and determining anomalous container behavior. Performance of the approach using a database application was measured and results are discussed."
+ },
+ "alahmadi2022": {
+  "key": "alahmadi2022",
+  "title": "99% False Positives: A Qualitative Study of SOC Analysts' Perspectives on Security Alarms",
+  "year": 2022,
+  "verified": true,
+  "similarity": 1.0,
+  "s2_id": "184783fb11908a6884afeef1d155314e3379dc98",
+  "s2_title": "99% False Positives: A Qualitative Study of SOC Analysts' Perspectives on Security Alarms",
+  "s2_year": 2022,
+  "venue": "USENIX Security Symposium",
+  "authors": [
+   "Bushra A. Alahmadi",
+   "Louise Axon",
+   "Ivan Martinović"
+  ],
+  "external_ids": {
+   "DBLP": "conf/uss/AlAhmadiAM22",
+   "CorpusId": 245130092
+  },
+  "abstract": null
+ },
+ "barber2023": {
+  "key": "barber2023",
+  "title": "Conformal prediction beyond exchangeability",
+  "year": 2023,
+  "verified": true,
+  "similarity": 1.0,
+  "s2_id": "ba98e89eb2afea1155c65d2ae26903d593c2fe22",
+  "s2_title": "Conformal prediction beyond exchangeability",
+  "s2_year": 2022,
+  "venue": "Annals of Statistics",
+  "authors": [
+   "R. Barber",
+   "E. Candès",
+   "Aaditya Ramdas",
+   "R. Tibshirani"
+  ],
+  "external_ids": {
+   "ArXiv": "2202.13415",
+   "DOI": "10.1214/23-aos2276",
+   "CorpusId": 247158820
+  },
+  "abstract": "Conformal prediction is a popular, modern technique for providing valid predictive inference for arbitrary machine learning models. Its validity relies on the assumptions of exchangeability of the data, and symmetry of the given model fitting algorithm as a function of the data. However, exchangeability is often violated when predictive models are deployed in practice. For example, if the data distribution drifts over time, then the data points are no longer exchangeable; moreover, in such settings, we might want to use a nonsymmetric algorithm that treats recent observations as more relevant. This paper generalizes conformal prediction to deal with both aspects: we employ weighted quantiles to introduce robustness against distribution drift, and design a new randomization technique to allow for algorithms that do not treat data points symmetrically. Our new methods are provably robust, with substantially less loss of coverage when exchangeability is violated due to distribution drift or other challenging features of real data, while also achieving the same coverage guarantees as existing conformal prediction methods if the data points are in fact exchangeable. We demonstrate the practical utility of these new tools with simulations and real-data experiments on electricity and election forecasting."
+ },
+ "bates2021": {
+  "key": "bates2021",
+  "title": "Testing for Outliers with Conformal p-values",
+  "year": 2021,
+  "verified": true,
+  "similarity": 1.0,
+  "s2_id": "8e47abc2f264509f833ee20c6b260d6b9abe73d3",
+  "s2_title": "Testing for outliers with conformal p-values",
+  "s2_year": 2021,
+  "venue": "Annals of Statistics",
+  "authors": [
+   "Stephen Bates",
+   "E. Candès",
+   "Li-Hua Lei",
+   "Yaniv Romano",
+   "Matteo Sesia"
+  ],
+  "external_ids": {
+   "ArXiv": "2104.08279",
+   "DOI": "10.1214/22-AOS2244",
+   "CorpusId": 233301258
+  },
+  "abstract": "This paper studies the construction of p-values for nonparametric outlier detection, taking a multiple-testing perspective. The goal is to test whether new independent samples belong to the same distribution as a reference data set or are outliers. We propose a solution based on conformal inference, a broadly applicable framework which yields p-values that are marginally valid but mutually dependent for different test points. We prove these p-values are positively dependent and enable exact false discovery rate control, although in a relatively weak marginal sense. We then introduce a new method to compute p-values that are both valid conditionally on the training data and independent of each other for different test points; this paves the way to stronger type-I error guarantees. Our results depart from classical conformal inference as we leverage concentration inequalities rather than combinatorial arguments to establish our finite-sample guarantees. Furthermore, our techniques also yield a uniform confidence bound for the false positive rate of any outlier detection algorithm, as a function of the threshold applied to its raw statistics. Finally, the relevance of our results is demonstrated by numerical experiments on real and simulated data."
+ },
+ "arp2022": {
+  "key": "arp2022",
+  "title": "Dos and Don'ts of Machine Learning in Computer Security",
+  "year": 2022,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": "S2 year differs (preprint or reprint): check the venue year",
+  "s2_id": "9a1e9af2b675d06670ee9c75ec856b1df83a60e6",
+  "s2_title": "Dos and Don'ts of Machine Learning in Computer Security",
+  "s2_year": 2020,
+  "venue": "USENIX Security Symposium",
+  "authors": [
+   "Daniel Arp",
+   "Erwin Quiring",
+   "Feargus Pendlebury",
+   "Alexander Warnecke",
+   "Fabio Pierazzi",
+   "Christian Wressnegger",
+   "L. Cavallaro",
+   "K. Rieck"
+  ],
+  "external_ids": {
+   "ArXiv": "2010.09470",
+   "DBLP": "journals/corr/abs-2010-09470",
+   "MAG": "3092978542",
+   "CorpusId": 292335576
+  },
+  "abstract": "With the growing processing power of computing systems and the increasing availability of massive datasets, machine learning algorithms have led to major breakthroughs in many different areas. This development has influenced computer security, spawning a series of work on learning-based security systems, such as for malware detection, vulnerability discovery, and binary code analysis. Despite great potential, machine learning in security is prone to subtle pitfalls that undermine its performance and render learning-based systems potentially unsuitable for security tasks and practical deployment. In this paper, we look at this problem with critical eyes. First, we identify common pitfalls in the design, implementation, and evaluation of learning-based security systems. We conduct a longitudinal study of 30 papers from top-tier security conferences within the past 10 years, confirming that these pitfalls are widespread in the current security literature. In an empirical analysis, we further demonstrate how individual pitfalls can lead to unrealistic performance and interpretations, obstructing the understanding of the security problem at hand. As a remedy, we derive a list of actionable recommendations to support researchers and our community in avoiding pitfalls, promoting a sound design, development, evaluation, and deployment of learning-based systems for computer security."
+ },
+ "bortolini2025": {
+  "key": "bortolini2025",
+  "title": "Detecção Eficiente de Anomalias em Hosts usando Transformer com Categorização de Chamadas de Sistema",
+  "year": 2025,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "ce0d8b49a1073e1d18bd61ebe99c296ede803d7a",
+  "s2_title": "Detecção Eficiente de Anomalias em Hosts usando Transformer com Categorização de Chamadas de Sistema",
+  "s2_year": 2025,
+  "venue": "Anais do XXV Simpósio Brasileiro de Cibersegurança (SBSeg 2025)",
+  "authors": [
+   "Diogo Bortolini",
+   "R. Obelheiro",
+   "Carlos A. Maziero"
+  ],
+  "external_ids": {
+   "DOI": "10.5753/sbseg.2025.10695",
+   "CorpusId": 281283870
+  },
+  "abstract": "Este trabalho propõe uma abordagem eficiente para detecção de anomalias em hosts, baseada na análise de sequências de chamadas de sistema (syscalls). As syscalls são agrupadas por nível de ameaça e funcionalidade, gerando representações compactas analisadas por um modelo Transformer sobre matrizes de frequência de bigramas. Quatro representações foram avaliadas, e a combinação de ameaça e funcionalidade obteve F1-score de 0,90, próxima ao modelo original (0,92), com redução superior a 86% no tempo de execução, mantendo desempenho competitivo com menor custo computacional."
+ },
+ "castanhel2020": {
+  "key": "castanhel2020",
+  "title": "Sliding Window: The Impact of Trace Size in Anomaly Detection System for Containers Through Machine Learning",
+  "year": 2020,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "bc637c3a004cc8efb4d613ca2634ef78edc0bcbc",
+  "s2_title": "Sliding Window: The Impact of Trace Size in Anomaly Detection System for Containers Through Machine Learning",
+  "s2_year": 2020,
+  "venue": "Anais da XVIII Escola Regional de Redes de Computadores (ERRC 2020)",
+  "authors": [
+   "G. R. Castanhel",
+   "Tiago Heinrich",
+   "Fabrício Ceschin",
+   "C. Maziero"
+  ],
+  "external_ids": {
+   "MAG": "3165203429",
+   "DOI": "10.5753/ERRC.2020.15203",
+   "CorpusId": 236817286
+  },
+  "abstract": "Anomaly intrusion detection in Host-based Intrusion Detection System (HIDS) is a process intended to monitor operations on a host to identify behaviors that differ from a “normal ” system behavior. System call based HIDS uses traces of calls to represent the behavior of a system. Due to the volume of data generated by applications and the operating system, sliding windows are applied in order to asses an online environment, allowing intrusions to be detected in real time while being still executed. The respective study explores the impact that the size of the observation window has on Machine Learning (ML) one-class algorithms."
+ },
+ "cheng2023": {
+  "key": "cheng2023",
+  "title": "Kairos: Practical Intrusion Detection and Investigation using Whole-system Provenance",
+  "year": 2023,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "decb293725b1f9ac93c6e48347835de9498f798f",
+  "s2_title": "Kairos: Practical Intrusion Detection and Investigation using Whole-system Provenance",
+  "s2_year": 2023,
+  "venue": "IEEE Symposium on Security and Privacy",
+  "authors": [
+   "Zijun Cheng",
+   "Qiujian Lv",
+   "Jin-Yuan Liang",
+   "Yan Wang",
+   "Degang Sun",
+   "Thomas Pasquier",
+   "Xue-Yuan Han"
+  ],
+  "external_ids": {
+   "DBLP": "journals/corr/abs-2308-05034",
+   "ArXiv": "2308.05034",
+   "DOI": "10.1109/SP54263.2024.00005",
+   "CorpusId": 260735638
+  },
+  "abstract": "Provenance graphs are structured audit logs that describe the history of a system’s execution. Recent studies have explored a variety of techniques to analyze provenance graphs for automated host intrusion detection, focusing particularly on advanced persistent threats. Sifting through their design documents, we identify four common dimensions that drive the development of provenance-based intrusion detection systems (PIDSes): scope (can PIDSes detect modern attacks that infiltrate across application boundaries?), attack agnosticity (can PIDSes detect novel attacks without a priori knowledge of attack characteristics?), timeliness (can PIDSes efficiently monitor host systems as they run?), and attack reconstruction (can PIDSes distill attack activity from large provenance graphs so that sysadmins can easily understand and quickly respond to system intrusion?). We present Kairos, the first PIDS that simultaneously satisfies the desiderata in all four dimensions, whereas existing approaches sacrifice at least one and struggle to achieve comparable detection performance.Kairos leverages a novel graph neural network based encoder-decoder architecture that learns the temporal evolution of a provenance graph’s structural changes to quantify the degree of anomalousness for each system event. Then, based on this fine-grained information, Kairos reconstructs attack footprints, generating compact summary graphs that accurately describe malicious activity over a stream of system audit logs. Using state-of-the-art benchmark datasets, we demonstrate that Kairos outperforms previous approaches."
+ },
+ "efron1993": {
+  "key": "efron1993",
+  "title": "An Introduction to the Bootstrap",
+  "year": 1993,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": "S2 year differs (preprint or reprint): check the venue year",
+  "s2_id": "75f8a4d7ed6a0f32fa098cac967de247938d9ce5",
+  "s2_title": "An Introduction to the Bootstrap",
+  "s2_year": 2007,
+  "venue": "",
+  "authors": [],
+  "external_ids": {
+   "CorpusId": 19878149
+  },
+  "abstract": null
+ },
+ "elkhairi2022": {
+  "key": "elkhairi2022",
+  "title": "Contextualizing System Calls in Containers for Anomaly-Based Intrusion Detection",
+  "year": 2022,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "42ee919289c588333afa5226b220474f79331447",
+  "s2_title": "Contextualizing System Calls in Containers for Anomaly-Based Intrusion Detection",
+  "s2_year": 2022,
+  "venue": "Cloud Computing Security Workshop",
+  "authors": [
+   "Asbat El Khairi",
+   "M. Caselli",
+   "Christian Knierim",
+   "Andreas Peter",
+   "Andrea Continella"
+  ],
+  "external_ids": {
+   "DBLP": "conf/ccsw-ws/KhairiCKPC22",
+   "DOI": "10.1145/3560810.3564266",
+   "CorpusId": 253268307
+  },
+  "abstract": "Container technology has gained ground in the industry for its scalability and lightweight virtualization, especially in cloud environments. Nevertheless, research has shown that containerized applications are an appealing target for cyberattacks, which may lead to interruption of business-critical services and financial damage. State-of-the-art anomaly-based host intrusion detection systems (HIDS) may enhance container runtime security. However, they were not designed to deal with the characteristics of containerized environments. Specifically, they cannot effectively cope with the scalability of containers and the diversity of anomalies. To address these challenges, we introduce a novel anomaly-based HIDS that relies on monitoring heterogeneous properties of system calls. Our key idea is that anomalies can be accurately detected when those properties are examined jointly within their context. To this end, we model system calls leveraging a graph-based structure that emphasizes their dependencies within their relative context, allowing us to precisely discern between normal and malicious activities. We evaluate our approach on two datasets of 20 different attack scenarios containing 11,700 normal and 1,980 attack system call traces. The achieved results show that our solution effectively detects various anomalies with reasonable runtime overhead, outperforming state-of-the-art tools."
+ },
+ "elkhairi2024": {
+  "key": "elkhairi2024",
+  "title": "REPLICAWATCHER: Training-less Anomaly Detection in Containerized Microservices",
+  "year": 2024,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "c0bcd3e6d71c327fc64950f61f58c4c1b53d9fe5",
+  "s2_title": "REPLICAWATCHER: Training-less Anomaly Detection in Containerized Microservices",
+  "s2_year": 2024,
+  "venue": "Network and Distributed System Security Symposium",
+  "authors": [
+   "Asbat El Khairi",
+   "Marco Caselli",
+   "Andreas Peter",
+   "Andrea Continella"
+  ],
+  "external_ids": {
+   "DBLP": "conf/ndss/KhairiCPC24",
+   "DOI": "10.14722/ndss.2024.24286",
+   "CorpusId": 267621338
+  },
+  "abstract": "—Despite its detection capabilities against previously unseen threats, anomaly detection suffers from critical limitations, which often prevent its deployment in real-world settings. In fact, anomaly-based intrusion detection systems rely on comprehensive pre-established baselines for effectively identifying suspicious activities. Unfortunately, prior research showed that these baselines age and gradually lose their effectiveness over time, especially in dynamic deployments such as microservices-based environments, where the concept of “normality” is frequently redefined due to shifting operational conditions. This scenario reinforces the need for periodic retraining to uphold optimal performance — a process that proves challenging, particularly in the context of security applications. We propose a novel, training-less approach to monitoring microservices-based environments. Our system, R EPLI - CA W ATCHER , observes the behavior of identical container instances (i.e., replicas ) and detects anomalies without requiring prior training. Our key insight is that replicas, adopted for fault tolerance or scalability reasons, execute analogous tasks and exhibit similar behavioral patterns, which allow anomalous containers to stand out as a notable deviation from their corresponding replicas, thereby serving as a crucial indicator of security threats. The results of our experimental evaluation show that our approach is resilient against normality shifts and maintains its effectiveness without the necessity for retraining. Besides, despite not relying on a training phase, R EPLICA W ATCHER performs comparably to state-of-the-art, training-based solutions, achieving an average precision of 91.08% and recall of 98.35%."
+ },
+ "forrest1996": {
+  "key": "forrest1996",
+  "title": "A sense of self for Unix processes",
+  "year": 1996,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "fd485c25002ed6031d85bb76f9fbeefdc990c97e",
+  "s2_title": "A sense of self for Unix processes",
+  "s2_year": 1996,
+  "venue": "Proceedings 1996 IEEE Symposium on Security and Privacy",
+  "authors": [
+   "S. Forrest",
+   "S. Hofmeyr",
+   "Anil Somayaji",
+   "T. Longstaff"
+  ],
+  "external_ids": {
+   "MAG": "2128217000",
+   "DBLP": "conf/sp/ForrestHSL96",
+   "DOI": "10.1109/SECPRI.1996.502675",
+   "CorpusId": 206556577
+  },
+  "abstract": null
+ },
+ "geurts2006": {
+  "key": "geurts2006",
+  "title": "Extremely randomized trees",
+  "year": 2006,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "336a165c17c9c56160d332b9f4a2b403fccbdbfb",
+  "s2_title": "Extremely randomized trees",
+  "s2_year": 2006,
+  "venue": "Machine-mediated learning",
+  "authors": [
+   "P. Geurts",
+   "D. Ernst",
+   "L. Wehenkel"
+  ],
+  "external_ids": {
+   "MAG": "2056132907",
+   "DBLP": "journals/ml/GeurtsEW06",
+   "DOI": "10.1007/s10994-006-6226-1",
+   "CorpusId": 15137276
+  },
+  "abstract": null
+ },
+ "ghavamnia2020a": {
+  "key": "ghavamnia2020a",
+  "title": "Confine: Automated System Call Policy Generation for Container Attack Surface Reduction",
+  "year": 2020,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "dcc530ab44a8eb6416fa989b920923f03ea11d64",
+  "s2_title": "Confine: Automated System Call Policy Generation for Container Attack Surface Reduction",
+  "s2_year": 2020,
+  "venue": "International Symposium on Recent Advances in Intrusion Detection",
+  "authors": [
+   "Seyedhamed Ghavamnia",
+   "Tapti Palit",
+   "Azzedine Benameur",
+   "M. Polychronakis"
+  ],
+  "external_ids": {
+   "MAG": "3092506792",
+   "DBLP": "conf/raid/GhavamniaPBP20",
+   "CorpusId": 220778345
+  },
+  "abstract": null
+ },
+ "ghavamnia2020b": {
+  "key": "ghavamnia2020b",
+  "title": "Temporal System Call Specialization for Attack Surface Reduction",
+  "year": 2020,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "4673a22c86782950a0dc2ab8629cce000f4dc947",
+  "s2_title": "Temporal System Call Specialization for Attack Surface Reduction",
+  "s2_year": 2020,
+  "venue": "USENIX Security Symposium",
+  "authors": [
+   "Seyedhamed Ghavamnia",
+   "Tapti Palit",
+   "Shachee Mishra",
+   "M. Polychronakis"
+  ],
+  "external_ids": {
+   "MAG": "3081770884",
+   "DBLP": "conf/uss/GhavamniaPMP20",
+   "CorpusId": 220669332
+  },
+  "abstract": null
+ },
+ "gibbs2021": {
+  "key": "gibbs2021",
+  "title": "Adaptive Conformal Inference Under Distribution Shift",
+  "year": 2021,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "445596c40dc421efe2354a340085b43181bea2be",
+  "s2_title": "Adaptive Conformal Inference Under Distribution Shift",
+  "s2_year": 2021,
+  "venue": "Neural Information Processing Systems",
+  "authors": [
+   "Isaac Gibbs",
+   "E. Candès"
+  ],
+  "external_ids": {
+   "DBLP": "conf/nips/GibbsC21",
+   "ArXiv": "2106.00170",
+   "DOI": "10.48550/arXiv.2106.00170",
+   "CorpusId": 235266057
+  },
+  "abstract": "We develop methods for forming prediction sets in an online setting where the data generating distribution is allowed to vary over time in an unknown fashion. Our framework builds on ideas from conformal inference to provide a general wrapper that can be combined with any black box method that produces point predictions of the unseen label or estimated quantiles of its distribution. While previous conformal inference methods rely on the assumption that the data points are exchangeable, our adaptive approach provably achieves the desired coverage frequency over long-time intervals irrespective of the true data generating process. We accomplish this by modelling the distribution shift as a learning problem in a single parameter whose optimal value is varying over time and must be continuously re-estimated. We test our method, adaptive conformal inference, on two real world datasets and find that its predictions are robust to visible and significant distribution shifts."
+ },
+ "goyal2023": {
+  "key": "goyal2023",
+  "title": "Sometimes, You Aren't What You Do: Mimicry Attacks against Provenance Graph Host Intrusion Detection Systems",
+  "year": 2023,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "b1773a62b3d9f516cde91d54b71bf145b90a8a10",
+  "s2_title": "Sometimes, You Aren't What You Do: Mimicry Attacks against Provenance Graph Host Intrusion Detection Systems",
+  "s2_year": 2023,
+  "venue": "Network and Distributed System Security Symposium",
+  "authors": [
+   "Akul Goyal",
+   "Xue-Yuan Han",
+   "G. Wang",
+   "A. Bates"
+  ],
+  "external_ids": {
+   "DBLP": "conf/ndss/GoyalH0023",
+   "DOI": "10.14722/ndss.2023.24207",
+   "CorpusId": 257502249
+  },
+  "abstract": "—Modern-day provenance-based threat-hunting tools have become a valuable asset in the repertoire of system analysts. Given a system alert, threat-hunting tools guide the system analyst during attack forensics to recover the entire attack footprint of the adversary. However, many of these tools face an onslaught of false positive alerts from static rule sets used in enterprise settings. Many threat-detecting systems combat this by ranking outputted alerts so system analysts focus on alerts correlating to attack activity. In [1], Goyal et al. showed that the current landscape of Prov-IDSs is susceptible to evasion against an active attacker who introduces additional benign behavior alongside their attack. We look to extend this work by applying a similar technique to many modern-day threat-hunting tools. Our goal is to evaluate the efficacy of these systems when paired up against an adaptive attacker that executes innocuous activity alongside their malicious behavior. Our results show that one of the quintessential threat-hunting tools is vulnerable to attack, mis-ranking alerts such that 100% of the false positive alerts occur before the true positive alerts."
+ },
+ "grimmer2022": {
+  "key": "grimmer2022",
+  "title": "Extended Abstract: LID-DS 2021",
+  "year": 2022,
+  "verified": false,
+  "reason": "no match"
+ },
+ "hassan2019": {
+  "key": "hassan2019",
+  "title": "NoDoze: Combatting Threat Alert Fatigue with Automated Provenance Triage",
+  "year": 2019,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "dfe5a726609c318baf509af7cf41bf3840884c0b",
+  "s2_title": "NoDoze: Combatting Threat Alert Fatigue with Automated Provenance Triage",
+  "s2_year": 2019,
+  "venue": "Network and Distributed System Security Symposium",
+  "authors": [
+   "Wajih Ul Hassan",
+   "Shengjian Guo",
+   "Ding Li",
+   "Zhengzhang Chen",
+   "Kangkook Jee",
+   "Zhi-Chun Li",
+   "A. Bates"
+  ],
+  "external_ids": {
+   "MAG": "2947745012",
+   "DBLP": "conf/ndss/HassanGLCJL019",
+   "DOI": "10.14722/ndss.2019.23349",
+   "CorpusId": 56436113
+  },
+  "abstract": "—Large enterprises are increasingly relying on threat detection softwares (e.g., Intrusion Detection Systems) to allow them to spot suspicious activities. These softwares generate alerts which must be investigated by cyber analysts to ﬁgure out if they are true attacks. Unfortunately, in practice, there are more alerts than cyber analysts can properly investigate. This leads to a “threat alert fatigue” or information overload problem where cyber analysts miss true attack alerts in the noise of false alarms. In this paper, we present N O D OZE to combat this challenge using contextual and historical information of generated threat alert. N O D OZE ﬁrst generates a causal dependency graph of an alert event. Then, it assigns an anomaly score to each edge in the dependency graph based on the frequency with which related events have happened before in the enterprise. N O D OZE then propagates those scores along the neighboring edges of the graph using a novel network diffusion algorithm and generates an aggregate anomaly score which is used for triaging. We deployed and evaluated N O D OZE at NEC Labs America. Evaluation on our dataset of 364 threat alerts shows that N O D OZE consistently ranked the true alerts higher than the false alerts based on aggregate anomaly scores. Further, through the introduction of a cutoff threshold for anomaly scores, we estimate that our system decreases the volume of false alarms by 84%, saving analysts’ more than 90 hours of investigation time per week. N O D OZE generates alert dependency graphs that are two orders of magnitude smaller than those generated by traditional tools without sacriﬁcing the vital information needed for the investigation. Our system has a low average runtime overhead and can be deployed with any threat detection software."
+ },
+ "jiang2025": {
+  "key": "jiang2025",
+  "title": "ORTHRUS: Achieving High Quality of Attribution in Provenance-based Intrusion Detection Systems",
+  "year": 2025,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "cac38680575ce681f24be1c637bc1a0ce7705899",
+  "s2_title": "ORTHRUS: Achieving High Quality of Attribution in Provenance-based Intrusion Detection Systems",
+  "s2_year": 2025,
+  "venue": "USENIX Security Symposium",
+  "authors": [
+   "Baoxiang Jiang",
+   "Tristan Bilot",
+   "Nour El Madhoun",
+   "K. Al Agha",
+   "Anis Zouaoui",
+   "Shahrear Iqbal",
+   "Xue-Yuan Han",
+   "Thomas Pasquier"
+  ],
+  "external_ids": {
+   "DBLP": "conf/uss/JiangBMAZIHP25",
+   "CorpusId": 275578641
+  },
+  "abstract": null
+ },
+ "kim2016": {
+  "key": "kim2016",
+  "title": "LSTM-Based System-Call Language Modeling and Robust Ensemble Method for Designing Host-Based Intrusion Detection Systems",
+  "year": 2016,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "dfd399fb2e4c4e68ce46dab1ef1ea87082049971",
+  "s2_title": "LSTM-Based System-Call Language Modeling and Robust Ensemble Method for Designing Host-Based Intrusion Detection Systems",
+  "s2_year": 2016,
+  "venue": "arXiv.org",
+  "authors": [
+   "Gyuwan Kim",
+   "Hayoon Yi",
+   "Jangho Lee",
+   "Y. Paek",
+   "Sungroh Yoon"
+  ],
+  "external_ids": {
+   "ArXiv": "1611.01726",
+   "MAG": "2551087083",
+   "DBLP": "journals/corr/KimYLPY16",
+   "DOI": "10.48550/arXiv.1611.01726",
+   "CorpusId": 1764821
+  },
+  "abstract": "In computer security, designing a robust intrusion detection system is one of the most fundamental and important problems. In this paper, we propose a system-call language-modeling approach for designing anomaly-based host intrusion detection systems. To remedy the issue of high false-alarm rates commonly arising in conventional methods, we employ a novel ensemble method that blends multiple thresholding classifiers into a single one, making it possible to accumulate 'highly normal' sequences. The proposed system-call language model has various advantages leveraged by the fact that it can learn the semantic meaning and interactions of each system call that existing methods cannot effectively consider. Through diverse experiments on public benchmark datasets, we demonstrate the validity and effectiveness of the proposed method. Moreover, we show that our model possesses high portability, which is one of the key aspects of realizing successful intrusion detection systems."
+ },
+ "lorden1971": {
+  "key": "lorden1971",
+  "title": "Procedures for Reacting to a Change in Distribution",
+  "year": 1971,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "b469b7253ed95354e44b56f5e4b9d83f9c7ca7f6",
+  "s2_title": "PROCEDURES FOR REACTING TO A CHANGE IN DISTRIBUTION",
+  "s2_year": 1971,
+  "venue": "",
+  "authors": [
+   "G. Lorden"
+  ],
+  "external_ids": {
+   "MAG": "1981904416",
+   "DOI": "10.1214/AOMS/1177693055",
+   "CorpusId": 119953664
+  },
+  "abstract": "A problem of optimal stopping is formulated and simple rules are proposed which are asymptotically optimal in an appropriate sense. The problem is of central importance in quality control and also has applications in reliability theory and other areas."
+ },
+ "moustakides1986": {
+  "key": "moustakides1986",
+  "title": "Optimal Stopping Times for Detecting Changes in Distributions",
+  "year": 1986,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "bad5edaf45a55e64491aaddb8238d1da38d36f80",
+  "s2_title": "Optimal stopping times for detecting changes in distributions",
+  "s2_year": 1986,
+  "venue": "",
+  "authors": [
+   "G. Moustakides"
+  ],
+  "external_ids": {
+   "MAG": "2018319586",
+   "DOI": "10.1214/AOS/1176350164",
+   "CorpusId": 121739525
+  },
+  "abstract": null
+ },
+ "osaki2024": {
+  "key": "osaki2024",
+  "title": "Dynamic Fixed-point Values in eBPF: a Case for Fully In-kernel Anomaly Detection",
+  "year": 2024,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "04a0034ee7983f8ab20a69de8ceb654da461d62d",
+  "s2_title": "Dynamic Fixed-point Values in eBPF: a Case for Fully In-kernel Anomaly Detection",
+  "s2_year": 2024,
+  "venue": "Asian Internet Engineering Conference",
+  "authors": [
+   "Atsuya Osaki",
+   "Manuel Poisson",
+   "Seiki Makino",
+   "Ryusei Shiiba",
+   "Kensuke Fukuda",
+   "T. Okoshi",
+   "J. Nakazawa"
+  ],
+  "external_ids": {
+   "DBLP": "conf/aintec/OsakiPMSFON24",
+   "DOI": "10.1145/3674213.3674219",
+   "CorpusId": 277260855
+  },
+  "abstract": "eBPF and XDP are promising technologies that are capable of accelerating packet processing inside the Linux kernel. Despite these benefits, eBPF is constrained by a number of rigorous restrictions that are imposed to protect the kernel. One such restriction is the lack of support for floating-point values, which was introduced to achieve faster execution and avoid non-deterministic behavior. However, this has become a significant obstacle to expanding the functionality of eBPF programs with advanced algorithms. In this paper, we propose dynamic fixed-point as a solution to overcome this challenge within the restrictions of eBPF. Dynamic fixed-point values are an expansion from traditional fixed-point values, with the bit allocation adjusted dynamically. Benefit of dynamic fixed-point is that the accuracy of calculations are improved, which is one of the critical shortcomings of fixed-point. To demonstrate the effectiveness of our approach, we have designed and implemented a prototype of an entropy-based traffic anomaly detection framework and have reported on its throughput and the detection accuracy. Our prototype, which employs dynamic fixed-point, has achieved an 18% improvement in throughput while also matching the detection accuracy of a similar system that employs floating-point values in user space."
+ },
+ "page1954": {
+  "key": "page1954",
+  "title": "Continuous Inspection Schemes",
+  "year": 1954,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "ae3c60cf4066589d91256d52c6f568665f70568e",
+  "s2_title": "CONTINUOUS INSPECTION SCHEMES",
+  "s2_year": 1954,
+  "venue": "",
+  "authors": [
+   "E. Page"
+  ],
+  "external_ids": {
+   "MAG": "2051903196",
+   "DOI": "10.1093/BIOMET/41.1-2.100",
+   "CorpusId": 121530032
+  },
+  "abstract": null
+ },
+ "vovk2005": {
+  "key": "vovk2005",
+  "title": "Algorithmic Learning in a Random World",
+  "year": 2005,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "1776b5ba5d2b17f6e6a043d57d36126e2af90315",
+  "s2_title": "Algorithmic Learning in a Random World",
+  "s2_year": 2005,
+  "venue": "",
+  "authors": [
+   "Vladimir Vovk",
+   "A. Gammerman",
+   "G. Shafer"
+  ],
+  "external_ids": {
+   "MAG": "1553101044",
+   "DOI": "10.1007/978-3-031-06649-8",
+   "CorpusId": 118783209
+  },
+  "abstract": null
+ },
+ "wagner2002": {
+  "key": "wagner2002",
+  "title": "Mimicry Attacks on Host-Based Intrusion Detection Systems",
+  "year": 2002,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "efa8f2c918878eddaded0158f335038224f2305b",
+  "s2_title": "Mimicry attacks on host-based intrusion detection systems",
+  "s2_year": 2002,
+  "venue": "Conference on Computer and Communications Security",
+  "authors": [
+   "D. Wagner",
+   "P. Soto"
+  ],
+  "external_ids": {
+   "MAG": "2135143063",
+   "DBLP": "conf/ccs/WagnerS02",
+   "DOI": "10.1145/586110.586145",
+   "CorpusId": 1482604
+  },
+  "abstract": null
+ },
+ "wei2025": {
+  "key": "wei2025",
+  "title": "CORTEX: Collaborative LLM Agents for High-Stakes Alert Triage",
+  "year": 2025,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "54c583e0e15a0fcd133214fd59080af647071bdd",
+  "s2_title": "CORTEX: Collaborative LLM Agents for High-Stakes Alert Triage",
+  "s2_year": 2025,
+  "venue": "arXiv.org",
+  "authors": [
+   "Bowen Wei",
+   "Yuan-Shen Tay",
+   "Howard Liu",
+   "Jin-Hao Pan",
+   "Kun Luo",
+   "Zi-Wei Zhu",
+   "Christopher T. Jordan"
+  ],
+  "external_ids": {
+   "DBLP": "journals/corr/abs-2510-00311",
+   "ArXiv": "2510.00311",
+   "DOI": "10.48550/arXiv.2510.00311",
+   "CorpusId": 281706633
+  },
+  "abstract": "Security Operations Centers (SOCs) are overwhelmed by tens of thousands of daily alerts, with only a small fraction corresponding to genuine attacks. This overload creates alert fatigue, leading to overlooked threats and analyst burnout. Classical detection pipelines are brittle and context-poor, while recent LLM-based approaches typically rely on a single model to interpret logs, retrieve context, and adjudicate alerts end-to-end -- an approach that struggles with noisy enterprise data and offers limited transparency. We propose CORTEX, a multi-agent LLM architecture for high-stakes alert triage in which specialized agents collaborate over real evidence: a behavior-analysis agent inspects activity sequences, evidence-gathering agents query external systems, and a reasoning agent synthesizes findings into an auditable decision. To support training and evaluation, we release a dataset of fine-grained SOC investigations from production environments, capturing step-by-step analyst actions and linked tool outputs. Across diverse enterprise scenarios, CORTEX substantially reduces false positives and improves investigation quality over state-of-the-art single-agent LLMs."
+ },
+ "wilson1927": {
+  "key": "wilson1927",
+  "title": "Probable Inference, the Law of Succession, and Statistical Inference",
+  "year": 1927,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "b14f4269f09ef77ad310581ea82d502402d90fb9",
+  "s2_title": "Probable Inference, the Law of Succession, and Statistical Inference",
+  "s2_year": 1927,
+  "venue": "",
+  "authors": [
+   "E. B. Wilson"
+  ],
+  "external_ids": {
+   "MAG": "2020018978",
+   "DOI": "10.1080/01621459.1927.10502953",
+   "CorpusId": 121572396
+  },
+  "abstract": null
+ },
+ "zehra2025": {
+  "key": "zehra2025",
+  "title": "FedMon: Federated eBPF Monitoring for Distributed Anomaly Detection in Multi-Cluster Cloud Environments",
+  "year": 2025,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "001ff0234391a647a0572ef3c38cea431da09634",
+  "s2_title": "FedMon: Federated eBPF Monitoring for Distributed Anomaly Detection in Multi-Cluster Cloud Environments",
+  "s2_year": 2025,
+  "venue": "International Conference on Emerging Technologies",
+  "authors": [
+   "Sehar Zehra",
+   "Hassan Jamil Syed",
+   "Ummay Faseeha"
+  ],
+  "external_ids": {
+   "ArXiv": "2510.10126",
+   "DBLP": "journals/corr/abs-2510-10126",
+   "DOI": "10.1109/ICET66147.2025.11321420",
+   "CorpusId": 282056923
+  },
+  "abstract": "Kubernetes multi-cluster deployments demand scalable and privacy-preserving anomaly detection. Existing eBPF-based monitors provide low-overhead system and network visibility but are limited to single clusters, while centralized approaches incur bandwidth, privacy, and heterogeneity challenges. We propose FedMon, a federated eBPF framework that unifies kernel-level telemetry with federated learning (FL) for cross-cluster anomaly detection. Lightweight eBPF agents capture syscalls and network events, extract local statistical and sequence features, and share only model updates with a global server. A hybrid detection engine combining Variational Autoencoders (VAEs) with Isolation Forests enables both temporal pattern modeling and outlier detection. Deployed across three Kubernetes clusters, FedMon achieves 94% precision, 91% recall, and an F1-score of 0.92, while cutting bandwidth usage by 60% relative to centralized baselines. Results demonstrate that FedMon enhances accuracy, scalability, and privacy, providing an effective defense for large-scale, multi-tenant cloud-native environments."
+ },
+ "zhou2026": {
+  "key": "zhou2026",
+  "title": "An Abnormal File Access Detection Model for Containers Based on eBPF Listening",
+  "year": 2026,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "c47b0c3441e9f6ea9a534a76d250b5b1fe4eaa55",
+  "s2_title": "An Abnormal File Access Detection Model for Containers Based on eBPF Listening",
+  "s2_year": 2026,
+  "venue": "Mathematics",
+  "authors": [
+   "Na-Qin Zhou",
+   "Hao Chen",
+   "Zeyu Chen",
+   "Chao Li",
+   "Fan Li"
+  ],
+  "external_ids": {
+   "DOI": "10.3390/math14060991",
+   "CorpusId": 286612502
+  },
+  "abstract": "With the widespread adoption of container technology, its shared kernel architecture has made abnormal file access behavior a key precursor to container escape and lateral attacks, necessitating precise and efficient runtime detection mechanisms. However, existing monitoring methods typically suffer from issues such as insufficient granularity in data collection, limited path semantic modeling capabilities, and low anomaly detection accuracy. To address these challenges, this paper proposes an eBPF-based method for detecting abnormal file access in containers. A lightweight kernel-level monitoring mechanism is constructed to capture access behavior in real time at the system call level, effectively enhancing both the granularity of data collection and the completeness of context. At the feature modeling layer, a multimodal path semantic representation method is designed, combining risk-layer rules and semantic vectorization strategies to enhance the hierarchical expression of path structures and improve context modeling ability. In the detection layer, an attention-enhanced autoencoder model is introduced, achieving high-precision identification of abnormal access behavior and low false-positive monitoring under unsupervised conditions through a path segment attention mechanism and weighted reconstruction loss function. Experiments in real container environments show that the proposed method achieves a recall rate of 82.0%, a false-positive rate of 0.79%, and a Matthews correlation coefficient of 0.852, significantly outperforming mainstream unsupervised detection methods such as Isolation Forest, One-Class SVM, and Local Outlier Factor. These results verify the advantages of the proposed method in terms of detection accuracy, real-time performance, and system friendliness, providing an efficient and feasible solution for enhancing the detection of unknown attacks in container runtimes."
+ },
+ "tan2002": {
+  "key": "tan2002",
+  "title": "Undermining an Anomaly-Based Intrusion Detection System Using Common Exploits",
+  "year": 2002,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "359c57b0035d5c2ca3f62a24c81a00aef5240836",
+  "s2_title": "Undermining an Anomaly-Based Intrusion Detection System Using Common Exploits",
+  "s2_year": 2002,
+  "venue": "International Symposium on Recent Advances in Intrusion Detection",
+  "authors": [
+   "K. Tan",
+   "Kevin S. Killourhy",
+   "R. Maxion"
+  ],
+  "external_ids": {
+   "MAG": "2886481750",
+   "DBLP": "conf/raid/TanKM02",
+   "DOI": "10.1007/3-540-36084-0_4",
+   "CorpusId": 1485655
+  },
+  "abstract": null
+ },
+ "bashari2025": {
+  "key": "bashari2025",
+  "title": "Robust Conformal Outlier Detection under Contaminated Reference Data",
+  "year": 2025,
+  "verified": true,
+  "similarity": 1.0,
+  "year_note": null,
+  "s2_id": "0befc8814cd85d2250b3cfa08f5e76fc8ca37660",
+  "s2_title": "Robust Conformal Outlier Detection under Contaminated Reference Data",
+  "s2_year": 2025,
+  "venue": "International Conference on Machine Learning",
+  "authors": [
+   "M. Bashari",
+   "Matteo Sesia",
+   "Yaniv Romano"
+  ],
+  "external_ids": {
+   "DBLP": "journals/corr/abs-2502-04807",
+   "ArXiv": "2502.04807",
+   "DOI": "10.48550/arXiv.2502.04807",
+   "CorpusId": 276235532
+  },
+  "abstract": "Conformal prediction is a flexible framework for calibrating machine learning predictions, providing distribution-free statistical guarantees. In outlier detection, this calibration relies on a reference set of labeled inlier data to control the type-I error rate. However, obtaining a perfectly labeled inlier reference set is often unrealistic, and a more practical scenario involves access to a contaminated reference set containing a small fraction of outliers. This paper analyzes the impact of such contamination on the validity of conformal methods. We prove that under realistic, non-adversarial settings, calibration on contaminated data yields conservative type-I error control, shedding light on the inherent robustness of conformal methods. This conservativeness, however, typically results in a loss of power. To alleviate this limitation, we propose a novel, active data-cleaning framework that leverages a limited labeling budget and an outlier detection model to selectively annotate data points in the contaminated reference set that are suspected as outliers. By removing only the annotated outliers in this ``suspicious'' subset, we can effectively enhance power while mitigating the risk of inflating the type-I error rate, as supported by our theoretical analysis. Experiments on real datasets validate the conservative behavior of conformal methods under contamination and show that the proposed data-cleaning strategy improves power without sacrificing validity."
+ }
+}

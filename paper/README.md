@@ -11,8 +11,11 @@ step by step; two of its rules are overridden (see `templates/usenix-security/gu
 | template + guidelines | USENIX Security '27 CFP and template | `templates/usenix-security/` | done 17/11 |
 | 1. outline agent | the above | `outline.json` | done 17/11 |
 | 2. literature agent | outline | `literature/citation_map.json`, `literature/references.bib` (each entry verified on Semantic Scholar) | next |
-| 3. section writing agent | outline, citation map | `latex/paper.tex` | |
+| 3. section writing agent | outline, citation map | `latex/paper.tex`, `latex/sections/*.tex` | 17/11: background, design, implementation, evaluation written (v6 and LID-DS 2019 parts PENDING); introduction, related work, discussion, conclusion, appendices next |
 | 4. content refinement (AgentReview reviewer, USENIX rubric) | paper | `latex/paper.tex`, `refinement/worklog.json` | |
 | 5. plotting / format | outline plotting plan | `latex/figures/` | |
 
 Deadlines (AoE): registration 19/01/2027, paper 26/01/2027, artifacts 29/01/2027.
+
+Build (official template needs pdfTeX; TinyTeX in `~/.TinyTeX`, binaries in `~/.local/bin`):
+`cd paper/latex && pdflatex paper && bibtex paper && pdflatex paper && pdflatex paper`

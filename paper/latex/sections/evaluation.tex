@@ -1,0 +1,308 @@
+\section{Evaluation}\label{sec:evaluation}
+
+We ask five questions. \textbf{RQ1}: does the model reach the target levels (recall and precision $\ge 95\,\%$, latency
+p95 $\le 3$\,s) on public datasets? \textbf{RQ2}: which design choices carry the result? \textbf{RQ3}: does it hold on a
+live cluster, blind, and at what alert burden? \textbf{RQ4}: can it tell an attack from a harmless new process?
+\textbf{RQ5}: what does it cost, and how fast does an alert reach a responder?
+
+\subsection{Methodology}\label{sec:eval-method}
+
+\paragraph{Pre-registration.} Every main analysis and every live run has a JSON protocol committed to version control
+before the data it concerns is read: expected levels, metric definitions, selection rules and analysis code. Later
+changes are timestamped amendments. We separate \emph{development} results (data seen while designing) from
+\emph{blind} results (the official split of LID-DS~2021 and live runs); conclusions rest on blind results only.
+
+\paragraph{Datasets.} LID-DS~2021~\cite{grimmer2022} has 15 scenarios of real vulnerabilities. Each scenario's model
+learns its training and validation recordings. The test recordings are split by a registered seed into a development
+part (30\,\%: 544 attack and 3{,}403 normal recordings) and an official part (70\,\%: 1{,}271 attack and 7{,}938
+normal). An attack recording is detected when an alarm window ends after the first exploit timestamp; latency is
+measured from that timestamp; a normal recording with any alarm is a false alarm. CB-DS~\cite{elkhairi2022} has 1{,}700
+normal recordings of an e-shop container and nine container-breakout scenarios of 99 recordings each; it has no exploit
+timestamp, so any alarm in an attack recording counts and latency is not measured. LID-DS~2019 is reserved for one
+final run (\cref{sec:eval-2019}).
+
+\paragraph{Cluster campaign.} Each trial targets one replica with consecutive 15\,s intervals on the same container: an
+idle control; a harmless control binary started through the same \texttt{kubectl exec} path as the attack, which only
+loops over \texttt{getpid} and \texttt{clock\_nanosleep}; from the second run on, a real operator command
+(\texttt{ls}, \texttt{cat}, \texttt{ps}, \texttt{env}, \texttt{id}, \texttt{sh}, \texttt{python}, \texttt{date},
+\texttt{uname}, \texttt{df} in turn); and one of five self-written attack fixtures repeated at a registered rate:
+a child calling \texttt{ptrace(PTRACE\_TRACEME)}; \texttt{setns} on file descriptor $-1$; \texttt{execveat} of a
+missing file; flipping an anonymous page between read and read-write with \texttt{mprotect}; an invalid
+\texttt{seccomp} operation. Every action affects only the calling process or fails before changing host state.
+21 workloads $\times$ 5 fixtures $\times$ 5 rates (1, 3, 6, 12, 24 actions/s) give 525 trials per run; the
+\emph{primary set} is the 315 trials at 6--24/s, rates 1 and 3 model a slow attacker. Trial order is shuffled with a
+fixed seed and attacks start after a 90-minute selection prefix.
+
+\paragraph{Metrics.} Recall: an attack interval with an alarm within its 15\,s. Control positives: idle intervals with
+an alarm. Precision 1:1: TP/(TP+control positives), since each trial has one attack and one idle interval; harmless
+binaries and operator commands are reported apart (\cref{sec:eval-benign}). Latency: from the first kernel event of
+the attack to the end of the first alarm window, and separately to Alertmanager. Burden: alarm episodes (alarms of one
+container less than 15\,s apart) per replica-hour of normal traffic outside the selection prefix and the campaign.
+Rates carry Wilson 95\,\% intervals~\cite{wilson1927}; burden a workload-clustered bootstrap~\cite{efron1993}.
+
+\subsection{RQ1: public datasets}\label{sec:eval-datasets}
+
+The protocol registered three levels, each equal to the best result reached before on the same data. All three are met.
+On development the model detects 530/544 recordings (97.43\,\%) with 6/3{,}403 false-alarm recordings and p95
+1.52\,s; on CB-DS 891/891 with 3/1{,}410. \Cref{tab:lidds} gives the blind official result.
+
+\begin{table}[t]
+\centering\small
+\caption{LID-DS 2021 official split (1{,}271 attack, 7{,}938 normal recordings); 95\,\% Wilson intervals.}
+\label{tab:lidds}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Metric & Target & Result \\
+\midrule
+Recall & $\ge 95\,\%$ & 97.40\,\% (1{,}238/1{,}271) [96.38, 98.15] \\
+False-alarm recordings & reported & 0.33\,\% (26/7{,}938) [0.22, 0.48] \\
+Precision at base rate & $\ge 95\,\%$ & 97.9\,\% \\
+Latency p50 / p95 & p95 $\le 3$\,s & 0.39\,s / 1.47\,s \\
+Detected within 3\,s & reported & 1{,}234/1{,}271 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Fourteen of 15 scenarios reach 100\,\% recall; every miss belongs to Juice-Shop (52/85). Of its 33 misses, 28 leave no
+trace in any signal we tried (new path, new error code, size, unseen sequence), which caps those signals at
+1{,}243/1{,}271. The missed requests are logins with a modified SQL string to the same endpoint as normal logins: no
+new process, path, error or size, and the traces keep only the first ${\sim}80$ bytes of buffers
+(\cref{sec:discussion}). False alarms concentrate on one scenario (8/532); all others stay below 0.6\,\%. Precision
+depends strongly on the base rate: with the same recall and false-alarm rate it would be 75.0\,\% at 1\,\% attacks and
+22.9\,\% at 0.1\,\%~\cite{arp2022}. The only published result on all 15 scenarios is the dataset authors' STIDE, with a
+mean per-scenario detection rate of 0.59~\cite{grimmer2022}; computed the same way ours is 0.97 (their false alarms are
+counted per alarm cluster, so only detection rates compare). The official split is not entirely unseen: the alphabet
+was designed after looking at other signals on the same recordings.
+
+\paragraph{Why tokens.} An earlier version of the system scored per-window system-call count vectors with
+ExtraTrees~\cite{geurts2006} and a value-range branch. On all LID-DS~2021 test recordings it detected 1{,}154/1{,}815
+(63.6\,\%, p95 4.13\,s); the misses concentrate on exploits that run inside the service process (e.g.\ 113 of 120
+Heartbleed and 114 of 118 ZipSlip recordings), where the set and frequency of calls hardly change. On the official split
+with the same threshold rule it detects 662/1{,}271 (p95 13.15\,s); next to the token model it adds no detection and
+raises false-alarm recordings from 26 to 36.
+
+\subsection{RQ2: which design choices matter}\label{sec:eval-design}
+
+All numbers in this subsection are development and CB-DS; the official split was not read. A cache path reproduces the
+stored scores on all 16 scenarios (largest difference $2.8\times10^{-14}$) before any variant is read.
+
+\begin{table}[t]
+\centering\small
+\caption{Token alphabets on LID-DS 2021 development (544 attack recordings; pre-cross-fit comparison at $\alpha=0.002$).}
+\label{tab:alphabets}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Alphabet & Detected & FA rate & p95 \\
+\midrule
+\textbf{select1f} (used) & \textbf{530} & 0.56\,\% & 1.45\,s \\
+select1f in probe emission order & 530 & 0.56\,\% & 1.49\,s \\
+errno of every call, halved sizes & 527 & 0.59\,\% & 1.52\,s \\
+no error codes & 528 & 0.50\,\% & 1.53\,s \\
+no open mode and directory & 523 & 0.56\,\% & 1.51\,s \\
+requested size at entry & 502 & 0.38\,\% & 2.29\,s \\
+no sizes & 490 & 0.56\,\% & 2.58\,s \\
+system-call name only & 487 & 0.56\,\% & 2.59\,s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Information in a token.} \Cref{tab:alphabets}: read and write sizes carry the most signal, and it must be
+the \emph{returned} size, not the requested one, which is why the probe hooks the exit of a call. Names alone lose 40
+recordings against the full alphabet. Emitting unhooked calls at entry, as the probe does, loses nothing.
+
+\paragraph{Each of the 39 hooked calls.} Reducing one hooked call at a time to its name and rescoring the whole
+pipeline changes the result for only 7 of the 31 calls present in the data: \texttt{write} ($-40$ detections),
+\texttt{open} ($-4$), \texttt{read} ($-2$, +1 false alarm), \texttt{pread} ($-1$), and \texttt{recv}/\texttt{recvfrom},
+\texttt{send}/\texttt{sendto} and \texttt{stat} only in false alarms. A registered backward elimination (36 scorings)
+leaves five calls (\texttt{open}, \texttt{read}, \texttt{recv} with \texttt{recvfrom}, \texttt{stat}, \texttt{write})
+that give exactly the result of all 39 in every scenario. Under a declared reuse of the official split, after the full
+set reproduced its official result, the five-call set detects the same 1{,}238/1{,}271 with 17 instead of 26
+false-alarm recordings (p95 1.46\,s). Adding the details of 13 other calls never increases detections. The 39-call set
+is sufficient but wider than this dataset needs; we keep it because narrowing the probe changes what the cluster sees.
+
+\paragraph{Parameters.} Varying one parameter at a time around the chosen values leaves the result flat: gram length 3,
+a top-3 to top-5 mean, 3 to 10 folds and $\alpha'$ from $5\times10^{-4}$ to $3\times10^{-3}$ all keep 528--530
+detections. It breaks only at the extremes: the top-1 surprise detects 123/544 (one strange event does not separate
+attacks from normal), a top-20 mean 492, grams of length 2 or 6 detect 458 and 493.
+
+\paragraph{Is the Gumbel threshold right?} Not as a distribution: an Anderson--Darling test rejects a Gumbel fit of the
+held-out maxima in 15/15 scenarios after Holm correction, and the estimated GEV shape ranges from $-0.28$ to $+0.77$.
+Nor as a level: at $\alpha'=0.01$ we expect 34 normal recordings above threshold and see 51; at $1.8\times10^{-4}$ we
+expect 0.6 and see 6. As a \emph{rule}, however, it is the best normal-only rule we tried (\cref{tab:thresholds}).
+
+\begin{table}[t]
+\centering\small
+\caption{Most detections of each normal-only threshold rule within a false-alarm budget (normal recordings), development.}
+\label{tab:thresholds}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Rule & $\le 6$ & $\le 12$ & $\le 20$ \\
+\midrule
+\textbf{Moment Gumbel, top 1\,\% trimmed} & \textbf{530} & \textbf{530} & \textbf{530} \\
+Moment Gumbel, all maxima & 525 & 530 & 530 \\
+Normal distribution & 525 & 530 & 530 \\
+Maximum-likelihood Gumbel & 495 & 530 & 530 \\
+Maximum-likelihood GEV & -- & 459 & 496 \\
+Largest held-out maximum (conformal) & -- & -- & 497 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Model or rule?} The simplest rule on the same tokens counts the events of a window whose 4-gram never
+occurred in normal behaviour. Scored with the same cross-fit, threshold rule and one-window decision, the model detects
+472/530/530/530/531 recordings at budgets of 3/6/12/20/34 normal recordings, the rule none/444/488/497/526. At a budget
+of 6 the model detects 86 more recordings (paired bootstrap 95\,\% interval [80, 93]): 53.4\,\% of normal recordings
+contain at least one unseen 4-gram, so the rule needs a high threshold, while the model grades \emph{how} unusual a
+new gram is. Both are blind to an attacker who uses only seen sequences: removing every event with an unseen gram or
+token from each attack recording leaves the model 0/544 (before: 530). This semi-synthetic lower bound says that every
+detection on this dataset rests on unseen sequences.
+
+\paragraph{A rate branch.} To target that blind spot we added a branch that scores how much more often a \emph{seen}
+gram occurs in a window than in any normal window, $\max_g \log\frac{n_g+1}{m_g+1}$. Alone it detects 225/544 with 7
+false alarms (CB-DS 891/891, 3); OR-ed with the model it adds no detection and raises false alarms to 12 (7 with a
+0.9/0.1 split of $\alpha'$; CB-DS 4), so it was not joined.
+
+\subsection{RQ3: blind live runs}\label{sec:eval-live}
+
+Two 24-hour blind runs scored all 21 workloads with a campaign of 525 trials each; thresholds were fitted before each
+run and fixed during it. The first learnt 12 hours of normal-only capture; the second also learnt the first run's
+normal traffic outside its trials, added an operator command to each trial, and sent its alerts through Alertmanager
+and the RCA. \Cref{tab:live} gives the primary set.
+
+\begin{table*}[t]
+\centering\small
+\caption{Token model on the cluster, primary set (6, 12, 24 actions/s), with 95\,\% intervals.}
+\label{tab:live}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Metric & Target & Run 1 (12\,h of normal) & Run 2 (more normal) \\
+\midrule
+Recall & $\ge 95\,\%$ & 315/315 [98.8, 100.0] & 314/314 [98.8, 100.0] \\
+Precision (1:1) & $\ge 95\,\%$ & 99.06\,\% [97.26, 99.68] & 100\,\% [98.79, 100.00] \\
+Control positives & $\le 5\,\%$ & 3/315 (0.95\,\%) [0.32, 2.76] & 0/314 [0.00, 1.21] \\
+p95 kernel $\to$ end of alarm window & $\le 3$\,s & 0.49\,s (p50 0.34\,s) & 0.49\,s (p50 0.35\,s) \\
+Harmless binary flagged & reported & 313/315 & 314/314 \\
+Operator command flagged & reported & -- & 255/261 \\
+Burden (episodes per replica-hour) & low & 0.41 [0.15, 0.73] & 0.17 [0.06, 0.33] \\
+Latest run (fresh fit after a cluster change, \cref{sec:eval-v6}) & & \multicolumn{2}{l}{\pending{H0 of pulse-live-v6}} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+All four targets are met in both runs. Over all rates, including the slow 1 and 3 actions/s, the runs detect 525/525
+and 521/522 attacks (one \texttt{mprotect} trial at 1/s missed) with 5/525 and 0/522 control positives;
+\texttt{mprotect} and \texttt{seccomp} appear in the normal behaviour of many workloads and are still caught at every
+rate. Scoring adds p50 0.15\,s and p95 0.18\,s per window. Learning more normal traffic lowered the burden from 332
+episodes in 817.1 replica-hours to 104 in 630.1, still above a reference budget of 0.1. The two runs are on different
+days, so this is not a controlled comparison, but it matches the measured cause: in a sample of the first run, every one
+of 146 alarm windows on normal traffic contained an unseen 4-gram, and 89 of 118 episodes came from one Kafka workload.
+Held-out 60\,s blocks exceed the threshold 145/48{,}531 times (0.299\,\%, 16.6$\times$ the design level) and, with
+more normal data, 350/134{,}905 (0.259\,\%): on the cluster too, $\alpha'$ is a knob. A virtualisation-host stall of
+3.5 minutes in the second run produced every cadence issue of that run; excluding the two trial pairs inside it changes
+no rate.
+
+\paragraph{The recall is attack-specific.} An alarm could come from the burst of starting a process through
+\texttt{kubectl exec} rather than from the attack. Removing from each attack interval every gram that also occurred in
+the same trial's harmless-binary and operator intervals leaves 314/314 primary detections (521/522 over all rates), with
+the first attack-specific alarm at p50 0.61\,s and p95 0.73\,s after the interval start; no trial is detected only
+through launch grams. Counting only alarm windows ending at least 1.5\,s after the start still gives 302/314.
+
+\subsection{RQ4: harmless new processes}\label{sec:eval-benign}
+
+The model flags almost every new process that enters a container through \texttt{kubectl exec}: the harmless binary
+in 314/314 primary trials and real operator commands in 419/436 trials over all rates (96.1\,\%). Counting the harmless
+binary as a negative, precision on the primary set of the second run would be 50.0\,\%. In a sample of 136 launches of
+the harmless binary (134 flagged), alarms came from the launch burst (first alarm after a median 0.44\,s; most
+surprising tokens \texttt{mprotect}, \texttt{prlimit64}, \texttt{arch\_prctl}, \texttt{brk}, \texttt{seccomp},
+\texttt{keyctl}, \texttt{setgid}, \texttt{setuid}; 61 launches flagged only in the first second) and from the binary's
+own loop (1{,}321 of 1{,}323 later alarm windows contain \texttt{clock\_nanosleep}; 73 launches). Neither is malicious.
+We tried, each under a registered protocol:
+\begin{itemize}
+\item \emph{A gate before the model}: an alarm must also be unusual for a pool model of all workloads, or must not fall
+  in the 1--2\,s after an \texttt{execve}. Rejected on the datasets: the pool model drops development detections to
+  487--509/544; skipping the seconds after \texttt{execve} drops them to 315--365/544 and CB-DS to 549--576/891.
+\item \emph{Learning operator activity as normal}: with all other commands learnt, a held-out command is still flagged
+  362/439 times (82.5\,\%, against 422/439 with the deployed model), and recall on the primary set falls to 303/314.
+  Learning the other folds' operator sessions gives 372/439.
+\item \emph{A lineage proxy}: treating the grams the workload model never saw as the session part, the remaining native
+  part flags 0/525 idle, 0/439 operator and 0/523 harmless-binary intervals. But a separate session model, thresholded
+  by the same Gumbel rule on a few hundred short sessions, sits at 37.7 (42.4 when harmless binaries are learnt too),
+  above every measured score, and detects 0/522 attacks.
+\end{itemize}
+The proxy cannot tell a session gram that the workload also knows from a native one, which is why we built the kernel
+lineage tag (\cref{sec:lineage}). Its proof on a test pod passes all eight checks (the container's own loop and the
+children of pid~1 stay native, an exec and its children are session, a backgrounded child that outlives the session
+stays session), and the token proof still finds one token per call. Runtime exec probes of the kubelet (\texttt{python -c} health checks) are session lineage too, so the
+session share of normal traffic differs by workload. \pending{session share per workload from the H1 receipt}
+\pending{H1 of pulse-live-v6: native stream on operator and harmless-binary intervals}
+
+\paragraph{A rule after the model.} A rule layer that downgrades an alert whose container only saw runtime execs of
+binaries shipped in its image (R1), and labels a non-image binary as drift (R2), removes the operator-command false
+alarms of the second run, 256/262 $\to$ 0/262 on the primary set and 422/439 $\to$ 0/439 overall, without touching the
+attack recall (314/314), because the campaign's attack binary is not part of any image. This is the benefit side only:
+an attack that lives off the land with image tools would also be downgraded.
+\pending{H4/H5 of pulse-live-v6: harm of R1 on living-off-the-land attacks; operator tools never seen before}
+
+\subsection{RQ5: cost, alert latency and RCA}\label{sec:eval-cost}
+
+\begin{table}[t]
+\centering\small
+\caption{Probe overhead per operation, range over three workers (median of 5 rotated rounds).}
+\label{tab:overhead}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Operation & No probe (ns) & Watched: +ns & Unwatched: +ns \\
+\midrule
+\texttt{getpid} & 1{,}070--1{,}121 & 407--447 & 212--273 \\
+\texttt{read} 4\,KB & 1{,}534--1{,}564 & 453--514 & 214--312 \\
+\texttt{futex} & 1{,}155--1{,}181 & 470--535 & 194--259 \\
+\texttt{open}+\texttt{close} & 8{,}541--8{,}861 & 1{,}774--2{,}077 & 727--1{,}044 \\
+\texttt{mmap}+\texttt{munmap} & 7{,}873--7{,}974 & 1{,}217--1{,}548 & 528--737 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Overhead.} \Cref{tab:overhead}: a simple call of a watched container costs 0.4--0.5\,\textmu s more, an
+open plus close 1.8--2.1\,\textmu s (the dentry walk). Calls of unwatched containers still pay 0.2--0.3\,\textmu s,
+because the tracepoints run for every call of the node before the cgroup filter. The baseline is already high
+(\texttt{getpid} about 1.1\,\textmu s), likely from virtualisation and the other probes on the nodes, so absolute
+nanoseconds compare better than percentages. The worker unit (loader and Python worker, including a shadow count model
+kept for comparison) used 7\,h\,05\,min to 7\,h\,28\,min of CPU per 24\,h, 0.30--0.31 cores of a 24-core node. The
+lineage tag adds no cost we can resolve: in 12 cells (three workers, four operations including fork plus exit plus
+wait) every 95\,\% interval of the paired ratio against the previous build contains zero except one negative; a fork
+with exit and wait takes 332--385\,\textmu s on these VMs. Not measured: the cost per request of a real application.
+
+\paragraph{Gram-map capacity.} With a load generator that makes every call a new gram in one cgroup, the map first loses
+grams at 400{,}000 calls/s; at 300{,}000 calls/s (142{,}610 distinct grams per window) it loses none, and the loader
+drains it in 0.33\,s (at most 0.41\,s); at 400{,}000 calls/s the longest drain is 0.63\,s, beyond the 0.5\,s frame.
+The heaviest node window of the second live run held 6{,}901 distinct grams, about 20$\times$ below the first loss.
+When the map is full, grams are dropped and counted by the loader, but the worker does not know the window is
+incomplete, which a heavy-load attacker could exploit (\cref{sec:discussion}).
+
+\paragraph{Alert latency.}\label{sec:eval-alert} From the attack's first kernel event to Alertmanager the push bridge
+delivered 521/522 alerts with p50 0.51\,s and p95 0.68\,s (per-rate p95 0.65--0.69\,s). A Prometheus scrape path in
+parallel needed p50 5.29\,s at a fast interval and p50 60.3\,s at the default one, in time for only 143/522 trials.
+Outside the host stall all 2{,}075 alert episodes of the run reached Alertmanager (decision to receipt p50 0.034\,s,
+p95 0.064\,s); during the 3.5-minute stall 113 of 190 were lost, because the bridge retries three times without a
+durable queue.
+
+\paragraph{RCA.} 467/522 attacks got their own case (89.5\,\%), and the attack binary ranked first in 464/467 cases
+(99.4\,\%); a case was ready p50 2.33\,s, p95 2.61\,s after the alert. Of the 55 attacks without their own case, 40
+were re-runs of the same binary on the same container merged into an earlier case by design, 14 lost a race (the model
+alarmed on the launch burst about 0.2\,s after the start, before the attack binary's exec, and the RCA only considered
+execs up to the end of the alarm window), and one had no decision. Rank 1 is helped by the campaign order, which always
+ran the attack after the harmless binary. \pending{H6 of pulse-live-v6: random step order and the exec recheck}
+
+\subsection{Model aging and the latest run}\label{sec:eval-v6}
+
+Between the second and the latest run the cluster's nodes were resized and the cluster recovered (Redis, its sentinels
+and several services were recreated). Under a registered check, the second run's models and thresholds, unchanged,
+scored a new 12-hour normal capture: 278/47{,}082 container blocks exceeded the threshold (0.59\,\%, 95\,\% interval
+0.53--0.66\,\%), against 350/134{,}905 (0.26\,\%, 0.23--0.29\,\%) on their own held-out blocks, about 2.3$\times$. The
+excess sits in a few workloads (Redis 83/2{,}178, 3.81\,\% against 0.26\,\%; then the API gateway, Kafka and an
+inventory service), while others went down. A count model learnt before a cluster change therefore raises the false
+alarms of some workloads after it; the latest run uses a fresh fit.
+\pending{pulse-live-v6: H0 replication, H3 dilution at PAD 30 and 300, burden}
+
+\subsection{LID-DS 2019}\label{sec:eval-2019}
+\pending{lidds2019-confirmation-v2: one run after the latest live run}

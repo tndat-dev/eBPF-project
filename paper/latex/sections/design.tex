@@ -1,0 +1,123 @@
+\section{Design}\label{sec:design}
+
+\sys has four parts in a chain (\cref{fig:overview}): an eBPF probe that turns each system call of a watched container
+into a token and counts per-thread 4-token sequences in the kernel; a per-workload count language model, learnt only
+from normal behaviour, that scores every 0.5\,s window; an alert path that pushes an over-threshold window straight to
+the cluster's Alertmanager; and a root-cause analysis (RCA) that builds a process evidence tree around each delivered
+alert. The kernel only builds tokens and counts grams; all probabilities are computed in user space. A model is learnt
+offline, locked by its SHA-256 and unchanged during a run.
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.95\columnwidth}{\centering\small \pending{figure: system overview (translated from the thesis)}}}
+\caption{\sys on one worker and on the master; the fit runs offline on normal traffic.}
+\label{fig:overview}
+\end{figure}
+
+\subsection{Tokens that carry return values}\label{sec:tokens}
+
+Many exploits keep the set of system calls an application makes and change only its data: a path outside the usual
+directories, an unusual read or write size, an error code. A token therefore keeps, besides the system-call name, one
+piece of the return information, chosen by priority:
+\begin{enumerate}
+\item \emph{Error code}: if the call is one of 27 that keep their errno and it failed, the token is
+  \texttt{name!errno}, e.g.\ \texttt{openat!2} for \texttt{ENOENT}. The 27 are the stat family, \texttt{access} and
+  \texttt{faccessat}, the open family, \texttt{read}, \texttt{write}, \texttt{writev}, \texttt{ioctl},
+  \texttt{connect}, \texttt{execve}, \texttt{fcntl}, \texttt{close}, \texttt{rename}, \texttt{renameat},
+  \texttt{sendfile}, \texttt{unlink}, \texttt{unlinkat}, \texttt{mkdir}, \texttt{kill}, \texttt{recvfrom},
+  \texttt{shutdown} and \texttt{futex}.
+\item \emph{Successful open}: \texttt{name:mode:dir} with mode \texttt{r} or \texttt{w} and the first component of the
+  absolute path (\texttt{/etc}, \texttt{/tmp}; \texttt{/} at the root, \texttt{rel} for a relative path).
+\item \emph{Successful read or write}: \texttt{name\#b} with $b=\min(15,\lfloor\log_2 n\rfloor)$ for $n$ bytes
+  returned, e.g.\ \texttt{read\#12} for 4\,KiB.
+\item Otherwise the name alone.
+\end{enumerate}
+In the kernel a token is a 32-bit number: system-call number in bits 23--31, token kind in bits 21--22, and in the rest
+the error code, the size bucket, or a write flag with an FNV-1a hash of the first directory. The list of 27 calls and
+the size resolution were chosen on the development part of LID-DS~2021 with attack labels; \cref{sec:eval-design}
+shows that the set is wider than needed and which parts carry the signal.
+
+\subsection{Per-thread 4-grams counted in the kernel}
+
+Ordered steps such as open, read, close only mean something within one thread, and a service interleaves many threads.
+Each thread therefore keeps its last four tokens, and event $e_i$ yields the 4-gram $g_i=(t_{i-3},t_{i-2},t_{i-1},t_i)$
+of that thread (shorter at thread start). The thread history is not cut at window borders. The gram is counted in the
+0.5\,s window that holds the event, in a kernel map keyed by (cgroup, window, gram); single events never cross to user
+space.
+
+\subsection{A count language model}\label{sec:model}
+
+The model estimates $P(t_i\mid t_{i-3},t_{i-2},t_{i-1})$ by counting normal behaviour; it has no neural network and no
+gradient training. Let $c(h,w)$ be the number of times token $w$ followed context $h$, $c(h)=\sum_w c(h,w)$, and $T(h)$
+the number of distinct tokens that followed $h$.
+
+\paragraph{Base level.} With $\nu(w)$ the system-call name of $w$, $N$ the number of events, $V$ the number of distinct
+names and $V_\nu$ the number of distinct tokens of name $\nu$,
+\begin{equation}
+P_0(w)=\frac{c(\nu)+\frac12}{N+\frac12(V+1)}\cdot\frac{c(\nu,w)+\frac12}{c(\nu)+\frac12(V_\nu+1)} .
+\end{equation}
+The second factor is the probability of the variant (error code, size, directory) given the name. If the name itself
+was never seen, it is replaced by the mean probability of an unseen variant over the known names, so an unseen
+\texttt{openat!13} stays far more likely than a never-called \texttt{ptrace}.
+
+\paragraph{Interpolated Witten--Bell smoothing}~\cite{witten1991,chen1999} goes from short to long contexts. With $h_k$
+the $k$ tokens before $w$, $k=1,2,3$,
+\begin{equation}
+P_k(w\mid h_k)=\frac{c(h_k,w)+T(h_k)\,P_{k-1}(w\mid h_{k-1})}{c(h_k)+T(h_k)},
+\end{equation}
+and $P_k=P_{k-1}$ if $h_k$ was never seen; the score uses $P_3$. A context that is always followed by the same few
+tokens trusts its own counts; one with many continuations hands more mass to the shorter context. A new 4-gram made of
+familiar steps therefore gets a moderate probability, while one containing a strange token gets a tiny one.
+
+\paragraph{Window score.} The surprise of an event is $-\ln P_3$, and the score of window $W$ is the mean of its ten
+largest surprises, each gram counted with its multiplicity:
+\begin{equation}
+s(W)=\tfrac{1}{10}\textstyle\sum_{\text{top 10 } e\in W}-\ln P_3(e),
+\end{equation}
+the mean of all events if $W$ has fewer than ten, and $0$ if it is empty. The top of the window keeps a few strange
+events from being diluted by thousands of familiar ones; ten rather than one keeps a single rare normal event from
+raising an alarm. As an example from a live run, a harmless control binary in a RabbitMQ container produced a window of
+89 events in which the gram (\texttt{getpid}, \texttt{clock\_nanosleep}, \texttt{getpid}, \texttt{clock\_nanosleep}),
+absent from RabbitMQ's normal behaviour, occurred six times with surprise 34.0 and the next gram six times with 7.0:
+$s=(6\cdot 34.0+4\cdot 7.0)/10=23.2$, above the workload's threshold of 13.4. The same binary in another service
+produced the gram only three times, $s=11.3$, below that workload's 13.3. The model measures novelty and its density,
+not intent.
+
+\subsection{A threshold from normal behaviour only}\label{sec:threshold}
+
+In each unit of normal behaviour (a recording of a dataset, or a 60\,s block of one container on the cluster) take
+the largest window score $M_j$. Scoring normal data with the model that learnt it would understate the scores of new
+data, so the scores are held out: the learning data is split into five folds and each fold is scored by the model of
+the other four. On a dataset a recording goes to fold $\mathrm{sha256}(\mathit{name})\bmod 5$; on the cluster, time is
+cut into contiguous 30-minute chunks dealt to the folds in turn, so a held-out window is far from the windows that were
+learnt. The model that scores live data learns all of it. We drop the largest 1\,\% of the maxima (at least one), fit a
+Gumbel distribution~\cite{coles2001} by moments,
+$\beta=\frac{\sqrt6}{\pi}\sigma_M$, $\mu=\bar M-0.5772\,\beta$, and set
+\begin{equation}
+\tau=\mu-\beta\ln\bigl(-\ln(1-\alpha')\bigr),\qquad \alpha'=0.0002\times0.9 .
+\end{equation}
+Equivalently $\tau=\bar M+6.27\,\sigma_M$. The Gumbel assumption does not hold
+(\cref{sec:eval-design}): $\alpha'$ is a knob, not a guaranteed false-alarm rate, and false alarms are measured.
+A window with $s(W)>\tau$ raises an alarm at the end of that window; one window suffices because many exploits show in
+a single window.
+
+\subsection{Alert path and root-cause analysis}
+
+A bridge on the master reads each worker's decisions from its local disk and pushes every alarm to Alertmanager at once,
+instead of exposing it to a periodic Prometheus scrape (\cref{sec:eval-alert} measures both). For each alert that
+Alertmanager received, the RCA opens a case and builds a process evidence tree from Tetragon events (process, fork and
+flow policies) around the alarm, ranks the new executions near it as suspects (ties broken by the launch time closest
+to the alarm), and merges later alarms of the same container within a cool-down into the same case.
+
+\subsection{Lineage: the workload's own processes versus operator sessions}\label{sec:lineage}
+
+The model flags almost every new process that enters a container through \texttt{kubectl exec}, harmless or not
+(\cref{sec:eval-benign}). A workload model answers ``did this container do something it never did?'', and an operator
+session always does. We therefore tag every thread in the kernel as \emph{native}, part of the workload's own process
+tree, or \emph{session}, entered through a runtime exec, together with all its descendants. At fork
+(\texttt{sched\_process\_fork}) the child copies its parent's tag, so a child cannot change lineage by outliving its
+parent. A thread first seen without state takes the tag of its thread-group leader, else of its parent if the parent is
+in the same cgroup, else it is native when its pid in its own pid namespace is~1 (the container's entrypoint) and
+session otherwise, because a runtime exec joins the namespace from a parent outside the cgroup. The tag is part of the
+gram key, so the loader reports each window unchanged together with its session part. In the latest run the tag is
+telemetry only: the alert path still scores the whole window.

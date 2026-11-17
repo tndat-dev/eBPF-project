@@ -1,0 +1,38 @@
+% USENIX Security '27 submission draft (PaperOrchestra step 3; sections in sections/*.tex).
+\documentclass[letterpaper,twocolumn,10pt]{article}
+\usepackage{usenix}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xspace}
+\usepackage{url}
+\usepackage[capitalize]{cleveref}
+\newcommand{\sys}{Sentinel Pulse\xspace}
+\newcommand{\pending}[1]{\textbf{[PENDING: #1]}}
+
+\begin{document}
+\date{}
+\title{\Large \bf TITLE TO BE DECIDED}
+\author{{\rm Anonymous Submission}}
+\maketitle
+
+\begin{abstract}
+\pending{abstract, written last}
+\end{abstract}
+
+\input{sections/introduction}
+\input{sections/background}
+\input{sections/related}
+\input{sections/design}
+\input{sections/implementation}
+\input{sections/evaluation}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\appendix
+\input{sections/ethics}
+\input{sections/openscience}
+\end{document}

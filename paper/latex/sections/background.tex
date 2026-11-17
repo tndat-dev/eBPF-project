@@ -1,0 +1,28 @@
+\section{Background and Threat Model}\label{sec:background}
+
+\paragraph{Syscall monitoring on Kubernetes.}
+A container is a group of processes that share a set of namespaces and a control group (cgroup); every action it takes
+on the host, from opening a file to changing a namespace, is a system call. eBPF lets a verified program run inside the
+kernel at a hook such as a tracepoint, keep state in maps shared with user space, and filter by cgroup before doing any
+work. Two raw tracepoints, \texttt{sys\_enter} and \texttt{sys\_exit}, see every system call of a node; the latter also
+sees its return value, which carries the error code of a failure and the number of bytes a read or write moved.
+Production runtime tools build on the same hooks: Falco~\cite{falco} and Tracee~\cite{tracee} match events against
+rules, and Tetragon~\cite{tetragon} attaches kprobes to kernel functions and enforces policies. Rules catch what their
+authors anticipated; the question this paper studies is how far a model learnt only from a workload's own normal
+behaviour can go beyond them while staying fast and quiet enough for a live cluster.
+
+\paragraph{Threat model.}
+The attacker already runs code inside an application container, or exploits the containerised service itself. On the
+cluster they start a new process inside the container and perform syscall-level actions: namespace changes, ptrace,
+unusual exec, changes of memory protection, use of the seccomp API. On the public datasets the exploit goes through
+the application. We protect every replica of the 21 workloads of one application namespace; infrastructure pods, load
+generators and control-plane nodes are not scored. We trust the kernel, the eBPF runtime, Tetragon and our worker, and
+we assume the normal traffic used for learning and thresholds contains no attack.
+
+Out of scope are (i) an adaptive attacker who uses only system-call sequences already present in the workload's
+normal behaviour, (ii) attacks that only change the meaning of data inside a process without changing its system
+behaviour, such as an SQL injection that is an ordinary login request at the syscall level, and (iii) attacks on the
+host or on the cluster infrastructure. We measure how the system fails under (i) and (ii) rather than claim robustness
+(\cref{sec:discussion}). Our cluster campaign covers MITRE ATT\&CK for Containers~\cite{attack_containers} only
+partially: execution, privilege escalation or escape attempts and defense impairment through self-written fixtures;
+the public datasets add initial access through 15 real vulnerabilities and nine container-breakout scenarios.

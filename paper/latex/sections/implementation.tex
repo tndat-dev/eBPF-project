@@ -1,0 +1,31 @@
+\section{Implementation}\label{sec:implementation}
+
+\paragraph{Probe.} Three BPF programs build the tokens. \texttt{raw\_tp/sys\_enter} runs before every system call of
+the node and looks the task's cgroup up in an allow-list that a resolver fills (Pod UID to container, cgroup and
+workload revision); other tasks leave after one map lookup. Thirty-nine system calls whose token needs the return value
+emit at \texttt{raw\_tp/sys\_exit}; the others emit their name at entry. A call skipped by seccomp never reaches
+\texttt{sys\_exit}, so \texttt{fexit/\_\_seccomp\_filter} emits it; hence exactly one token per call. The first
+directory of an opened file comes from walking the dentry tree from the new file descriptor to the task's root (the
+container's root) with \texttt{bpf\_loop}, at most 64 steps, followed by FNV-1a; the probe uses neither
+\texttt{d\_path} nor an \texttt{fentry} on the open functions. The gram map holds 262{,}144 entries, about two live
+windows of a node. Every 0.5\,s a loader batch-reads the map, takes the closed windows, deletes them and prints one
+JSON line per (cgroup, window). A proof script runs a fixture in an isolated cgroup and checks one token per call, the
+expected tokens, the seccomp path and no lost event; the worker refuses a build or kernel without a valid proof.
+
+\paragraph{A rejected design.} Our first probe emitted return tokens through one \texttt{fexit} program per system
+call. Tetragon on the same nodes attaches a kprobe to \texttt{\_\_x64\_sys\_openat}, so every open walked the list of
+all ftrace trampolines, and open plus close became 2.3--2.7\,\textmu s slower. A single generic \texttt{sys\_exit}
+program for the 39 calls avoids this.
+
+\paragraph{Worker, models and storage.} A Python worker on each node scores every closed window about 0.15\,s after it
+closes (p95 0.18\,s). The 21 workload models take about 1.5\,MB as gzip count tables and are locked by SHA-256 with
+their thresholds. Decisions, features and tokens are written to shared storage outside the scoring loop and to the
+node's local disk, because the shared NFS store sometimes stalls for seconds; the bridge and the RCA read the local
+copy. The same model code scores dataset recordings and cluster windows; the two implementations agree to $10^{-12}$
+under test.
+
+\paragraph{Cluster.} The testbed has three worker nodes running Kubernetes with Tetragon and an ambient service mesh
+(24 cores and 128\,GB each for the first runs; 16 vCPU and 36\,GB each since the nodes were resized before the latest
+run), and one application of 21 workloads: a web front end, ten Python services (one is the API gateway), PostgreSQL,
+Redis and its sentinels, Kafka with two operators, RabbitMQ, MinIO with a sidecar, and a mesh waypoint. Load generators replay registered traffic regimes (steady,
+tool mix, peak, burst, recovery).
