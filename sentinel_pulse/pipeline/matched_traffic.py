@@ -1,8 +1,8 @@
 """Replay registered AIMS normal-load phases and retain rollout evidence."""
-# [VI] matched_traffic.py — ÁP LỊCH TẢI (traffic_schedule trong CONFIG.json): tới giờ của mỗi pha thì chạy
-# [VI] testbed/traffic/set_aims_traffic_regime.sh <chế độ> (đổi số replica và nhịp của các deployment loadgen), ghi
-# [VI] PHASES.jsonl. Pha cuối 'steady' kéo dài tới hết lượt nên unit THOÁT sau khi áp pha đó — đó là bình thường.
-# [VI] Pha bị lỡ vì VM tắt được ghi "missed_during_outage", không chạy bù.
+# matched_traffic.py — ÁP LỊCH TẢI (traffic_schedule trong CONFIG.json): tới giờ của mỗi pha thì chạy
+# testbed/traffic/set_aims_traffic_regime.sh <chế độ> (đổi số replica và nhịp của các deployment loadgen), ghi
+# PHASES.jsonl. Pha cuối 'steady' kéo dài tới hết lượt nên unit THOÁT sau khi áp pha đó — đó là bình thường.
+# Pha bị lỡ vì VM tắt được ghi "missed_during_outage", không chạy bù.
 import argparse
 import fcntl
 import json

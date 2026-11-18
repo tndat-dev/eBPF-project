@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /* ===================================================================================================================
- * [VI] pulse_counter_loader.c — CHƯƠNG TRÌNH USER SPACE NẠP PROBE VÀ ĐỌC DỮ LIỆU TỪ KERNEL
+ * pulse_counter_loader.c — CHƯƠNG TRÌNH USER SPACE NẠP PROBE VÀ ĐỌC DỮ LIỆU TỪ KERNEL
  * -------------------------------------------------------------------------------------------------------------------
  * Chạy trên mỗi worker node (do matched_worker.py khởi động, quyền root). Biên dịch hai bản bằng Makefile:
  *   - bản thường: chỉ bộ đếm syscall (mô hình đếm cũ);
@@ -41,16 +41,16 @@
 #endif
 #include "pulse_counter_projection.h"
 
-/* [VI] 29 syscall theo dõi riêng (phải trùng pulse_counter_ids.h); dùng để in trường "counts" của ảnh chụp. */
+/* 29 syscall theo dõi riêng (phải trùng pulse_counter_ids.h); dùng để in trường "counts" của ảnh chụp. */
 static const uint32_t tracked_ids[PULSE_TRACKED] = {
     0, 1, 2, 3, 9, 10, 41, 42, 43, 44, 45, 56, 59, 90, 101,
     105, 106, 126, 155, 165, 257, 272, 288, 299, 307, 308, 317, 322, 435
 };
-/* [VI] Cờ dừng: SIGINT/SIGTERM đặt exiting = 1, vòng lặp chính thoát ở ranh giới nhịp kế tiếp. */
+/* Cờ dừng: SIGINT/SIGTERM đặt exiting = 1, vòng lặp chính thoát ở ranh giới nhịp kế tiếp. */
 static volatile sig_atomic_t exiting;
 static void stop(int signal_number) { (void)signal_number; exiting = 1; }
 
-/* [VI] Giờ thực (CLOCK_REALTIME, giây kiểu double) — dùng cho các trường observed_at / window_end trong JSON. */
+/* Giờ thực (CLOCK_REALTIME, giây kiểu double) — dùng cho các trường observed_at / window_end trong JSON. */
 static double wall_time(void)
 {
     struct timespec value;
@@ -66,7 +66,7 @@ static int contains(const uint64_t *values, size_t count, uint64_t candidate)
 }
 
 #ifdef PULSE_TOKENS
-/* [VI] Bản sao danh sách cgroup đích: drain_grams chỉ in gram của cgroup còn trong allow-list (is_target). */
+/* Bản sao danh sách cgroup đích: drain_grams chỉ in gram của cgroup còn trong allow-list (is_target). */
 static uint64_t *token_targets;
 static size_t token_target_count;
 
@@ -81,7 +81,7 @@ static void remember_targets(const uint64_t *ids, size_t count)
 }
 #endif
 
-/* [VI] ĐỒNG BỘ ALLOW-LIST: đọc file (mỗi dòng một cgroup id), thêm khoá mới vào map pulse_cgroups với bộ đếm 0, rồi
+/* ĐỒNG BỘ ALLOW-LIST: đọc file (mỗi dòng một cgroup id), thêm khoá mới vào map pulse_cgroups với bộ đếm 0, rồi
  * xoá khoá không còn trong file. Trả về số cgroup đích (0 = file rỗng → caller dừng), hoặc mã lỗi âm. Lưu ý: map là
  * PERCPU nên giá trị phải là mảng cpu_count bản (per_cpu), mỗi bản làm tròn lên bội 8 byte (stride). */
 static int refresh_targets(int map_fd, const char *path, int cpu_count)
@@ -142,7 +142,7 @@ static int refresh_targets(int map_fd, const char *path, int cpu_count)
     return (int)count;
 }
 
-/* [VI] Thử lại tối đa 5 lần khi thiếu bộ nhớ tạm thời (ENOMEM/EAGAIN), chờ 50 ms, 100 ms, 200 ms... giữa các lần. */
+/* Thử lại tối đa 5 lần khi thiếu bộ nhớ tạm thời (ENOMEM/EAGAIN), chờ 50 ms, 100 ms, 200 ms... giữa các lần. */
 static int refresh_targets_bounded(int map_fd, const char *path, int cpu_count)
 {
     int result = 0;
@@ -164,7 +164,7 @@ static int refresh_targets_bounded(int map_fd, const char *path, int cpu_count)
 }
 
 
-/* [VI] IN ẢNH CHỤP BỘ ĐẾM của mọi cgroup trong map (mô hình đếm cũ): với mỗi khoá, đọc N bản per-CPU, cộng lại bằng
+/* IN ẢNH CHỤP BỘ ĐẾM của mọi cgroup trong map (mô hình đếm cũ): với mỗi khoá, đọc N bản per-CPU, cộng lại bằng
  * pulse_project_cpu (pulse_counter_projection.h), in một dòng "cgroup_snapshot_extended". Bộ đếm KHÔNG bị xoá mà tăng
  * dần (cumulative); worker Python lấy hiệu giữa hai lần đọc để có số đếm của từng cửa sổ. */
 static int print_snapshots(
@@ -230,7 +230,7 @@ static int print_snapshots(
 }
 
 #ifdef PULSE_TOKENS
-/* [VI] ---- PHẦN XẢ MAP 4-GRAM (chỉ bản token) ----
+/* ---- PHẦN XẢ MAP 4-GRAM (chỉ bản token) ----
  * Bộ đệm cấp sẵn bằng kích thước map (262.144 mục) để đọc cả map một lần mỗi nhịp, không cấp phát trong vòng lặp. */
 #define PULSE_GRAM_ENTRIES 262144
 #define PULSE_DRAIN_GUARD_NS 20000000ULL   /* BPF programs run with migration off: a gram is in its map microseconds after its ktime */
@@ -239,7 +239,7 @@ static uint64_t *gram_values;
 static uint32_t *old_index;
 static const struct pulse_gram_key *sort_keys;
 
-/* [VI] Đồng hồ MONOTONIC (ns) — CÙNG đồng hồ với bpf_ktime_get_ns trong kernel, nên số cửa sổ khớp với khoá gram. */
+/* Đồng hồ MONOTONIC (ns) — CÙNG đồng hồ với bpf_ktime_get_ns trong kernel, nên số cửa sổ khớp với khoá gram. */
 static uint64_t mono_ns(void)
 {
     struct timespec value;
@@ -247,7 +247,7 @@ static uint64_t mono_ns(void)
     return (uint64_t)value.tv_sec * 1000000000ULL + (uint64_t)value.tv_nsec;
 }
 
-/* [VI] So sánh cho qsort: sắp theo (cgroup, cửa sổ, 4 token, dòng dõi) để các gram của cùng một cửa sổ nằm liền nhau
+/* So sánh cho qsort: sắp theo (cgroup, cửa sổ, 4 token, dòng dõi) để các gram của cùng một cửa sổ nằm liền nhau
  * và cùng một gram ở hai dòng dõi đứng cạnh nhau (để cộng lại). */
 static int by_cgroup_window(const void *left, const void *right)
 {
@@ -260,7 +260,7 @@ static int by_cgroup_window(const void *left, const void *right)
     return 0;
 }
 
-/* [VI] Cùng 4 token (bỏ qua dòng dõi): dùng để gộp phần native và session của một gram thành tổng của cửa sổ. */
+/* Cùng 4 token (bỏ qua dòng dõi): dùng để gộp phần native và session của một gram thành tổng của cửa sổ. */
 static int same_gram(const struct pulse_gram_key *a, const struct pulse_gram_key *b)
 {
     return a->tok[0] == b->tok[0] && a->tok[1] == b->tok[1] && a->tok[2] == b->tok[2] && a->tok[3] == b->tok[3];
@@ -278,7 +278,7 @@ static int is_target(uint64_t cgroup_id)
  *  "session_events":sum,"session":[[t0,t1,t2,t3,count],...]}. "grams" is the whole window, both lineages added (what
  * the build before the lineage tag printed); "session" is the part of it counted on session-lineage threads
  * (ml-final-study-v1 amendment 2), so native = grams - session. */
-/* [VI] XẢ MAP 4-GRAM — được gọi mỗi 0,5 s ngay sau ranh giới cửa sổ:
+/* XẢ MAP 4-GRAM — được gọi mỗi 0,5 s ngay sau ranh giới cửa sổ:
  *   1) Đọc TOÀN BỘ map theo lô 8.192 mục (bpf_map_lookup_batch).
  *   2) Chọn các mục thuộc cửa sổ ĐÃ ĐÓNG (window < now_window); cửa sổ đang mở để lại cho lần sau.
  *   3) Sắp xếp theo (cgroup, cửa sổ, gram, dòng dõi) rồi in mỗi (cgroup, cửa sổ) một dòng "token_grams":
@@ -362,7 +362,7 @@ static long drain_grams(int map_fd, uint64_t now_window, double wall_minus_mono,
     return lines;
 }
 
-/* [VI] Cộng một bộ đếm sức khoẻ per-CPU của pulse_tok_stats qua mọi CPU. */
+/* Cộng một bộ đếm sức khoẻ per-CPU của pulse_tok_stats qua mọi CPU. */
 static uint64_t tok_stat_sum(int fd, uint32_t index, int cpu_count, uint64_t *scratch)
 {
     uint64_t sum = 0;
@@ -372,7 +372,7 @@ static uint64_t tok_stat_sum(int fd, uint32_t index, int cpu_count, uint64_t *sc
 }
 #endif
 
-/* [VI] MAIN. Tham số: --object (file .bpf.o), --allow-cgroup-file (allow-list), --interval-ms (nhịp, 500 trong lượt
+/* MAIN. Tham số: --object (file .bpf.o), --allow-cgroup-file (allow-list), --interval-ms (nhịp, 500 trong lượt
  * chạy), --tokens exit-nofutex|exit|grams (bản token; "grams" là chế độ chạy thật, hai chế độ kia chỉ để đo chi phí). */
 int main(int argc, char **argv)
 {
@@ -408,7 +408,7 @@ int main(int argc, char **argv)
     signal(SIGINT, stop); signal(SIGTERM, stop); libbpf_set_strict_mode(LIBBPF_STRICT_ALL);
     int cpu_count = libbpf_num_possible_cpus();
     if (cpu_count <= 0) { fprintf(stderr, "cannot determine possible CPUs\n"); return 1; }
-    /* [VI] Mở object, ghi cấu hình token vào .rodata, nạp vào kernel (verifier kiểm tra ở bước này). */
+    /* Mở object, ghi cấu hình token vào .rodata, nạp vào kernel (verifier kiểm tra ở bước này). */
     struct bpf_object *object = bpf_object__open_file(object_path, NULL);
     int error = libbpf_get_error(object);
     if (error) { fprintf(stderr, "open BPF object: %s\n", strerror(-error)); return 1; }
@@ -429,7 +429,7 @@ int main(int argc, char **argv)
         bpf_object__close(object);
         return 1;
     }
-    /* [VI] Đổ allow-list LẦN ĐẦU trước khi gắn hook: không có cgroup đích thì từ chối chạy (tránh theo dõi cả node). */
+    /* Đổ allow-list LẦN ĐẦU trước khi gắn hook: không có cgroup đích thì từ chối chạy (tránh theo dõi cả node). */
     int targets = refresh_targets_bounded(cgroups_fd, allow_file, cpu_count);
     if (targets < 0) {
         fprintf(stderr, "failed to populate target cgroups from %s: %s\n",
@@ -443,7 +443,7 @@ int main(int argc, char **argv)
         bpf_object__close(object);
         return 1;
     }
-    /* [VI] Gắn hook: sys_enter và fexit seccomp là bắt buộc; thiếu cái nào thì dừng (không chạy với dữ liệu thiếu). */
+    /* Gắn hook: sys_enter và fexit seccomp là bắt buộc; thiếu cái nào thì dừng (không chạy với dữ liệu thiếu). */
     struct bpf_program *program = bpf_object__find_program_by_name(object, "pulse_sys_enter");
     struct bpf_link *link = program ? bpf_program__attach_raw_tracepoint(program, "sys_enter") : NULL;
     error = libbpf_get_error(link);
@@ -476,7 +476,7 @@ int main(int argc, char **argv)
     uint64_t consistency_retries = 0;
     uint64_t consistency_retry_exhausted = 0;
     uint64_t projection_failures = 0;
-    /* [VI] VÒNG LẶP CHÍNH, mỗi nhịp: ngủ tới ngay sau ranh giới 0,5 s của đồng hồ monotonic (+20 ms đệm để gram cuối
+    /* VÒNG LẶP CHÍNH, mỗi nhịp: ngủ tới ngay sau ranh giới 0,5 s của đồng hồ monotonic (+20 ms đệm để gram cuối
      * kịp vào map) → làm mới allow-list → in ảnh chụp bộ đếm → xả map 4-gram → in các bộ đếm sức khoẻ → flush stdout. */
     while (!exiting) {
 #ifdef PULSE_TOKENS

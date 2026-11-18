@@ -1,5 +1,5 @@
 """Self-supervised ExtraTrees temporal detector for Sentinel Pulse."""
-# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Mô hình ExtraTrees tự giám sát theo thời gian.
+# (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Mô hình ExtraTrees tự giám sát theo thời gian.
 
 from __future__ import annotations
 

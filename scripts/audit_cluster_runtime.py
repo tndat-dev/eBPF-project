@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Read-only VM process/service/resource inventory; never exports argv or env secrets."""
-# [VI] Kiểm kê process/dịch vụ/tài nguyên trên VM (chỉ đọc, không xuất argv hay biến môi trường).
+# Kiểm kê process/dịch vụ/tài nguyên trên VM (chỉ đọc, không xuất argv hay biến môi trường).
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import datetime as dt

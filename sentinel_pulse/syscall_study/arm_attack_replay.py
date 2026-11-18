@@ -8,7 +8,7 @@ the sealed feature segments around every trial and scores all three seeds.
 Detection delay here is ``first positive window_end - kernel_event_at``; it
 excludes live scoring/emission time, so it is a lower bound on kernel->alert.
 """
-# [VI] (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
+# (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
 from __future__ import annotations
 
 import argparse

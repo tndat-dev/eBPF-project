@@ -13,7 +13,7 @@ LID-DS 2021 development under the same empirical rule: the cross-fit recording m
     python3 cluster_threshold.py --maxima DIR --models MODELS.json --run-root RUN --model-scores DIR \
         --lidds-alarms a.json.gz --cbds-alarms c.json.gz --output out.json
 """
-# [VI] Phần C: so quy tắc ngưỡng trên cụm (Gumbel vs phân vị thực nghiệm) trên hàng nghìn khối giữ ra — Gumbel được giữ.
+# Phần C: so quy tắc ngưỡng trên cụm (Gumbel vs phân vị thực nghiệm) trên hàng nghìn khối giữ ra — Gumbel được giữ.
 import argparse
 from collections import defaultdict
 import json

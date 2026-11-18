@@ -13,7 +13,7 @@ Readers open compressed files through ``sentinel_pulse.common.open_sealed`` / ``
 ``gzip -dc <name>.gz | sha256sum`` re-proves the seal at any time. Only sealed segments (with
 TERMINAL.json) are touched, so a running capture's open segment is never compressed.
 """
-# [VI] Nén không mất dữ liệu các file segment của lượt đã xong để giải phóng NFS (giữ SHA-256 gốc để kiểm).
+# Nén không mất dữ liệu các file segment của lượt đã xong để giải phóng NFS (giữ SHA-256 gốc để kiểm).
 from __future__ import annotations
 
 import argparse

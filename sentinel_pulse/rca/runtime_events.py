@@ -1,6 +1,6 @@
 """Normalize lifecycle and syscall evidence without argv or file/network data."""
-# [VI] Chuẩn hoá sự kiện Tetragon (exec, exit, fork, credential, namespace, mount, ptrace, syscall lỗi) thành dạng gọn, KHÔNG
-# [VI] giữ argv hay nội dung file/mạng (riêng tư).
+# Chuẩn hoá sự kiện Tetragon (exec, exit, fork, credential, namespace, mount, ptrace, syscall lỗi) thành dạng gọn, KHÔNG
+# giữ argv hay nội dung file/mạng (riêng tư).
 from __future__ import annotations
 
 import errno

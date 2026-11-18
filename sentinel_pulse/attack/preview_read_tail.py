@@ -1,5 +1,5 @@
 """Read recent complete decisions from the writer's own filesystem client."""
-# [VI] Chạy trên worker: in các decision gần đây (đủ dòng) của một container từ bản local — preview_campaign.tail_rows gọi qua ssh.
+# Chạy trên worker: in các decision gần đây (đủ dòng) của một container từ bản local — preview_campaign.tail_rows gọi qua ssh.
 import argparse
 import json
 from pathlib import Path

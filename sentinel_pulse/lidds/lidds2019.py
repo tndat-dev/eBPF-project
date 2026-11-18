@@ -16,8 +16,8 @@ format ``timestamp_ns user_id process_id process_name thread_id syscall directio
   ``warmup_time`` − 2 s) is kept in the metadata as ``exploit_library`` for a sensitivity analysis. In the data the
   primary time is later (exploit_start_time 13–39 s, warmup 10 s), so it is the stricter one.
 """
-# [VI] Chuyển LID-DS 2019 (text sysdig, không có pid, thời gian theo giờ trong ngày) sang bố cục archive của LID-DS 2021; chia
-# [VI] training/validation/test theo runs.csv; thời điểm exploit theo hai quy ước (chính và của thư viện LID-DS).
+# Chuyển LID-DS 2019 (text sysdig, không có pid, thời gian theo giờ trong ngày) sang bố cục archive của LID-DS 2021; chia
+# training/validation/test theo runs.csv; thời điểm exploit theo hai quy ước (chính và của thư viện LID-DS).
 from __future__ import annotations
 
 import csv

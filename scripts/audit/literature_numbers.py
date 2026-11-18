@@ -11,7 +11,7 @@ Needs the PDFs (outside git: references/pdf/, copy on NFS) and pdftotext (popple
 
     python3 scripts/audit/literature_numbers.py [--text-dir DIR]
 """
-# [VI] Đối chiếu số liệu trích từ tài liệu với văn bản PDF gốc.
+# Đối chiếu số liệu trích từ tài liệu với văn bản PDF gốc.
 from __future__ import annotations
 
 import argparse

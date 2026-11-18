@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Adoption rule of protocol baseline-fresh-replication-v1 applied to arm_budget + arm_bootstrap outputs."""
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 import json
 from pathlib import Path

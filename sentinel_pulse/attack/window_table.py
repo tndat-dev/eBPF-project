@@ -16,7 +16,7 @@ previous one ended (as the model's history). Every feature row counts as behavio
 too); only scored windows are written. History spans are taken in whole 2 s buckets of window_end (a bucket
 counts when it lies inside the span), so a span is at most 2 s shorter at each edge than T.
 """
-# [VI] (Hệ thống cũ) Bảng cửa sổ của một lượt cho nghiên cứu giảm gánh cảnh báo (protocol burden-reduction-v1).
+# (Hệ thống cũ) Bảng cửa sổ của một lượt cho nghiên cứu giảm gánh cảnh báo (protocol burden-reduction-v1).
 from __future__ import annotations
 
 import argparse

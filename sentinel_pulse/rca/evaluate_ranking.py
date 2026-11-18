@@ -10,7 +10,7 @@ first seen before each case was created (as the live service saw them).
 ``--without-privilege-drop-rule`` reranks as before RCA 5.10 (setuid/setgid at
 process start scored like any other security operation), for the old-vs-new check.
 """
-# [VI] Chấm chất lượng xếp hạng: với mỗi trial tấn công, binary fixture đứng hạng mấy trong case tương ứng (top-1, top-3).
+# Chấm chất lượng xếp hạng: với mỗi trial tấn công, binary fixture đứng hạng mấy trong case tương ứng (top-1, top-3).
 from __future__ import annotations
 
 import argparse

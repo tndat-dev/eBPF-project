@@ -9,7 +9,7 @@ CONFIG: {"source_study": ".../syscall-matched-study", "study_output": DIR, "seed
 Parallel fit: ``--shard K/N`` fits only the workloads whose sorted position is K modulo N, with its own status
 file; ``--merge N`` then writes the combined STATUS/TERMINAL that the scoring tools read.
 """
-# [VI] (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
+# (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
 from __future__ import annotations
 
 import argparse

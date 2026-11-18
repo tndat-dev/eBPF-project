@@ -13,7 +13,7 @@ of trees. ``predict_contexts`` mirrors ``PulseSupportEnsemble.predict_contexts``
 The first batch of every model is scored both ways; any difference disables
 the fast path for that model for the life of the process.
 """
-# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Chấm ExtraTrees nhanh, cho kết quả bằng đúng sklearn.
+# (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Chấm ExtraTrees nhanh, cho kết quả bằng đúng sklearn.
 from __future__ import annotations
 
 import numpy as np

@@ -17,8 +17,8 @@ token branch: moment Gumbel without the top 1 % of the held-out maxima (lidds_ml
     python3 lidds2019_token.py gate --tokens DIR2021 --alarms lidds-alarms.json.gz --output gate.json
     python3 lidds2019_token.py score --tokens DIR2019 --archives DIR2019 --gate gate.json --output lidds2019.json
 """
-# [VI] LID-DS 2019 (lidds2019-confirmation-v2): gate tái lập official 2021 bằng chính code này, rồi chấm 2019 đúng một lần với
-# [VI] hai quy ước thời điểm exploit.
+# LID-DS 2019 (lidds2019-confirmation-v2): gate tái lập official 2021 bằng chính code này, rồi chấm 2019 đúng một lần với
+# hai quy ước thời điểm exploit.
 import argparse
 import io
 import json
@@ -135,6 +135,32 @@ def score(token_dir, archives, gate_receipt):
     return out
 
 
+def shifted(docs, seconds):
+    """Alarms documents with every exploit time moved `seconds` earlier (amendment 1: label resolution)."""
+    out = dict(scenarios={})
+    for sc, doc in docs['scenarios'].items():
+        out['scenarios'][sc] = dict(alarms={n: dict(r, exploit=(r['exploit'] - seconds if r.get('exploit') is not None else None))
+                                            for n, r in doc['alarms'].items()})
+    return out
+
+
+def tolerance(token_dir, archives, token_dir_2021, alarms_2021, seconds=1.0):
+    """lidds2019-confirmation-v2 amendment 1: the registered decision with a tolerance equal to the label resolution."""
+    names = sorted(p.stem for p in Path(token_dir).glob('*.npz'))
+    scenarios = {s: TokenScenario(s, token_dir) for s in names}
+    primary, _ = inventory(scenarios, archives)
+    base, _ = score_part(scenarios, primary, 'all')
+    tol, per = score_part(scenarios, shifted(primary, seconds), 'all')
+    docs21 = m.load(alarms_2021)
+    sc21 = {s: TokenScenario(s, token_dir_2021) for s in sorted(docs21['scenarios'])}
+    base21, _ = score_part(sc21, docs21, 'official')
+    tol21, _ = score_part(sc21, shifted(docs21, seconds), 'official')
+    return dict(schema='lidds2019-confirmation-v2-amendment-1',
+                protocol='sentinel_pulse/protocol/lidds2019-confirmation-v2-amendment-1.json', seconds=seconds,
+                lidds2019=dict(registered=base, tolerance=tol, tolerance_scenarios=per, C1_descriptive=c1(tol)),
+                lidds2021_official=dict(registered=base21, tolerance=tol21))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest='cmd', required=True)
@@ -147,7 +173,18 @@ def main():
     s.add_argument('--archives', type=Path)
     s.add_argument('--gate', type=Path, required=True)
     s.add_argument('--output', type=Path, required=True)
+    t = sub.add_parser('tolerance')
+    t.add_argument('--tokens', type=Path, required=True)
+    t.add_argument('--archives', type=Path, required=True)
+    t.add_argument('--tokens-2021', type=Path, required=True)
+    t.add_argument('--alarms-2021', type=Path, required=True)
+    t.add_argument('--output', type=Path, required=True)
     a = ap.parse_args()
+    if a.cmd == 'tolerance':
+        out = tolerance(a.tokens, a.archives, a.tokens_2021, a.alarms_2021)
+        a.output.write_text(json.dumps(out, indent=1, default=float))
+        print(json.dumps({k: out[k] for k in ('lidds2019', 'lidds2021_official')}, default=float)[:2000])
+        return
     if a.cmd == 'gate':
         out = gate(a.tokens, a.alarms)
         a.output.write_text(json.dumps(out, indent=1, default=float))

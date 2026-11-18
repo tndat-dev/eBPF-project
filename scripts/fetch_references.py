@@ -19,7 +19,7 @@ for a reconstruction) in ``references/pdf/``, which is git-ignored: the reposito
 not be redistributed. ``references/catalog.json`` (versioned) records bibliography, origin, size and SHA-256 of
 every file. Downloads are data only: nothing fetched is executed.
 """
-# [VI] Lập danh mục tài liệu được trích và giữ một bản PDF cục bộ mỗi bài.
+# Lập danh mục tài liệu được trích và giữ một bản PDF cục bộ mỗi bài.
 import argparse
 from datetime import datetime, timezone
 import hashlib

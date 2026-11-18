@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [VI] Fast-forward checkout /home/dat/eBPF-project trên các VM về origin/main (đồng bộ code host = GitHub = VM).
+# Fast-forward checkout /home/dat/eBPF-project trên các VM về origin/main (đồng bộ code host = GitHub = VM).
 # Fast-forward the working checkout /home/dat/eBPF-project on the cluster VMs to origin/main,
 # so GitHub main, the host checkout and the VMs hold the same code (run after every push).
 # Refuses to touch a checkout with local edits. Run snapshots under /mnt/.../runtime-<commit>-<date>

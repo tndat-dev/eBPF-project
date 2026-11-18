@@ -3,27 +3,27 @@
 The collector exports the full histogram, tracked counts and hash bins from
 the same copied map values. No second asynchronous histogram is joined.
 """
-# [VI] ==============================================================================================================
-# [VI] matched_worker.py — WORKER CHẠY TRÊN MỖI NODE TRONG SUỐT MỘT LƯỢT (unit systemd pulse-matched-worker-<run>).
-# [VI] ------------------------------------------------------------------------------------------------------------
-# [VI] Nhận config của node (sinh từ CONFIG.json bởi matched_services.py), rồi:
-# [VI]   1) KIỂM TÍNH TOÀN VẸN trước khi chạy: kernel đúng bản đã có proof; loader/object eBPF đúng SHA-256; proof hợp lệ;
-# [VI]      các file chấm điểm của mô hình cũ (FROZEN_SCORER_FILES) trùng byte với snapshot đã đóng băng; mô hình token
-# [VI]      đúng SHA-256 (trong TokenBranch). Sai bất kỳ thứ gì → dừng, không chạy với hệ thống khác cái đã đăng ký.
-# [VI]   2) Chạy loader làm process con (--interval-ms 500), đọc stdout từng dòng JSON.
-# [VI]   3) Mỗi "frame" (kết thúc bằng dòng snapshot_end, mỗi 0,5 s):
-# [VI]        - ảnh chụp bộ đếm → vector đặc trưng → mô hình cũ (cây + support) chấm SHADOW (status candidate-raw-score-only);
-# [VI]        - mỗi dòng token_grams → token_window (gắn danh tính) → TokenBranch.score → nếu có mô hình: ghi một decision
-# [VI]          status "token-score" với token_score, token_threshold, candidate_alert_preview = token_alert (CẢNH BÁO THẬT);
-# [VI]        - ghi tokens.jsonl, decisions.jsonl, features.jsonl của segment (NFS, qua AsyncSink để không chặn vòng chấm)
-# [VI]          và bản decisions.jsonl LOCAL (stream_root) mà alert_bridge, RCA và campaign đọc.
-# [VI]   4) Mỗi 30 phút đóng segment (sXXXXX), ghi TERMINAL.json có SHA-256 từng file ("niêm phong"), mở segment mới.
-# [VI]   5) Theo dõi sức khoẻ: hai snapshot_end cách nhau ngoài 0,35–0,8 s → issue "cadence_gap" (mất nhịp); loader im
-# [VI]      30 s hoặc chết → issue và mở segment mới; ổ đĩa NFS gần đầy → chờ.
-# [VI] STATUS.json (mỗi 5 s) và TERMINAL.json (khi xong) là nơi đọc trạng thái lượt chạy.
-# [VI] Phần lớn tham số tripwire / evidence discount / recalibration / peer exchange thuộc hệ thống cũ; lượt hiện tại
-# [VI] không bật chúng (nhánh `if ... is not None` bỏ qua).
-# [VI] ==============================================================================================================
+# ==============================================================================================================
+# matched_worker.py — WORKER CHẠY TRÊN MỖI NODE TRONG SUỐT MỘT LƯỢT (unit systemd pulse-matched-worker-<run>).
+# ------------------------------------------------------------------------------------------------------------
+# Nhận config của node (sinh từ CONFIG.json bởi matched_services.py), rồi:
+#   1) KIỂM TÍNH TOÀN VẸN trước khi chạy: kernel đúng bản đã có proof; loader/object eBPF đúng SHA-256; proof hợp lệ;
+#      các file chấm điểm của mô hình cũ (FROZEN_SCORER_FILES) trùng byte với snapshot đã đóng băng; mô hình token
+#      đúng SHA-256 (trong TokenBranch). Sai bất kỳ thứ gì → dừng, không chạy với hệ thống khác cái đã đăng ký.
+#   2) Chạy loader làm process con (--interval-ms 500), đọc stdout từng dòng JSON.
+#   3) Mỗi "frame" (kết thúc bằng dòng snapshot_end, mỗi 0,5 s):
+#        - ảnh chụp bộ đếm → vector đặc trưng → mô hình cũ (cây + support) chấm SHADOW (status candidate-raw-score-only);
+#        - mỗi dòng token_grams → token_window (gắn danh tính) → TokenBranch.score → nếu có mô hình: ghi một decision
+#          status "token-score" với token_score, token_threshold, candidate_alert_preview = token_alert (CẢNH BÁO THẬT);
+#        - ghi tokens.jsonl, decisions.jsonl, features.jsonl của segment (NFS, qua AsyncSink để không chặn vòng chấm)
+#          và bản decisions.jsonl LOCAL (stream_root) mà alert_bridge, RCA và campaign đọc.
+#   4) Mỗi 30 phút đóng segment (sXXXXX), ghi TERMINAL.json có SHA-256 từng file ("niêm phong"), mở segment mới.
+#   5) Theo dõi sức khoẻ: hai snapshot_end cách nhau ngoài 0,35–0,8 s → issue "cadence_gap" (mất nhịp); loader im
+#      30 s hoặc chết → issue và mở segment mới; ổ đĩa NFS gần đầy → chờ.
+# STATUS.json (mỗi 5 s) và TERMINAL.json (khi xong) là nơi đọc trạng thái lượt chạy.
+# Phần lớn tham số tripwire / evidence discount / recalibration / peer exchange thuộc hệ thống cũ; lượt hiện tại
+# không bật chúng (nhánh `if ... is not None` bỏ qua).
+# ==============================================================================================================
 from __future__ import annotations
 
 import argparse
@@ -55,7 +55,7 @@ from .retention import OutputPolicy, ScoreBuffer
 from ..common import atomic_json
 
 # Files whose bytes must match the frozen source before a candidate may score.
-# [VI] Các file của mô hình cũ phải trùng byte với snapshot đóng băng (frozen_source) — chống "sửa code giữa lượt".
+# Các file của mô hình cũ phải trùng byte với snapshot đóng băng (frozen_source) — chống "sửa code giữa lượt".
 FROZEN_SCORER_FILES = {
     'features.py': 'collector', 'extended_capture.py': 'collector', 'idle_candidate.py': 'detector',
     'model.py': 'detector', 'candidate_policy.py': 'detector', 'candidate_shadow.py': 'detector',
@@ -84,8 +84,8 @@ class NullSink:
     def __exit__(self, *_): return False
 
 
-# [VI] Kiểm một ảnh chụp bộ đếm (tổng khớp, 29 cột tracked khớp, 64 ô băm khớp) và tính HIỆU so với ảnh chụp trước của
-# [VI] cùng container → số syscall trong 0,5 s vừa qua. Bộ đếm giảm (loader khởi động lại) → không có hiệu cho frame này.
+# Kiểm một ảnh chụp bộ đếm (tổng khớp, 29 cột tracked khớp, 64 ô băm khớp) và tính HIỆU so với ảnh chụp trước của
+# cùng container → số syscall trong 0,5 s vừa qua. Bộ đếm giảm (loader khởi động lại) → không có hiệu cho frame này.
 def full_delta(row, previous):
     current = {int(k): int(v) for k,v in row['full_counts'].items()}
     if any(not 0<=k<1024 or v<0 for k,v in current.items()):
@@ -108,7 +108,7 @@ def full_delta(row, previous):
                      if v-previous.get(k,0)}
 
 
-# [VI] Vòng đời của worker: kiểm toàn vẹn → lặp segment (mỗi segment một lần chạy loader) → hết `seconds` thì kết thúc.
+# Vòng đời của worker: kiểm toàn vẹn → lặp segment (mỗi segment một lần chạy loader) → hết `seconds` thì kết thúc.
 def run(config_path):
     cfg=json.loads(config_path.read_text()); root=Path(cfg['output'])
     root.mkdir(parents=True,exist_ok=True)
@@ -181,7 +181,7 @@ def run(config_path):
     # token probe of lidds-ml-v3 (cfg tokens: {"mode": "grams", "models": {...}}; loader and object from make tokens):
     # the loader adds token_grams / token_drain lines to each frame, written to tokens.jsonl per segment; with models
     # (detector/token_model.py TokenBranch) each window is scored at once and also written as a decision, branch token
-    # [VI] Cấu hình token: có `models` → chấm và báo; không có (lượt thu normal) → chỉ ghi tokens.jsonl để học sau.
+    # Cấu hình token: có `models` → chấm và báo; không có (lượt thu normal) → chỉ ghi tokens.jsonl để học sau.
     tokens_cfg=cfg.get('tokens')
     loader_args=['--tokens',tokens_cfg.get('mode','grams')] if tokens_cfg else []
     token_branch=TokenBranch(tokens_cfg['models'],sha256_file,tokens_cfg.get('gate')) if tokens_cfg and tokens_cfg.get('models') else None
@@ -196,7 +196,7 @@ def run(config_path):
         nonlocal stop
         stop=True
     for sig in (signal.SIGTERM,signal.SIGINT):signal.signal(sig,stopped)
-    # [VI] Vòng SEGMENT: completed_seconds chỉ cộng các nhịp đúng hạn, nên lượt chạy đủ `seconds` giây dữ liệu thật.
+    # Vòng SEGMENT: completed_seconds chỉ cộng các nhịp đúng hạn, nên lượt chạy đủ `seconds` giây dữ liệu thật.
     while not stop and state['completed_seconds']<cfg['seconds']:
         if os.statvfs(root).f_bavail*os.statvfs(root).f_frsize<cfg['minimum_free_bytes']:
             state.update(state='waiting_for_storage_recovery',updated_at_unix=time.time())
@@ -226,7 +226,7 @@ def run(config_path):
              (shared_sink(segment/'tokens.jsonl') if tokens_cfg else NullSink()) as tokens:
             schemas=set()
             try:
-                # [VI] Khởi động loader; allow-list và metadata do cgroup_resolver ghi ở /run/sentinel-pulse/.
+                # Khởi động loader; allow-list và metadata do cgroup_resolver ghi ở /run/sentinel-pulse/.
                 child=subprocess.Popen([cfg['loader'],'--object',cfg['object'],'--allow-cgroup-file',
                     '/run/sentinel-pulse/allowed-cgroups','--interval-ms','500',*loader_args],stdout=subprocess.PIPE,stderr=errors)
                 while not stop and state['completed_seconds']<cfg['seconds']:
@@ -249,7 +249,7 @@ def run(config_path):
                             if tokens_cfg and row['type']=='token_drain':
                                 state['token_drain']={k:row[k] for k in ('drain_seconds','entries_cumulative',
                                     'grams_cumulative','insert_fail_cumulative','dir_fail_cumulative')};continue
-                            # [VI] Hết frame: kiểm nhịp, nạp lại metadata nếu resolver vừa ghi, rồi xử lý mọi dòng đã gom.
+                            # Hết frame: kiểm nhịp, nạp lại metadata nếu resolver vừa ghi, rồi xử lý mọi dòng đã gom.
                             if row['type']!='snapshot_end':raise ValueError('unexpected frame record')
                             boundary=float(row['observed_at']);now=time.time()
                             if last is not None:
@@ -314,7 +314,7 @@ def run(config_path):
                                     state['scored_rows']+=decision['status']=='candidate-raw-score-only'
                                     state['preview_positive']+=decision.get('candidate_alert_preview') is True
                             if exchange is not None:exchange.publish(novelty.drain_outbox())
-                            # [VI] PHẦN TOKEN — đường cảnh báo thật: chấm từng cửa sổ token đã đóng, ghi decision và tokens.jsonl.
+                            # PHẦN TOKEN — đường cảnh báo thật: chấm từng cửa sổ token đã đóng, ghi decision và tokens.jsonl.
                             for token_row in token_pending:
                                 window=token_window(token_row,metadata)
                                 if window is None:continue
@@ -341,7 +341,7 @@ def run(config_path):
                             # Frame flush makes each preview available without waiting for later windows.
                             features.flush();decisions.flush();raw.flush();local.flush();tokens.flush()
                             if scores is not None:scores.flush()
-                        # [VI] Dữ liệu frame lỗi → ghi issue, bỏ frame, xoá lịch sử (không chấm trên dữ liệu nghi ngờ).
+                        # Dữ liệu frame lỗi → ghi issue, bỏ frame, xoá lịch sử (không chấm trên dữ liệu nghi ngờ).
                         except (ValueError,KeyError,TypeError,OverflowError) as exc:
                             issue(str(exc));pending=[];token_pending=[];stream.builders.clear();stream.previous.clear()
                             runtime.history.histories.clear();previous.clear();last=None
@@ -366,7 +366,7 @@ def run(config_path):
                     if isinstance(sink,AsyncSink):sink.close();continue
                     sink.flush()
                     if not isinstance(sink,NullSink):os.fsync(sink.fileno())
-                # [VI] Niêm phong segment: SHA-256 của mọi file, để phân tích sau phát hiện file bị sửa.
+                # Niêm phong segment: SHA-256 của mọi file, để phân tích sau phát hiện file bị sửa.
                 atomic_json(segment/'TERMINAL.json',dict(finished_at_unix=time.time(),
                     trailing_bytes=len(buffer),trailing_snapshots=len(pending),
                     seals={p.name:sha256_file(p) for p in segment.iterdir() if p.is_file()}))

@@ -9,7 +9,7 @@ the tests. A robustness check of conclusions already drawn from 95 % CIs; it sel
     python3 scripts/analysis/multiple_comparisons.py --bootstrap FRESH-BOOTSTRAP.json \\
         --metric recall_diff --metric separation_diff --output MULTIPLE-COMPARISONS.json
 """
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 import json
 from pathlib import Path

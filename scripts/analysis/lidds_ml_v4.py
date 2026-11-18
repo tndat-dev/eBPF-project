@@ -7,8 +7,8 @@ reproduced.
 
     python3 lidds_ml_v4.py --scores DIR --tokens DIR --lidds-alarms a.json.gz --cbds-alarms c.json.gz --output out.json [--official]
 """
-# [VI] CHỌN & CHẤM lidds-ml-v4 trên ma trận cross-fit: ngưỡng Gumbel bỏ 1% (trimmed_gumbel), α×0,9 cho token; gate tái lập
-# [VI] development/CB-DS trước, rồi --official chấm phần official (file kết quả phải chưa tồn tại).
+# CHỌN & CHẤM lidds-ml-v4 trên ma trận cross-fit: ngưỡng Gumbel bỏ 1% (trimmed_gumbel), α×0,9 cho token; gate tái lập
+# development/CB-DS trước, rồi --official chấm phần official (file kết quả phải chưa tồn tại).
 import argparse
 import json
 from pathlib import Path

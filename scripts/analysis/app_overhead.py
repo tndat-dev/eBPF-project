@@ -6,7 +6,7 @@ scheduled time (open loop). Per round, the probe/off ratio of the block p50/p95/
 overhead = median ratio over rounds - 1 with a percentile bootstrap 95 % CI over rounds (10,000 draws).
 Standard library only.
 """
-# [VI] Chi phí trên độ trễ request của ứng dụng (thiết kế cho app-overhead-v1; chưa có kết quả trong đồ án).
+# Chi phí trên độ trễ request của ứng dụng (thiết kế cho app-overhead-v1; chưa có kết quả trong đồ án).
 import argparse
 from collections import defaultdict
 import json

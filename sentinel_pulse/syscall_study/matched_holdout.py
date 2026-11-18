@@ -3,7 +3,7 @@
 This is an offline comparison. Predictions remain unadjudicated; replay time
 cannot measure live kernel-to-alert latency. No fitting or promotion occurs.
 """
-# [VI] (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
+# (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
 from __future__ import annotations
 
 import argparse

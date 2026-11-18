@@ -9,8 +9,8 @@ file must not exist.
 
     python3 lidds_ml_v5.py --scores DIR --tokens DIR --pool DIR --lidds-alarms a.json.gz --cbds-alarms c.json.gz --output out.json [--official NAME]
 """
-# [VI] lidds-ml-v5: chỉ nhánh token của v4, thử thêm các gate (pool, bỏ 1–2 s sau execve) — mọi gate bị loại; ứng viên được chọn
-# [VI] "token-hold0-poolnone" cho official 97,40% (biên nhận results-20261110/lidds-ml-v5/).
+# lidds-ml-v5: chỉ nhánh token của v4, thử thêm các gate (pool, bỏ 1–2 s sau execve) — mọi gate bị loại; ứng viên được chọn
+# "token-hold0-poolnone" cho official 97,40% (biên nhận results-20261110/lidds-ml-v5/).
 import argparse
 import json
 from pathlib import Path

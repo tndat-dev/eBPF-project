@@ -1,5 +1,5 @@
 """Queued reference-only ExtraTrees/support fit; never a production normal claim."""
-# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Fit ExtraTrees + support tham chiếu.
+# (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Fit ExtraTrees + support tham chiếu.
 from __future__ import annotations
 import argparse
 from collections import defaultdict

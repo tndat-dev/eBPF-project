@@ -1,5 +1,5 @@
 """Sentinel Pulse: eBPF syscall-counter anomaly detection for Kubernetes containers."""
-# [VI] Gói Sentinel Pulse. Bản đồ code: notes/CODE_READING_GUIDE.md.
+# Gói Sentinel Pulse. Bản đồ code: notes/CODE_READING_GUIDE.md.
 
 __all__ = ["PulseFeature", "PulseFeatureBuilder", "PulseSnapshot"]
 

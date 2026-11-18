@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [VI] Chạy lidds_ml_token_alphabets.py trên các kịch bản (development) dưới systemd-run có MemoryMax.
+# Chạy lidds_ml_token_alphabets.py trên các kịch bản (development) dưới systemd-run có MemoryMax.
 # The token alphabets a cheap probe could collect (lidds_ml_token_alphabets.py), development recordings only, on .234 as
 # dat under systemd-run with MemoryMax, smallest scenario first; finished parts are kept.
 #   SRC=/var/tmp/lid-ds-2021/source-<sha> [JOBS=6 ALPHABETS=full,select OUT=dir] bash lidds_ml_alphabets_run.sh

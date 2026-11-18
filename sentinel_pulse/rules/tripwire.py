@@ -17,8 +17,8 @@ recomputation after the run measures the effect.
 The tripwire only adds fields to a decision row (``tripwire_status``, ``tripwire_alert``, ``tripwire_novel_ids``);
 ``candidate_alert_preview`` and every other ML field stay as the ML wrote them.
 """
-# [VI] (Hệ thống cũ, ML + tripwire 25/10) Luật tripwire A1: báo khi container gọi syscall chưa có trong tập E đã đóng băng. Đã
-# [VI] tách khỏi đường cảnh báo từ khi ML token là chính; giữ để so sánh có/không có luật.
+# (Hệ thống cũ, ML + tripwire 25/10) Luật tripwire A1: báo khi container gọi syscall chưa có trong tập E đã đóng băng. Đã
+# tách khỏi đường cảnh báo từ khi ML token là chính; giữ để so sánh có/không có luật.
 from __future__ import annotations
 
 import json

@@ -16,20 +16,20 @@ registered analysis and with it for the sensitivity.
 
     python3 pulse_live_v4.py --run-root ROOT --output out.json [--reps 10000] [--exclude-span A B] [--protocol TEXT]
 """
-# [VI] ==============================================================================================================
-# [VI] pulse_live_v4.py — CHẤM MỘT LƯỢT LIVE (H0 của mọi lượt từ v4): recall, precision, control dương, độ trễ, gánh cảnh báo.
-# [VI] Đầu vào: thư mục lượt chạy (CONFIG.json, decisions.jsonl của các worker, INTERVALS.jsonl của campaign).
-# [VI]   - load_trials: mỗi interval của campaign → một "trial" có nhãn control / admin / benign / attack / lotl, tốc độ, PAD.
-# [VI]   - read_decisions: đọc MỌI decision một lần, gom thời điểm báo theo "arm" và container; đếm replica-giây normal.
-# [VI]     Arm: T = nhánh token (đường cảnh báo hiện tại), T_raw = token trước gate, tree/support/C = nhánh đếm shadow,
-# [VI]     V4 = token HOẶC đếm, system = cái lượt chạy thực sự báo.
-# [VI]   - trial_table: interval được tính "báo" nếu có cửa sổ báo của cùng container trong [bắt đầu, bắt đầu + 15 s].
-# [VI]   - trial_metrics: tỉ lệ theo nhãn trên một tập (tập chính = tốc độ 6/12/24; trial PAD báo riêng ở "dilution"),
-# [VI]     precision 1:1 = TP / (TP + control dương), độ trễ = cuối cửa sổ báo − sự kiện kernel đầu tiên của tấn công.
-# [VI]   - burden: số đợt (cửa sổ báo cùng container cách nhau < 15 s) / replica-giờ normal, ngoài selection và campaign;
-# [VI]     khoảng tin cậy bootstrap theo workload (10.000 lần).
-# [VI]   - --exclude-span: bỏ các cặp trial và thời gian normal trùng khoảng hạ tầng nghẽn (phân tích độ nhạy).
-# [VI] ==============================================================================================================
+# ==============================================================================================================
+# pulse_live_v4.py — CHẤM MỘT LƯỢT LIVE (H0 của mọi lượt từ v4): recall, precision, control dương, độ trễ, gánh cảnh báo.
+# Đầu vào: thư mục lượt chạy (CONFIG.json, decisions.jsonl của các worker, INTERVALS.jsonl của campaign).
+#   - load_trials: mỗi interval của campaign → một "trial" có nhãn control / admin / benign / attack / lotl, tốc độ, PAD.
+#   - read_decisions: đọc MỌI decision một lần, gom thời điểm báo theo "arm" và container; đếm replica-giây normal.
+#     Arm: T = nhánh token (đường cảnh báo hiện tại), T_raw = token trước gate, tree/support/C = nhánh đếm shadow,
+#     V4 = token HOẶC đếm, system = cái lượt chạy thực sự báo.
+#   - trial_table: interval được tính "báo" nếu có cửa sổ báo của cùng container trong [bắt đầu, bắt đầu + 15 s].
+#   - trial_metrics: tỉ lệ theo nhãn trên một tập (tập chính = tốc độ 6/12/24; trial PAD báo riêng ở "dilution"),
+#     precision 1:1 = TP / (TP + control dương), độ trễ = cuối cửa sổ báo − sự kiện kernel đầu tiên của tấn công.
+#   - burden: số đợt (cửa sổ báo cùng container cách nhau < 15 s) / replica-giờ normal, ngoài selection và campaign;
+#     khoảng tin cậy bootstrap theo workload (10.000 lần).
+#   - --exclude-span: bỏ các cặp trial và thời gian normal trùng khoảng hạ tầng nghẽn (phân tích độ nhạy).
+# ==============================================================================================================
 import argparse
 from array import array
 from collections import defaultdict
@@ -53,7 +53,7 @@ EXPECT = dict(recall=.95, precision=.95, control=.05, latency_p95=3.0)
 CAMPAIGN = 'pulse-development-matrix'
 
 
-# [VI] Khoảng tin cậy Wilson 95% cho tỉ lệ k/n (dùng cho mọi tỉ lệ trong đồ án).
+# Khoảng tin cậy Wilson 95% cho tỉ lệ k/n (dùng cho mọi tỉ lệ trong đồ án).
 def wilson(k, n, z=1.96):
     if not n:
         return None
@@ -64,7 +64,7 @@ def wilson(k, n, z=1.96):
     return [c - h, c + h]
 
 
-# [VI] Một decision báo cho những arm nào (xem danh sách arm ở đầu file).
+# Một decision báo cho những arm nào (xem danh sách arm ở đầu file).
 def arms_of(row):
     """Arms that alarm on one decision row."""
     status = row.get('status')
@@ -86,14 +86,14 @@ def arms_of(row):
     return tuple(out)
 
 
-# [VI] Lệnh quản trị mà image không có (returncode ≠ 0) thì không tính là một lần chạy vô hại.
+# Lệnh quản trị mà image không có (returncode ≠ 0) thì không tính là một lần chạy vô hại.
 def admin_failed(campaign, pair):
     """A command the image lacks is not a benign run (protocol lidds-ml-v5)."""
     path = campaign / 'trials' / f'{pair:04d}' / 'ADMIN.json'
     return not path.exists() or json.loads(path.read_text()).get('returncode') != 0
 
 
-# [VI] Đọc INTERVALS.jsonl → danh sách trial có nhãn; trial tấn công lấy thêm thời điểm kernel từ EVALUATION_INPUT.json.
+# Đọc INTERVALS.jsonl → danh sách trial có nhãn; trial tấn công lấy thêm thời điểm kernel từ EVALUATION_INPUT.json.
 def load_trials(campaign):
     """The campaign's intervals with their label (attack, control, benign) and the attack's kernel event."""
     trials = []
@@ -119,7 +119,7 @@ def load_trials(campaign):
     return trials
 
 
-# [VI] Một lượt đọc mọi decisions.jsonl: thời điểm báo theo arm/container, replica-giây normal, độ trễ chấm điểm.
+# Một lượt đọc mọi decisions.jsonl: thời điểm báo theo arm/container, replica-giây normal, độ trễ chấm điểm.
 def read_decisions(root, normal, spans):
     """One pass: alarm times per arm and container, replica-seconds per workload on the normal span, scoring latency."""
     alarms = {arm: defaultdict(list) for arm in ARMS}
@@ -147,7 +147,7 @@ def in_spans(t, spans):
     return any(a <= t < b for a, b in spans)
 
 
-# [VI] Cửa sổ báo sớm nhất trong [start, start + 15 s] (tìm nhị phân trên mảng đã sắp).
+# Cửa sổ báo sớm nhất trong [start, start + 15 s] (tìm nhị phân trên mảng đã sắp).
 def first_alarm(times, start):
     """Earliest alarm in [start, start + HORIZON]; times sorted."""
     i = np.searchsorted(times, start)
@@ -168,7 +168,7 @@ def rate_row(hits, n):
     return dict(hits=hits, n=n, rate=hits / n if n else None, ci95=wilson(hits, n))
 
 
-# [VI] Các tỉ lệ của một arm trên một tập trial (lọc theo tốc độ của cặp, và theo PAD).
+# Các tỉ lệ của một arm trên một tập trial (lọc theo tốc độ của cặp, và theo PAD).
 def trial_metrics(trials, at, keep, pad=0):
     """Rates of one arm on the trials kept (a predicate on the pair's rate, applied through its attack). Only pairs whose
     attack has the given PAD count (pulse-live-v6-v1: dilution pairs, PAD > 0, are their own sets, never in the base)."""
@@ -197,7 +197,7 @@ def by_field(trials, at, field, label='attack'):
     return out
 
 
-# [VI] Đếm đợt cảnh báo trên normal theo workload (gộp cửa sổ báo cách nhau < 15 s).
+# Đếm đợt cảnh báo trên normal theo workload (gộp cửa sổ báo cách nhau < 15 s).
 def episodes_per_workload(alarms, workload_of, normal, spans):
     """Alarms of one container on the normal span merged when less than QUIET apart, counted per workload."""
     out = defaultdict(int)
@@ -208,7 +208,7 @@ def episodes_per_workload(alarms, workload_of, normal, spans):
     return dict(out)
 
 
-# [VI] Gánh = đợt / replica-giờ, kèm khoảng tin cậy bootstrap lấy mẫu lại theo WORKLOAD (không theo cửa sổ).
+# Gánh = đợt / replica-giờ, kèm khoảng tin cậy bootstrap lấy mẫu lại theo WORKLOAD (không theo cửa sổ).
 def burden(episodes, seconds, reps, seed=20261109):
     """Episodes per replica-hour and its workload-clustered bootstrap 95 % CI."""
     names = sorted(seconds)
@@ -255,7 +255,7 @@ def drop_stalled(trials, stalls):
     return [t for t in trials if t['pair'] not in bad], sorted(bad)
 
 
-# [VI] Ghép tất cả: trial → bảng báo → chỉ số theo arm và tập (chính, mọi tốc độ, PAD) → so kỳ vọng → báo cáo worker.
+# Ghép tất cả: trial → bảng báo → chỉ số theo arm và tập (chính, mọi tốc độ, PAD) → so kỳ vọng → báo cáo worker.
 def analyse(root, reps, stalls=(), protocol='sentinel_pulse/protocol/pulse-live-v3-v1.json + amendments 1, 2'):
     cfg = json.loads((root / 'CONFIG.json').read_text())
     campaign = root / CAMPAIGN

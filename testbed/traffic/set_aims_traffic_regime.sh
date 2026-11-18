@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Reproducibly switch only the Sentinel-owned AIMS traffic generators.
-# [VI] Đổi chế độ tải của ứng dụng AIMS bằng cách đổi số replica và nhịp gửi request của các deployment loadgen (chỉ các
-# [VI] deployment của Sentinel). Các chế độ: steady (nền), peak (giờ cao điểm), burst (đột biến), recovery (hạ tải), toolmix
-# [VI] (trộn công cụ), idle. matched_traffic.py gọi script này theo lịch traffic_schedule.
+# Đổi chế độ tải của ứng dụng AIMS bằng cách đổi số replica và nhịp gửi request của các deployment loadgen (chỉ các
+# deployment của Sentinel). Các chế độ: steady (nền), peak (giờ cao điểm), burst (đột biến), recovery (hạ tải), toolmix
+# (trộn công cụ), idle. matched_traffic.py gọi script này theo lịch traffic_schedule.
 set -euo pipefail
 
 REGIME=${1:?usage: set_aims_traffic_regime.sh steady|toolmix|peak|burst|recovery|idle}

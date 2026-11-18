@@ -9,7 +9,7 @@ and SVG tree.
 
     python3 scripts/ops/build_pulse_dashboard.py [--bridge http://10.1.16.234:9478] > testbed/k8s/monitoring/sentinel-pulse-dashboard.json
 """
-# [VI] Sinh dashboard Grafana cho đường cảnh báo (đọc metric của alert bridge).
+# Sinh dashboard Grafana cho đường cảnh báo (đọc metric của alert bridge).
 import argparse
 import json
 

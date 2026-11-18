@@ -14,8 +14,8 @@ This proof repeats the matched build's checks and adds the token ones:
 
     python3 token_probe_proof.py --build DIR --proof DIR --source-commit SHA
 """
-# [VI] PROOF CỦA BUILD TOKEN trên một worker: chạy fixture trong cgroup cô lập, kiểm mỗi syscall đúng một token, token mẫu đúng,
-# [VI] đường seccomp đúng, không rơi sự kiện. Worker từ chối chạy build không có proof hợp lệ cho đúng kernel.
+# PROOF CỦA BUILD TOKEN trên một worker: chạy fixture trong cgroup cô lập, kiểm mỗi syscall đúng một token, token mẫu đúng,
+# đường seccomp đúng, không rơi sự kiện. Worker từ chối chạy build không có proof hợp lệ cho đúng kernel.
 import argparse
 import hashlib
 import json

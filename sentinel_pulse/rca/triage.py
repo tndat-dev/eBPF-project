@@ -13,8 +13,8 @@ case; it never suppresses, delays or changes the ML preview or the case itself:
 Same definitions as ``scripts/analysis/alarm_taxonomy.py`` (tests compare both). Binaries, not argument vectors,
 are matched: an operator running the probe's interpreter by hand would also be labelled probe-only.
 """
-# [VI] Gắn nhãn phân loại cho case (vd. trùng exec probe của kubelet, thao tác bảo mật) để định tuyến thông báo; không bao
-# [VI] giờ chặn hay đổi cảnh báo của ML.
+# Gắn nhãn phân loại cho case (vd. trùng exec probe của kubelet, thao tác bảo mật) để định tuyến thông báo; không bao
+# giờ chặn hay đổi cảnh báo của ML.
 from __future__ import annotations
 
 from datetime import datetime

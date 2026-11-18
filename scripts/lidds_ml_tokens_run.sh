@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [VI] Chạy lidds_ml_tokens.py (mô hình token offline) trên CB-DS và 15 kịch bản LID-DS 2021.
+# Chạy lidds_ml_tokens.py (mô hình token offline) trên CB-DS và 15 kịch bản LID-DS 2021.
 # The enriched token language model over CB-DS and the 15 LID-DS 2021 scenarios (lidds_ml_tokens.py), on .234 as dat
 # under systemd-run with MemoryMax, largest first, JOBS at a time; finished parts are kept.
 #   SRC=/var/tmp/lid-ds-2021/source-<sha> [JOBS=3 WAIT_UNITS=unit] bash lidds_ml_tokens_run.sh

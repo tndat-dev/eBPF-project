@@ -1,6 +1,6 @@
 """Convert the Pulse loader JSON stream into fixed-interval feature JSONL."""
-# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Đổi dòng ảnh chụp bộ đếm của loader thành bản ghi đặc trưng theo
-# [VI] khoảng cố định; cũng chứa workload_key() và WATCHED_NAMESPACES mà đường token dùng chung.
+# (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Đổi dòng ảnh chụp bộ đếm của loader thành bản ghi đặc trưng theo
+# khoảng cố định; cũng chứa workload_key() và WATCHED_NAMESPACES mà đường token dùng chung.
 
 from __future__ import annotations
 

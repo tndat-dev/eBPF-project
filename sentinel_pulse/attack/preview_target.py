@@ -1,6 +1,6 @@
 """Stage/remove one checksum-pinned fixture in an exact CRI container."""
-# [VI] Chạy TRÊN worker (root): chép binary fixture (đã ghim SHA-256) vào đúng container qua runtime, chạy được ở đường dẫn
-# [VI] cho phép (/tmp, /run hay /operator tuỳ image), và gỡ ra sau trial. Từ chối mọi đường dẫn ngoài danh sách.
+# Chạy TRÊN worker (root): chép binary fixture (đã ghim SHA-256) vào đúng container qua runtime, chạy được ở đường dẫn
+# cho phép (/tmp, /run hay /operator tuỳ image), và gỡ ra sau trial. Từ chối mọi đường dẫn ngoài danh sách.
 import argparse
 import json
 import os

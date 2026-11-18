@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* [VI] pulse_counter_ids.h — 29 SYSCALL ĐƯỢC THEO DÕI RIÊNG trong ảnh chụp bộ đếm (mô hình đếm cũ, nay chạy shadow).
+/* pulse_counter_ids.h — 29 SYSCALL ĐƯỢC THEO DÕI RIÊNG trong ảnh chụp bộ đếm (mô hình đếm cũ, nay chạy shadow).
  *
  * Dạng "X-macro": PULSE_TRACKED_ROWS(X) gọi X(số_syscall, slot) cho từng dòng. Nơi dùng tự định nghĩa X để sinh ra thứ
  * nó cần (ví dụ mảng số syscall trong pulse_counter_projection.h). Nhờ vậy danh sách chỉ viết MỘT lần.

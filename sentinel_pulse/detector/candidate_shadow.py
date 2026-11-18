@@ -1,5 +1,5 @@
 """Score the frozen idle-aware candidate in shadow mode; never emit alerts."""
-# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Chấm mô hình cũ ở chế độ shadow.
+# (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Chấm mô hình cũ ở chế độ shadow.
 from __future__ import annotations
 
 import argparse

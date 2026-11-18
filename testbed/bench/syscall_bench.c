@@ -9,9 +9,9 @@
 //   futex       - FUTEX_WAKE on a private word nobody waits on (returns 0 at once): the cost of the futex exit hook
 //   forkwait    - fork, the child exits at once, the parent waits: the token probe's fork hook (lineage tag) and the
 //                 first-sight path of a new thread; one op = fork + exit + wait (16 per time check)
-// [VI] Đo chi phí probe: chạy một thao tác syscall liên tục trong N giây, in số ns mỗi thao tác. scripts/overhead_ab.sh chạy
-// [VI] nó ở các điều kiện off (không probe) / probe có theo dõi container / probe không theo dõi, xoay vòng 5 lần trên cả 3
-// [VI] worker; hiệu số ns giữa các điều kiện là chi phí của probe (bảng chi phí trong đồ án, RQ5).
+// Đo chi phí probe: chạy một thao tác syscall liên tục trong N giây, in số ns mỗi thao tác. scripts/overhead_ab.sh chạy
+// nó ở các điều kiện off (không probe) / probe có theo dõi container / probe không theo dõi, xoay vòng 5 lần trên cả 3
+// worker; hiệu số ns giữa các điều kiện là chi phí của probe (bảng chi phí trong đồ án, RQ5).
 #define _GNU_SOURCE
 #include <fcntl.h>
 #include <linux/futex.h>

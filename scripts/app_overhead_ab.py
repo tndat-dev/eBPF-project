@@ -7,7 +7,7 @@ An open-loop client sends 8 requests/s through the Istio ingress NodePort for th
 attached to / detached from the three workers in 300 s blocks (off-probe in odd rounds, probe-off in even rounds).
 Writes requests.jsonl (one line per request) and blocks.jsonl (one line per block, with worker CPU and memory).
 """
-# [VI] Đo độ trễ request của ứng dụng có/không có probe (thiết kế app-overhead-v1; chi phí trên request chưa đo trong đồ án).
+# Đo độ trễ request của ứng dụng có/không có probe (thiết kế app-overhead-v1; chi phí trên request chưa đo trong đồ án).
 import argparse
 import concurrent.futures
 import json

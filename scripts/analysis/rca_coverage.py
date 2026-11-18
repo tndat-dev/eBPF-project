@@ -9,7 +9,7 @@ preview->case latency. Ranking with a corrected baseline is rca.evaluate_ranking
 pulse-live-v6-v1 H6: when a trial has ORDER.json (seeded random step order), the rank-1 share is also reported by
 whether the attack ran before or after the benign binary of its trial.
 """
-# [VI] Vì sao tấn công có/không có case RCA riêng; hạng của binary tấn công; từ v6 chia hạng 1 theo thứ tự bước (H6).
+# Vì sao tấn công có/không có case RCA riêng; hạng của binary tấn công; từ v6 chia hạng 1 theo thứ tự bước (H6).
 import argparse, glob, json, os, statistics, time
 
 

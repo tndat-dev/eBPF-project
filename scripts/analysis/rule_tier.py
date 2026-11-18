@@ -16,7 +16,7 @@ choice per latency tier in BURDEN-LEVERS.json), recomputes their alarms on the s
 Rules never change an ML decision here: every ML preview stays recorded, and the paged level is a second,
 separately reported view (owner decisions 22/10).
 """
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse, json, sys, time
 from collections import defaultdict
 from pathlib import Path

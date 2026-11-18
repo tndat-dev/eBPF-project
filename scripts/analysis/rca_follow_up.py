@@ -19,7 +19,7 @@ Exec lag = received - at of the latest exec of every audit line, inside and outs
 
     python3 rca_follow_up.py --audit follow_up_audit.jsonl --cases DIR --campaign DIR --since T --output out.json [--stall A B]
 """
-# [VI] Trial không có case riêng: do gộp cool-down, do đua exec, hay do exec tới muộn — đọc nhật ký kiểm toán follow-up.
+# Trial không có case riêng: do gộp cool-down, do đua exec, hay do exec tới muộn — đọc nhật ký kiểm toán follow-up.
 import argparse
 from collections import Counter, defaultdict
 import glob

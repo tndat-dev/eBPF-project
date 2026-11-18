@@ -9,7 +9,7 @@ the run's registered protocol.
 
     python3 count_branch_fit.py --run-root ROOT --validation START END --alpha 0.0002 --block 60 --output T.json
 """
-# [VI] Ngưỡng của nhánh đếm (cây, support) trên normal của cụm — chạy với --shadow: chỉ ghi, không báo (count-thresholds.json).
+# Ngưỡng của nhánh đếm (cây, support) trên normal của cụm — chạy với --shadow: chỉ ghi, không báo (count-thresholds.json).
 import argparse
 from collections import defaultdict
 import gzip

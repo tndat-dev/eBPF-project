@@ -1,5 +1,5 @@
 """Stable compact encoding for high-volume one-second feature records."""
-# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Mã hoá gọn bản ghi đặc trưng.
+# (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Mã hoá gọn bản ghi đặc trưng.
 
 from __future__ import annotations
 

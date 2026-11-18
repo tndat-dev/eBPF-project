@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [VI] (Lịch sử) Baseline học sâu CHIDS trên LID-DS — chủ đồ án bỏ baseline học sâu 15/11; kết quả từng phần giữ trong biên nhận.
+# (Lịch sử) Baseline học sâu CHIDS trên LID-DS — chủ đồ án bỏ baseline học sâu 15/11; kết quả từng phần giữ trong biên nhận.
 # lidds-dl-baseline-v1, arm CHIDS, on .234 as dat: lidds_chids.py over the 15 LID-DS 2021 scenarios, smallest first,
 # one scenario at a time (each uses WORKERS processes), in the Python 3.9 environment pinned to ContainerHIDS'
 # requirements; parts already written are kept. Starts after the units in WAIT_UNITS.

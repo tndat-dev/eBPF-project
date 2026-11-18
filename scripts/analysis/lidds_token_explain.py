@@ -9,7 +9,7 @@ Read only; nothing here feeds a decision.
 
     python3 lidds_token_explain.py --cache DIR/CVE-2019-5418.npz --out explain-CVE-2019-5418.json
 """
-# [VI] Ví dụ minh hoạ mô hình token trên cache development (dùng cho phần giải thích trong đồ án).
+# Ví dụ minh hoạ mô hình token trên cache development (dùng cho phần giải thích trong đồ án).
 import argparse
 from collections import Counter
 import json

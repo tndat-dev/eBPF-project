@@ -11,7 +11,7 @@ gram or last token is unseen) leaves the rate score of a recording unchanged: it
 
     python3 lidds_token_rate.py --caches DIR --out DIR --lidds-alarms a.json.gz --cbds-alarms c.json.gz [--jobs 6]
 """
-# [VI] Phần D của ml-final-study-v1: nhánh tần suất trên gram ĐÃ THẤY (chống pha loãng) — kết quả âm, không ghép vào mô hình.
+# Phần D của ml-final-study-v1: nhánh tần suất trên gram ĐÃ THẤY (chống pha loãng) — kết quả âm, không ghép vào mô hình.
 import argparse
 import json
 from multiprocessing import Pool

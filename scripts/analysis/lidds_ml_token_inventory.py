@@ -9,7 +9,7 @@ or name. Attack recordings count only after the first exploit time.
 
     python3 lidds_ml_token_inventory.py --archives DIR --scenario NAME --alarms alarms.json.gz --output out.json
 """
-# [VI] Thống kê mô tả: syscall nào cần thông tin lúc trả về (dẫn tới danh sách 27 syscall giữ errno).
+# Thống kê mô tả: syscall nào cần thông tin lúc trả về (dẫn tới danh sách 27 syscall giữ errno).
 import argparse
 from collections import Counter
 import json

@@ -3,7 +3,7 @@
  * per-0.5 s window count of token 4-grams. Included by pulse_counter.bpf.c under PULSE_TOKENS, after the maps; the
  * thread history lives in pulse_task_state (pulse_last_syscall), which sys_enter already looks up. */
 /* ===================================================================================================================
- * [VI] pulse_tokens.bpf.h — PROBE TOKEN (phần kernel của mô hình ML hiện tại)
+ * pulse_tokens.bpf.h — PROBE TOKEN (phần kernel của mô hình ML hiện tại)
  * -------------------------------------------------------------------------------------------------------------------
  * Được #include vào pulse_counter.bpf.c khi biên dịch với -DPULSE_TOKENS. Ba việc:
  *   1) Dựng token cho mỗi syscall (xem bố cục 32 bit trong pulse_token_ids.h):
@@ -20,7 +20,7 @@
 
 #include "pulse_token_ids.h"
 
-/* [VI] Cấu hình mặc định; loader ghi đè trước khi nạp (xem struct pulse_tok_config). "const volatile" để verifier coi là
+/* Cấu hình mặc định; loader ghi đè trước khi nạp (xem struct pulse_tok_config). "const volatile" để verifier coi là
  * hằng số tại thời điểm nạp mà compiler không tối ưu mất. */
 const volatile struct pulse_tok_config pulse_tok_config SEC(".rodata.tokcfg") = {
     .futex_at_exit = 1,
@@ -28,7 +28,7 @@ const volatile struct pulse_tok_config pulse_tok_config SEC(".rodata.tokcfg") = 
 };
 
 /* 2^18 (cgroup, window, gram) entries: user space drains closed windows every 0.5 s, so about two windows live. */
-/* [VI] MAP 4-GRAM: 262.144 mục. Mỗi mục = một (cgroup, cửa sổ, 4 token, dòng dõi) khác nhau → số lần. Loader xoá cửa sổ
+/* MAP 4-GRAM: 262.144 mục. Mỗi mục = một (cgroup, cửa sổ, 4 token, dòng dõi) khác nhau → số lần. Loader xoá cửa sổ
  * đã đóng mỗi 0,5 s nên lúc nào cũng chỉ khoảng 2 cửa sổ sống. Đo được (map-capacity-v1): map bắt đầu đầy và bỏ gram ở
  * 400.000 syscall/s mà mọi syscall là gram mới; cửa sổ thật nặng nhất của lượt v5 chỉ 6.901 gram. */
 struct {
@@ -39,7 +39,7 @@ struct {
 } pulse_grams SEC(".maps");
 
 /* 0: gram insert failed (map full), 1: first directory walk deeper than PULSE_TOK_DIR_DEPTH, 2: grams counted */
-/* [VI] Ba bộ đếm sức khoẻ (per-CPU): [0] số lần chèn gram thất bại vì map đầy (insert_fail — phải luôn bằng 0 trong lượt
+/* Ba bộ đếm sức khoẻ (per-CPU): [0] số lần chèn gram thất bại vì map đầy (insert_fail — phải luôn bằng 0 trong lượt
  * chạy hợp lệ), [1] số lần đi cây thư mục quá 64 bậc, [2] tổng số gram đã đếm. Loader in ra trong dòng "token_drain". */
 struct {
     __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
@@ -49,7 +49,7 @@ struct {
 } pulse_tok_stats SEC(".maps");
 
 
-/* [VI] Tăng một bộ đếm sức khoẻ (bản per-CPU nên không cần nguyên tử). */
+/* Tăng một bộ đếm sức khoẻ (bản per-CPU nên không cần nguyên tử). */
 static __always_inline void pulse_tok_stat(__u32 index)
 {
     __u64 *value = bpf_map_lookup_elem(&pulse_tok_stats, &index);
@@ -57,7 +57,7 @@ static __always_inline void pulse_tok_stat(__u32 index)
         (*value)++;
 }
 
-/* [VI] Xoá lịch sử token của thread: 3 ô = NONE. Gram đầu tiên sau đó sẽ là (NONE, NONE, NONE, token) — "gram ngắn". */
+/* Xoá lịch sử token của thread: 3 ô = NONE. Gram đầu tiên sau đó sẽ là (NONE, NONE, NONE, token) — "gram ngắn". */
 static __always_inline void pulse_tok_reset(struct pulse_task_state *state)
 {
     state->tok[0] = PULSE_TOK_NONE;
@@ -66,7 +66,7 @@ static __always_inline void pulse_tok_reset(struct pulse_task_state *state)
 }
 
 /* The task's pid in its own pid namespace; 0 in the host's namespace. A container's entrypoint is pid 1 there. */
-/* [VI] Lấy pid của task TRONG pid namespace của nó (không phải pid nhìn từ host). Trong container, process khởi động
+/* Lấy pid của task TRONG pid namespace của nó (không phải pid nhìn từ host). Trong container, process khởi động
  * (entrypoint) có pid 1. Cách đọc: task->thread_pid->numbers[level].nr với level = độ sâu namespace của task. Phải dùng
  * bpf_core_type_size vì kích thước struct upid có thể khác giữa các kernel (CO-RE). Trả 0 nếu ở namespace của host. */
 static __always_inline __u32 pulse_tok_ns_pid(struct task_struct *task)
@@ -87,7 +87,7 @@ static __always_inline __u32 pulse_tok_ns_pid(struct task_struct *task)
  * thread-group leader; else of the parent when the parent is in this cgroup; else native when the process is pid 1 of
  * its pid namespace (the container's entrypoint) and session otherwise (a runtime exec joins an existing pid namespace
  * from a parent outside the cgroup). */
-/* [VI] DÒNG DÕI CỦA MỘT THREAD GẶP LẦN ĐẦU (chưa có trạng thái). Thứ tự quyết định:
+/* DÒNG DÕI CỦA MỘT THREAD GẶP LẦN ĐẦU (chưa có trạng thái). Thứ tự quyết định:
  *   1) Nếu là thread phụ của một process → lấy dòng dõi của thread chính (leader) nếu leader đã có trạng thái.
  *   2) Nếu process cha cùng container → lấy dòng dõi của cha (cha chưa có trạng thái thì coi native).
  *   3) Còn lại (cha ở NGOÀI container): là pid 1 của container → native (chính entrypoint); khác → session. Lý do: khi
@@ -100,14 +100,14 @@ static __always_inline __u32 pulse_tok_lineage(__u64 cgroup_id)
     __u64 pid_tgid = bpf_get_current_pid_tgid();
     __u32 tgid = pid_tgid >> 32;
     struct pulse_task_state *other;
-    if ((__u32)pid_tgid != tgid) {                       /* [VI] pid != tgid → đây là thread phụ, không phải leader */
+    if ((__u32)pid_tgid != tgid) {                       /* pid != tgid → đây là thread phụ, không phải leader */
         __u64 leader = ((__u64)tgid << 32) | tgid;
         other = bpf_map_lookup_elem(&pulse_last_syscall, &leader);
         if (other && other->cgroup_id == cgroup_id)
             return other->lineage;
     }
     struct task_struct *parent = BPF_CORE_READ(task, real_parent);
-    /* [VI] id cgroup (cgroup v2) của process cha: parent->cgroups->dfl_cgrp->kn->id. */
+    /* id cgroup (cgroup v2) của process cha: parent->cgroups->dfl_cgrp->kn->id. */
     if (BPF_CORE_READ(parent, cgroups, dfl_cgrp, kn, id) == cgroup_id) {
         __u64 key = ((__u64)BPF_CORE_READ(parent, tgid) << 32) | (__u32)BPF_CORE_READ(parent, pid);
         other = bpf_map_lookup_elem(&pulse_last_syscall, &key);
@@ -116,14 +116,14 @@ static __always_inline __u32 pulse_tok_lineage(__u64 cgroup_id)
     return pulse_tok_ns_pid(BPF_CORE_READ(task, group_leader)) == 1 ? PULSE_LINEAGE_NATIVE : PULSE_LINEAGE_SESSION;
 }
 
-/* [VI] Token "chỉ tên": số syscall dịch lên bit 23 (loại = 0, không chi tiết). */
+/* Token "chỉ tên": số syscall dịch lên bit 23 (loại = 0, không chi tiết). */
 static __always_inline __u32 pulse_tok_plain(__u32 nr)
 {
     return (nr > PULSE_TOK_NR_MAX ? PULSE_TOK_NR_MAX : nr) << PULSE_TOK_NR_SHIFT;
 }
 
 /* syscalls that give their token at return; all others give it at entry */
-/* [VI] 1 nếu syscall thuộc 39 syscall có hook (phát token lúc trả về). Macro sinh ra một switch với 39 nhánh case. */
+/* 1 nếu syscall thuộc 39 syscall có hook (phát token lúc trả về). Macro sinh ra một switch với 39 nhánh case. */
 static __always_inline int pulse_tok_hooked(__u32 nr)
 {
     if (nr == PULSE_FUTEX_NR)
@@ -137,7 +137,7 @@ static __always_inline int pulse_tok_hooked(__u32 nr)
 }
 
 /* the gram ending in tok, then the history moves on by one */
-/* [VI] PHÁT MỘT TOKEN: (1) đếm 4-gram (3 token trước + token mới) vào cửa sổ hiện tại; (2) dịch lịch sử thread đi một ô.
+/* PHÁT MỘT TOKEN: (1) đếm 4-gram (3 token trước + token mới) vào cửa sổ hiện tại; (2) dịch lịch sử thread đi một ô.
  * Đây là chỗ "mỗi sự kiện tạo đúng một 4-gram". Cửa sổ = thời điểm / 0,5 s (đồng hồ monotonic của kernel). */
 static __always_inline void pulse_tok_emit(struct pulse_task_state *state, __u64 cgroup_id, __u64 now_ns, __u32 tok)
 {
@@ -148,7 +148,7 @@ static __always_inline void pulse_tok_emit(struct pulse_task_state *state, __u64
             .tok = { state->tok[0], state->tok[1], state->tok[2], tok },
             .pad = state->lineage,
         };
-        /* [VI] Gram đã có trong map → cộng 1 (nguyên tử vì nhiều CPU có thể cộng cùng khoá). Chưa có → chèn với giá trị 1.
+        /* Gram đã có trong map → cộng 1 (nguyên tử vì nhiều CPU có thể cộng cùng khoá). Chưa có → chèn với giá trị 1.
          * Nếu chèn thất bại do CPU khác vừa chèn cùng khoá → tra lại và cộng; nếu vẫn không có → map đầy, đếm insert_fail. */
         __u64 *count = bpf_map_lookup_elem(&pulse_grams, &key);
         if (count) {
@@ -165,13 +165,13 @@ static __always_inline void pulse_tok_emit(struct pulse_task_state *state, __u64
         }
         pulse_tok_stat(2);
     }
-    /* [VI] Dịch lịch sử: bỏ token cũ nhất, thêm token mới vào cuối. */
+    /* Dịch lịch sử: bỏ token cũ nhất, thêm token mới vào cuối. */
     state->tok[0] = state->tok[1];
     state->tok[1] = state->tok[2];
     state->tok[2] = tok;
 }
 
-/* [VI] floor(log2(value)) bằng tìm kiếm nhị phân trên bit (không có vòng lặp, verifier dễ chấp nhận), chặn trên ở 15.
+/* floor(log2(value)) bằng tìm kiếm nhị phân trên bit (không có vòng lặp, verifier dễ chấp nhận), chặn trên ở 15.
  * Ví dụ 4096 → 12, 5000 → 12, 1 → 0. */
 static __always_inline __u32 pulse_tok_log2(__u64 value)
 {
@@ -185,7 +185,7 @@ static __always_inline __u32 pulse_tok_log2(__u64 value)
     return bits > 15 ? 15 : bits;
 }
 
-/* [VI] Cờ (ERR/RW/OPEN...) của một syscall có hook, lấy từ bảng X-macro. */
+/* Cờ (ERR/RW/OPEN...) của một syscall có hook, lấy từ bảng X-macro. */
 static __always_inline __u32 pulse_tok_flags(__u32 nr)
 {
     switch (nr) {
@@ -202,7 +202,7 @@ static __always_inline __u32 pulse_tok_flags(__u32 nr)
  * the walk fails. The dentry chain is walked upwards, crossing mount points, without d_path: d_path is allowed only
  * in a few fentry hooks, and every fentry trampoline is one more ftrace_ops (07/11: fentry/security_file_open cost
  * about 380 ns on every open of every process of the node, monitored or not). */
-/* [VI] Băm FNV-1a tên MỘT thành phần đường dẫn (vd. "etc") thành 20 bit. Hai giá trị cao nhất được dành cho mã đặc biệt
+/* Băm FNV-1a tên MỘT thành phần đường dẫn (vd. "etc") thành 20 bit. Hai giá trị cao nhất được dành cho mã đặc biệt
  * REL/UNKNOWN nên băm trùng chúng thì lùi xuống 2. */
 static __always_inline __u32 pulse_tok_dir_hash(const unsigned char *name)
 {
@@ -219,7 +219,7 @@ static __always_inline __u32 pulse_tok_dir_hash(const unsigned char *name)
     return hash >= PULSE_TOK_DIR_REL ? hash - 2 : hash;   /* keep the two reserved codes */
 }
 
-/* [VI] Trạng thái của vòng đi ngược cây thư mục (dentry = một nút tên trong cây file của kernel; vfsmount/mount = điểm
+/* Trạng thái của vòng đi ngược cây thư mục (dentry = một nút tên trong cây file của kernel; vfsmount/mount = điểm
  * gắn kết của một filesystem). Mục tiêu: từ file vừa mở đi NGƯỢC lên gốc của task (gốc container), nhớ nút ngay dưới
  * gốc ("top") — đó là thư mục đầu tiên, vd. /etc/passwd → top = etc. */
 struct pulse_tok_walk {
@@ -231,7 +231,7 @@ struct pulse_tok_walk {
 };
 
 /* one step up; bpf_loop keeps the verifier to one pass over this body (an unrolled 64-step walk is too complex) */
-/* [VI] MỘT BƯỚC đi lên. bpf_loop gọi hàm này tối đa 64 lần; trả 1 để dừng sớm. Ba trường hợp mỗi bước:
+/* MỘT BƯỚC đi lên. bpf_loop gọi hàm này tối đa 64 lần; trả 1 để dừng sớm. Ba trường hợp mỗi bước:
  *   a) đã tới gốc của task → kết quả = thư mục "top" (hoặc ROOT nếu file nằm ngay ở gốc);
  *   b) đang ở gốc của một filesystem được mount → nhảy sang điểm mount ở filesystem cha (đi tiếp lên trên);
  *      nếu filesystem không có cha (không nằm dưới gốc task, vd. /proc của host) → REL;
@@ -268,7 +268,7 @@ static long pulse_tok_walk_step(__u32 index, void *context)
     return 0;
 }
 
-/* [VI] Thư mục đầu của file mà syscall mở vừa trả về dưới dạng fd: tra fd trong bảng file của task → struct file →
+/* Thư mục đầu của file mà syscall mở vừa trả về dưới dạng fd: tra fd trong bảng file của task → struct file →
  * (dentry, mount); lấy gốc của task (task->fs->root, chính là gốc container); rồi đi ngược tối đa 64 bước. */
 static __always_inline __u32 pulse_tok_dir_of_fd(long fd)
 {
@@ -288,7 +288,7 @@ static __always_inline __u32 pulse_tok_dir_of_fd(long fd)
         .mount_offset = bpf_core_field_offset(struct mount, mnt),
         .result = PULSE_TOK_DIR_UNKNOWN,
     };
-    /* [VI] struct vfsmount nằm BÊN TRONG struct mount (trường mnt): lùi con trỏ đi mount_offset để có struct mount. */
+    /* struct vfsmount nằm BÊN TRONG struct mount (trường mnt): lùi con trỏ đi mount_offset để có struct mount. */
     walk.mnt = (struct mount *)((void *)walk.vfsmnt - walk.mount_offset);
     bpf_loop(PULSE_TOK_DIR_DEPTH, pulse_tok_walk_step, &walk, 0);
     if (!walk.done)
@@ -296,7 +296,7 @@ static __always_inline __u32 pulse_tok_dir_of_fd(long fd)
     return walk.result;
 }
 
-/* [VI] DỰNG TOKEN LÚC TRẢ VỀ cho một syscall có hook, rồi phát nó. `ret` là giá trị trả về của syscall:
+/* DỰNG TOKEN LÚC TRẢ VỀ cho một syscall có hook, rồi phát nó. `ret` là giá trị trả về của syscall:
  *   - ret âm trong [-4095, -1] là mã lỗi → nếu syscall có cờ ERR: token = tên + errno (= -ret);
  *   - ret > 0 với syscall đọc/ghi (RW) → token = tên + nhóm cỡ log2(ret);
  *   - ret >= 0 với syscall mở file (OPEN) → ret là fd: token = tên + w/r + thư mục đầu. Cờ mở (để biết r hay w) lấy
@@ -337,7 +337,7 @@ static __always_inline int pulse_tok_return(struct pulse_task_state *state, __u6
  * trampolines made open + close of every process on the node about 1-2 us slower (the fexit variant is at tag
  * archive/pre-audit-20261110). sys_enter already marks the call it saw (tok_pending), so a call skipped by seccomp,
  * which reaches sys_exit without running, gives no second token. */
-/* [VI] HOOK 3: raw tracepoint sys_exit — chạy sau MỌI syscall của node. Chỉ làm việc khi thread này có tok_pending = 1
+/* HOOK 3: raw tracepoint sys_exit — chạy sau MỌI syscall của node. Chỉ làm việc khi thread này có tok_pending = 1
  * (tức sys_enter đã thấy một syscall có hook của container được theo dõi). args[0] = thanh ghi tham số (pt_regs),
  * args[1] = giá trị trả về. Một chương trình chung cho cả 39 syscall thay vì 39 chương trình fexit, vì mỗi fexit là một
  * trampoline ftrace và khi Tetragon cũng hook openat thì mọi lần mở file của cả node chậm thêm 1–2 µs (đo 07/11). */
@@ -360,7 +360,7 @@ int pulse_tok_sys_exit(struct bpf_raw_tracepoint_args *context)
 /* A child takes its parent's lineage at fork, before it runs: a child that waits for its parent to exit before its
  * first syscall would otherwise be re-parented to the container's pid 1 and read as native. Runs in the parent. The
  * child starts with an empty token history, as a thread first seen at its first syscall does. */
-/* [VI] HOOK 4: raw tracepoint sched_process_fork — chạy trong process CHA mỗi lần fork/clone. Nếu cha đang được theo dõi
+/* HOOK 4: raw tracepoint sched_process_fork — chạy trong process CHA mỗi lần fork/clone. Nếu cha đang được theo dõi
  * (có trạng thái, cùng cgroup), tạo sẵn trạng thái cho CON với dòng dõi của cha và lịch sử token rỗng. Lý do phải làm
  * lúc fork: một process con của phiên `kubectl exec` có thể đợi cha thoát rồi mới gọi syscall đầu tiên; lúc đó nó đã bị
  * "nhận nuôi" bởi pid 1 của container và pulse_tok_lineage sẽ đọc nhầm thành native. args[1] = task_struct của con. */

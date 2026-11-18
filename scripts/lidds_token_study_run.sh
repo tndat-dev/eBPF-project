@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [VI] Chạy nghiên cứu thiết kế (lidds_token_study.py, RQ2) trong unit có giới hạn bộ nhớ.
+# Chạy nghiên cứu thiết kế (lidds_token_study.py, RQ2) trong unit có giới hạn bộ nhớ.
 # Token design study (protocol token-design-study-v1 + amendment 1) on .234 as dat. Run it inside a unit with a memory cap:
 #   systemd-run --unit=token-study --uid=dat -p MemoryMax=30G -p OOMPolicy=continue -p Nice=10 \
 #     env SRC=/var/tmp/lid-ds-2021/source-<sha> bash $SRC/scripts/lidds_token_study_run.sh

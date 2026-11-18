@@ -6,7 +6,7 @@ suspect and counts its reasons. ``novel_binary`` / ``unknown_binary`` on a norma
 baseline did not know; the carried-over baseline (rca/baseline_seed.py) should lower that share without changing
 attack top-1 (rca evaluate_ranking). Reports the share overall and the binaries behind it.
 """
-# [VI] Vì sao nghi phạm hạng 1 của case normal đứng đầu (ảnh hưởng của baseline binary).
+# Vì sao nghi phạm hạng 1 của case normal đứng đầu (ảnh hưởng của baseline binary).
 import argparse, json, time
 from collections import Counter
 from pathlib import Path

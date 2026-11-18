@@ -16,8 +16,8 @@ identity: workload ``lid-ds-<scenario>``, container ``victim``, pod UID = record
 
 Line format (LID-DS 2021): ``timestamp_ns user_id process_id process_name thread_id syscall direction args...``.
 """
-# [VI] Đọc bản ghi LID-DS 2021 (mỗi bản ghi: trace syscall .sc + metadata .json có thời điểm exploit) và cắt thành cửa sổ 0,5 s
-# [VI] cùng lưới thời gian với Pulse. Mọi bộ chấm dataset dùng hàm recording() ở đây để đọc trace.
+# Đọc bản ghi LID-DS 2021 (mỗi bản ghi: trace syscall .sc + metadata .json có thời điểm exploit) và cắt thành cửa sổ 0,5 s
+# cùng lưới thời gian với Pulse. Mọi bộ chấm dataset dùng hàm recording() ở đây để đọc trace.
 from __future__ import annotations
 
 import io

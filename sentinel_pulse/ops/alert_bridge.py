@@ -28,21 +28,21 @@ RCA integration (``rca_cases_dir`` in the config, 30/10; ``sentinel_pulse/ops/rc
   ``/cases/<id>`` (English page with suspects and the tree), ``/cases/<id>.json|.md|.svg``; ``/alertmanager/notify``
   is the webhook of the ``immediate`` route (logged to ``notifications.jsonl``; no external receiver).
 """
-# [VI] ==============================================================================================================
-# [VI] alert_bridge.py — ĐƯA CẢNH BÁO CỦA PULSE TỚI ALERTMANAGER (đường cảnh báo đo độ trễ kernel → người nhận).
-# [VI] Chạy trên .234 (unit pulse-alert-bridge-<run>, dựng bởi scripts/alert_bridge.sh). Luồng:
-# [VI]   1) Streams: với mỗi worker, mở một ssh `tail` đọc decisions.jsonl LOCAL của worker, chỉ lấy dòng có
-# [VI]      "candidate_alert_preview":true (cửa sổ vượt ngưỡng). Đọc qua ssh thay vì NFS vì NFS làm dòng hiện chậm ~5 s.
-# [VI]   2) Bridge.ingest: gom thành ĐỢT (episode) theo container — các dòng dương cách nhau không quá resolve_after_seconds
-# [VI]      thuộc cùng một đợt. Mỗi đợt là MỘT alert SentinelPulseAnomaly.
-# [VI]   3) push_worker: POST alert tới Alertmanager ngay khi đợt bắt đầu (đường "push", đường dùng trong đồ án: p95 0,68 s
-# [VI]      từ sự kiện kernel). Song song xuất gauge trên /metrics cho Prometheus scrape (đường "pull" để SO SÁNH, chậm 5–60 s).
-# [VI]   4) Webhook của Alertmanager gọi ngược lại → ghi thời điểm Alertmanager thực sự nhận (deliveries.jsonl) để đo độ trễ;
-# [VI]      lần giao đầu của mỗi đợt ghi dòng decision đầu tiên vào triggers.jsonl — RCA đọc file này để mở case.
-# [VI]   5) Khi case RCA xuất hiện, đẩy lại cùng alert kèm chú thích RCA, và một alert phân loại SentinelPulseTriage.
-# [VI] Bridge chỉ ĐỌC decision, không ảnh hưởng việc chấm. Giới hạn đã biết: thử lại 3 lần rồi bỏ, không có hàng đợi bền
-# [VI] (lượt v5 mất 113/190 đợt trong 3,5 phút host nghẽn).
-# [VI] ==============================================================================================================
+# ==============================================================================================================
+# alert_bridge.py — ĐƯA CẢNH BÁO CỦA PULSE TỚI ALERTMANAGER (đường cảnh báo đo độ trễ kernel → người nhận).
+# Chạy trên .234 (unit pulse-alert-bridge-<run>, dựng bởi scripts/alert_bridge.sh). Luồng:
+#   1) Streams: với mỗi worker, mở một ssh `tail` đọc decisions.jsonl LOCAL của worker, chỉ lấy dòng có
+#      "candidate_alert_preview":true (cửa sổ vượt ngưỡng). Đọc qua ssh thay vì NFS vì NFS làm dòng hiện chậm ~5 s.
+#   2) Bridge.ingest: gom thành ĐỢT (episode) theo container — các dòng dương cách nhau không quá resolve_after_seconds
+#      thuộc cùng một đợt. Mỗi đợt là MỘT alert SentinelPulseAnomaly.
+#   3) push_worker: POST alert tới Alertmanager ngay khi đợt bắt đầu (đường "push", đường dùng trong đồ án: p95 0,68 s
+#      từ sự kiện kernel). Song song xuất gauge trên /metrics cho Prometheus scrape (đường "pull" để SO SÁNH, chậm 5–60 s).
+#   4) Webhook của Alertmanager gọi ngược lại → ghi thời điểm Alertmanager thực sự nhận (deliveries.jsonl) để đo độ trễ;
+#      lần giao đầu của mỗi đợt ghi dòng decision đầu tiên vào triggers.jsonl — RCA đọc file này để mở case.
+#   5) Khi case RCA xuất hiện, đẩy lại cùng alert kèm chú thích RCA, và một alert phân loại SentinelPulseTriage.
+# Bridge chỉ ĐỌC decision, không ảnh hưởng việc chấm. Giới hạn đã biết: thử lại 3 lần rồi bỏ, không có hàng đợi bền
+# (lượt v5 mất 113/190 đợt trong 3,5 phút host nghẽn).
+# ==============================================================================================================
 from __future__ import annotations
 
 import argparse
@@ -113,7 +113,7 @@ def series(name, labels, value):
     return f'{name}{{{inner}}} {value}' if inner else f'{name} {value}'
 
 
-# [VI] Histogram kiểu Prometheus tự viết để xuất độ trễ trên /metrics.
+# Histogram kiểu Prometheus tự viết để xuất độ trễ trên /metrics.
 class Histogram:
     def __init__(self, name, help_text):
         self.name, self.help, self.data = name, help_text, {}
@@ -138,7 +138,7 @@ class Histogram:
         return out
 
 
-# [VI] Trạng thái của bridge: các đợt đang mở theo container, nhật ký giao alert, bộ đếm. Mọi phương thức dưới đây.
+# Trạng thái của bridge: các đợt đang mở theo container, nhật ký giao alert, bộ đếm. Mọi phương thức dưới đây.
 class Bridge:
     """Episode bookkeeping, alert payloads, metrics and the webhook side; I/O-free apart from the JSONL logs."""
 
@@ -174,7 +174,7 @@ class Bridge:
     def count(self, name, amount=1):
         self.counters[name] += amount
 
-    # [VI] Nhận một decision dương: mở đợt mới (id = id case RCA của dòng đầu) hoặc kéo dài đợt đang mở của container.
+    # Nhận một decision dương: mở đợt mới (id = id case RCA của dòng đầu) hoặc kéo dài đợt đang mở của container.
     def ingest(self, row, received_at):
         kind = trigger_kind(row, self.cfg['model_hash'], self.cfg['policy_hash'])
         if kind not in TRIGGERS:
@@ -200,7 +200,7 @@ class Bridge:
             ep['rows'] += 1; ep['last_seen'] = received_at; ep['last_window_end'] = float(row['window_end'])
             return ep
 
-    # [VI] Gọi định kỳ: đóng các đợt đã im quá resolve_after_seconds, làm mới alert đang mở, gắn case RCA nếu đã có.
+    # Gọi định kỳ: đóng các đợt đã im quá resolve_after_seconds, làm mới alert đang mở, gắn case RCA nếu đã có.
     def tick(self, now):
         with self.lock:
             for key, ep in list(self.active.items()):
@@ -272,7 +272,7 @@ class Bridge:
                 ep['first_push_at'] = at
                 self.log('pushes', dict(episode=episode, first_push_at=at))
 
-    # [VI] Alertmanager gọi vào đây khi gửi thông báo: ghi lần giao đầu của mỗi (đường, đợt) và độ trễ; ghi triggers.jsonl.
+    # Alertmanager gọi vào đây khi gửi thông báo: ghi lần giao đầu của mỗi (đường, đợt) và độ trễ; ghi triggers.jsonl.
     def webhook(self, payload, received_at):
         records = []
         with self.lock:
@@ -334,7 +334,7 @@ class Bridge:
                         stream_up=dict(self.stream_up), at=time.time())
 
 
-# [VI] Luồng nền đẩy alert (POST /api/v2/alerts) — thử lại tối đa 3 lần, không có hàng đợi bền.
+# Luồng nền đẩy alert (POST /api/v2/alerts) — thử lại tối đa 3 lần, không có hàng đợi bền.
 def push_worker(bridge: Bridge, url, stop: threading.Event):
     """POST each queued alert; a failed push of an episode alert is tried again (``PUSH_ATTEMPTS`` in all,
     ``PUSH_RETRY_SECONDS`` apart). An episode shorter than the refresh period has no other push before it resolves:
@@ -371,7 +371,7 @@ def push_worker(bridge: Bridge, url, stop: threading.Event):
                 retries.append((time.time() + PUSH_RETRY_SECONDS, episode, alerts, attempt + 1))
 
 
-# [VI] Máy chủ HTTP: /metrics (Prometheus), webhook của Alertmanager, và các trang /cases xem case RCA.
+# Máy chủ HTTP: /metrics (Prometheus), webhook của Alertmanager, và các trang /cases xem case RCA.
 def serve(bridge: Bridge, host, port):
     class Handler(BaseHTTPRequestHandler):
         def reply(self, code, body, kind='text/plain; version=0.0.4'):
@@ -451,7 +451,7 @@ def serve(bridge: Bridge, host, port):
     return server
 
 
-# [VI] Các ssh `tail -F` tới decisions local của từng worker; đọc dòng, lọc dương, chuyển cho Bridge.ingest.
+# Các ssh `tail -F` tới decisions local của từng worker; đọc dòng, lọc dương, chuyển cho Bridge.ingest.
 class Streams:
     """One SSH follower per worker (same transport as the RCA service's decision stream)."""
 

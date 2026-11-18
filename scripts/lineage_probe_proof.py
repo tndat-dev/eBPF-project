@@ -17,8 +17,8 @@ lineage); every window's session part is a subset of its grams; one token per sy
 
     python3 lineage_probe_proof.py --build DIR --container-id ID --out DIR
 """
-# [VI] PROOF CỦA THẺ DÒNG DÕI trên một worker: pod thử chạy vòng lặp riêng (native), vào bằng crictl exec (session), con chạy nền
-# [VI] sống lâu hơn phiên (vẫn session); kiểm 8 điều kiện. Phải đạt trên cả 3 worker trước lượt chạy.
+# PROOF CỦA THẺ DÒNG DÕI trên một worker: pod thử chạy vòng lặp riêng (native), vào bằng crictl exec (session), con chạy nền
+# sống lâu hơn phiên (vẫn session); kiểm 8 điều kiện. Phải đạt trên cả 3 worker trước lượt chạy.
 import argparse
 import json
 import os

@@ -25,8 +25,8 @@ Official recordings are not read at all when --alarms is given.
 
     python3 lidds_ml_token_alphabets.py --archives DIR --scenario NAME --alarms alarms.json.gz --output out.npz
 """
-# [VI] Định nghĩa các BẢNG CHỮ token trên dataset (full, select, select1f, probe1f, chỉ tên...) và chấm mô hình với từng bảng chữ;
-# [VI] hàm alphabet_windows / score_windows được lidds_ml_token_crossfit.py dùng lại. select1f là bảng chữ của hệ thống.
+# Định nghĩa các BẢNG CHỮ token trên dataset (full, select, select1f, probe1f, chỉ tên...) và chấm mô hình với từng bảng chữ;
+# hàm alphabet_windows / score_windows được lidds_ml_token_crossfit.py dùng lại. select1f là bảng chữ của hệ thống.
 import argparse
 from collections import defaultdict, deque
 import json

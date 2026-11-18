@@ -9,7 +9,7 @@ authors, DOI/arXiv id, abstract. Only titles of published papers are sent.
 
     python3 s2_verify.py --refs refs.json --out citation_map.json [--sleep 3]
 """
-# [VI] Bước tìm tài liệu của paper: kiểm từng tài liệu trên Semantic Scholar (Crossref theo DOI khi S2 không có) → citation_map.json.
+# Bước tìm tài liệu của paper: kiểm từng tài liệu trên Semantic Scholar (Crossref theo DOI khi S2 không có) → citation_map.json.
 import argparse
 import json
 from pathlib import Path

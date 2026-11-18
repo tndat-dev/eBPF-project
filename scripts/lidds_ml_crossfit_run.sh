@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [VI] Chạy lidds_ml_token_crossfit.py cho mọi kịch bản (ra ma trận cross-fit của con số official) dưới systemd-run có MemoryMax.
+# Chạy lidds_ml_token_crossfit.py cho mọi kịch bản (ra ma trận cross-fit của con số official) dưới systemd-run có MemoryMax.
 # Cross-fitted token branch (lidds_ml_token_crossfit.py), development test recordings only (CB-DS: all), on .234 as dat
 # under systemd-run with MemoryMax, smallest scenario first; finished parts are kept.
 #   SRC=/var/tmp/lid-ds-2021/source-<sha> [JOBS=8 FOLDS=5 OUT=dir ALL=1] bash lidds_ml_crossfit_run.sh

@@ -1,5 +1,5 @@
 """Fail-closed integrity helpers for Sentinel Pulse datasets and artifacts."""
-# [VI] Kiểm toàn vẹn kiểu "fail-closed": sha256_file và các hàm kiểm dataset/artifact — sai là dừng, không chạy tiếp.
+# Kiểm toàn vẹn kiểu "fail-closed": sha256_file và các hàm kiểm dataset/artifact — sai là dừng, không chạy tiếp.
 
 from __future__ import annotations
 

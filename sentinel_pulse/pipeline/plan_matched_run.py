@@ -4,19 +4,19 @@ Profiles pin the candidate, preview policy, attack fixture and run length:
 ``pulse-soak-baseline`` is the original 48 h frozen-candidate run, ``pulse-live-recalibrated`` the
 recalibrated candidate + policy-1win-a3 with benign-exec controls; ``custom`` takes every value from the command line.
 """
-# [VI] ==============================================================================================================
-# [VI] plan_matched_run.py — DỰNG CONFIG.json CHO MỘT LƯỢT CHẠY (bước `plan` của scripts/launch_run.sh).
-# [VI] CONFIG.json là "hợp đồng" bất biến của lượt chạy (chmod 444): mọi thành phần (worker trên 3 node, campaign, bộ
-# [VI] sinh tải, RCA, bridge) chỉ đọc file này. Nó ghi lại:
-# [VI]   - mã nguồn (snapshot + commit), mô hình cũ (candidate) và chính sách xem trước, đều kèm SHA-256;
-# [VI]   - binary tấn công được BIÊN DỊCH NGAY TẠI ĐÂY từ fixture C (gcc -static) và băm SHA-256;
-# [VI]   - thời gian: bắt đầu sau 3 phút, 90 phút "selection" đầu lượt không có trial, tấn công từ selection_end + 120 s;
-# [VI]   - cấu hình worker từng node (loader, object eBPF, proof), mô hình token (MODELS.json) và các tuỳ chọn campaign;
-# [VI]   - LỊCH TRIAL (schedule): 21 workload × 5 kịch bản × các tốc độ (+ trial pha loãng PAD), xáo bằng seed cố định;
-# [VI]   - LỊCH TẢI (traffic_schedule): các pha steady/toolmix/peak/burst/recovery rồi steady tới hết lượt.
-# [VI] Các khối "final_system", "recalibration", "evidence_discount" thuộc hệ thống cũ (ML + tripwire); lượt hiện tại
-# [VI] (lidds-ml-v5 chỉ token) dùng nhánh `tokens` + `local_decisions`.
-# [VI] ==============================================================================================================
+# ==============================================================================================================
+# plan_matched_run.py — DỰNG CONFIG.json CHO MỘT LƯỢT CHẠY (bước `plan` của scripts/launch_run.sh).
+# CONFIG.json là "hợp đồng" bất biến của lượt chạy (chmod 444): mọi thành phần (worker trên 3 node, campaign, bộ
+# sinh tải, RCA, bridge) chỉ đọc file này. Nó ghi lại:
+#   - mã nguồn (snapshot + commit), mô hình cũ (candidate) và chính sách xem trước, đều kèm SHA-256;
+#   - binary tấn công được BIÊN DỊCH NGAY TẠI ĐÂY từ fixture C (gcc -static) và băm SHA-256;
+#   - thời gian: bắt đầu sau 3 phút, 90 phút "selection" đầu lượt không có trial, tấn công từ selection_end + 120 s;
+#   - cấu hình worker từng node (loader, object eBPF, proof), mô hình token (MODELS.json) và các tuỳ chọn campaign;
+#   - LỊCH TRIAL (schedule): 21 workload × 5 kịch bản × các tốc độ (+ trial pha loãng PAD), xáo bằng seed cố định;
+#   - LỊCH TẢI (traffic_schedule): các pha steady/toolmix/peak/burst/recovery rồi steady tới hết lượt.
+# Các khối "final_system", "recalibration", "evidence_discount" thuộc hệ thống cũ (ML + tripwire); lượt hiện tại
+# (lidds-ml-v5 chỉ token) dùng nhánh `tokens` + `local_decisions`.
+# ==============================================================================================================
 import argparse
 import json
 from pathlib import Path
@@ -29,17 +29,17 @@ from ..integrity import sha256_file
 
 # Every pinned value of a run comes from the command line (profile "custom"): the earlier named profiles pointed at model
 # bundles of finished runs that are no longer on the NFS share.
-# [VI] Không còn profile dựng sẵn: mọi giá trị phải truyền qua dòng lệnh (sửa 16/11 vì profile cũ trỏ tới bundle đã xoá).
+# Không còn profile dựng sẵn: mọi giá trị phải truyền qua dòng lệnh (sửa 16/11 vì profile cũ trỏ tới bundle đã xoá).
 PROFILES={}
-# [VI] Ba worker của cụm: IP → tên node.
+# Ba worker của cụm: IP → tên node.
 WORKERS={'10.1.16.237':'k8s-worker1.local','10.1.16.238':'k8s-worker4.local','10.1.16.239':'k8s-worker3.local'}
 
 
 PEER_PORT = 9479
 
 
-# [VI] Hàm chính. source = snapshot mã nguồn; root = thư mục lượt chạy trên NFS (phải CHƯA tồn tại); custom = các giá trị
-# [VI] ghim (candidate, policy, fixture, seconds...); tokens = cấu hình probe token và mô hình; rates = các tốc độ tấn công.
+# Hàm chính. source = snapshot mã nguồn; root = thư mục lượt chạy trên NFS (phải CHƯA tồn tại); custom = các giá trị
+# ghim (candidate, policy, fixture, seconds...); tokens = cấu hình probe token và mô hình; rates = các tốc độ tấn công.
 def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,custom=None,rates=(6,12,24),
          final_system=None,recalibration=None,tokens=None,local_decisions=None):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
@@ -55,7 +55,7 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
     keys=sorted(json.loads((candidate/'CANDIDATE_MANIFEST.json').read_text())['workloads'])
     if len(keys)!=21:raise ValueError('expected 21 frozen workload keys')
     root.mkdir(parents=True,exist_ok=False)
-    # [VI] Biên dịch fixture tấn công (testbed/attack/runtime_attack_with_benign_control.c) thành binary tĩnh, chỉ đọc.
+    # Biên dịch fixture tấn công (testbed/attack/runtime_attack_with_benign_control.c) thành binary tĩnh, chỉ đọc.
     binary=root/'runtime-attack-development'
     subprocess.run(['gcc','-O2','-Wall','-Wextra','-Werror','-static',
         str(source/spec['fixture']),'-o',str(binary)],check=True)
@@ -77,11 +77,11 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
         fresh_blind=False,automatic_promotion=False,quality_expectations=dict(precision=.95,recall=.95,
         control_positive_rate=.05,kernel_to_preview_p95_seconds=2.,expected_only=True),
         zero_alert_gate=False,stop_on_miss=False,stop_on_false_positive=False)
-    # [VI] Mốc thời gian của lượt: selection 90 phút (học/kiểm normal đầu lượt, không trial), tấn công sau đó 2 phút.
+    # Mốc thời gian của lượt: selection 90 phút (học/kiểm normal đầu lượt, không trial), tấn công sau đó 2 phút.
     start=time.time()+180
     cfg.update(selection_start=start,selection_seconds=5400,selection_end=start+5400,
                attack_not_before=start+5400+120)
-    # [VI] Mặc định worker dùng build cũ (bộ đếm); khối `tokens` ngay dưới thay bằng build token của từng node.
+    # Mặc định worker dùng build cũ (bộ đếm); khối `tokens` ngay dưới thay bằng build token của từng node.
     cfg['workers']={host:dict(node_name=node,output=str(root/'workers'/node),
         loader='/home/dat/pulse-matched-20261015/build/pulse_counter_extended_loader',
         object='/home/dat/pulse-matched-20261015/build/pulse_counter_extended.bpf.o',
@@ -141,11 +141,11 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
                                      if recalibration.get('exclude_campaign') else {}))
         for worker in cfg['workers'].values():
             worker['score_buffer']=dict(path=worker['stream_root']+'/score-buffer',retention_hours=recalibration['window_hours']+2)
-    # [VI] 5 kịch bản tấn công của fixture (đều chỉ ảnh hưởng chính process hoặc chắc chắn thất bại):
-    # [VI] mprotect đổi quyền trang nhớ, ptrace(TRACEME) ở process con, setns(fd -1), seccomp thao tác sai, execveat file không có.
+    # 5 kịch bản tấn công của fixture (đều chỉ ảnh hưởng chính process hoặc chắc chắn thất bại):
+    # mprotect đổi quyền trang nhớ, ptrace(TRACEME) ở process con, setns(fd -1), seccomp thao tác sai, execveat file không có.
     scenarios=['anonymous_mprotect_churn','child_ptrace_handshake','invalid_setns_burst',
                'seccomp_api_probe','execveat_resolution_probe']
-    # [VI] Lịch trial cơ bản: mỗi (workload, kịch bản, tốc độ) một trial → 21 × 5 × 5 = 525 ở lượt v5/v6.
+    # Lịch trial cơ bản: mỗi (workload, kịch bản, tốc độ) một trial → 21 × 5 × 5 = 525 ở lượt v5/v6.
     cfg['schedule']=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
                          scenario=scenario,rate_per_second=rate,seed=seed)
         for key in keys for scenario in scenarios for rate in rates for seed in (61501,)]   # G4: --attack-rates 1,3,6
@@ -154,9 +154,9 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
         cfg['schedule']+=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
                                scenario=scenario,rate_per_second=tokens['dilution_rate'],seed=61501,pad=pad)
                           for key in keys for scenario in scenarios for pad in tokens['dilution_pads']]
-    # [VI] Xáo thứ tự trial bằng seed cố định → lịch giống hệt nếu dựng lại, nhưng không theo thứ tự workload.
+    # Xáo thứ tự trial bằng seed cố định → lịch giống hệt nếu dựng lại, nhưng không theo thứ tự workload.
     random.Random(20261015).shuffle(cfg['schedule'])
-    # [VI] Lịch tải: hai vòng 5 pha (756 s rồi 324 s mỗi pha) trong đoạn selection, rồi 'steady' tới hết lượt.
+    # Lịch tải: hai vòng 5 pha (756 s rồi 324 s mỗi pha) trong đoạn selection, rồi 'steady' tới hết lượt.
     cfg['traffic_schedule']=[]
     t=start
     for seconds in (756,324):
@@ -168,7 +168,7 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
     print(config)
 
 
-# [VI] Dòng lệnh: launch_run.sh truyền mọi giá trị (xem phần đầu scripts/launch_run.sh).
+# Dòng lệnh: launch_run.sh truyền mọi giá trị (xem phần đầu scripts/launch_run.sh).
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('source','root'):p.add_argument('--'+key,type=Path,required=True)

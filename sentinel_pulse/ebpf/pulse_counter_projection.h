@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /* ===================================================================================================================
- * [VI] pulse_counter_projection.h — GỘP BỘ ĐẾM SYSCALL TỪ NHIỀU CPU THÀNH MỘT ẢNH CHỤP (dùng ở USER SPACE)
+ * pulse_counter_projection.h — GỘP BỘ ĐẾM SYSCALL TỪ NHIỀU CPU THÀNH MỘT ẢNH CHỤP (dùng ở USER SPACE)
  * -------------------------------------------------------------------------------------------------------------------
  * Vai trò trong hệ thống:
  *   - Trong kernel, chương trình eBPF (pulse_counter.bpf.c) đếm số lần mỗi container gọi từng syscall. Bộ đếm nằm trong
@@ -18,12 +18,12 @@
 #ifndef PULSE_COUNTER_PROJECTION_H
 #define PULSE_COUNTER_PROJECTION_H
 #include <stdint.h>
-#include "pulse_counter_ids.h"   /* [VI] danh sách 29 syscall "được theo dõi riêng" (PULSE_TRACKED_ROWS) */
+#include "pulse_counter_ids.h"   /* danh sách 29 syscall "được theo dõi riêng" (PULSE_TRACKED_ROWS) */
 
 /* Kernel ABI: exactly one primary counter is incremented per syscall entry.
  * There is no separately updated total/full histogram to race with that word.
  * Like the legacy per-CPU read this is NOT an atomic cross-CPU time cut. */
-/* [VI] Giá trị của map trong kernel, cho MỘT cgroup trên MỘT CPU.
+/* Giá trị của map trong kernel, cho MỘT cgroup trên MỘT CPU.
  *   - full_counts[id]: số lần syscall số `id` (số syscall x86_64, 0..1023) được gọi.
  *   - transition_bins: "phác thảo chuyển tiếp" — mỗi cặp (syscall trước, syscall sau) của cùng một thread được băm vào
  *     1 trong 64 ô; cho biết thứ tự gọi một cách thô (không phải 4-gram đầy đủ như probe token).
@@ -36,7 +36,7 @@ struct pulse_counters {
     uint64_t seccomp_skipped_or_emulated;
 };
 
-/* [VI] Ảnh chụp đã gộp mọi CPU của một cgroup — thứ loader in ra JSON ("cgroup_snapshot_extended"):
+/* Ảnh chụp đã gộp mọi CPU của một cgroup — thứ loader in ra JSON ("cgroup_snapshot_extended"):
  *   - full_counts: như trên, đã cộng mọi CPU;
  *   - syscall_bins: 64 ô, mỗi syscall băm vào một ô (đặc trưng gọn cho mô hình đếm cũ);
  *   - tracked: số đếm của đúng 29 syscall trong PULSE_TRACKED_ROWS (theo thứ tự cố định mà features.py mong đợi);
@@ -50,12 +50,12 @@ struct pulse_snapshot {
     uint64_t seccomp_skipped_or_emulated;
 };
 
-/* [VI] Khoá bố cục: 1024 bộ đếm syscall + 64 ô chuyển tiếp + 1 bộ đếm seccomp, mỗi cái 8 byte. Nếu kernel và loader
+/* Khoá bố cục: 1024 bộ đếm syscall + 64 ô chuyển tiếp + 1 bộ đếm seccomp, mỗi cái 8 byte. Nếu kernel và loader
  * lệch nhau, loader sẽ đọc rác; lỗi biên dịch ở đây chặn chuyện đó từ sớm. */
 _Static_assert(sizeof(struct pulse_counters) == (1024 + 64 + 1) * 8,
                "full-ID extended counter map ABI changed");
 
-/* [VI] Cộng có kiểm tra tràn số: trả -1 nếu destination + value vượt UINT64_MAX (thực tế không xảy ra với bộ đếm 64 bit,
+/* Cộng có kiểm tra tràn số: trả -1 nếu destination + value vượt UINT64_MAX (thực tế không xảy ra với bộ đếm 64 bit,
  * nhưng nếu xảy ra thì cả ảnh chụp bị bỏ thay vì in một con số sai). */
 static inline int pulse_add_u64(uint64_t *destination, uint64_t value)
 {
@@ -67,12 +67,12 @@ static inline int pulse_add_u64(uint64_t *destination, uint64_t value)
 
 /* Input is one already copied per-CPU value, never a live map pointer.
  * A partially written destination on overflow must be discarded by caller. */
-/* [VI] Cộng bản của MỘT CPU (`raw`, đã chép ra khỏi map) vào ảnh chụp `sum`. Loader gọi hàm này lần lượt cho từng CPU.
+/* Cộng bản của MỘT CPU (`raw`, đã chép ra khỏi map) vào ảnh chụp `sum`. Loader gọi hàm này lần lượt cho từng CPU.
  * Trả 0 nếu ổn, -1 nếu tràn số (khi đó loader bỏ cả ảnh chụp của cgroup này và tăng bộ đếm projection_failures). */
 static inline int pulse_project_cpu(
     const struct pulse_counters *raw, struct pulse_snapshot *sum)
 {
-    /* [VI] Bảng số syscall của 29 syscall được theo dõi, sinh từ macro X-list PULSE_TRACKED_ROWS:
+    /* Bảng số syscall của 29 syscall được theo dõi, sinh từ macro X-list PULSE_TRACKED_ROWS:
      * mỗi dòng X(id, slot) trở thành phần tử `id,` — thứ tự mảng = thứ tự slot. */
     static const uint32_t ids[PULSE_TRACKED] = {
 #define PULSE_ID(id, slot) id,
@@ -81,14 +81,14 @@ static inline int pulse_project_cpu(
     };
     for (int id = 0; id < 1024; id++) {
         uint64_t count = raw->full_counts[id];
-        /* [VI] Băm Fibonacci: nhân với 2654435761 (≈ 2^32 / tỉ lệ vàng) rồi lấy 6 bit cao (>> 26) → ô 0..63.
+        /* Băm Fibonacci: nhân với 2654435761 (≈ 2^32 / tỉ lệ vàng) rồi lấy 6 bit cao (>> 26) → ô 0..63.
          * Đây đúng là hàm syscall_bin() trong pulse_counter.bpf.c, nên user space và kernel chia ô giống nhau. */
         uint32_t bin = ((uint32_t)id * 2654435761U) >> 26;
         if (pulse_add_u64(&sum->full_counts[id], count) ||
             pulse_add_u64(&sum->syscall_bins[bin], count) ||
             pulse_add_u64(&sum->total, count)) return -1;
     }
-    /* [VI] 29 cột "tracked" chỉ là bản sao của full_counts tại đúng các số syscall đó, theo thứ tự slot. */
+    /* 29 cột "tracked" chỉ là bản sao của full_counts tại đúng các số syscall đó, theo thứ tự slot. */
     for (int slot = 0; slot < PULSE_TRACKED; slot++)
         if (pulse_add_u64(&sum->tracked[slot], raw->full_counts[ids[slot]])) return -1;
     for (int bin = 0; bin < PULSE_TRANSITION_BINS; bin++)

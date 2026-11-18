@@ -17,8 +17,8 @@ the official ones (for a scoring the protocol declares).
 
     python3 lidds_token_cache.py --archives DIR --scenario NAME [--alarms alarms.json.gz [--part official]] --output out.npz [--n 6]
 """
-# [VI] Dựng cache "fact" cho nghiên cứu thiết kế: mỗi syscall thành một fact mang mọi chi tiết, token của bất kỳ bảng chữ nào
-# [VI] suy ra từ fact — để chấm hàng trăm biến thể mà không đọc lại dataset (RQ2).
+# Dựng cache "fact" cho nghiên cứu thiết kế: mỗi syscall thành một fact mang mọi chi tiết, token của bất kỳ bảng chữ nào
+# suy ra từ fact — để chấm hàng trăm biến thể mà không đọc lại dataset (RQ2).
 import argparse
 from collections import Counter, defaultdict, deque
 import io

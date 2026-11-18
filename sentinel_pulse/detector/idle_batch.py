@@ -1,5 +1,5 @@
 """Batch the frozen idle-aware scorer while retaining per-container histories."""
-# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Chấm theo lô, giữ lịch sử từng container.
+# (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Chấm theo lô, giữ lịch sử từng container.
 from __future__ import annotations
 
 from collections import defaultdict

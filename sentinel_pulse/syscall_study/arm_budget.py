@@ -30,7 +30,7 @@ Pulse candidate; the holdout is unadjudicated normal). Delay is
 ``first positive window_end - kernel_event_at``, a lower bound on
 kernel->alert.
 """
-# [VI] (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
+# (Lịch sử — nghiên cứu đặc trưng/syscall của mô hình đếm cũ, trước khi chuyển sang mô hình token; không ở đường cảnh báo.)
 from __future__ import annotations
 
 import argparse

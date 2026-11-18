@@ -6,8 +6,8 @@ did, and compares every score with the decision the frozen source recorded.
 Exact equality (not a tolerance) is required before this checkout may be
 registered as a new ``frozen_source``.
 """
-# [VI] Công cụ kiểm: chạy lại các bản ghi đặc trưng đã niêm phong qua code hiện tại và đòi điểm BẰNG ĐÚNG điểm worker đã
-# [VI] ghi — điều kiện để một checkout mới được đăng ký làm frozen_source (mô hình đếm cũ).
+# Công cụ kiểm: chạy lại các bản ghi đặc trưng đã niêm phong qua code hiện tại và đòi điểm BẰNG ĐÚNG điểm worker đã
+# ghi — điều kiện để một checkout mới được đăng ký làm frozen_source (mô hình đếm cũ).
 from __future__ import annotations
 
 import argparse

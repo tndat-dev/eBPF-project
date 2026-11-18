@@ -16,7 +16,7 @@ and report attack / benign / control rates and p95 (first alarm window_end - ker
 Interval rates only: whole-normal burden is measured later on full decisions. Test campaign aggregates were
 seen (5.8a); not blind.
 """
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse, collections, glob, json, math, sys, time
 from pathlib import Path
 

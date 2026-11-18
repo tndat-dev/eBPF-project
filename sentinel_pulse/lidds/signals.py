@@ -13,8 +13,8 @@ the syscall lines of one recording:
 
 Nothing here is specific to a scenario: novelty and ranges are learnt from each workload's own normal recordings.
 """
-# [VI] Các tín hiệu tham số / giá trị trả về / chuỗi của bản ghi LID-DS theo cửa sổ 0,5 s (đường dẫn mới, mã lỗi mới, cỡ đọc ghi,
-# [VI] chuỗi chưa thấy) — dùng trong nghiên cứu trước mô hình token và để đo "trần thông tin" (Juice-Shop).
+# Các tín hiệu tham số / giá trị trả về / chuỗi của bản ghi LID-DS theo cửa sổ 0,5 s (đường dẫn mới, mã lỗi mới, cỡ đọc ghi,
+# chuỗi chưa thấy) — dùng trong nghiên cứu trước mô hình token và để đo "trần thông tin" (Juice-Shop).
 from __future__ import annotations
 
 from collections import Counter, defaultdict, deque

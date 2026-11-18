@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [VI] Dọn các process `tetra getevents` mồ côi trong container Tetragon (chạy theo timer trên mỗi worker).
+# Dọn các process `tetra getevents` mồ côi trong container Tetragon (chạy theo timer trên mỗi worker).
 # Kill orphaned `tetra getevents` processes inside Tetragon containers (run on each worker by a timer).
 # Every legitimate stream is started as `timeout <=900 tetra getevents ...`. When the kubectl exec session
 # closes, the in-container `timeout` gets SIGKILL (not forwardable), its tetra child is reparented to the

@@ -4,9 +4,9 @@ File này là **đường đọc code**: muốn hiểu tường tận hệ thố
 làm gì, chúng nối với nhau ra sao. Khác với [DOCS_INDEX.md](../DOCS_INDEX.md) (điều hướng *tài liệu*) và
 [README.md](../README.md) (từ con số trong báo cáo → biên nhận). Mọi đường dẫn tính từ gốc repo.
 
-**Chú thích tiếng Việt trong code:** các đoạn chú thích bắt đầu bằng `[VI]` (C: `/* [VI] ... */`, Python: `# [VI] ...`)
-được thêm để đọc code; chúng không đổi logic (mỗi đợt được kiểm bằng so sánh AST/so code đã bỏ chú thích). Trạng thái
-từng phần ở §10. Chú thích tiếng Anh gốc giữ nguyên.
+**Chú thích tiếng Việt trong code:** các đoạn chú thích tiếng Việt (C: `/* ... */`, Python và shell: `# ...`) được
+thêm để đọc code; chúng không đổi logic (mỗi đợt được kiểm bằng so sánh AST / so code đã bỏ chú thích). Chú thích tiếng
+Anh gốc giữ nguyên. Mức chú thích từng phần ở §10.
 
 ---
 
@@ -189,7 +189,7 @@ syscall ─► pulse_counter.bpf.c ─► pulse_tokens.bpf.h ─► map pulse_gr
 
 ---
 
-## 10. Trạng thái chú thích `[VI]` trong code
+## 10. Trạng thái chú thích tiếng Việt trong code
 
 Xong 18/11, theo thứ tự §1. Mọi đợt được kiểm bằng máy là chỉ thêm chú thích (Python: AST không đổi; C: code sau khi bỏ chú
 thích không đổi; shell: các dòng không phải chú thích không đổi).

@@ -18,7 +18,7 @@ training, calibration and scoring. The 3 windows of G0's history still apply.
 
     python3 lidds_ml_scores.py --converted DIR --archives DIR --scenario NAME --output out.npz
 """
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 from collections import Counter
 import json

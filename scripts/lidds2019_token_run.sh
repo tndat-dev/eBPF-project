@@ -3,9 +3,9 @@
 # unit with a memory cap:
 #   systemd-run --unit lidds2019-v2 -p MemoryMax=24G -p OOMPolicy=continue --uid=dat --gid=dat \
 #     env SRC=/home/dat/eBPF-project bash /home/dat/eBPF-project/scripts/lidds2019_token_run.sh
-# [VI] LID-DS 2019 với mô hình token cuối, đúng một lần: kiểm SHA-256 của bản phát hành → chuyển 10 kịch bản sang bố cục
-# [VI] 2021 (sentinel_pulse/lidds/lidds2019.py) → ma trận cross-fit từng kịch bản (lidds_ml_token_crossfit.py, không đổi) →
-# [VI] chấm một lần (lidds2019_token.py score, cần gate đã đạt; file kết quả không được tồn tại trước).
+# LID-DS 2019 với mô hình token cuối, đúng một lần: kiểm SHA-256 của bản phát hành → chuyển 10 kịch bản sang bố cục
+# 2021 (sentinel_pulse/lidds/lidds2019.py) → ma trận cross-fit từng kịch bản (lidds_ml_token_crossfit.py, không đổi) →
+# chấm một lần (lidds2019_token.py score, cần gate đã đạt; file kết quả không được tồn tại trước).
 set -euo pipefail
 SRC=${SRC:?source checkout}
 BASE=${BASE:-/var/tmp/lid-ds-2019-v2}

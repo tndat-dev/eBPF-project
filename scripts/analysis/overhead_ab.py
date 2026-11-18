@@ -8,7 +8,7 @@ Per node and syscall mode: median ns/op per condition over the rounds; overhead 
 the second build on the same monitored path). With the token probe (tokB, tokC, tokD, tokD_filtered) also each
 token condition against ``monitored``, condition A of reports/Thiết kế probe token Pulse.md.
 """
-# [VI] Phân tích chi phí probe từ scripts/overhead_ab.sh: trung vị ns/thao tác theo điều kiện, tỉ lệ ghép theo vòng, bootstrap.
+# Phân tích chi phí probe từ scripts/overhead_ab.sh: trung vị ns/thao tác theo điều kiện, tỉ lệ ghép theo vòng, bootstrap.
 import argparse
 from collections import defaultdict
 import json

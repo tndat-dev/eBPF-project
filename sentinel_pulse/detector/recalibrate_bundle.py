@@ -6,7 +6,7 @@ scores on a registered recent-normal span (from ``confirmation_study
 calibrate``). The new manifest records the source manifest, the calibration
 file and its span, so the result is a distinct, hash-pinned candidate.
 """
-# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Ghi bundle mới với hiệu chỉnh conformal từ normal gần đây.
+# (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Ghi bundle mới với hiệu chỉnh conformal từ normal gần đây.
 from __future__ import annotations
 
 import argparse

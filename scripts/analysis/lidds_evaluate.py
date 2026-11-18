@@ -17,7 +17,7 @@ pooled, with a scenario bootstrap of the pooled differences.
 
     python3 lidds_evaluate.py --converted DIR --archives DIR --exec-set E.json --output lidds-evaluation.json [--scenario NAME ...]
 """
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 from collections import defaultdict, deque
 import gzip

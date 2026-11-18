@@ -1,5 +1,5 @@
 """Normalize Tetragon connect events into privacy-safe RCA graph edges."""
-# [VI] Chuẩn hoá sự kiện connect (kết nối mạng) của Tetragon thành cạnh của cây, băm địa chỉ cho riêng tư.
+# Chuẩn hoá sự kiện connect (kết nối mạng) của Tetragon thành cạnh của cây, băm địa chỉ cho riêng tư.
 
 from __future__ import annotations
 

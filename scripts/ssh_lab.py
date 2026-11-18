@@ -10,7 +10,7 @@ Cách dùng:
 
 CHỈ dùng trong môi trường lab tin cậy nơi mật khẩu yếu được chủ sở hữu cung cấp.
 """
-# [VI] Trợ giúp ssh vào cụm lab bằng paramiko.
+# Trợ giúp ssh vào cụm lab bằng paramiko.
 import argparse
 import os
 import shlex

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
-// [VI] Probe chẩn đoán RIÊNG (không nằm trong collector): dùng một lần để chứng minh syscall bị seccomp bỏ qua không tới sys_enter
-// [VI] — lý do pulse_counter.bpf.c có thêm hook fexit/__seccomp_filter.
+// Probe chẩn đoán RIÊNG (không nằm trong collector): dùng một lần để chứng minh syscall bị seccomp bỏ qua không tới sys_enter
+// — lý do pulse_counter.bpf.c có thêm hook fexit/__seccomp_filter.
 /* Private diagnostic maps: never merged into a frozen Pulse collector. */
 #include "vmlinux.h"
 #include <bpf/bpf_helpers.h>

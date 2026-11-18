@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Apply the criteria of protocol tripwire-a1-blind-v1 to a ``novel_syscalls.py`` result (primary reference)."""
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 import json
 from pathlib import Path

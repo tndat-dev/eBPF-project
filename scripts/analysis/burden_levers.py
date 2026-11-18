@@ -24,7 +24,7 @@ p95 within the tier (< 2 s, <= 3 s) on EVERY development run; minimise the max-o
 of it the lower max control, then the simpler lever; propose only if burden <= 0.9 x the reference
 (L1 joint, no discount, CUSUM b3 h6) on every run.
 """
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse, glob, json, sys, time
 from collections import defaultdict
 from pathlib import Path

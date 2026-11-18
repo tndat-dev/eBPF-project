@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# [VI] (Lịch sử) Phân tích đã đăng ký của lượt final-system (ML + tripwire).
+# (Lịch sử) Phân tích đã đăng ký của lượt final-system (ML + tripwire).
 # Analyses registered for the final-system run (protocol final-system-confirmation-v1), on .234 as root (RCA cases
 # are root-owned; outputs are chowned to dat).
 #

@@ -7,20 +7,20 @@
 // Each operation is process-local or guaranteed to fail before changing host,
 // namespace, credential, filesystem, or network state. It must never be used
 // for training, calibration, threshold selection, or post-hoc policy tuning.
-/* [VI] =================================================================================================================
- * [VI] FIXTURE TẤN CÔNG + BINARY ĐỐI CHỨNG VÔ HẠI (tự viết; plan_matched_run.py biên dịch tĩnh thành runtime-attack-development).
- * [VI] Cách gọi: <binary> MODE [SECONDS] [RATE] [SEED] [PAD] — lặp thao tác của MODE `RATE` lần/giây trong SECONDS giây.
- * [VI] 5 kịch bản tấn công (đều chỉ ảnh hưởng process của chính nó hoặc CHẮC CHẮN thất bại trước khi đổi trạng thái host):
- * [VI]   anonymous_mprotect_churn  : đổi quyền một trang nhớ ẩn danh RW → R → RW (kiểu chuẩn bị shellcode);
- * [VI]   child_ptrace_handshake    : process con gọi ptrace(PTRACE_TRACEME) (kỹ thuật chống gỡ lỗi / leo thang);
- * [VI]   invalid_setns_burst       : setns với fd -1 (thử nhảy namespace — luôn EBADF);
- * [VI]   seccomp_api_probe         : seccomp với mã thao tác không hợp lệ (thử can thiệp seccomp — luôn EINVAL);
- * [VI]   execveat_resolution_probe : execveat với dirfd -1 tới file không tồn tại (exec bất thường — luôn thất bại).
- * [VI] benign_exec_control: chỉ gọi getpid — đi đúng đường khởi chạy như tấn công (kubectl exec → execve → chạy → thoát),
- * [VI] nên so phát hiện của nó với tấn công tách được "có process mới" khỏi "có hành vi tấn công".
- * [VI] PAD (lượt v6, kẻ tấn công thích nghi "pha loãng"): sau mỗi thao tác chèn PAD cặp getpid + sched_yield — syscall quen
- * [VI] thuộc — để tỉ lệ syscall của tấn công trong cửa sổ nhỏ đi (giả thuyết H3).
- * [VI] ================================================================================================================= */
+/* =================================================================================================================
+ * FIXTURE TẤN CÔNG + BINARY ĐỐI CHỨNG VÔ HẠI (tự viết; plan_matched_run.py biên dịch tĩnh thành runtime-attack-development).
+ * Cách gọi: <binary> MODE [SECONDS] [RATE] [SEED] [PAD] — lặp thao tác của MODE `RATE` lần/giây trong SECONDS giây.
+ * 5 kịch bản tấn công (đều chỉ ảnh hưởng process của chính nó hoặc CHẮC CHẮN thất bại trước khi đổi trạng thái host):
+ *   anonymous_mprotect_churn  : đổi quyền một trang nhớ ẩn danh RW → R → RW (kiểu chuẩn bị shellcode);
+ *   child_ptrace_handshake    : process con gọi ptrace(PTRACE_TRACEME) (kỹ thuật chống gỡ lỗi / leo thang);
+ *   invalid_setns_burst       : setns với fd -1 (thử nhảy namespace — luôn EBADF);
+ *   seccomp_api_probe         : seccomp với mã thao tác không hợp lệ (thử can thiệp seccomp — luôn EINVAL);
+ *   execveat_resolution_probe : execveat với dirfd -1 tới file không tồn tại (exec bất thường — luôn thất bại).
+ * benign_exec_control: chỉ gọi getpid — đi đúng đường khởi chạy như tấn công (kubectl exec → execve → chạy → thoát),
+ * nên so phát hiện của nó với tấn công tách được "có process mới" khỏi "có hành vi tấn công".
+ * PAD (lượt v6, kẻ tấn công thích nghi "pha loãng"): sau mỗi thao tác chèn PAD cặp getpid + sched_yield — syscall quen
+ * thuộc — để tỉ lệ syscall của tấn công trong cửa sổ nhỏ đi (giả thuyết H3).
+ * ================================================================================================================= */
 #define _GNU_SOURCE
 
 #include <errno.h>
@@ -100,7 +100,7 @@ static void execveat_resolution_probe(void) {
     (void)syscall(SYS_execveat, -1, "sentinel-absent", argv, envp, 0);
 }
 
-/* [VI] Vòng chính: mỗi 1/RATE giây chạy một thao tác của MODE (+ PAD cặp syscall đệm), tới hết SECONDS hoặc bị SIGTERM. */
+/* Vòng chính: mỗi 1/RATE giây chạy một thao tác của MODE (+ PAD cặp syscall đệm), tới hết SECONDS hoặc bị SIGTERM. */
 int main(int argc, char **argv) {
     if (argc < 2) {
         fprintf(stderr, "usage: %s MODE [SECONDS] [RATE] [SEED] [PAD]\n", argv[0]);

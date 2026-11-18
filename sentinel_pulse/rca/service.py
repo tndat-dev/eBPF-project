@@ -3,22 +3,22 @@
 The model, captures, frozen studies and Kubernetes workloads are never mutated.
 Only this service's local SQLite ring, cases and health journal are written.
 """
-# [VI] ==============================================================================================================
-# [VI] service.py — DỊCH VỤ RCA (unit rca-<run> trên .234; config do launch_run.sh bước `rca` ghi).
-# [VI] Mục tiêu: với MỖI cảnh báo đã giao tới Alertmanager, dựng một "case" = cây bằng chứng process quanh thời điểm báo và
-# [VI] danh sách nghi phạm xếp hạng, để người điều tra biết process nào trong container gây ra cảnh báo.
-# [VI] Luồng dữ liệu:
-# [VI]   - Sự kiện kernel: theo dõi stream của Tetragon trên từng node (kubectl exec vào pod Tetragon, `tetra getevents`) cho
-# [VI]     các policy runtime/fork/flow → chuẩn hoá (runtime_events.py, connect.py) → lưu vào vòng đệm SQLite cục bộ.
-# [VI]   - Trigger: dòng trong triggers.jsonl do alert_bridge ghi (alert đã thật sự tới Alertmanager); bản cũ đọc thẳng
-# [VI]     decision dương.
-# [VI]   - Mỗi trigger → chờ case_ready_grace_seconds → lấy sự kiện của đúng container trong [window − 30 s, window] →
-# [VI]     dựng cây (tree.py, runtime_tree.py) → xếp nghi phạm (ranking.py) → ghi case JSON.
-# [VI]   - Container đã có case trong cool-down 300 s: không mở case mới, trừ khi có exec MỚI (follow-up case).
-# [VI]   - follow_up_recheck_seconds = 2 (sửa sau lượt v5): mô hình token báo ngay trên burst khởi chạy, TRƯỚC khi exec của
-# [VI]     binary tấn công tới; nên trigger bị từ chối vì "chưa thấy exec mới" được xét lại một lần sau 2 s.
-# [VI] Dịch vụ chỉ đọc; không đụng mô hình hay workload.
-# [VI] ==============================================================================================================
+# ==============================================================================================================
+# service.py — DỊCH VỤ RCA (unit rca-<run> trên .234; config do launch_run.sh bước `rca` ghi).
+# Mục tiêu: với MỖI cảnh báo đã giao tới Alertmanager, dựng một "case" = cây bằng chứng process quanh thời điểm báo và
+# danh sách nghi phạm xếp hạng, để người điều tra biết process nào trong container gây ra cảnh báo.
+# Luồng dữ liệu:
+#   - Sự kiện kernel: theo dõi stream của Tetragon trên từng node (kubectl exec vào pod Tetragon, `tetra getevents`) cho
+#     các policy runtime/fork/flow → chuẩn hoá (runtime_events.py, connect.py) → lưu vào vòng đệm SQLite cục bộ.
+#   - Trigger: dòng trong triggers.jsonl do alert_bridge ghi (alert đã thật sự tới Alertmanager); bản cũ đọc thẳng
+#     decision dương.
+#   - Mỗi trigger → chờ case_ready_grace_seconds → lấy sự kiện của đúng container trong [window − 30 s, window] →
+#     dựng cây (tree.py, runtime_tree.py) → xếp nghi phạm (ranking.py) → ghi case JSON.
+#   - Container đã có case trong cool-down 300 s: không mở case mới, trừ khi có exec MỚI (follow-up case).
+#   - follow_up_recheck_seconds = 2 (sửa sau lượt v5): mô hình token báo ngay trên burst khởi chạy, TRƯỚC khi exec của
+#     binary tấn công tới; nên trigger bị từ chối vì "chưa thấy exec mới" được xét lại một lần sau 2 s.
+# Dịch vụ chỉ đọc; không đụng mô hình hay workload.
+# ==============================================================================================================
 from __future__ import annotations
 
 import argparse
@@ -87,7 +87,7 @@ def atomic(path, value):
     os.replace(temporary, path)
 
 
-# [VI] Mở (tạo) CSDL SQLite cục bộ: vòng đệm sự kiện, bảng binary đã thấy (baseline), case đã phát.
+# Mở (tạo) CSDL SQLite cục bộ: vòng đệm sự kiện, bảng binary đã thấy (baseline), case đã phát.
 def database(path):
     db = sqlite3.connect(path)
     db.execute('pragma journal_mode=WAL')
@@ -133,7 +133,7 @@ def initial_offset(path):
     return size-len(data)+last+1
 
 
-# [VI] Toàn bộ trạng thái và vòng lặp của dịch vụ RCA.
+# Toàn bộ trạng thái và vòng lặp của dịch vụ RCA.
 class Service:
     def __init__(self, config):
         self.cfg = json.loads(config.read_text()); self.root = Path(self.cfg['output'])
@@ -208,7 +208,7 @@ class Service:
             for p in pods['items'] if p['metadata']['namespace']=='production'}
         return sensors, targets, kubernetes_target_index(pods, services, endpoints), time.time()
 
-    # [VI] Mở stream sự kiện Tetragon của một node (process con kubectl exec ... tetra getevents).
+    # Mở stream sự kiện Tetragon của một node (process con kubectl exec ... tetra getevents).
     def start_stream(self, node, sensor, channel='policy'):
         now = time.time()
         # Killing the local kubectl does not stop the process inside the sensor
@@ -232,7 +232,7 @@ class Service:
         self.issue('tetragon_subscription_started', node=node, sensor=sensor, channel=channel,
                    readiness='unconfirmed_until_event_received')
 
-    # [VI] Nhận một sự kiện Tetragon thô → chuẩn hoá (bỏ argv và nội dung file/mạng) → lưu vòng đệm; exec mới → bảng binary.
+    # Nhận một sự kiện Tetragon thô → chuẩn hoá (bỏ argv và nội dung file/mạng) → lưu vòng đệm; exec mới → bảng binary.
     def ingest_event(self, raw, node):
         if raw.get('node_name') != node:
             raise ValueError('sensor node identity mismatch')
@@ -298,7 +298,7 @@ class Service:
                 except (ValueError, TypeError, KeyError):
                     self.count('invalid_or_unjoinable_events')
 
-    # [VI] Nhận một trigger (cảnh báo đã giao): quyết định mở case mới, follow-up, hay gộp vào case đang cool-down.
+    # Nhận một trigger (cảnh báo đã giao): quyết định mở case mới, follow-up, hay gộp vào case đang cool-down.
     def observe_trigger(self, row, now, recheck=False):
         kind = trigger_kind(row, self.cfg['model_hash'], self.cfg['policy_hash'])
         if kind is None: return
@@ -327,7 +327,7 @@ class Service:
         self.db.execute('insert or ignore into cases values(?,?,?,?,?)',
             (case_id(row), now, 0, key, json.dumps(safe)))
 
-    # [VI] Container đang cool-down: chỉ mở case tiếp nối khi có exec mới (binary chưa thấy gần đây) trong cửa sổ.
+    # Container đang cool-down: chỉ mở case tiếp nối khi có exec mới (binary chưa thấy gần đây) trong cửa sổ.
     def follow_up_allowed(self, row, key, recent, now, recheck=False):
         """Within the cooldown, a new process exec since the previous case opens a follow-up case.
 
@@ -351,7 +351,7 @@ class Service:
             self.rechecks.append((now + wait, row))
         return verdict == 'allowed'
 
-    # [VI] Xét lại các trigger bị từ chối sau follow_up_recheck_seconds (2 s) — chữa điều kiện đua với exec tới muộn.
+    # Xét lại các trigger bị từ chối sau follow_up_recheck_seconds (2 s) — chữa điều kiện đua với exec tới muộn.
     def recheck_follow_ups(self, now):
         """Judge once more the triggers that were refused for want of a new exec (cfg follow_up_recheck_seconds)."""
         due = [row for at, row in getattr(self, 'rechecks', []) if at <= now]
@@ -446,7 +446,7 @@ class Service:
                 except (ValueError, TypeError, KeyError):
                     self.count('invalid_decisions')
 
-    # [VI] Đọc thêm dòng mới của triggers.jsonl (bridge ghi khi alert tới Alertmanager).
+    # Đọc thêm dòng mới của triggers.jsonl (bridge ghi khi alert tới Alertmanager).
     def tail_alert_triggers(self):
         """Operational-alert mode (cfg 'alert_trigger_file'): a trigger is a Pulse alert that Alertmanager has already
         delivered to a recipient, written by sentinel_pulse/ops/alert_bridge.py; no backfill at the first start."""
@@ -514,7 +514,7 @@ class Service:
                 self.db.execute('insert or replace into cursors values(?,?,?)', (str(path), end, ino))
                 remaining -= end-off
 
-    # [VI] Với các trigger đã chờ đủ: lấy sự kiện của container quanh cửa sổ, dựng cây, xếp nghi phạm, ghi case JSON.
+    # Với các trigger đã chờ đủ: lấy sự kiện của container quanh cửa sổ, dựng cây, xếp nghi phạm, ghi case JSON.
     def emit_cases(self):
         now = time.time()
         ready_after = self.cfg['after_seconds'] + self.cfg.get('case_ready_grace_seconds', 2)
@@ -575,7 +575,7 @@ class Service:
             self.count('cases_emitted'); self.count('cases_without_connect_context', not tree['matched_connect_events'])
             self.count('cases_without_runtime_context', not source)
 
-    # [VI] Dọn vòng đệm quá ring_seconds, giới hạn số case giữ lại, ghi trạng thái sức khoẻ.
+    # Dọn vòng đệm quá ring_seconds, giới hạn số case giữ lại, ghi trạng thái sức khoẻ.
     def maintenance(self):
         now = time.time()
         self.db.execute('delete from events where at<?', (now-self.cfg['ring_seconds'],))
@@ -603,7 +603,7 @@ class Service:
             automatic_response=False, trigger='candidate_alert_preview', causal_root_confirmed=False,
             streams={n:{k:v for k,v in s.items() if k not in ('child', 'buffer')} for n,s in self.streams.items()}))
 
-    # [VI] Vòng lặp chính: đọc stream Tetragon, đọc trigger, phát case, bảo trì — cho tới khi bị dừng.
+    # Vòng lặp chính: đọc stream Tetragon, đọc trigger, phát case, bảo trì — cho tới khi bị dừng.
     def run(self):
         def stopped(*_): self.stop = True
         for sig in (signal.SIGINT, signal.SIGTERM): signal.signal(sig, stopped)

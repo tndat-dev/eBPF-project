@@ -8,7 +8,7 @@ only meaningful after recalibration has restored p-value validity). It never ref
 model or recalibrates p-values; it only changes how per-window evidence is
 turned into a signal. Development use only until frozen and blind-tested.
 """
-# [VI] (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Xác nhận k-trên-n cửa sổ / CUSUM trên p-value (đã thử, không dùng).
+# (Hệ thống cũ — mô hình đếm cây+support, nay chạy shadow, không ở đường cảnh báo) Xác nhận k-trên-n cửa sổ / CUSUM trên p-value (đã thử, không dùng).
 from __future__ import annotations
 
 from collections import deque

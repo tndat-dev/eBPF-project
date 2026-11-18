@@ -23,7 +23,7 @@ the span that carries a novel ID (primary reference, exec set applied) is listed
 reference is then built in a first pass over the segments that overlap the reference span, so that it is complete
 before any normal window is judged. ``trials`` lists every interval with its first novel window.
 """
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse, collections, glob, gzip, json, sys, time
 from pathlib import Path
 

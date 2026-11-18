@@ -11,17 +11,17 @@ probability of the known calls. Two differences, neither in the arithmetic:
 A window's score is the mean of its TOP highest per-event -log p, events counted with their multiplicity. Grams whose
 leading slots are TOK_NONE (thread start) are the shorter grams of the offline model.
 """
-# [VI] ==============================================================================================================
-# [VI] token_model.py — MÔ HÌNH ML CỦA ĐỒ ÁN (đường cảnh báo hiện tại) và lớp TokenBranch mà worker dùng để chấm.
-# [VI] ------------------------------------------------------------------------------------------------------------
-# [VI] Mô hình ngôn ngữ ĐẾM (không mạng nơ-ron, không gradient): học = đếm số lần mỗi token theo sau mỗi ngữ cảnh 1, 2, 3
-# [VI] token trước nó trong CÙNG thread, trên dữ liệu normal. Chấm = tính xác suất của mỗi sự kiện, lấy "độ bất ngờ"
-# [VI] -ln p, điểm cửa sổ = trung bình 10 độ bất ngờ lớn nhất. Ngưỡng (đặt ở token_branch_fit.py) so với điểm này.
-# [VI] Ký hiệu dùng trong code: gram g = (t0, t1, t2, w) — w là token đang xét, (t0,t1,t2) là lịch sử; h = ngữ cảnh;
-# [VI] "name" = số syscall của token (tok >> 23). Công thức đầy đủ: thesis/chapters/design.tex mục "Từ chuỗi thành xác suất".
-# [VI] Cùng số học với bản offline scripts/analysis/lidds_ml_tokens.py (TokenLM) — test kiểm sai lệch < 1e-12, nên
-# [VI] mô hình chấm LID-DS và mô hình chạy trên cụm là MỘT.
-# [VI] ==============================================================================================================
+# ==============================================================================================================
+# token_model.py — MÔ HÌNH ML CỦA ĐỒ ÁN (đường cảnh báo hiện tại) và lớp TokenBranch mà worker dùng để chấm.
+# ------------------------------------------------------------------------------------------------------------
+# Mô hình ngôn ngữ ĐẾM (không mạng nơ-ron, không gradient): học = đếm số lần mỗi token theo sau mỗi ngữ cảnh 1, 2, 3
+# token trước nó trong CÙNG thread, trên dữ liệu normal. Chấm = tính xác suất của mỗi sự kiện, lấy "độ bất ngờ"
+# -ln p, điểm cửa sổ = trung bình 10 độ bất ngờ lớn nhất. Ngưỡng (đặt ở token_branch_fit.py) so với điểm này.
+# Ký hiệu dùng trong code: gram g = (t0, t1, t2, w) — w là token đang xét, (t0,t1,t2) là lịch sử; h = ngữ cảnh;
+# "name" = số syscall của token (tok >> 23). Công thức đầy đủ: thesis/chapters/design.tex mục "Từ chuỗi thành xác suất".
+# Cùng số học với bản offline scripts/analysis/lidds_ml_tokens.py (TokenLM) — test kiểm sai lệch < 1e-12, nên
+# mô hình chấm LID-DS và mô hình chạy trên cụm là MỘT.
+# ==============================================================================================================
 from __future__ import annotations
 
 from collections import Counter, defaultdict
@@ -30,19 +30,19 @@ import json
 import math
 from pathlib import Path
 
-# [VI] N = độ dài gram (4); TOP = số độ bất ngờ lớn nhất lấy trung bình (10). TOK_NONE = ô lịch sử trống (đầu thread).
+# N = độ dài gram (4); TOP = số độ bất ngờ lớn nhất lấy trung bình (10). TOK_NONE = ô lịch sử trống (đầu thread).
 N, TOP = 4, 10
 TOK_NONE = 0xFFFFFFFF
 NR_SHIFT = 23
 KIND_SHIFT = 21
 
 
-# [VI] Số syscall của một token: 9 bit cao (bit 23..31), xem bố cục trong sentinel_pulse/ebpf/pulse_token_ids.h.
+# Số syscall của một token: 9 bit cao (bit 23..31), xem bố cục trong sentinel_pulse/ebpf/pulse_token_ids.h.
 def call_of(tok: int) -> int:
     return tok >> NR_SHIFT
 
 
-# [VI] Bỏ các ô TOK_NONE ở đầu gram: gram ở đầu thread chỉ có 1–3 token thật (gram "ngắn" của mô hình offline).
+# Bỏ các ô TOK_NONE ở đầu gram: gram ở đầu thread chỉ có 1–3 token thật (gram "ngắn" của mô hình offline).
 def strip(gram) -> tuple:
     """Drop the empty history slots in front: (NONE, NONE, a, b) -> (a, b)."""
     g = tuple(int(t) for t in gram)
@@ -54,13 +54,13 @@ def strip(gram) -> tuple:
     return g[start:]
 
 
-# [VI] ---------------------------------------------------------------------------------------------------------------
-# [VI] CountTokenLM — bảng đếm và cách tính xác suất.
-# [VI]   count[k][h][w] : số lần token w theo sau ngữ cảnh h gồm k token (k = 1, 2, 3; count[0] không dùng)
-# [VI]   names[name]    : số sự kiện của mỗi syscall (bất kể biến thể)          → c(ν) trong công thức
-# [VI]   given[name][w] : số lần biến thể w (vd. read#12) trong syscall đó       → c(ν, w)
-# [VI]   total          : tổng số sự kiện đã học                                → N
-# [VI] ---------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------
+# CountTokenLM — bảng đếm và cách tính xác suất.
+#   count[k][h][w] : số lần token w theo sau ngữ cảnh h gồm k token (k = 1, 2, 3; count[0] không dùng)
+#   names[name]    : số sự kiện của mỗi syscall (bất kể biến thể)          → c(ν) trong công thức
+#   given[name][w] : số lần biến thể w (vd. read#12) trong syscall đó       → c(ν, w)
+#   total          : tổng số sự kiện đã học                                → N
+# ---------------------------------------------------------------------------------------------------------------
 class CountTokenLM:
     def __init__(self, n: int = N):
         self.n = n
@@ -70,8 +70,8 @@ class CountTokenLM:
         self.total = 0
         self.finalized = False
 
-    # [VI] Học MỘT gram với trọng số `weight` (= số lần probe thấy gram đó). Với mỗi k, ngữ cảnh là k token ngay trước w.
-    # [VI] Học "gram thấy c lần" bằng weight = c cho kết quả y hệt gọi learn c lần (test_token_model.py kiểm).
+    # Học MỘT gram với trọng số `weight` (= số lần probe thấy gram đó). Với mỗi k, ngữ cảnh là k token ngay trước w.
+    # Học "gram thấy c lần" bằng weight = c cho kết quả y hệt gọi learn c lần (test_token_model.py kiểm).
     def learn(self, gram, weight: int = 1):
         if weight <= 0:
             raise ValueError('gram count must be positive')
@@ -84,15 +84,15 @@ class CountTokenLM:
         self.given[name][w] += weight
         self.total += weight
 
-    # [VI] Học cả một cửa sổ đúng định dạng loader in ra: [[t0,t1,t2,t3,count], ...].
+    # Học cả một cửa sổ đúng định dạng loader in ra: [[t0,t1,t2,t3,count], ...].
     def learn_window(self, grams):
         """grams: [[t0, t1, t2, t3, count], ...] as the probe sends them."""
         for *gram, c in grams:
             self.learn(strip(gram), int(c))
 
-    # [VI] Gọi một lần sau khi học xong: tính sẵn (tổng c(h), số loại T(h)) cho mọi ngữ cảnh — hai đại lượng của
-    # [VI] Witten–Bell — và xác suất "biến thể chưa thấy" trung bình (dùng khi chính tên syscall chưa từng thấy).
-    # [VI] memo: bộ nhớ đệm xác suất theo gram (tối đa 2 triệu mục) vì cùng gram lặp lại rất nhiều giữa các cửa sổ.
+    # Gọi một lần sau khi học xong: tính sẵn (tổng c(h), số loại T(h)) cho mọi ngữ cảnh — hai đại lượng của
+    # Witten–Bell — và xác suất "biến thể chưa thấy" trung bình (dùng khi chính tên syscall chưa từng thấy).
+    # memo: bộ nhớ đệm xác suất theo gram (tối đa 2 triệu mục) vì cùng gram lặp lại rất nhiều giữa các cửa sổ.
     def finalize(self):
         self.stats = [{h: (sum(c.values()), len(c)) for h, c in level.items()} for level in self.count]
         self.memo = {}
@@ -102,11 +102,11 @@ class CountTokenLM:
         self.finalized = True
         return self
 
-    # [VI] MỨC NỀN P0(w) = P(tên) × P(biến thể | tên), cả hai làm mượt "cộng nửa" (add-½):
-    # [VI]   P(tên)            = (c(ν) + ½) / (N + ½(V + 1))           — V = số tên đã thấy, +1 chừa chỗ cho tên mới
-    # [VI]   P(biến thể | tên) = (c(ν,w) + ½) / (c(ν) + ½(V_ν + 1))   — V_ν = số biến thể đã thấy của tên ν
-    # [VI] Tên chưa thấy → thừa số thứ hai = xác suất biến-thể-chưa-thấy trung bình. Nhờ cấu trúc này, openat!13 chưa
-    # [VI] thấy vẫn có xác suất cao hơn nhiều so với ptrace chưa từng gọi.
+    # MỨC NỀN P0(w) = P(tên) × P(biến thể | tên), cả hai làm mượt "cộng nửa" (add-½):
+    #   P(tên)            = (c(ν) + ½) / (N + ½(V + 1))           — V = số tên đã thấy, +1 chừa chỗ cho tên mới
+    #   P(biến thể | tên) = (c(ν,w) + ½) / (c(ν) + ½(V_ν + 1))   — V_ν = số biến thể đã thấy của tên ν
+    # Tên chưa thấy → thừa số thứ hai = xác suất biến-thể-chưa-thấy trung bình. Nhờ cấu trúc này, openat!13 chưa
+    # thấy vẫn có xác suất cao hơn nhiều so với ptrace chưa từng gọi.
     def base(self, w: int) -> float:
         name = call_of(w)
         p_name = (self.names.get(name, 0) + 0.5) / (self.total + 0.5 * (len(self.names) + 1))
@@ -115,10 +115,10 @@ class CountTokenLM:
             return p_name * self.unseen_given
         return p_name * (given.get(w, 0) + 0.5) / (self.given_total[name] + 0.5 * (len(given) + 1))
 
-    # [VI] XÁC SUẤT P3(w | 3 token trước) theo WITTEN–BELL NỘI SUY, đi từ ngữ cảnh ngắn tới dài:
-    # [VI]   p ← P0(w);  với k = 1, 2, 3:  p ← (c(h_k, w) + T(h_k)·p) / (c(h_k) + T(h_k))   (bỏ qua nếu h_k chưa thấy)
-    # [VI] T(h) = số token KHÁC NHAU từng theo sau h. Ngữ cảnh "đoán được" (T nhỏ so với c) tin số đếm của nó; ngữ cảnh
-    # [VI] có nhiều khả năng tiếp theo nhường nhiều xác suất cho mức ngắn hơn.
+    # XÁC SUẤT P3(w | 3 token trước) theo WITTEN–BELL NỘI SUY, đi từ ngữ cảnh ngắn tới dài:
+    #   p ← P0(w);  với k = 1, 2, 3:  p ← (c(h_k, w) + T(h_k)·p) / (c(h_k) + T(h_k))   (bỏ qua nếu h_k chưa thấy)
+    # T(h) = số token KHÁC NHAU từng theo sau h. Ngữ cảnh "đoán được" (T nhỏ so với c) tin số đếm của nó; ngữ cảnh
+    # có nhiều khả năng tiếp theo nhường nhiều xác suất cho mức ngắn hơn.
     def prob(self, g) -> float:
         g = tuple(g[-self.n:])
         hit = self.memo.get(g)
@@ -137,9 +137,9 @@ class CountTokenLM:
             self.memo[g] = p
         return p
 
-    # [VI] ĐIỂM CỬA SỔ: mỗi gram cho độ bất ngờ -ln p, lặp lại `c` lần (bội số). Sắp giảm dần, lấy 10 sự kiện bất ngờ
-    # [VI] nhất (một gram có thể chiếm nhiều chỗ nếu c > 1), trả trung bình. Ví dụ RabbitMQ trong đồ án:
-    # [VI] 6 lần 34,0 + 4 lần 7,0 → (204 + 28)/10 = 23,2 > ngưỡng 13,4 → cửa sổ bị báo.
+    # ĐIỂM CỬA SỔ: mỗi gram cho độ bất ngờ -ln p, lặp lại `c` lần (bội số). Sắp giảm dần, lấy 10 sự kiện bất ngờ
+    # nhất (một gram có thể chiếm nhiều chỗ nếu c > 1), trả trung bình. Ví dụ RabbitMQ trong đồ án:
+    # 6 lần 34,0 + 4 lần 7,0 → (204 + 28)/10 = 23,2 > ngưỡng 13,4 → cửa sổ bị báo.
     def window_score(self, grams, top: int = TOP) -> float:
         """Mean of the top highest -log p of a window's events; 0 for an empty window (as the offline scorer)."""
         values = sorted(((-math.log(self.prob(strip(gram))), int(c)) for *gram, c in grams), reverse=True)
@@ -152,7 +152,7 @@ class CountTokenLM:
                 break
         return total / taken if taken else 0.0
 
-    # [VI] Lưu/nạp: chỉ lưu bảng đếm (JSON nén gzip, ~1,5 MB cho 21 workload); finalize() dựng lại phần còn lại.
+    # Lưu/nạp: chỉ lưu bảng đếm (JSON nén gzip, ~1,5 MB cho 21 workload); finalize() dựng lại phần còn lại.
     # persistence: counts only; finalize() rebuilds the rest
     def to_json(self) -> dict:
         return dict(schema='sentinel-pulse-token-lm-v1', n=self.n, total=self.total,
@@ -184,10 +184,10 @@ class CountTokenLM:
             return cls.from_json(json.load(handle))
 
 
-# [VI] ---------------------------------------------------------------------------------------------------------------
-# [VI] Phần dưới dùng cho GATE của protocol lidds-ml-v5 (đã thử và BỊ LOẠI: làm mất phát hiện trên LID-DS). Mã vẫn giữ để
-# [VI] tái lập; trong các lượt chạy hiện tại không truyền `gate` nên nhánh này không chạy.
-# [VI] ---------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------
+# Phần dưới dùng cho GATE của protocol lidds-ml-v5 (đã thử và BỊ LOẠI: làm mất phát hiện trên LID-DS). Mã vẫn giữ để
+# tái lập; trong các lượt chạy hiện tại không truyền `gate` nên nhánh này không chạy.
+# ---------------------------------------------------------------------------------------------------------------
 NR_EXECVE = 59
 
 
@@ -196,11 +196,11 @@ def has_execve(grams) -> bool:
     return any(call_of(int(gram[3])) == NR_EXECVE for gram in grams if int(gram[3]) != TOK_NONE)
 
 
-# [VI] TokenBranch — thứ matched_worker.py khởi tạo một lần và gọi score(window) cho MỖI cửa sổ token vừa đóng.
-# [VI]   spec = MODELS.json do token_branch_fit.py sinh: {workload_key: {lm, lm_sha256, threshold}}.
-# [VI]   Lúc nạp, SHA-256 của từng file mô hình phải khớp spec → mô hình bị đổi giữa chừng thì worker từ chối chạy.
-# [VI]   score(): workload không có mô hình → None (không chấm); có → token_score, token_threshold, token_alert
-# [VI]   (= điểm > ngưỡng; MỘT cửa sổ vượt là đủ để báo).
+# TokenBranch — thứ matched_worker.py khởi tạo một lần và gọi score(window) cho MỖI cửa sổ token vừa đóng.
+#   spec = MODELS.json do token_branch_fit.py sinh: {workload_key: {lm, lm_sha256, threshold}}.
+#   Lúc nạp, SHA-256 của từng file mô hình phải khớp spec → mô hình bị đổi giữa chừng thì worker từ chối chạy.
+#   score(): workload không có mô hình → None (không chấm); có → token_score, token_threshold, token_alert
+#   (= điểm > ngưỡng; MỘT cửa sổ vượt là đủ để báo).
 class TokenBranch:
     """Online token branch for the worker. spec (worker cfg tokens.models): {workload_key: {"lm": path,
     "lm_sha256": hex, "threshold": float}}; a workload without a model gets no token score. One window above its

@@ -22,7 +22,7 @@ time, as for Pulse's windows; rows as lidds_evaluate_v2.py, subsets from the v2 
     python3 lidds_chids.py --chids ContainerHIDS --archive Juice-Shop.zip --v2 lidds-evaluation-v2.json.gz \
         --workers 8 --output part.json
 """
-# [VI] (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
+# (Lịch sử — hệ thống cũ cây+support/tripwire hoặc nghiên cứu trước mô hình token; giữ để tái lập biên nhận cũ.)
 import argparse
 import gzip
 import io

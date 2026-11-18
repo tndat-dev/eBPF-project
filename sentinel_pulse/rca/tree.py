@@ -3,8 +3,8 @@
 Aggregate syscall anomalies do not identify an offending process. Only exact
 pod/container/node identity and a bounded time interval are joined here.
 """
-# [VI] Dựng cây bằng chứng process cho một case: chỉ ghép theo đúng danh tính pod/container/node và khoảng thời gian —
-# [VI] cây là bằng chứng để điều tra, KHÔNG phải kết luận nhân quả. Có hàm xuất Markdown.
+# Dựng cây bằng chứng process cho một case: chỉ ghép theo đúng danh tính pod/container/node và khoảng thời gian —
+# cây là bằng chứng để điều tra, KHÔNG phải kết luận nhân quả. Có hàm xuất Markdown.
 from __future__ import annotations
 
 from datetime import datetime

@@ -71,3 +71,14 @@ def test_gate_compares_with_the_registered_2021_result(tmp_path):
                                                         n1=dict(split='test-normal', exploit=None, subset='official'))))), f)
     g = d.gate(tmp_path, alarms)
     assert g['reproduced']['detected'] == 1 and g['passed'] is False
+
+
+def test_tolerance_counts_an_alarm_within_the_label_resolution(tmp_path):
+    write_scenario(tmp_path, 'S', {'a1': ('test-normal_and_attack', 10.0, [(9.5, 500.0)]), 'n1': ('test-normal', None, [(5.0, 500.0)])})
+    scn = d.TokenScenario('S', tmp_path)
+    prim, _ = d.inventory({'S': scn})
+    base, _ = d.score_part({'S': scn}, prim, 'all')
+    tol, _ = d.score_part({'S': scn}, d.shifted(prim, 1.0), 'all')
+    assert base['detected'] == 0 and tol['detected'] == 1
+    assert tol['false_alarm_recordings'] == base['false_alarm_recordings'] == 1     # normal recordings unchanged
+    assert abs(tol['latency_p95'] - 0.5) < 1e-9

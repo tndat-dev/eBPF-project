@@ -6,7 +6,7 @@ process lineage. Collapsed, with counts, per process: runtime operations (exec /
 evidence (connect attempts and sampled flows) grouped by what the destination resolved to. The drawing adds nothing
 to the case: no inference, same identities; it is a view for reading, the JSON stays the evidence.
 """
-# [VI] Vẽ một case RCA thành đồ thị (Graphviz DOT/SVG).
+# Vẽ một case RCA thành đồ thị (Graphviz DOT/SVG).
 import argparse
 from collections import Counter, defaultdict
 import json
