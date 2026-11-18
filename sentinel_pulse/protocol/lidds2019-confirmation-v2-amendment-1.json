@@ -1,0 +1,14 @@
+{
+ "schema": "sentinel-pulse-protocol-amendment-v1",
+ "amends": "sentinel_pulse/protocol/lidds2019-confirmation-v2.json",
+ "registered_at": "2026-11-18T20:07+07:00",
+ "registered_before": "any LID-DS 2019 or LID-DS 2021 result under the tolerance rule below is computed",
+ "registered_after": "the registered LID-DS 2019 run (C1 not met: 723/1,162, 34/7,706, p95 10.48 s) and these exploratory reads of it: (a) the library exploit-time convention gives 1,076/1,162; (b) of the 439 missed attack recordings, 353 have an alarm window ending before the registered exploit time and none after it (mean gap 0.36 s between that window end and the exploit time), 86 have no alarm (76 of them CVE-2014-0160); (c) every exploit_start_time of the release is a whole number of seconds (40 attack recordings checked per scenario, all integer)",
+ "what_stays": "the registered result (C1 not met, 62.22 %) remains the primary result of lidds2019-confirmation-v2 and is reported first; no model, parameter or threshold changes",
+ "added_analysis": {
+  "label_resolution_tolerance": "the exploit times of LID-DS 2019 have a resolution of 1 s, so an attack recording also counts as detected when an alarm window ends after (exploit time - 1 s); latency is measured from (exploit time - 1 s), floored at 0; normal recordings unchanged",
+  "same_rule_on_lidds2021": "the same 1 s tolerance applied to the LID-DS 2021 official split (exploit times with sub-second resolution) through the same code path, to show what the rule itself adds where labels are precise",
+  "status": "post hoc: defined after the failure was seen; reported beside the registered result, never instead of it; C1 is evaluated on it only descriptively"
+ },
+ "code": "scripts/analysis/lidds2019_token.py tolerance"
+}
