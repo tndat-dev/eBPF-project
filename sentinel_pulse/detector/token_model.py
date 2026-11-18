@@ -14,7 +14,7 @@ leading slots are TOK_NONE (thread start) are the shorter grams of the offline m
 # ==============================================================================================================
 # token_model.py — MÔ HÌNH ML CỦA ĐỒ ÁN (đường cảnh báo hiện tại) và lớp TokenBranch mà worker dùng để chấm.
 # ------------------------------------------------------------------------------------------------------------
-# Mô hình ngôn ngữ ĐẾM (không mạng nơ-ron, không gradient): học = đếm số lần mỗi token theo sau mỗi ngữ cảnh 1, 2, 3
+# Mô hình ngôn ngữ ĐẾM: học = đếm số lần mỗi token theo sau mỗi ngữ cảnh 1, 2, 3
 # token trước nó trong CÙNG thread, trên dữ liệu normal. Chấm = tính xác suất của mỗi sự kiện, lấy "độ bất ngờ"
 # -ln p, điểm cửa sổ = trung bình 10 độ bất ngờ lớn nhất. Ngưỡng (đặt ở token_branch_fit.py) so với điểm này.
 # Ký hiệu dùng trong code: gram g = (t0, t1, t2, w) — w là token đang xét, (t0,t1,t2) là lịch sử; h = ngữ cảnh;
