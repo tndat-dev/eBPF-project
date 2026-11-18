@@ -448,6 +448,44 @@ def claims():
     rd = ag['workloads']['production/aims-redis:aims-redis']
     add('aging-redis', 'thesis/chapters/discussion.tex', f"Redis {rd['above']}/{thousands(rd['blocks'])} ({pc(rd['rate'])}\\%, trước đó "
         f"{pc(rd['v5_heldout']['rate'])}\\%)", [], MA)
+    # third live run pulse-live-v6-1117 (pulse-live-v6-v1 + amendment 1): table tab:token-live-v6, native stream, rule harm, RCA
+    V6 = 'results-20261118/pulse-live-v6-1117'
+    T6 = receipt(f'{V6}/pulse-live-v6.json.gz')['arms']['T']
+    p6, a6, d6, b6 = T6['primary'], T6['all_rates'], T6['dilution'], T6['burden']
+    n2 = lambda x: num(x, 2)
+    add('v6-recall', thesis, f"Recall & ≥ 95\\% & {frac(p6['attack'])} {br(*p6['attack']['ci95'], 1)} & {frac(a6['attack'])} \\\\", [], V6)
+    add('v6-precision', thesis, f"Precision & ≥ 95\\% & {n2(100 * p6['precision']['rate'])}\\% {br(*p6['precision']['ci95'])} & "
+        f"{n2(100 * a6['precision']['rate'])}\\% \\\\", [], V6)
+    add('v6-control', thesis, f"Control dương & ≤ 5\\% & {frac(p6['control'])} ({n2(100 * p6['control']['rate'])}\\%) {br(*p6['control']['ci95'])} & "
+        f"{frac(a6['control'])} \\\\", [], V6)
+    add('v6-p95', thesis, f"p95 kernel → cuối cửa sổ báo & ≤ 3 s & {n2(p6['latency_p95'])} s (p50 {n2(p6['latency_p50'])} s) & "
+        f"{n2(a6['latency_p95'])} s \\\\", [], V6)
+    add('v6-benign', thesis, f"Binary vô hại bị gắn cờ & báo kèm & {frac(p6['benign'])} & {frac(a6['benign'])} \\\\", [], V6)
+    add('v6-admin', thesis, f"Lệnh quản trị chưa từng thấy bị gắn cờ & báo kèm & {frac(p6['admin'])} & {frac(a6['admin'])} "
+        f"({num(100 * a6['admin']['rate'], 1)}\\%) \\\\", [], V6)
+    add('v6-lotl', thesis, f"Tấn công bằng tool của image (lotl) bị bắt & báo kèm & {frac(p6['lotl'])} & {frac(a6['lotl'])} \\\\", [], V6)
+    add('v6-dilution', thesis, f"\\multicolumn{{2}}{{l}}{{{frac(d6['pad30']['attack'])} / {frac(d6['pad300']['attack'])}}} \\\\", [], V6)
+    add('v6-burden', thesis, f"{b6['episodes']} đợt trên {num(b6['replica_hours'], 1)} replica-giờ ({n2(b6['value'])} {{[}}{n2(b6['ci95'][0])}; "
+        f"{n2(b6['ci95'][1])}{{]}})", [], V6)
+    ns = receipt(f'{V6}/native-stream.json')['intervals']
+    for key, label in (('control', 'Control'), ('admin', 'Lệnh quản trị (bộ v6)'), ('benign', 'Binary vô hại'),
+                       ('attack', 'Tấn công (fixture)'), ('lotl', 'Tấn công bằng tool của image')):
+        w, na = ns[key]['whole'], ns[key]['native']
+        add(f'v6-native-{key}', thesis, f"{label} & {w['k']}/{w['n']} & {na['k']}/{na['n']}" +
+            (f" ({n2(100 * na['rate'])}\\%)" if na['k'] else '') + " \\\\", [], f'{V6}/native-stream.json')
+    rule6 = receipt(f'{V6}/rule-e.json')['comparison']
+    h = lambda x: f"{x['hit']}/{x['n']}"
+    rp, ra = rule6['primary'], rule6['all_rates']
+    add('v6-r1-harm', thesis, f"mô hình một mình bắt {h(rp['ml_only']['lotl_recall'])} ở tập chính ({h(ra['ml_only']['lotl_recall'])} mọi tốc độ); "
+        f"có R1 còn {h(rp['ml_plus_rule']['lotl_recall'])} ({h(ra['ml_plus_rule']['lotl_recall'])})", [], f'{V6}/rule-e.json')
+    rc6 = receipt(f'{V6}/rca-coverage.json')
+    o6 = rc6['rank_top1_by_order']
+    add('v6-rca-order', thesis, f"binary fixture đứng hạng 1 trong {o6['attack_after_benign']['top1']}/{o6['attack_after_benign']['cases']} case khi tấn "
+        f"công chạy sau binary vô hại ({num(100 * o6['attack_after_benign']['share'], 1)}\\%) và {o6['attack_before_benign']['top1']}/"
+        f"{o6['attack_before_benign']['cases']} khi chạy trước ({num(100 * o6['attack_before_benign']['share'], 1)}\\%), tổng "
+        f"{num(100 * rc6['stored_rank_top1'], 1)}\\%", [], f'{V6}/rca-coverage.json')
+    add('v6-rca-own', thesis, f"Ở lượt v6, {rc6['attack_cases']}/{rc6['trials']} tấn công ({num(100 * rc6['attack_cases'] / rc6['trials'], 1)}\\%) có case riêng",
+        [], f'{V6}/rca-coverage.json')
     # the four status reports were removed on 07/11 (owner); their claims are retired, the LaTeX and TODO claims stay
     return [c for c in out if c['doc'] not in RETIRED]
 

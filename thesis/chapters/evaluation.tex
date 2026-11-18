@@ -356,6 +356,38 @@ Gánh cảnh báo (đợt/replica-giờ) & thấp nhất có thể & 0,41 {[}0,1
   \textbf{Mức chấp nhận của protocol lượt v5} còn gồm binary vô hại và lệnh quản trị bị gắn cờ, mỗi loại tối đa 20\%. Hai mức này không đạt (mục~\ref{sec:benign}).
 \end{itemize}
 
+\subsection{Lượt thứ ba: fit mới sau khi đổi cụm, pha loãng và tấn công bằng tool của image}\label{sec:token-live-v6}
+
+Lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v6-\allowbreak{}1117} (17--18/11, 26 giờ, protocol \texttt{pulse-\allowbreak{}live-\allowbreak{}v6-\allowbreak{}v1} cùng amendment 1, đăng ký trước khi thu normal) lặp lại phép đo sau khi cả 6 VM được đổi cấu hình và cụm được khôi phục. Mô hình học lại từ 12 giờ normal mới cộng normal của lượt v5 ngoài các trial. Campaign có 735 trial: 525 trial cơ bản như hai lượt trước và 210 trial pha loãng, trong đó sau mỗi thao tác tấn công fixture chèn 30 hoặc 300 cặp \texttt{getpid} + \texttt{sched\_\allowbreak{}yield}. Mỗi trial còn có một lệnh quản trị lấy từ bộ 10 tool chưa lượt nào dùng, và một bước tấn công chỉ dùng \texttt{sh}, \texttt{cat}, \texttt{ls} có sẵn trong image (đọc token service account, \texttt{/proc}, socket và tài khoản, ghi rồi xoá một file trong \texttt{/tmp}). Thứ tự các bước sau control được xáo bằng seed cho từng trial. Code: \texttt{sentinel\_\allowbreak{}pulse/\allowbreak{}attack/\allowbreak{}preview\_\allowbreak{}campaign.py}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}pulse\_\allowbreak{}live\_\allowbreak{}v4.py}.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.36\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.28\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.22\linewidth-2\tabcolsep\relax}@{}}
+\caption{Lượt v6, nhánh token: tập chính (6, 12, 24 lần/s) và mọi tốc độ; trial pha loãng báo riêng.}\label{tab:token-live-v6}\\
+\toprule\noalign{}
+Chỉ số & Kỳ vọng & Tập chính {[}CI 95\%{]} & Mọi tốc độ \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Recall & ≥ 95\% & 315/315 {[}98,8; 100,0{]} & 524/525 \\
+Precision & ≥ 95\% & 99,68\% {[}98,23; 99,94{]} & 99,81\% \\
+Control dương & ≤ 5\% & 1/315 (0,32\%) {[}0,06; 1,78{]} & 1/525 \\
+p95 kernel → cuối cửa sổ báo & ≤ 3 s & 0,45 s (p50 0,25 s) & 0,46 s \\
+Binary vô hại bị gắn cờ & báo kèm & 315/315 & 525/525 \\
+Lệnh quản trị chưa từng thấy bị gắn cờ & báo kèm & 275/284 & 460/475 (96,8\%) \\
+Tấn công bằng tool của image (lotl) bị bắt & báo kèm & 314/315 & 524/525 \\
+Tấn công pha loãng PAD 30 / PAD 300 bị bắt & ≥ 95\% & \multicolumn{2}{l}{105/105 / 105/105} \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Lặp lại đạt} sau khi đổi cụm và học lại: bốn kỳ vọng đều đạt, và các kỳ vọng đăng ký cho trial pha loãng (recall $\geq$ 95\%) cũng đạt ở cả hai mức PAD. Điểm cửa sổ là trung bình 10 sự kiện bất ngờ nhất, nên chèn thêm syscall quen không làm loãng các gram chưa thấy của tấn công.
+\item
+  \textbf{Gánh cảnh báo} là 4 đợt trên 51,1 replica-giờ (0,08 {[}0,02; 0,16{]}). Campaign chiếm gần trọn lượt (tấn công từ 13:29 ngày 17/11 tới 13:10 ngày 18/11, lượt kết thúc 13:57), nên phần normal ngoài đoạn chọn và campaign rất ngắn; con số này không so được với hai lượt trước.
+\item
+  \textbf{Issue của lượt:} chỉ có khoảng trống nhịp (9, 7 và 1 lần trên ba worker); map 4-gram không rơi gram nào.
+\end{itemize}
+
 \section{RQ4: tách tấn công khỏi process vô hại mới}\label{sec:benign}
 
 Mô hình gắn cờ gần như mọi process mới đi vào container qua \texttt{kubectl exec}, dù vô hại:
@@ -416,7 +448,32 @@ Proxy có hai điểm mù: nó không phân biệt một gram của phiên exec 
 \end{itemize}
 Proof token cũ vẫn đạt (mỗi syscall đúng một token) trên cả ba worker. LID-DS 2021 không có runtime exec nên mọi sự kiện là native và kết quả của mục~\ref{sec:lidds} không đổi.
 
-Lượt live \texttt{pulse-\allowbreak{}live-\allowbreak{}v6} (protocol \texttt{pulse-\allowbreak{}live-\allowbreak{}v6-\allowbreak{}v1}, đăng ký trước khi thu normal) đo trực tiếp luồng native bằng thẻ của kernel. Giới hạn đã ghi trước: mọi tấn công của campaign vào qua \texttt{kubectl exec}, nên chúng đều thuộc luồng session. Luồng native chỉ được thử với normal và hoạt động vô hại trên cụm; với tấn công chạy bên trong dịch vụ, bằng chứng là LID-DS 2021.
+\textbf{Luồng native trên cụm (lượt v6, giả thuyết H1, đăng ký trước).} Chấm riêng phần native của mỗi cửa sổ (cả cửa sổ trừ phần session mà probe báo) bằng đúng mô hình và ngưỡng của workload. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}native\_\allowbreak{}stream.py}.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.4\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}@{}}
+\caption{Lượt v6, mọi tốc độ: khoảng bị gắn cờ khi chấm cả cửa sổ và khi chỉ chấm phần native.}\label{tab:native-stream}\\
+\toprule\noalign{}
+Khoảng & Cả cửa sổ (đường cảnh báo) & Chỉ phần native \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Control & 1/525 & 1/525 (0,19\%) \\
+Lệnh quản trị (bộ v6) & 460/475 & 1/475 (0,21\%) \\
+Binary vô hại & 525/525 & 1/525 (0,19\%) \\
+Tấn công (fixture) & 524/525 & 0/525 \\
+Tấn công bằng tool của image & 524/525 & 1/525 (0,19\%) \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{H1 đạt:} phần native gần như không gắn cờ lệnh quản trị và binary vô hại (mức đăng ký $\leq$ 5\%). Đây là cơ chế \emph{học được} đầu tiên của đồ án tách được process vô hại mới khỏi hành vi của chính workload.
+\item
+  \textbf{Cái giá đi kèm:} tấn công của campaign vào qua \texttt{kubectl exec} nên thuộc luồng session, và trên phần native không tấn công nào bị bắt. Giới hạn này đã ghi trước trong protocol. Vì vậy chỉ chấm phần native không thay được đường cảnh báo; quyết định phải biết cửa sổ báo đến từ luồng nào, và luồng session cần một cách xử lý riêng (mục~\ref{sec:rule-layer} cho thấy luật R1 không phải cách đó).
+\item
+  Luồng native chỉ được thử với normal và hoạt động vô hại trên cụm. Với tấn công chạy bên trong process của dịch vụ, bằng chứng là LID-DS 2021, nơi mọi sự kiện là native.
+\end{itemize}
 
 \subsection{Luật sau mô hình: tách tool-của-image khỏi tấn công}\label{sec:rule-layer}
 
@@ -455,7 +512,19 @@ Gộp mọi tốc độ: recall 521/522 ở cả hai; lệnh quản trị 422/43
   \textbf{Exec vô hại non-image không đổi (314/314):} nó không phải tool-của-image nên R1 giữ; R2 gắn nhãn drift --- một binary non-image thật sự mới, là tín hiệu thật chứ không phải báo nhầm cần bỏ.
 \end{itemize}
 
-\textbf{Giới hạn: mới đo mặt lợi.} Campaign v5 không có tấn công ``sống nhờ đất'' (living-off-the-land) --- tấn công dùng chính tool-của-image. R1 cũng sẽ hạ một tấn công như vậy (một lần bỏ sót), và campaign này không đo được. Nên chi phí recall của luật \emph{chưa} được đo; chỉ có mặt lợi (xoá báo nhầm lệnh quản trị) và việc nó không đụng các tấn công non-image đã đo. Một lượt live mới phải thêm tấn công dùng tool-của-image trước khi nhận luật vào đường cảnh báo; yêu cầu này đã đăng ký trong protocol.
+\textbf{Mặt hại, đo ở lượt v6 (giả thuyết H4, H5).} Lượt v6 thêm vào mỗi trial một bước tấn công chỉ dùng tool có sẵn trong image (\texttt{sh}, \texttt{cat}, \texttt{ls}) và một lệnh quản trị lấy từ bộ 10 tool chưa lượt nào dùng. Code như trên (bước lotl được tính là tấn công dùng tool-của-image).
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{R1 xoá mọi tấn công dùng tool-của-image:} mô hình một mình bắt 314/315 ở tập chính (524/525 mọi tốc độ); có R1 còn 0/315 (0/525). R1 không phân biệt được người vận hành chạy \texttt{cat} với kẻ tấn công chạy \texttt{cat}.
+\item
+  \textbf{Lệnh quản trị chưa từng thấy:} mô hình một mình gắn cờ 275/284 ở tập chính (460/475 mọi tốc độ); có R1 còn 0/284 (0/475), như ở lượt v5.
+\item
+  \textbf{Tấn công fixture không đổi:} 315/315 ở cả hai hệ, vì binary của nó không thuộc image.
+\end{itemize}
+
+Vì vậy R1, ở dạng hiện tại, \textbf{không được nhận} vào đường cảnh báo: lợi (xoá báo nhầm lệnh quản trị) và hại (bỏ sót mọi tấn công living-off-the-land) cùng đến từ một điều kiện, nên không có ngưỡng nào giữ được cái này mà bỏ cái kia. Thẻ dòng dõi (mục~\ref{sec:lineage}) cho biết lệnh nào vào qua phiên exec, nhưng chưa cho biết phiên đó có hại hay không.
 
 \section{RQ5: chi phí}\label{sec:overhead}
 
@@ -553,11 +622,13 @@ Cảnh báo → case, p50 / p95 & 2,33 s / 2,61 s \\
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Hạng 1 có lợi thế từ thiết kế campaign:} trong mỗi trial, tấn công chạy sau binary vô hại và lệnh quản trị, và luật phá hoà xếp process khởi chạy gần cảnh báo nhất lên trước. Thứ tự ngược lại chưa được đo.
+  \textbf{Hạng 1 có lợi thế từ thiết kế campaign ở lượt v5:} trong mỗi trial, tấn công chạy sau binary vô hại và lệnh quản trị, và luật phá hoà xếp process khởi chạy gần cảnh báo nhất lên trước. Lượt v6 xáo thứ tự (bên dưới).
 \item
   \textbf{55 tấn công không có case riêng} được quy nguyên nhân bằng log kiểm toán của bước mở case tiếp nối. 40 là lần chạy lại cùng binary tấn công trên cùng container sau 85--345 s: RCA gộp vào case trước theo thiết kế. 14 bị từ chối vì một điều kiện đua: mô hình báo ngay trên burst dựng process, cửa sổ báo đầu tiên kết thúc khoảng 0,2 s sau khi trial bắt đầu, trước khi binary tấn công được exec; RCA khi đó chỉ xét các lần exec tới cuối cửa sổ báo. 1 trial không có quyết định nào.
 \item
   \textbf{Sự kiện exec không tới muộn với tấn công.} Giả thuyết trước đây là sự kiện exec của tấn công tới RCA sau cảnh báo. Số đo bác giả thuyết này: ở 51/55 trường hợp, exec của binary tấn công đã có trong nhật ký khi RCA quyết định. Sự kiện exec tới muộn có thật (41 quyết định thấy độ trễ trên 10 s, tới 45 s), nhưng tất cả là process \texttt{python} của các service trong pha chọn lúc tải cao.
 \item
-  \textbf{Đã sửa, chưa đo live:} RCA giờ xét các lần exec tới thời điểm quyết định, và xét lại một lần sau 2 s nếu chưa thấy exec mới. Theo log kiểm toán, thay đổi này nhắm đúng 14 trường hợp trên.
+  \textbf{Bản sửa, đo ở lượt v6:} RCA xét các lần exec tới thời điểm quyết định, và xét lại một lần sau 2 s nếu chưa thấy exec mới. Ở lượt v6, 711/735 tấn công (96,7\%) có case riêng; trong 24 trial còn lại, kiểm toán follow-up thấy 10 trường hợp thiếu exec, 15 trường hợp exec đã biết bị từ chối và 5 trường hợp không có quyết định.
+\item
+  \textbf{Thứ tự không quyết định hạng 1 (giả thuyết H6):} với thứ tự bước xáo ngẫu nhiên, binary fixture đứng hạng 1 trong 268/355 case khi tấn công chạy sau binary vô hại (75,5\%) và 272/356 khi chạy trước (76,4\%), tổng 75,9\%. Mức thấp hơn lượt v5 đến từ thiết kế trial của v6: mỗi trial có hai tấn công. Một phân tích thăm dò (không đăng ký trước) cho thấy trong 162 trên 170 case mà fixture không đứng đầu, nghi phạm hạng 1 là process của bước tấn công bằng tool-của-image trong cùng trial (\texttt{sh}, \texttt{cat}, \texttt{rm}).
 \end{itemize}
