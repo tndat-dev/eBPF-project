@@ -22,12 +22,12 @@ Lưu trữ & NFS riêng cho dữ liệu các lượt chạy \\
 
 \section{Probe eBPF}\label{sec:token-impl}
 
-Probe là một object eBPF (\texttt{make tokens}) và một loader C, cả hai được khoá bằng SHA-256 cùng một \emph{proof} gắn với phiên bản kernel; worker từ chối chạy trên kernel khác. Hình~\ref{fig:probe} cho thấy đường đi của một syscall qua ba chương trình BPF.
+Probe là một object eBPF (\texttt{make tokens}) và một loader C, cả hai được khoá bằng SHA-256 cùng một \emph{proof} gắn với phiên bản kernel; worker từ chối chạy trên kernel khác. Hình~\ref{fig:probe} cho thấy đường đi của một syscall qua ba chương trình BPF, cùng chương trình thứ tư gắn thẻ dòng dõi lúc fork.
 
 \begin{figure}[htbp]
   \centering
   \adjustbox{max width=\linewidth}{\input{figures/tikz-probe}}
-  \caption{Probe eBPF: ba chương trình BPF dựng token cho mỗi syscall, đếm 4-gram theo thread trong map, và loader đọc các cửa sổ đã đóng.}
+  \caption{Probe eBPF: ba chương trình BPF dựng token cho mỗi syscall, một chương trình gắn thẻ dòng dõi lúc fork, 4-gram đếm theo thread trong map, và loader đọc các cửa sổ đã đóng.}
   \label{fig:probe}
 \end{figure}
 

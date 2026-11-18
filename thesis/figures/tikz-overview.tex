@@ -2,8 +2,8 @@
 \begin{tikzpicture}[node distance=0.55cm]
   % ---- mỗi worker (cột trái, rộng 7 cm)
   \node[ext, text width=6.75cm] (app) at (0,0) {\textbf{Container ứng dụng} trong namespace \texttt{production}: AIMS, 21 workload, khoảng 80 pod. Mỗi container là một cgroup; Pulse không sửa ứng dụng hay pod.};
-  \node[kern, text width=4.15cm, minimum height=2.5cm] (probe) at ($(app.south west)+(0,-0.6)$) {\textbf{Probe eBPF} (kernel 6.8)\\hook \texttt{sys\_enter}, \texttt{sys\_exit}, \texttt{\_\_seccomp\_filter}\\token 32 bit cho mỗi syscall\\đếm 4-gram theo thread trong map \texttt{pulse\_grams}};
-  \node[kern, text width=2.25cm, minimum height=2.5cm] (allow) at ($(probe.north east)+(0.3,0)$) {\textbf{Allow-list}\\chỉ cgroup của \texttt{production} được theo dõi};
+  \node[kern, text width=4.15cm, minimum height=3.3cm] (probe) at ($(app.south west)+(0,-0.6)$) {\textbf{Probe eBPF} (kernel 6.8)\\hook \texttt{sys\_enter}, \texttt{sys\_exit}, \texttt{\_\_seccomp\_filter}, \texttt{sched\_process\_fork}\\token 32 bit cho mỗi syscall\\đếm 4-gram theo thread trong map \texttt{pulse\_grams}\\thẻ dòng dõi native/session (telemetry)};
+  \node[kern, text width=2.25cm, minimum height=3.3cm] (allow) at ($(probe.north east)+(0.3,0)$) {\textbf{Allow-list}\\chỉ cgroup của \texttt{production} được theo dõi};
   \node[usr, text width=4.15cm, minimum height=1.75cm] (loader) at ($(probe.south west)+(0,-0.6)$) {\textbf{Loader C}\\mỗi 0,5 s đọc các cửa sổ đã đóng; khoá SHA-256 và proof theo kernel};
   \node[usr, text width=2.25cm, minimum height=1.75cm] (resolver) at ($(loader.north east)+(0.3,0)$) {\textbf{Resolver}\\Pod UID $\to$ cgroup $\to$ workload};
   \node[mlb, text width=6.75cm] (worker) at ($(loader.south west)+(0,-0.6)$) {\textbf{Worker chấm điểm} (Python; tối đa 3 core, 3 GB)\\cửa sổ token $\to$ mô hình ngôn ngữ của workload $\to$ điểm $s(W)$ $\to$ so với ngưỡng $\tau$; ghi decision bằng thread nền};
