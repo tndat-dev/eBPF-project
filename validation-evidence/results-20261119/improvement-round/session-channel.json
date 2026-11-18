@@ -1,0 +1,102 @@
+{
+ "schema": "improvement-round-v1-session-channel",
+ "protocol": "sentinel_pulse/protocol/improvement-round-v1.json (D5b)",
+ "capture": "/mnt/sentinel-pulse-archive/pulse-token-capture-v6-1116",
+ "run": "/mnt/sentinel-pulse-archive/pulse-live-v6-1117",
+ "session_windows": 1068725,
+ "held_out_windows": 535351,
+ "held_out_blocks": 17787,
+ "thresholds": {
+  "gumbel_blocks": 13.300493163797931,
+  "empirical_999": 9.572529002929542,
+  "empirical_9999": 15.134687651045843
+ },
+ "intervals": {
+  "gumbel_blocks": {
+   "control": {
+    "k": 0,
+    "n": 525,
+    "rate": 0.0
+   },
+   "lotl": {
+    "k": 524,
+    "n": 525,
+    "rate": 0.9980952380952381
+   },
+   "attack": {
+    "k": 525,
+    "n": 525,
+    "rate": 1.0
+   },
+   "benign": {
+    "k": 525,
+    "n": 525,
+    "rate": 1.0
+   },
+   "admin": {
+    "k": 470,
+    "n": 475,
+    "rate": 0.9894736842105263
+   }
+  },
+  "empirical_999": {
+   "control": {
+    "k": 3,
+    "n": 525,
+    "rate": 0.005714285714285714
+   },
+   "lotl": {
+    "k": 524,
+    "n": 525,
+    "rate": 0.9980952380952381
+   },
+   "attack": {
+    "k": 525,
+    "n": 525,
+    "rate": 1.0
+   },
+   "benign": {
+    "k": 525,
+    "n": 525,
+    "rate": 1.0
+   },
+   "admin": {
+    "k": 470,
+    "n": 475,
+    "rate": 0.9894736842105263
+   }
+  },
+  "empirical_9999": {
+   "control": {
+    "k": 0,
+    "n": 525,
+    "rate": 0.0
+   },
+   "lotl": {
+    "k": 524,
+    "n": 525,
+    "rate": 0.9980952380952381
+   },
+   "attack": {
+    "k": 525,
+    "n": 525,
+    "rate": 1.0
+   },
+   "benign": {
+    "k": 525,
+    "n": 525,
+    "rate": 1.0
+   },
+   "admin": {
+    "k": 470,
+    "n": 475,
+    "rate": 0.9894736842105263
+   }
+  }
+ },
+ "criterion_met": {
+  "gumbel_blocks": false,
+  "empirical_999": false,
+  "empirical_9999": false
+ }
+}

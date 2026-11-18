@@ -1,0 +1,90 @@
+{
+ "pulse-live-v5-1110": {
+  "schema": "improvement-round-v1-burden-context",
+  "run": "pulse-live-v5-1110",
+  "protocol": "sentinel_pulse/protocol/improvement-round-v1-amendment-1.json (D10, D11)",
+  "delta_seconds": 5.0,
+  "incident_gap_seconds": 600.0,
+  "replica_hours": 1.15125,
+  "normal_hours": -19.640520005755953,
+  "episodes": {
+   "all": 2,
+   "single_replica": 2,
+   "multi_replica": 0,
+   "per_replica_hour": {
+    "all": 1.7372421281216068,
+    "single_replica": 1.7372421281216068
+   }
+  },
+  "by_workload": {
+   "production/aims-rabbitmq-server:rabbitmq": {
+    "single": 1,
+    "multi": 0,
+    "incidents": 1
+   },
+   "production/aims-waypoint:istio-proxy": {
+    "single": 1,
+    "multi": 0,
+    "incidents": 1
+   }
+  },
+  "incidents": {
+   "total": 2,
+   "per_day": -2.443927145815532
+  },
+  "attack_harm": {
+   "detected": 521,
+   "multi_replica": 0,
+   "share": 0.0
+  }
+ },
+ "pulse-live-v6-1117": {
+  "schema": "improvement-round-v1-burden-context",
+  "run": "pulse-live-v6-1117",
+  "protocol": "sentinel_pulse/protocol/improvement-round-v1-amendment-1.json (D10, D11)",
+  "delta_seconds": 5.0,
+  "incident_gap_seconds": 600.0,
+  "replica_hours": 51.08847222222222,
+  "normal_hours": 0.7775058176782396,
+  "episodes": {
+   "all": 4,
+   "single_replica": 4,
+   "multi_replica": 0,
+   "per_replica_hour": {
+    "all": 0.07829554938736451,
+    "single_replica": 0.07829554938736451
+   }
+  },
+  "by_workload": {
+   "production/aims-kafka-dual-role:kafka": {
+    "single": 1,
+    "multi": 0,
+    "incidents": 1
+   },
+   "production/aims-minio-pool-0:minio": {
+    "single": 1,
+    "multi": 0,
+    "incidents": 1
+   },
+   "production/aims-postgres-cnpg:postgres": {
+    "single": 1,
+    "multi": 0,
+    "incidents": 1
+   },
+   "production/order-service:app": {
+    "single": 1,
+    "multi": 0,
+    "incidents": 1
+   }
+  },
+  "incidents": {
+   "total": 4,
+   "per_day": 123.47174492748081
+  },
+  "attack_harm": {
+   "detected": 1048,
+   "multi_replica": 1,
+   "share": 0.0009541984732824427
+  }
+ }
+}

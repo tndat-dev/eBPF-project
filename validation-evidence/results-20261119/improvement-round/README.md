@@ -33,3 +33,53 @@ Pooled GEV shape (top 3, censor 1): −0.02 (2021), +0.01 (2019), close to Gumbe
 
 The development gain of D16 (fewer 2019 false alarms) does not hold on the official part (three detections fewer, no false
 alarm fewer). **Not adopted; t3 stays.** D4, D14, D15 fail their criterion.
+
+## D1 gram-map overflow alert (`map-overflow-d1.json`, `scripts/map_overflow_test.py`, k8s-worker1 19/11)
+gram_stress at 400,000 calls/s in one cgroup and a quiet loop in another, loader frames through `MapOverflow`: the first
+alert names the stress cgroup, in the frame of the first insert failure (delay 0 s), no alert before it. **Met, adopted**
+(worker: `token_alert_reason=gram_map_overflow`, frame flagged `token_incomplete`).
+
+## D2 loader window end, D3 durable bridge queue
+D2: `window_end` from `PULSE_TOK_WINDOW_NS`; the final build `pulse-tokens-final-f8ccbb2` passes the token proof on the three
+workers (361,900 / 442,796 / 393,644 calls = tokens). D3: failed episode pushes kept on disk, exponential backoff to 30 s,
+up to one hour, resumed after a restart; unit test with five refused pushes delivers once. **Both adopted.**
+
+## D5(b) session-stream model (`session-channel.json`)
+Learnt on the session parts of pulse-token-capture-v6-1116 (1,068,725 session windows; held-out half 535,351), scored on
+the pulse-live-v6-1117 intervals (all rates, base pairs):
+
+| Threshold | Attack | Living off the land | Admin (unseen tools) | Harmless binary | Control |
+|---|---|---|---|---|---|
+| Gumbel on 60 s blocks (13.30) | 525/525 | 524/525 | 470/475 | 525/525 | 0/525 |
+| empirical 99.9 % (9.57) | 525/525 | 524/525 | 470/475 | 525/525 | 3/525 |
+| empirical 99.99 % (15.13) | 525/525 | 524/525 | 470/475 | 525/525 | 0/525 |
+
+The session channel flags operator commands and harmless binaries as often as attacks: **criterion not met** (≤ 20 %).
+A model of normal exec sessions (health probes) cannot tell a new operator command from an attack.
+
+## D6 small hook set (`overhead-d6-worker1.jsonl`, k8s-worker1, 5 rounds, median ns per operation)
+
+| Operation | Off | Small build | Full build | Small − full |
+|---|---|---|---|---|
+| getpid | 1,074 | 1,469 | 1,468 | +1 |
+| read 4 KB | 1,505 | 1,900 | 1,971 | −71 |
+| futex | 1,138 | 1,555 | 1,587 | −32 |
+| open + close | 8,072 | 10,158 | 9,973 | +184 |
+| mmap + munmap | 7,492 | 8,589 | 8,744 | −156 |
+
+Not lower on every operation: **not adopted** (the 39-syscall probe stays).
+
+## D10, D11 (`burden-context.json`)
+pulse-live-v6-1117: 4 normal episodes in 51.1 replica-hours, all single-replica, 4 incidents; 1 of 1,048 detected attack or
+living-off-the-land trials has a concurrent alarm on another replica. With no multi-replica episode, replica consensus and
+incident grouping remove nothing at this burden: **no benefit, not adopted**. The pulse-live-v5-1110 figures in the file
+are not usable (its local decision copies, which held the normal windows, were deleted in the 18/11 cleanup; only alarm
+rows remain on NFS), so the 630-replica-hour v5 normal cannot be re-read.
+
+## D9 refit policy
+The only aged measurement is model-aging (v5 models on the v6 capture after the cluster change: 0.59 % of blocks above
+the threshold against 0.26 % held out). Operating rule: refit after every cluster change and before every live run.
+
+## D12, D18
+Campaign options for the final run: fractional rates down to 0.05/s and on-off trials (D12); the Falco event-generator
+step with 14 registered actions (D18, binary sha256 6009e345… on NFS `tools/event-generator-0.13.0`).
