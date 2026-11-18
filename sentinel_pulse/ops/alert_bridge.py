@@ -103,6 +103,16 @@ while True:
 '''
 
 
+def stream_of(row):
+    """Triage label from the lineage tag (benign-flag study, industry practice: exec sessions are an audit stream):
+    'session' when most of the alarm window's events ran on session-lineage threads (runtime exec and descendants),
+    'native' otherwise, 'unknown' for a build without the tag. A label for the operator, never a suppression."""
+    se, ev = row.get('session_events'), row.get('events')
+    if se is None or not ev:
+        return 'unknown'
+    return 'session' if int(se) * 2 >= int(ev) else 'native'
+
+
 def iso(t):
     return datetime.fromtimestamp(float(t), timezone.utc).isoformat().replace('+00:00', 'Z')
 
@@ -259,7 +269,7 @@ class Bridge:
 
     def alert(self, ep, ends_at):
         labels = dict(alertname='SentinelPulseAnomaly', namespace=self.cfg.get('alert_namespace', 'sentinel-pulse'),
-                      severity='warning', path='push', **self.labels(ep))
+                      severity='warning', path='push', stream=stream_of(ep['row']), **self.labels(ep))
         return dict(labels=labels, startsAt=iso(ep['window_end']), endsAt=iso(ends_at),
                     annotations=dict(summary=f"Pulse preview on {labels['workload']} ({ep['node']})",
                                      window_end=str(ep['window_end']), preview_emitted_at=str(ep['preview_emitted_at']),

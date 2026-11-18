@@ -337,7 +337,8 @@ def run(config_path):
                                             'container_name','workload_revision','cgroup_id','run_id','capture_segment',
                                             'token_score','token_threshold','events') },
                                         **{k:window[k] for k in ('token_alert_raw','token_pool_score','token_pool_threshold',
-                                            'token_exec_held','token_alert_reason','token_incomplete') if k in window})
+                                            'token_exec_held','token_alert_reason','token_incomplete','session_events')
+                                           if k in window})
                                     line=json.dumps(decision,separators=(',',':'),allow_nan=False)+'\n'
                                     decisions.write(line);local.write(line)
                                     state['token_scored']+=1;state['token_alerts']+=scored['token_alert']

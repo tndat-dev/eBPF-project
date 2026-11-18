@@ -31,7 +31,7 @@ def test_episode_starts_on_first_preview_continues_and_resolves_after_the_gap(tm
     other = bridge.ingest(row(100.5, pod='pod-b'), 100.8)
     assert other is not ep and len(bridge.active) == 2
     _, (first,) = bridge.pushes.get_nowait()
-    assert first['labels'] == dict(alertname='SentinelPulseAnomaly', namespace='sentinel-pulse', severity='warning',
+    assert first['labels'] == dict(alertname='SentinelPulseAnomaly', namespace='sentinel-pulse', severity='warning', stream='unknown',
                                    path='push', node='k8s-worker1.local', target_namespace='production',
                                    workload='aims-postgres-cnpg:postgres', pod_uid='pod-a', container='postgres',
                                    episode=ep['episode'])
@@ -281,3 +281,15 @@ def test_durable_queue_delivers_after_a_long_outage_and_survives_a_restart(tmp_p
     assert ab.PushQueue(tmp_path / 'other.jsonl').pending[item]['episode'] == 'ep-1'      # a restart resumes it
     q.done(item)
     assert ab.PushQueue(tmp_path / 'other.jsonl').pending == {}
+
+
+def test_alert_carries_the_lineage_stream_label():
+    from sentinel_pulse.ops.alert_bridge import stream_of
+    assert stream_of(dict(session_events=80, events=100)) == 'session'
+    assert stream_of(dict(session_events=10, events=100)) == 'native'
+    assert stream_of(dict(events=100)) == 'unknown'
+    bridge = Bridge(CFG)
+    r = row(100.0)
+    r.update(session_events=90, events=100)
+    ep = bridge.ingest(r, 100.3)
+    assert bridge.alert(ep, 200.0)['labels']['stream'] == 'session'

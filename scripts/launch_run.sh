@@ -10,6 +10,7 @@
 #   [RECAL=rolling-12-1 [RECAL_EXCLUDE_CAMPAIGN=1]: rolling calibration in the workers, needs FINAL=1] \
 #   [TOKEN_BUILD=/home/dat/pulse-tokens-YYYYMMDD [TOKEN_MODELS=.../MODELS.json] [V3_COUNTS=.../counts.json]]: lidds-ml-v3
 #   token probe build/proof on every worker, optional token models and count-branch thresholds (pulse-live-v3-v1)
+#   [K8S_EVENTS=1] records Kubernetes events for the run (scripts/k8s_events_record.py)
 #   [ADMIN_COMMANDS=v6] [RANDOM_ORDER=1] [LOTL_ATTACK=1] [DILUTION_PADS=30,300 [DILUTION_RATE=12]]: campaign options of the
 #   next live run (attack/preview_campaign.py), all off by default
 #   [LOCAL_DECISIONS=1]: async shared writes + local decision copy without the tripwire (implied by FINAL=1); with it
@@ -187,6 +188,13 @@ master() {
     --config "$ROOT/CONFIG.json" --role traffic
   as_root env PYTHONPATH="$SNAP" /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.matched_services \
     --config "$ROOT/CONFIG.json" --role campaign --credential "$CREDENTIAL"
+  # improvement-round-v1 D10: Kubernetes events for the whole run (operational labels of alert episodes after the run)
+  if [ "${K8S_EVENTS:-0}" = 1 ]; then
+    systemd-run --user --unit="pulse-k8s-events-$RUN" --collect python3 -u "$SNAP/scripts/k8s_events_record.py" \
+      --output "$ROOT/k8s-events.jsonl" --seconds "${SECONDS_TOTAL:-86400}" 2>/dev/null \
+      || nohup python3 -u "$SNAP/scripts/k8s_events_record.py" --output "$ROOT/k8s-events.jsonl" \
+           --seconds "${SECONDS_TOTAL:-86400}" > "$ROOT/k8s-events.log" 2>&1 &
+  fi
 }
 
 case "${1:-all}" in
