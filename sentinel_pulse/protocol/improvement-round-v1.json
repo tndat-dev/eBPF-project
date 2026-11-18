@@ -1,0 +1,54 @@
+{
+ "schema": "sentinel-pulse-improvement-round-v1",
+ "registered_at": "2026-11-19T02:30+07:00",
+ "owner_decision": "19/11: stop pulse-live-v7-1119 (stopped 18/11 19:28 UTC before any attack, data deleted) and try every open direction until none improves further; then one live run with every adopted change",
+ "registered_before": "any code or computation of the directions below",
+ "base_system": "lidds-ml-v5-t3 (pulse-live-v7-v1 model), probe build pulse-tokens-lineage-5fc5f37",
+ "rule": "each direction is adopted only when it meets its criterion; adopted changes that touch the scoring are rerun on LID-DS 2021 official and reported beside the base; nothing is adopted on the live run itself",
+ "directions": {
+  "D1_gram_map_overflow": {
+   "what": "the worker turns an increase of the loader insert_fail counter into an alert on the window with the most distinct grams of that frame (the cgroup filling the map) and flags the frame incomplete",
+   "criterion": "under gram_stress at 400,000 calls/s (map-capacity-v1) an alert on the stress cgroup within 1 s of the first failure; 0 such alerts on pulse-token-capture-v6-1116 and the v6 live run (insert_fail 0 there)",
+   "code": "sentinel_pulse/collector/token_capture.py, sentinel_pulse/pipeline/matched_worker.py"
+  },
+  "D2_loader_window_end": {
+   "what": "window_end from PULSE_TOK_WINDOW_NS instead of the literal 0.5",
+   "criterion": "same output; proof passes"
+  },
+  "D3_durable_bridge_queue": {
+   "what": "undelivered alert episodes kept on disk and retried with backoff instead of three tries",
+   "criterion": "unit test with a fake Alertmanager that refuses then accepts: every episode delivered once, in order; no fault test on the cluster (owner rule)",
+   "code": "sentinel_pulse/ops/alert_bridge.py"
+  },
+  "D4_ensemble_top3_top10": {
+   "what": "alarm when top-3 OR top-10 exceeds its threshold, alpha split between them",
+   "criterion": "LID-DS 2021 development >= 529/544 with <= 6 false alarms and CB-DS >= 891, <= 3, and more 2019 development detections than lidds-ml-v5-t3 (310/321)"
+  },
+  "D5_session_stream": {
+   "what": "(a) two-channel alert path from the lineage tag, offline on pulse-live-v6-1117; (b) a session model learnt from the session windows of all workloads (kubelet exec probes, operator sessions) with empirical and Gumbel thresholds",
+   "criterion": "(b) session channel flags >= 95 % of exec attacks and <= 20 % of unseen operator commands and harmless binaries; otherwise reported as a limit",
+   "code": "scripts/analysis/session_channel.py (new)"
+  },
+  "D6_five_syscall_probe": {
+   "what": "probe build that hooks only open/openat, read, recv/recvfrom, stat and write (token-design-study q1 smallest subset) for lower overhead",
+   "criterion": "proof passes; overhead A/B lower than the 39-syscall build on every operation; LID-DS 2021 official of the subset with the t3 configuration >= 95 % recall, <= 1 % false alarms"
+  },
+  "D7_request_overhead": {
+   "what": "latency of real HTTP requests to a production service with the probe loaded and unloaded, rotated rounds",
+   "criterion": "measurement (reported, not adopted)"
+  },
+  "D8_richer_tokens": {
+   "what": "alphabet variants with more detail (full path hash, connect address family and port class) on LID-DS 2021 development, including the seen-only simulation of token-design-study q4",
+   "criterion": "more seen-only detections than select1f while keeping LID-DS 2021 development >= 529/544, <= 6 and CB-DS"
+  },
+  "D9_refit_policy": {
+   "what": "how fast the held-out exceedance grows with model age on the captures (v5 model on v6 capture already measured)",
+   "criterion": "measurement (reported as an operating rule)"
+  }
+ },
+ "out_of_scope": [
+  "Juice-Shop recordings without syscall evidence",
+  "in-process attacks on the cluster (owner 16/11)",
+  "own baselines (owner 15/11: not needed)"
+ ]
+}
