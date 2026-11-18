@@ -1,0 +1,14 @@
+{
+ "scenario": "PHP_CWE-434",
+ "source": "/var/tmp/lid-ds-2019-v2/archives/PHP_CWE-434.tar.gz",
+ "counts": {
+  "training": 200,
+  "test/normal": 759,
+  "test/normal_and_attack": 103,
+  "validation": 50
+ },
+ "runs_rows": 1112,
+ "bad_lines": 0,
+ "listed_but_missing": [],
+ "empty_recordings": []
+}

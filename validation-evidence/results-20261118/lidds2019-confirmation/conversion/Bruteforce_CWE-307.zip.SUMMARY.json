@@ -1,0 +1,14 @@
+{
+ "scenario": "Bruteforce_CWE-307",
+ "source": "/var/tmp/lid-ds-2019-v2/archives/Bruteforce_CWE-307.tar.gz",
+ "counts": {
+  "test/normal": 744,
+  "training": 200,
+  "validation": 50,
+  "test/normal_and_attack": 98
+ },
+ "runs_rows": 1092,
+ "bad_lines": 0,
+ "listed_but_missing": [],
+ "empty_recordings": []
+}

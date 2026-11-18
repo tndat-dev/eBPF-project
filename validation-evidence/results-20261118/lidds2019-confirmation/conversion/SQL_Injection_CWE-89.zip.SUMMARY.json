@@ -1,0 +1,14 @@
+{
+ "scenario": "SQL_Injection_CWE-89",
+ "source": "/var/tmp/lid-ds-2019-v2/archives/SQL_Injection_CWE-89.tar.gz",
+ "counts": {
+  "test/normal": 728,
+  "test/normal_and_attack": 100,
+  "training": 200,
+  "validation": 50
+ },
+ "runs_rows": 1078,
+ "bad_lines": 0,
+ "listed_but_missing": [],
+ "empty_recordings": []
+}

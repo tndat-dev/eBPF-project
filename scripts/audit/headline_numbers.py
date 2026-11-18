@@ -486,6 +486,19 @@ def claims():
         f"{num(100 * rc6['stored_rank_top1'], 1)}\\%", [], f'{V6}/rca-coverage.json')
     add('v6-rca-own', thesis, f"Ở lượt v6, {rc6['attack_cases']}/{rc6['trials']} tấn công ({num(100 * rc6['attack_cases'] / rc6['trials'], 1)}\\%) có case riêng",
         [], f'{V6}/rca-coverage.json')
+    # LID-DS 2019 once (lidds2019-confirmation-v2): pooled primary result and per-scenario rows
+    L19 = 'results-20261118/lidds2019-confirmation/lidds2019.json'
+    l19 = receipt(L19)
+    q, ql = l19['primary']['pooled'], l19['library_exploit_time']['pooled']
+    pc2 = lambda x: num(100 * x, 2)
+    add('l19-pooled', thesis, f"phát hiện {q['detected']}/{thousands(q['attack_recordings'])} bản ghi tấn công ({pc2(q['recall'])}\\%, CI "
+        f"{{[}}{pc2(q['recall_ci95'][0])}; {pc2(q['recall_ci95'][1])}{{]}}), {q['false_alarm_recordings']}/{thousands(q['normal_recordings'])} "
+        f"bản ghi normal bị báo nhầm ({pc2(q['false_alarm_rate'])}\\%, CI {{[}}{pc2(q['false_alarm_ci95'][0])}; "
+        f"{pc2(q['false_alarm_ci95'][1])}{{]}}), p95 {num(q['latency_p95'], 2)} s", [], L19)
+    add('l19-library', thesis, f"recall là {pc2(ql['recall'])}\\% nhưng độ trễ trung vị {num(ql['latency_p50'], 2)} s", [], L19)
+    for s, m in l19['primary']['scenarios'].items():
+        add(f'l19-{s}', thesis, f"{s.replace('_', chr(92) + '_')}}} & {m['detected']}/{m['attack_recordings']} & "
+            f"{m['false_alarm_recordings']}/{m['normal_recordings']} \\\\", [], L19)
     # the four status reports were removed on 07/11 (owner); their claims are retired, the LaTeX and TODO claims stay
     return [c for c in out if c['doc'] not in RETIRED]
 

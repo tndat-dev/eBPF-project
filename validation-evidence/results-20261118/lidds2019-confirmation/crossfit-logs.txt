@@ -1,0 +1,10 @@
+{"scenario": "Bruteforce_CWE-307", "recordings": 1092, "folds": {"1": 63, "0": 43, "4": 53, "3": 39, "2": 52}, "seconds": 68}
+{"scenario": "CVE-2012-2122", "recordings": 1395, "folds": {"0": 58, "1": 62, "3": 40, "4": 45, "2": 45}, "seconds": 66}
+{"scenario": "CVE-2014-0160", "recordings": 1100, "folds": {"3": 49, "0": 43, "1": 61, "4": 50, "2": 47}, "seconds": 50}
+{"scenario": "CVE-2017-7529", "recordings": 1157, "folds": {"1": 56, "2": 44, "0": 55, "3": 55, "4": 40}, "seconds": 23}
+{"scenario": "CVE-2018-3760", "recordings": 1221, "folds": {"0": 46, "1": 53, "4": 53, "3": 44, "2": 54}, "seconds": 165}
+{"scenario": "CVE-2019-5418", "recordings": 1079, "folds": {"2": 52, "4": 57, "0": 45, "3": 47, "1": 49}, "seconds": 158}
+{"scenario": "EPS_CWE-434", "recordings": 1071, "folds": {"3": 64, "4": 42, "1": 48, "2": 45, "0": 51}, "seconds": 1522}
+{"scenario": "PHP_CWE-434", "recordings": 1112, "folds": {"0": 54, "2": 51, "4": 51, "1": 49, "3": 45}, "seconds": 233}
+{"scenario": "SQL_Injection_CWE-89", "recordings": 1078, "folds": {"3": 60, "1": 48, "4": 46, "2": 56, "0": 40}, "seconds": 239}
+{"scenario": "ZipSlip", "recordings": 1063, "folds": {"1": 40, "3": 49, "0": 53, "4": 52, "2": 56}, "seconds": 2769}

@@ -1,0 +1,14 @@
+{
+ "scenario": "ZipSlip",
+ "source": "/var/tmp/lid-ds-2019-v2/archives/ZipSlip.tar.gz",
+ "counts": {
+  "test/normal": 715,
+  "training": 200,
+  "test/normal_and_attack": 98,
+  "validation": 50
+ },
+ "runs_rows": 1063,
+ "bad_lines": 0,
+ "listed_but_missing": [],
+ "empty_recordings": []
+}
