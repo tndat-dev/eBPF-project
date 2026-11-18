@@ -166,10 +166,11 @@ slide('LID-DS 2019: thử cải thiện trên 30% development', [
     ['top 5', '310/321', '6/2.311', '11,13 s', '529 / 7 (hỏng)'],
     ['n 5', '310/321', '8/2.311', '11,13 s', '526 / 6 (hỏng)'],
     ['α′ 0,001', '310/321', '18/2.311', '11,13 s', '530 / 15 (hỏng)'],
-], [2.6, 2.4, 1.6, 1.4, 2.0], size=14, notes=[
+], [2.6, 2.4, 1.6, 1.4, 2.0], size=13, note_size=13, notes=[
     '**Protocol lidds2019-development-v1** (đăng ký 18/11 20:28): ứng viên phải giữ LID-DS 2021 development (≥ 530/544, ≤ 6 báo nhầm) và CB-DS.',
     '**Kết quả: giữ lidds-ml-v5, không chấm thêm gì.** Ứng viên tăng recall chỉ tăng ở Heartbleed (7/23 → 22/23) và đều hỏng mức 2021.',
-    '**p95 không ứng viên nào về gần 3 s** (9,4–11,1 s): độ trễ của Bruteforce và Heartbleed không phụ thuộc tham số. C1 là giới hạn của đồ án.',
+    '**Mở rộng:** 90 tổ hợp (n × top-k × trim × α′, chấm lại cả LID-DS 2021) và nhánh tần suất: chỉ cấu hình gốc qua điều kiện; không tổ hợp nào hơn 530 trên 2021 development.',
+    '**Cận dưới độ trễ:** cửa sổ đầu tiên có gram chưa thấy sau mốc exploit đến ở p95 9,39 s (Bruteforce 13,1 s, Heartbleed 10,7 s): không bộ phát hiện dựa trên độ lạ nào đạt p95 ≤ 3 s trên dữ liệu này. C1 là giới hạn của dữ liệu.',
     'Code: scripts/analysis/lidds2019_dev.py, scripts/lidds2019_dev_run.sh.',
 ])
 

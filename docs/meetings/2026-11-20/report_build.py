@@ -321,6 +321,8 @@ add(
        ['α′ 0,001', '310/321', '18/2.311', '11,13 s', '530 / 15 (hỏng)']], [2.4, 2.6, 1.6, 1.4, 2.4]),
     B('**Kết quả theo protocol: giữ lidds-ml-v5, không chấm thêm gì** (không chạy lại official 2021, không chấm phần holdout). Không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall 2019.'),
     B('**Đọc kết quả:** mọi ứng viên tăng recall chỉ tăng ở Heartbleed (development 7/23 → 22/23) và đều hỏng mức LID-DS 2021. Không ứng viên nào đưa p95 về gần 3 s (9,4–11,1 s), vì độ trễ của Bruteforce (p95 14,1 s) và Heartbleed không phụ thuộc các tham số này. Vì vậy C1 không đạt được bằng các thay đổi đã thử; kết quả đăng ký là giới hạn của đồ án.'),
+    B('**Mở rộng (cùng protocol, chỉ phần development):** 90 tổ hợp độ dài gram × top-k × trim × α′, mỗi tổ hợp chấm lại cả LID-DS 2021 development: chỉ cấu hình gốc qua điều kiện; 72 tổ hợp đạt ≥ 305/321 trên 2019 nhưng đều mất phát hiện hoặc thêm báo nhầm trên 2021 (gần nhất: 529/544 với 5 báo nhầm). Không tổ hợp nào phát hiện quá 530 trên LID-DS 2021 development trong 6 báo nhầm. Nhánh tần suất không thêm phát hiện nào ở 2019.'),
+    B('**Cận dưới của độ trễ (phát hiện mới):** cửa sổ đầu tiên sau mốc exploit có gram hay token chưa từng thấy đến ở p95 9,39 s (Bruteforce 13,11 s, Heartbleed 10,69 s, PHP 4,55 s, SQL 3,52 s; sáu kịch bản còn lại ≤ 1,34 s). Không bộ phát hiện nào dựa trên chuỗi chưa thấy đạt p95 ≤ 3 s trên LID-DS 2019: giới hạn nằm ở dữ liệu, không ở mô hình.'),
     CODE('scripts/analysis/lidds2019_dev.py, scripts/lidds2019_dev_run.sh; biên nhận validation-evidence/results-20261118/lidds2019-development/.'),
 )
 

@@ -513,6 +513,13 @@ def claims():
         f"{thousands(c['base']['tolerance']['normal_recordings'])} normal, chia theo sha256) làm development; {len(c)} ứng viên", [], DEV)
     add('l19-dev-top5', thesis, f"top 5: {c['top5']['tolerance']['detected']}/{c['top5']['tolerance']['attack_recordings']} so với "
         f"{c['base']['tolerance']['detected']}/{c['base']['tolerance']['attack_recordings']}, dung sai 1 s", [], DEV)
+    LB = 'results-20261118/lidds2019-development/latency.json'
+    lb = receipt(LB)
+    add('l19-latency-bound', thesis, f"đến ở p95 {num(lb['first_unseen_after_p50_p95'][1], 2)} s trên các bản ghi tấn công development", [], LB)
+    GR = 'results-20261118/lidds2019-development/grid.json'
+    gr = receipt(GR)
+    assert gr['pass_must'] == [gr['base']] and gr['lidds2021_gate']['passed']
+    add('l19-grid', thesis, f"Mở rộng thêm {len(gr['candidates'])} tổ hợp", [], GR)
     # the four status reports were removed on 07/11 (owner); their claims are retired, the LaTeX and TODO claims stay
     return [c for c in out if c['doc'] not in RETIRED]
 

@@ -1,0 +1,566 @@
+{
+ "schema": "lidds2019-development-rate-v1",
+ "protocol": "sentinel_pulse/protocol/lidds2019-development-v1.json",
+ "part": "development",
+ "model_alpha": 0.00018,
+ "candidates": {
+  "model-or-rate-2e-05": {
+   "primary": {
+    "detected": 197,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.6137071651090342,
+    "latency_p50": 1.1613958599991747,
+    "latency_p95": 10.22184693219824
+   },
+   "tolerance": {
+    "detected": 295,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.9190031152647975,
+    "latency_p50": 1.0543602520046989,
+    "latency_p95": 10.08423698929815
+   },
+   "lidds2021_development": {
+    "detected": 530,
+    "false_alarm_recordings": 7,
+    "latency_p95": 1.516074502468109,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 4
+   },
+   "scenarios": {
+    "Bruteforce_CWE-307": [
+     24,
+     25,
+     1,
+     14.107155049950164
+    ],
+    "CVE-2012-2122": [
+     41,
+     41,
+     0,
+     1.179284793000079
+    ],
+    "CVE-2014-0160": [
+     7,
+     23,
+     1,
+     11.474809760001516
+    ],
+    "CVE-2017-7529": [
+     43,
+     51,
+     3,
+     1.0859376996944774
+    ],
+    "CVE-2018-3760": [
+     45,
+     46,
+     0,
+     1.0549257640057477
+    ],
+    "CVE-2019-5418": [
+     29,
+     29,
+     0,
+     1.25928665939864
+    ],
+    "EPS_CWE-434": [
+     34,
+     34,
+     2,
+     2.3438894699009323
+    ],
+    "PHP_CWE-434": [
+     23,
+     23,
+     0,
+     5.549636204099806
+    ],
+    "SQL_Injection_CWE-89": [
+     28,
+     28,
+     1,
+     4.5222036641007435
+    ],
+    "ZipSlip": [
+     21,
+     21,
+     1,
+     2.2132834090007236
+    ]
+   },
+   "must": {
+    "dev_false_alarms": true,
+    "lidds2021_and_cbds": false
+   }
+  },
+  "model-or-rate-1e-05": {
+   "primary": {
+    "detected": 197,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.6137071651090342,
+    "latency_p50": 1.1613958599991747,
+    "latency_p95": 10.22184693219824
+   },
+   "tolerance": {
+    "detected": 295,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.9190031152647975,
+    "latency_p50": 1.0543602520046989,
+    "latency_p95": 10.08423698929815
+   },
+   "lidds2021_development": {
+    "detected": 530,
+    "false_alarm_recordings": 7,
+    "latency_p95": 1.516074502468109,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 4
+   },
+   "scenarios": {
+    "Bruteforce_CWE-307": [
+     24,
+     25,
+     1,
+     14.107155049950164
+    ],
+    "CVE-2012-2122": [
+     41,
+     41,
+     0,
+     1.179284793000079
+    ],
+    "CVE-2014-0160": [
+     7,
+     23,
+     1,
+     11.474809760001516
+    ],
+    "CVE-2017-7529": [
+     43,
+     51,
+     3,
+     1.0859376996944774
+    ],
+    "CVE-2018-3760": [
+     45,
+     46,
+     0,
+     1.0549257640057477
+    ],
+    "CVE-2019-5418": [
+     29,
+     29,
+     0,
+     1.25928665939864
+    ],
+    "EPS_CWE-434": [
+     34,
+     34,
+     2,
+     2.3438894699009323
+    ],
+    "PHP_CWE-434": [
+     23,
+     23,
+     0,
+     5.549636204099806
+    ],
+    "SQL_Injection_CWE-89": [
+     28,
+     28,
+     1,
+     4.5222036641007435
+    ],
+    "ZipSlip": [
+     21,
+     21,
+     1,
+     2.2132834090007236
+    ]
+   },
+   "must": {
+    "dev_false_alarms": true,
+    "lidds2021_and_cbds": false
+   }
+  },
+  "model-or-rate-5e-06": {
+   "primary": {
+    "detected": 197,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.6137071651090342,
+    "latency_p50": 1.1613958599991747,
+    "latency_p95": 10.22184693219824
+   },
+   "tolerance": {
+    "detected": 295,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.9190031152647975,
+    "latency_p50": 1.0543602520046989,
+    "latency_p95": 10.08423698929815
+   },
+   "lidds2021_development": {
+    "detected": 530,
+    "false_alarm_recordings": 7,
+    "latency_p95": 1.516074502468109,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 3
+   },
+   "scenarios": {
+    "Bruteforce_CWE-307": [
+     24,
+     25,
+     1,
+     14.107155049950164
+    ],
+    "CVE-2012-2122": [
+     41,
+     41,
+     0,
+     1.179284793000079
+    ],
+    "CVE-2014-0160": [
+     7,
+     23,
+     1,
+     11.474809760001516
+    ],
+    "CVE-2017-7529": [
+     43,
+     51,
+     3,
+     1.0859376996944774
+    ],
+    "CVE-2018-3760": [
+     45,
+     46,
+     0,
+     1.0549257640057477
+    ],
+    "CVE-2019-5418": [
+     29,
+     29,
+     0,
+     1.25928665939864
+    ],
+    "EPS_CWE-434": [
+     34,
+     34,
+     2,
+     2.3438894699009323
+    ],
+    "PHP_CWE-434": [
+     23,
+     23,
+     0,
+     5.549636204099806
+    ],
+    "SQL_Injection_CWE-89": [
+     28,
+     28,
+     1,
+     4.5222036641007435
+    ],
+    "ZipSlip": [
+     21,
+     21,
+     1,
+     2.2132834090007236
+    ]
+   },
+   "must": {
+    "dev_false_alarms": true,
+    "lidds2021_and_cbds": false
+   }
+  },
+  "model-or-rate-1e-06": {
+   "primary": {
+    "detected": 197,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.6137071651090342,
+    "latency_p50": 1.1613958599991747,
+    "latency_p95": 10.22184693219824
+   },
+   "tolerance": {
+    "detected": 295,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.9190031152647975,
+    "latency_p50": 1.0543602520046989,
+    "latency_p95": 10.08423698929815
+   },
+   "lidds2021_development": {
+    "detected": 530,
+    "false_alarm_recordings": 7,
+    "latency_p95": 1.516074502468109,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 3
+   },
+   "scenarios": {
+    "Bruteforce_CWE-307": [
+     24,
+     25,
+     1,
+     14.107155049950164
+    ],
+    "CVE-2012-2122": [
+     41,
+     41,
+     0,
+     1.179284793000079
+    ],
+    "CVE-2014-0160": [
+     7,
+     23,
+     1,
+     11.474809760001516
+    ],
+    "CVE-2017-7529": [
+     43,
+     51,
+     3,
+     1.0859376996944774
+    ],
+    "CVE-2018-3760": [
+     45,
+     46,
+     0,
+     1.0549257640057477
+    ],
+    "CVE-2019-5418": [
+     29,
+     29,
+     0,
+     1.25928665939864
+    ],
+    "EPS_CWE-434": [
+     34,
+     34,
+     2,
+     2.3438894699009323
+    ],
+    "PHP_CWE-434": [
+     23,
+     23,
+     0,
+     5.549636204099806
+    ],
+    "SQL_Injection_CWE-89": [
+     28,
+     28,
+     1,
+     4.5222036641007435
+    ],
+    "ZipSlip": [
+     21,
+     21,
+     1,
+     2.2132834090007236
+    ]
+   },
+   "must": {
+    "dev_false_alarms": true,
+    "lidds2021_and_cbds": false
+   }
+  },
+  "model-or-rate-1e-07": {
+   "primary": {
+    "detected": 197,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.6137071651090342,
+    "latency_p50": 1.1613958599991747,
+    "latency_p95": 10.22184693219824
+   },
+   "tolerance": {
+    "detected": 295,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.9190031152647975,
+    "latency_p50": 1.0543602520046989,
+    "latency_p95": 10.08423698929815
+   },
+   "lidds2021_development": {
+    "detected": 530,
+    "false_alarm_recordings": 7,
+    "latency_p95": 1.516074502468109,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 3
+   },
+   "scenarios": {
+    "Bruteforce_CWE-307": [
+     24,
+     25,
+     1,
+     14.107155049950164
+    ],
+    "CVE-2012-2122": [
+     41,
+     41,
+     0,
+     1.179284793000079
+    ],
+    "CVE-2014-0160": [
+     7,
+     23,
+     1,
+     11.474809760001516
+    ],
+    "CVE-2017-7529": [
+     43,
+     51,
+     3,
+     1.0859376996944774
+    ],
+    "CVE-2018-3760": [
+     45,
+     46,
+     0,
+     1.0549257640057477
+    ],
+    "CVE-2019-5418": [
+     29,
+     29,
+     0,
+     1.25928665939864
+    ],
+    "EPS_CWE-434": [
+     34,
+     34,
+     2,
+     2.3438894699009323
+    ],
+    "PHP_CWE-434": [
+     23,
+     23,
+     0,
+     5.549636204099806
+    ],
+    "SQL_Injection_CWE-89": [
+     28,
+     28,
+     1,
+     4.5222036641007435
+    ],
+    "ZipSlip": [
+     21,
+     21,
+     1,
+     2.2132834090007236
+    ]
+   },
+   "must": {
+    "dev_false_alarms": true,
+    "lidds2021_and_cbds": false
+   }
+  },
+  "model-or-rate-1e-08": {
+   "primary": {
+    "detected": 197,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.6137071651090342,
+    "latency_p50": 1.1613958599991747,
+    "latency_p95": 10.22184693219824
+   },
+   "tolerance": {
+    "detected": 295,
+    "attack_recordings": 321,
+    "false_alarm_recordings": 9,
+    "false_alarm_rate": 0.0038944180008654264,
+    "recall": 0.9190031152647975,
+    "latency_p50": 1.0543602520046989,
+    "latency_p95": 10.08423698929815
+   },
+   "lidds2021_development": {
+    "detected": 530,
+    "false_alarm_recordings": 6,
+    "latency_p95": 1.516074502468109,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 3
+   },
+   "scenarios": {
+    "Bruteforce_CWE-307": [
+     24,
+     25,
+     1,
+     14.107155049950164
+    ],
+    "CVE-2012-2122": [
+     41,
+     41,
+     0,
+     1.179284793000079
+    ],
+    "CVE-2014-0160": [
+     7,
+     23,
+     1,
+     11.474809760001516
+    ],
+    "CVE-2017-7529": [
+     43,
+     51,
+     3,
+     1.0859376996944774
+    ],
+    "CVE-2018-3760": [
+     45,
+     46,
+     0,
+     1.0549257640057477
+    ],
+    "CVE-2019-5418": [
+     29,
+     29,
+     0,
+     1.25928665939864
+    ],
+    "EPS_CWE-434": [
+     34,
+     34,
+     2,
+     2.3438894699009323
+    ],
+    "PHP_CWE-434": [
+     23,
+     23,
+     0,
+     5.549636204099806
+    ],
+    "SQL_Injection_CWE-89": [
+     28,
+     28,
+     1,
+     4.5222036641007435
+    ],
+    "ZipSlip": [
+     21,
+     21,
+     1,
+     2.2132834090007236
+    ]
+   },
+   "must": {
+    "dev_false_alarms": true,
+    "lidds2021_and_cbds": true
+   }
+  }
+ }
+}
