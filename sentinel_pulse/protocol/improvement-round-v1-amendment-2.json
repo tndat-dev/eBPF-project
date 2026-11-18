@@ -1,0 +1,34 @@
+{
+ "schema": "sentinel-pulse-improvement-round-v1-amendment-2",
+ "amends": "sentinel_pulse/protocol/improvement-round-v1.json",
+ "registered_at": "2026-11-19T02:33+07:00",
+ "registered_before": "any work on D14-D18 and before any computation of D1-D12",
+ "source": "owner 19/11: read the whole of research_notes/ (22 notes) and reports/ (7 reports); every takeaway was read and the ones that still apply to the token model are added; D13 already measured (io_uring_setup EPERM in a RuntimeDefault production pod, io_uring_disabled = 0: the path is closed by seccomp and seen by the seccomp hook)",
+ "added": {
+  "D14_smoothing": {
+   "source": "research_notes/ML Pulse tới trần LID DS/score_design_rare_events.md (Witten-Bell is not the strongest smoothing; Kneser-Ney, hierarchical Pitman-Yor)",
+   "what": "interpolated Kneser-Ney (absolute discount, continuation counts) in place of Witten-Bell, same tokens, grams, top-k and threshold rule",
+   "criterion": "as D4: LID-DS 2021 development >= 529/544 with <= 6 false alarms, CB-DS >= 891 with <= 3, and more 2019 development detections than lidds-ml-v5-t3, or the same detections with fewer false alarms"
+  },
+  "D15_cusum": {
+   "source": "research_notes/ML Pulse tới trần LID DS/tail_and_recording_calibration.md Q3, fusion_small_data_short_recordings.md (Shewhart-CUSUM in log-evidence units, threshold on the per-recording maximum of the statistic)",
+   "what": "a Shewhart-CUSUM over window scores (one extreme window still fires; weak windows accumulate), threshold from held-out normal maxima of the statistic",
+   "criterion": "as D14, and p95 not worse by more than 0.5 s on LID-DS 2021 development"
+  },
+  "D16_pooled_tail": {
+   "source": "tail_and_recording_calibration.md Q6-Q7 (GEV with a pooled shape, censoring of the top 1-3 maxima)",
+   "what": "threshold from a GEV whose shape is pooled across workloads/scenarios, location and scale per workload, top maxima censored",
+   "criterion": "as D14"
+  },
+  "D17_process_context": {
+   "source": "score_design_rare_events.md (process name and return value in the token have measured gains), behaviour_features.md (per-executable profiles, startup phase by position since exec)",
+   "what": "offline on LID-DS 2021 development: n-gram history reset at execve and the executable name as a context token",
+   "criterion": "as D14; a probe change follows only if it passes"
+  },
+  "D18_attack_breadth": {
+   "source": "research_notes/Giới hạn và hướng phát triển/realistic_evaluation.md (Falco event-generator, Atomic Red Team container tests: behaviour simulators, not CVE exploits)",
+   "what": "more attack behaviours for the final live campaign, through the same kubectl exec path, no vulnerable image, no exploit code",
+   "criterion": "only with the owner's agreement (15/11 and 16/11 limits); reported in the final run"
+  }
+ }
+}
