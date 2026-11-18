@@ -1,0 +1,50 @@
+{
+ "schema": "sentinel-pulse-lidds2019-development-v1",
+ "registered_at": "2026-11-18T20:28+07:00",
+ "registered_before": "any LID-DS 2019 recording is split, cached or scored with a model other than the registered lidds-ml-v5 run, and before any per-recording 2019 result is read beyond what the lidds2019-confirmation-v2 receipts (pooled, per scenario, amendment-1 tolerance) already show",
+ "owner_decision": "18/11: after the registered failure of lidds2019-confirmation-v2 (C1 not met), the owner chose to look for an improvement on a development part of the 2019 test recordings",
+ "seen_before_registration": "the registered run scored every 2019 test recording (including the holdout part defined below) with lidds-ml-v5; its pooled and per-scenario results and the amendment-1 label-resolution analysis are known. The holdout part is therefore NOT blind for lidds-ml-v5, and is reused for the chosen system",
+ "question": "Is there a change of the token model, chosen on a development part of the LID-DS 2019 test recordings (and on LID-DS 2021 development and CB-DS as before), that reaches C1 on the rest of the 2019 test recordings while keeping LID-DS 2021?",
+ "split": {
+  "rule": "per test recording (attack and normal) of every 2019 scenario: development if int(sha256('lidds2019-development:' + name), 16) % 10 < 3, else holdout; training and validation recordings unchanged (first 200 / next 50 normal recordings of runs.csv)",
+  "note": "about 30 % development, 70 % holdout; the split file is written before any cache or score"
+ },
+ "development": {
+  "allowed": "any exploratory analysis of the development recordings (scores, tokens, maxima, latencies); exploit and normal labels of the development part may be read",
+  "forbidden": "reading any holdout recording, its tokens or scores, except through the single holdout scoring below"
+ },
+ "candidates": {
+  "families": [
+   "threshold level alpha' (grid of token-design-study-v1 q2)",
+   "trim of the held-out maxima",
+   "top-k of the window score",
+   "gram length n (3, 4, 5)",
+   "alphabet: which syscalls keep errno, open information, size bucket (specs of token-design-study-v1)",
+   "evaluation rule of amendment 1 of lidds2019-confirmation-v2 (label resolution 1 s) is reported, not a model change"
+  ],
+  "note": "families may be extended during development; every candidate tried is listed in the receipt"
+ },
+ "selection": {
+  "metric": "2019 development: detected attack recordings with the 1 s label tolerance; the registered primary rule is reported beside it",
+  "must": [
+   "2019 development: false-alarm normal recordings <= 1 %",
+   "LID-DS 2021 development: detected >= 530/544 and false-alarm recordings <= 6, p95 <= 1.52 s (token-design-study-v1 KEEP)",
+   "CB-DS: detected >= 891 and false-alarm recordings <= 3"
+  ],
+  "tie_break": [
+   "lower 2019 development false-alarm recordings",
+   "lower 2019 development p95",
+   "fewer changes from lidds-ml-v5"
+  ],
+  "no_change": "if no candidate improves the 2019 development recall (tolerance rule) by at least 2 percentage points over lidds-ml-v5, the system stays lidds-ml-v5 and nothing more is scored"
+ },
+ "freeze": "the chosen system is written in an amendment, registered before the LID-DS 2021 official scoring and the holdout scoring",
+ "after_freeze": [
+  "LID-DS 2021 official with the chosen system, reported beside lidds-ml-v5 (1,238/1,271, 26/7,938, p95 1.47 s); required: recall >= 95 %, false-alarm recordings <= 1 %, p95 <= 3 s",
+  "holdout part of 2019 scored exactly once with the chosen system (the output must not exist), primary rule and 1 s tolerance, pooled and per scenario; criterion C1 of lidds2019-confirmation-v2 (recall >= 95 %, false-alarm recordings <= 1 %, p95 <= 3 s)",
+  "lidds-ml-v5 on the same holdout part, from the registered receipts, for comparison"
+ ],
+ "reporting": "the registered lidds2019-confirmation-v2 result stays the primary LID-DS 2019 result; the development study and the holdout result are reported as what they are (holdout seen by lidds-ml-v5 in the registered run)",
+ "cluster": "a change to the alert path on the cluster (parameters or probe alphabet) needs its own live run before it is claimed on the cluster; until then the cluster system stays lidds-ml-v5 with pulse-live-v6-fit-1117",
+ "code": "scripts/analysis/lidds2019_dev.py (split, cache, study, official, holdout); reuses lidds_token_cache.py, lidds_token_study.py, lidds_ml_v2.py, lidds_ml_v4.py"
+}
