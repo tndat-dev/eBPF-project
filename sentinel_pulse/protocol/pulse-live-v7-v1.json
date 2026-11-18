@@ -1,0 +1,51 @@
+{
+ "schema": "sentinel-pulse-pulse-live-v7-v1",
+ "registered_at": "2026-11-18T23:58+07:00",
+ "registered_before": "the cluster fit of lidds-ml-v5-t3 and the live run; no window of the run exists",
+ "owner_decision": "18/11: switch the cluster to the configuration of lidds2019-development-v1 amendment 1, refit and run a 26 h live run",
+ "seen_before_registration": "every result of pulse-live-v6-1117 (same campaign design) and of lidds2019-development-v1 (LID-DS 2021 official 1,236/1,271, 15/7,938, p95 1.54 s; 2019 holdout 817/841 with the 1 s tolerance)",
+ "model": {
+  "name": "lidds-ml-v5-t3",
+  "alphabet": "select1f",
+  "n": 4,
+  "smoothing": "interpolated Witten-Bell",
+  "top": 3,
+  "trim": 0.005,
+  "alpha_prime": 0.0003,
+  "folds": 5,
+  "decision": "one window above the workload threshold fires",
+  "change_from_lidds_ml_v5": "top 10 -> 3, trim 0.01 -> 0.005, alpha prime 0.00018 -> 0.0003; probe, tokens and grams unchanged"
+ },
+ "fit": {
+  "name": "pulse-live-v7-fit-<MMDD>",
+  "data": "exactly the data of pulse-live-v6-fit-1117: pulse-token-capture-v6-1116 (training 8 h, cross-fit to the end) plus pulse-live-v5-1110 normal outside its trials [selection_end, selection_start + 86,400]",
+  "command": "token_branch_fit.py --folds 5 --alpha 0.0003 --share 1.0 --top 3 --trim 0.005 --dump-maxima, spans as pulse-live-v6-fit-1117",
+  "count_branch": "shadow, count-thresholds.json of pulse-live-v6-fit-1117 unchanged",
+  "note": "the v6 live run is not learnt, so the v6 operator tools stay unseen"
+ },
+ "run": {
+  "name": "pulse-live-v7-<MMDD>",
+  "seconds": 93600,
+  "campaign": "as pulse-live-v6-v1 + amendment 1: 735 trials (525 base at 1, 3, 6, 12, 24 actions/s; 105 PAD 30; 105 PAD 300), v6 operator set, living-off-the-land step, seeded random step order, lineage build, local decisions, bridge, RCA"
+ },
+ "hypotheses": {
+  "H0": "primary set (6, 12, 24/s): recall >= 95 %, idle control positives <= 5 %, precision (1:1) >= 95 %, p95 kernel -> end of alarm window <= 3 s",
+  "H3": "dilution: recall >= 95 % at PAD 30 and at PAD 300",
+  "reported": [
+   "harmless binary, unseen operator command and living-off-the-land flags, all rates and primary",
+   "native-stream flags (as pulse-live-v6-v1 H1)",
+   "burden (episodes per replica-hour, caveat of v6: short normal span)",
+   "side by side with pulse-live-v6-1117 (lidds-ml-v5 on the same campaign design)",
+   "alert path and RCA as pulse-live-v6-v1 H6"
+  ]
+ },
+ "code": [
+  "scripts/analysis/token_branch_fit.py (--top, --trim)",
+  "sentinel_pulse/detector/token_model.py (TokenBranch reads MODELS.json \"top\")",
+  "scripts/analysis/pulse_live_v4.py",
+  "scripts/analysis/native_stream.py",
+  "scripts/analysis/rule_e_benefit.py",
+  "scripts/analysis/rca_coverage.py"
+ ],
+ "limits": "same as pulse-live-v6-v1: campaign attacks enter through kubectl exec; no in-process attack on the cluster (owner decision 16/11)"
+}

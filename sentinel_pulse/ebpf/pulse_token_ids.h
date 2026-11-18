@@ -31,8 +31,7 @@
 /* Cờ cho từng syscall trong bảng (một syscall có thể có nhiều cờ, OR với nhau):
  *   PULSE_TF_ERR        : khi thất bại, token mang errno.
  *   PULSE_TF_RW         : khi thành công với n>0 byte, token mang min(15, floor(log2 n)).
- *   PULSE_TF_OPEN_SI/DX : mở file — cờ mở (O_WRONLY...) nằm ở thanh ghi tham số thứ 2 (rsi, open) hay thứ 3 (rdx,
- *                         openat). Cần cờ này để biết chế độ r hay w.
+ *   PULSE_TF_OPEN_SI/DX : mở file — Cần cờ này để biết chế độ r hay w.
  *   PULSE_TF_OPEN_HOW   : openat2 — cờ nằm trong struct open_how ở bộ nhớ user (phải đọc qua con trỏ).
  *   PULSE_TF_OPEN_CREAT : creat — luôn là ghi. */
 #define PULSE_TF_ERR 1u
@@ -45,8 +44,8 @@
 
 /* 39 SYSCALL "CÓ HOOK" (X-macro: X(số syscall x86_64, tên, cờ)). Đây là các syscall mà token cần GIÁ TRỊ TRẢ VỀ
  * (mã lỗi, số byte, fd vừa mở), nên token chỉ phát được khi syscall trả về. Mọi syscall khác phát token "chỉ tên" ngay
- * lúc vào. Đồ án đo được (RQ2): trên LID-DS chỉ 5 trong 39 syscall này thực sự cần (open, read, recv/recvfrom, stat,
- * write) — tập 39 là đủ nhưng rộng hơn cần thiết. Lưu ý: 4,5,6 là stat/fstat/lstat (kernel gọi là newstat...). */
+ * lúc vào. Đồ án đo được: trên LID-DS chỉ 5 trong 39 syscall này thực sự cần (open, read, recv/recvfrom, stat,
+ * write) — tập 39 là đủ nhưng rộng hơn cần thiết.*/
 #define PULSE_HOOKED_ROWS(X) \
     X(0, read, PULSE_TF_ERR | PULSE_TF_RW) \
     X(1, write, PULSE_TF_ERR | PULSE_TF_RW) \
@@ -88,8 +87,8 @@
     X(307, sendmmsg, PULSE_TF_RW) \
     X(437, openat2, PULSE_TF_OPEN_HOW)
 
-/* futex được tách riêng: nó là syscall rất "nóng" (gọi liên tục khi các thread chờ nhau), nên loader có cờ
- * futex_at_exit để bật/tắt việc hook nó lúc trả về (dùng khi đo chi phí). Bản chạy thật: bật. */
+/* futex(Fast Userspace Mutex) được tách riêng: nó là syscall rất "nóng" (gọi liên tục khi các thread chờ nhau), nên loader có cờ
+ * futex_at_exit để bật/tắt việc hook nó lúc trả về (dùng khi đo chi phí). */
 #define PULSE_FUTEX_NR 202
 
 /* Token = 32 bits: syscall number in bits 23..31 (x86_64 numbers are < 512; larger ones are clamped to 511), detail
@@ -108,14 +107,14 @@
  *                  FNV-1a của thư mục đầu (cắt còn 20 bit), hoặc 3 mã đặc biệt ROOT / REL / UNKNOWN.
  * Ví dụ: read trả 4096 byte → (0 << 23) | (2 << 21) | 12.
  * PULSE_TOK_NONE (0xFFFFFFFF) đánh dấu ô lịch sử trống: ở đầu một thread, 4-gram có các ô đầu là NONE (gram ngắn hơn). */
-#define PULSE_TOK_NR_SHIFT 23
+#define PULSE_TOK_NR_SHIFT 23 //Số bit cần dịch trái để đưa số hiệu syscall lên vị trí từ bit 23 đến bit 31 (9 bit tổng cộng).
 #define PULSE_TOK_NR_MAX 511u
-#define PULSE_TOK_KIND_SHIFT 21
-#define PULSE_TOK_KIND_ERR (1u << PULSE_TOK_KIND_SHIFT)
-#define PULSE_TOK_KIND_SIZE (2u << PULSE_TOK_KIND_SHIFT)
-#define PULSE_TOK_KIND_OPEN (3u << PULSE_TOK_KIND_SHIFT)
-#define PULSE_TOK_OPEN_WRITE (1u << 20)
-#define PULSE_TOK_DIR_MASK 0xFFFFFu
+#define PULSE_TOK_KIND_SHIFT 21 //Độ dịch bit để xác định vị trí của trường kind (bắt đầu từ bit 21)
+#define PULSE_TOK_KIND_ERR (1u << PULSE_TOK_KIND_SHIFT)  //Kind = 1 (giá trị nhị phân 01), biểu thị token mang mã lỗi errno (khi syscall thất bại)
+#define PULSE_TOK_KIND_SIZE (2u << PULSE_TOK_KIND_SHIFT) //Kind = 2 (giá trị nhị phân 10), biểu thị token mang nhóm kích thước byte (khi đọc/ghi thành công)
+#define PULSE_TOK_KIND_OPEN (3u << PULSE_TOK_KIND_SHIFT) //Kind = 3 (giá trị nhị phân 11), biểu thị token mở file (open/openat)
+#define PULSE_TOK_OPEN_WRITE (1u << 20) //Đặt tại Bit 20. Nếu bit này bằng 1, nghĩa là thao tác mở file ở chế độ ghi (write), còn bằng 0 là chế độ đọc (read)
+#define PULSE_TOK_DIR_MASK 0xFFFFFu 
 #define PULSE_TOK_DIR_REL 0xFFFFEu      /* file không nằm dưới gốc của task (vd. file giả /proc, gốc khác) */
 #define PULSE_TOK_DIR_UNKNOWN 0xFFFFFu  /* không đọc được fd hoặc đi cây thư mục thất bại */
 #define PULSE_TOK_FNV_BASIS 2166136261u /* hằng số khởi đầu và hệ số nhân chuẩn của băm FNV-1a 32 bit */
@@ -124,7 +123,7 @@
 #define PULSE_TOK_NONE 0xFFFFFFFFu
 #define PULSE_TOK_WINDOW_NS 500000000ULL   /* cửa sổ 0,5 s: mỗi gram được đếm vào cửa sổ chứa thời điểm của nó */
 #define PULSE_TOK_DIR_CHARS 64             /* đọc tối đa 64 ký tự tên thư mục để băm */
-#define PULSE_TOK_DIR_DEPTH 64   /* dentry levels walked up for the first directory, mount crossings included */
+#define PULSE_TOK_DIR_DEPTH 64   /* đảm bảo thuật toán duyệt cây thư mục luôn có giới hạn an toàn tuyệt đối và chắc chắn kết thúc */
 /* O_WRONLY | O_RDWR | O_CREAT | O_TRUNC | O_APPEND (signals.WRITE_FLAGS) */
 /* Có bất kỳ cờ nào trong số này → coi là mở để GHI (chữ "w" trong token), ngược lại là "r". */
 #define PULSE_TOK_WRITE_FLAGS (01u | 02u | 0100u | 01000u | 02000u)
@@ -145,8 +144,8 @@ struct pulse_gram_key {
 /* THẺ DÒNG DÕI: native = cây process của chính workload (từ entrypoint pid 1); session = process vào container qua
  * runtime exec (kubectl exec, exec probe của kubelet) và mọi con cháu của nó. Hiện chỉ để đo (telemetry): đường cảnh
  * báo vẫn chấm cả cửa sổ. Lượt live v6 kiểm giả thuyết "chỉ chấm phần native thì không còn báo nhầm lệnh quản trị". */
-#define PULSE_LINEAGE_NATIVE 0u
-#define PULSE_LINEAGE_SESSION 1u
+#define PULSE_LINEAGE_NATIVE 0u //Đại diện cho cây tiến trình gốc của ứng dụng (workload's own process tree), bắt đầu xuất phát từ tiến trình gốc (PID 1) do container khởi chạy.
+#define PULSE_LINEAGE_SESSION 1u //Đại diện cho các tiến trình nhảy vào từ bên ngoài thông qua các công cụ quản trị runtime như lệnh kubectl exec, các exec probe của kubelet, kèm theo mọi tiến trình con cháu do chúng sinh ra.
 
 /* Set by the loader before load (.rodata.tokcfg), so the verifier prunes the disabled paths. Conditions of the
  * overhead A/B: exit-nofutex = B, exit = C, grams = D. */

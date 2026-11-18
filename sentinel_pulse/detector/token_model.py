@@ -69,6 +69,7 @@ class CountTokenLM:
         self.given = defaultdict(Counter)
         self.total = 0
         self.finalized = False
+        self.default_top = TOP      # window score: mean of this many highest -log p (lidds-ml-v5: 10, lidds-ml-v5-t3: 3)
 
     # Học MỘT gram với trọng số `weight` (= số lần probe thấy gram đó). Với mỗi k, ngữ cảnh là k token ngay trước w.
     # Học "gram thấy c lần" bằng weight = c cho kết quả y hệt gọi learn c lần (test_token_model.py kiểm).
@@ -140,8 +141,10 @@ class CountTokenLM:
     # ĐIỂM CỬA SỔ: mỗi gram cho độ bất ngờ -ln p, lặp lại `c` lần (bội số). Sắp giảm dần, lấy 10 sự kiện bất ngờ
     # nhất (một gram có thể chiếm nhiều chỗ nếu c > 1), trả trung bình. Ví dụ RabbitMQ trong đồ án:
     # 6 lần 34,0 + 4 lần 7,0 → (204 + 28)/10 = 23,2 > ngưỡng 13,4 → cửa sổ bị báo.
-    def window_score(self, grams, top: int = TOP) -> float:
-        """Mean of the top highest -log p of a window's events; 0 for an empty window (as the offline scorer)."""
+    def window_score(self, grams, top: int | None = None) -> float:
+        """Mean of the top highest -log p of a window's events; 0 for an empty window (as the offline scorer).
+        top None = the model's default_top (TOP unless the fit set another, MODELS.json "top")."""
+        top = self.default_top if top is None else int(top)
         values = sorted(((-math.log(self.prob(strip(gram))), int(c)) for *gram, c in grams), reverse=True)
         taken, total = 0, 0.0
         for nll, c in values:
@@ -234,6 +237,9 @@ class TokenBranch:
             if sha256_file(path) != item['lm_sha256']:
                 raise ValueError(f'token model of {key} changed')
             self.models[key] = CountTokenLM.load(path)
+            self.models[key].default_top = int(item.get('top', TOP))      # lidds-ml-v5-t3: 3; absent = 10
+            if self.models[key].default_top < 1:
+                raise ValueError(f'token top of {key} must be >= 1')
             self.thresholds[key] = float(item['threshold'])
             if not math.isfinite(self.thresholds[key]):
                 raise ValueError(f'token threshold of {key} is not finite')

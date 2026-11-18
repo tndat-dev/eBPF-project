@@ -41,7 +41,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from sentinel_pulse.detector.token_model import CountTokenLM, has_execve, strip  # noqa: E402
+from sentinel_pulse.detector.token_model import TOP, CountTokenLM, has_execve, strip  # noqa: E402
 from lidds_ml_v2 import gumbel, threshold  # noqa: E402
 
 TOP_DROP = 0.01
@@ -119,7 +119,7 @@ def fold_of(window_end, start, seconds, folds):
 
 
 # Lõi cross-fit cho MỘT workload: đếm gram theo fold, chấm mỗi fold bằng mô hình các fold khác, gom cực đại khối 60 s.
-def crossfit_one(path, start, end, block, folds, seconds):
+def crossfit_one(path, start, end, block, folds, seconds, top=None):
     """(final model on every window, held-out block maxima, windows learnt): one parse to count, one to score each fold."""
     grams = [Counter() for _ in range(folds)]
     parts = [open(f'{path}.f{k}', 'w') for k in range(folds)]
@@ -147,7 +147,7 @@ def crossfit_one(path, start, end, block, folds, seconds):
             for line in handle:
                 w = json.loads(line)
                 cell = (w['pod_uid'], w['container_name'], math.floor(w['window_end'] / block))
-                maxima[cell] = max(maxima.get(cell, 0.0), lm.window_score(w['grams']))
+                maxima[cell] = max(maxima.get(cell, 0.0), lm.window_score(w['grams'], top))
         del lm
         Path(f'{path}.f{k}').unlink()
     final = CountTokenLM()
@@ -160,8 +160,11 @@ def crossfit_one(path, start, end, block, folds, seconds):
 # Một workload trọn vẹn: cross-fit → ngưỡng Gumbel → lưu mô hình; (tuỳ chọn) dump cực đại giữ ra cho phân tích ngưỡng.
 def fit_crossfit(job):
     """lidds-ml-v4 on the cluster; (key, report row, spec entry or None)."""
-    key, path, train, validation, alpha, block, minimum, output, folds, seconds, share, *dump = job
-    lm, maxima, windows = crossfit_one(path, train[0], validation[1], block, folds, seconds)
+    key, path, train, validation, alpha, block, minimum, output, folds, seconds, share, *rest = job
+    dump = rest[:1]                                        # optional: dump directory, top-k, trim (lidds-ml-v5-t3)
+    top = rest[1] if len(rest) > 1 else TOP
+    trim = rest[2] if len(rest) > 2 else TOP_DROP
+    lm, maxima, windows = crossfit_one(path, train[0], validation[1], block, folds, seconds, top)
     blocks = np.asarray(list(maxima.values()), float)
     if dump and dump[0]:                                   # ml-final-study-v1 part C: the held-out block maxima
         target = Path(dump[0]) / (hashlib.sha256(key.encode()).hexdigest()[:16] + '.maxima.json')
@@ -169,13 +172,16 @@ def fit_crossfit(job):
     row = dict(training_windows=windows, validation_blocks=len(blocks), distinct_contexts=sum(len(level) for level in lm.count))
     if windows == 0 or len(blocks) < minimum:
         return key, row, None
-    fit = trimmed_gumbel(blocks)
+    fit = trimmed_gumbel(blocks, trim)
     thr = threshold(fit, alpha * share)
     model = Path(output) / (hashlib.sha256(key.encode()).hexdigest()[:16] + '.lm.json.gz')
     lm.save(model)
     row.update(gumbel=fit, threshold=thr, validation_block_max=float(blocks.max()),
                validation_blocks_above=int((blocks > thr).sum()))
-    return key, row, dict(lm=str(model), lm_sha256=sha(model), threshold=thr)
+    entry = dict(lm=str(model), lm_sha256=sha(model), threshold=thr)
+    if top != TOP:
+        entry['top'] = int(top)                            # the worker's window score (TokenBranch reads it)
+    return key, row, entry
 
 
 # (Gate v5, đã loại) Gộp mô hình mọi workload thành mô hình "pool".
@@ -272,6 +278,8 @@ def main():
     ap.add_argument('--extra-span', type=float, nargs=2, metavar=('START', 'END'))
     ap.add_argument('--pool-level', type=float, help='lidds-ml-v5 gate: level of the pool threshold (needs --folds)')
     ap.add_argument('--exec-hold', type=float, default=1.0, help='lidds-ml-v5 gate: seconds held after an execve')
+    ap.add_argument('--top', type=int, default=TOP, help='window score: mean of the TOP highest -log p (lidds-ml-v5-t3: 3)')
+    ap.add_argument('--trim', type=float, default=TOP_DROP, help='share of the highest held-out maxima dropped before the Gumbel fit')
     ap.add_argument('--dump-maxima', type=Path, help='ml-final-study-v1 part C: write the held-out block maxima per workload here')
     a = ap.parse_args()
     if not a.train[0] < a.train[1] <= a.validation[0] < a.validation[1]:
@@ -294,7 +302,7 @@ def main():
     if a.folds:
         if a.dump_maxima:
             a.dump_maxima.mkdir(parents=True, exist_ok=True)
-        jobs = [j + (a.folds, a.fold_seconds, a.share, str(a.dump_maxima) if a.dump_maxima else None) for j in jobs]
+        jobs = [j + (a.folds, a.fold_seconds, a.share, str(a.dump_maxima) if a.dump_maxima else None, a.top, a.trim) for j in jobs]
         worker = fit_crossfit
     if a.jobs > 1:
         from multiprocessing import Pool
@@ -334,6 +342,7 @@ def main():
                                                        train=a.train, validation=a.validation, alpha=a.alpha,
                                                        branch_alpha=a.alpha * (a.share if a.folds else 1 / 3), block=a.block,
                                                        folds=a.folds, fold_seconds=a.fold_seconds if a.folds else None,
+                                                       top=a.top, trim=a.trim,
                                                        workloads=report),
                                                   indent=1, sort_keys=True) + '\n')
     for f in work.glob('*.jsonl'):

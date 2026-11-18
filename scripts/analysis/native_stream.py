@@ -21,7 +21,6 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sentinel_pulse.common import open_sealed  # noqa: E402
-from sentinel_pulse.detector.token_model import TOP, CountTokenLM  # noqa: E402
 import live_attribution as la  # noqa: E402
 
 LABELS = ('control', 'admin', 'benign', 'attack', 'lotl')
@@ -83,8 +82,8 @@ def evaluate(trials, windows, models, lms):
         lm, thr = lms[t['workload']], models[t['workload']][1]
         a, b = t['start'], t['start'] + la.HORIZON
         wins = [w for w in windows.get(t['key'], ()) if a <= w[0] <= b]
-        native = any(lm.window_score(native_of(g, s), TOP) > thr for _, g, s in wins)
-        whole = any(lm.window_score(g, TOP) > thr for _, g, _ in wins)
+        native = any(lm.window_score(native_of(g, s)) > thr for _, g, s in wins)
+        whole = any(lm.window_score(g) > thr for _, g, _ in wins)
         pad = pair_pad.get(t['pair'], 0)
         sets = [t['label']] + ([f"{t['label']}-primary"] if pair_rate.get(t['pair']) in la.PRIMARY else [])
         if pad:
@@ -112,7 +111,7 @@ def main():
     trials = la.live.load_trials(a.run_root / la.CAMPAIGN)
     models = la.load_models(a.models)
     windows, files = collect(a.run_root, trials, a.jobs)
-    lms = {w: CountTokenLM.load(Path(models[w][0])) for w in sorted({t['workload'] for t in trials} & set(models))}
+    lms = {w: la.load_lm(models[w][0]) for w in sorted({t['workload'] for t in trials} & set(models))}
     res = evaluate(trials, windows, models, lms)
     h1 = {k: res[k]['native']['rate'] for k in ('admin', 'benign') if k in res}
     doc = dict(schema='pulse-live-v6-native-stream', protocol='sentinel_pulse/protocol/pulse-live-v6-v1.json',

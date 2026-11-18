@@ -217,7 +217,7 @@ def main():
     trials = la.live.load_trials(a.run_root / la.CAMPAIGN)
     models = la.load_models(a.models)
     windows, files = la.collect(a.run_root, trials, a.jobs)
-    lms = {w: CountTokenLM.load(Path(models[w][0])) for w in sorted({t['workload'] for t in trials} & set(models))}
+    lms = {w: la.load_lm(models[w][0]) for w in sorted({t['workload'] for t in trials} & set(models))}
     doc = dict(schema='ml-final-study-v1-session-model', protocol='sentinel_pulse/protocol/ml-final-study-v1-amendment-1.json',
                run=str(a.run_root), models=str(a.models), segments_read=files,
                B2=part_b2(trials, windows, models, lms), B3=part_b3(trials, windows, models, lms))

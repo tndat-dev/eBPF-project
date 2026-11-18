@@ -28,7 +28,7 @@ const volatile struct pulse_tok_config pulse_tok_config SEC(".rodata.tokcfg") = 
 };
 
 /* 2^18 (cgroup, window, gram) entries: user space drains closed windows every 0.5 s, so about two windows live. */
-/* MAP 4-GRAM: 262.144 mục. Mỗi mục = một (cgroup, cửa sổ, 4 token, dòng dõi) khác nhau → số lần. Loader xoá cửa sổ
+/* MAP 4-GRAM: 262.144 mục = 2^18. Mỗi mục = một (cgroup, cửa sổ, 4 token, dòng dõi) khác nhau → số lần. Loader xoá cửa sổ
  * đã đóng mỗi 0,5 s nên lúc nào cũng chỉ khoảng 2 cửa sổ sống. Đo được (map-capacity-v1): map bắt đầu đầy và bỏ gram ở
  * 400.000 syscall/s mà mọi syscall là gram mới; cửa sổ thật nặng nhất của lượt v5 chỉ 6.901 gram. */
 struct {
@@ -57,7 +57,7 @@ static __always_inline void pulse_tok_stat(__u32 index)
         (*value)++;
 }
 
-/* Xoá lịch sử token của thread: 3 ô = NONE. Gram đầu tiên sau đó sẽ là (NONE, NONE, NONE, token) — "gram ngắn". */
+/* Khi một luồng vừa mới khởi động hoặc khi lịch sử bị reset: 3 ô = NONE. Gram đầu tiên sau đó sẽ là (NONE, NONE, NONE, token) — "gram ngắn". */
 static __always_inline void pulse_tok_reset(struct pulse_task_state *state)
 {
     state->tok[0] = PULSE_TOK_NONE;
@@ -74,13 +74,14 @@ static __always_inline __u32 pulse_tok_ns_pid(struct task_struct *task)
     struct pid *pid = BPF_CORE_READ(task, thread_pid);
     unsigned int level = BPF_CORE_READ(pid, level);
     struct upid upid = {};
-    if (!pid || level == 0)
+    if (!pid || level == 0) //Nếu level == 0, có nghĩa là tiến trình đang nằm ở Host (root namespace), không bị đóng gói trong container nào cả -> hàm trả về 0
         return 0;
-    const struct upid *first = __builtin_preserve_access_index(&pid->numbers[0]);
+    const struct upid *first = __builtin_preserve_access_index(&pid->numbers[0]); //Định vị dữ liệu PID trong Namespace cụ thể
     if (bpf_probe_read_kernel(&upid, sizeof(upid), (const void *)first + (level & 0xff) * bpf_core_type_size(struct upid)) < 0)
         return 0;
-    return (__u32)upid.nr;
+    return (__u32)upid.nr; //upid.nr chính là số hiệu PID thực tế mà tiến trình nhìn thấy khi nó chạy bên trong container của mình (ví dụ: PID = 1)
 }
+//lấy số hiệu tiến trình (PID) bên trong một Namespace
 
 /* Lineage of a task first seen without a state (amendment 2). Children of a watched task get theirs at fork
  * (pulse_tok_fork), so this covers tasks older than the probe and tasks that moved into the cgroup: the lineage of the

@@ -19,7 +19,7 @@ Gate: the recomputed score of every interval window equals the logged token_scor
 # Phần A/B của ml-final-study-v1: recall live có phải do hành vi tấn công không (bỏ gram đã có trong khoảng vô hại cùng trial,
 # chỉ tính cửa sổ sau 1,5 s), và học thêm lệnh quản trị có hết báo nhầm không (B). Trial PAD báo riêng.
 import argparse
-from collections import Counter, defaultdict
+from collections import defaultdict
 import json
 from multiprocessing import Pool
 from pathlib import Path
@@ -111,7 +111,7 @@ def collect(root, trials, jobs):
 
 def score(lm, grams, drop=frozenset()):
     """Mean of the TOP highest -ln p with multiplicity over the grams not in drop (CountTokenLM.window_score)."""
-    return lm.window_score([g for g in grams if tuple(g[:4]) not in drop], TOP) if drop else lm.window_score(grams, TOP)
+    return lm.window_score([g for g in grams if tuple(g[:4]) not in drop]) if drop else lm.window_score(grams)
 
 
 def interval_windows(windows, trial):
@@ -119,14 +119,25 @@ def interval_windows(windows, trial):
     return [w for w in windows.get(trial['key'], ()) if a <= w[0] <= b]
 
 
+TOP_OF = {}     # model path -> top-k of its window score (MODELS.json "top", absent = TOP)
+
+
 def load_models(path):
     doc = json.loads(Path(path).read_text())
+    TOP_OF.update({v['lm']: int(v.get('top', TOP)) for v in doc.values()})
     return {k: (v['lm'], float(v['threshold'])) for k, v in doc.items()}
+
+
+def load_lm(lm_path):
+    """A workload model with the top-k its fit used."""
+    lm = CountTokenLM.load(Path(lm_path))
+    lm.default_top = TOP_OF.get(str(lm_path), TOP)
+    return lm
 
 
 def augmented(lm_path, grams_list):
     """The model of lm_path that has also learnt the given windows' grams (counts as the probe sends them)."""
-    lm = CountTokenLM.load(Path(lm_path))
+    lm = load_lm(lm_path)
     for grams in grams_list:
         for *g, c in grams:
             lm.learn(strip(g), int(c))
@@ -260,7 +271,7 @@ def main():
     trials = live.load_trials(a.run_root / CAMPAIGN)
     models = load_models(a.models)
     windows, files = collect(a.run_root, trials, a.jobs)
-    lms = {w: CountTokenLM.load(Path(models[w][0])) for w in sorted({t['workload'] for t in trials} & set(models))}
+    lms = {w: load_lm(models[w][0]) for w in sorted({t['workload'] for t in trials} & set(models))}
     gate, rows = part_a(trials, windows, models, lms)
     doc = dict(schema='ml-final-study-v1-live-attribution', protocol='sentinel_pulse/protocol/ml-final-study-v1.json',
                run=str(a.run_root), models=str(a.models), segments_read=files,

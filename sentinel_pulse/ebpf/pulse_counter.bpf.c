@@ -113,11 +113,11 @@ static __always_inline __u32 transition_bin(__u32 previous, __u32 current)
 static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
 {
     /* Bước 1 — lọc theo cgroup: task không thuộc container được theo dõi thì thoát ngay. */
-    __u64 cgroup_id = bpf_get_current_cgroup_id();
+    __u64 cgroup_id = bpf_get_current_cgroup_id(); //Lấy định danh cgroup
     struct pulse_counters *counters = bpf_map_lookup_elem(&pulse_cgroups, &cgroup_id);
     if (!counters)
         return 0;
-
+    // Allow-list
     if (syscall_id >= PULSE_MAX_SYSCALL_ID)
         return 0;
 
@@ -183,6 +183,7 @@ static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
     current.tok_pending = !token_here;
 #endif
     /* BPF_NOEXIST: chỉ chèn nếu chưa có khoá. Thất bại (map đầy...) được đếm vào pulse_stats để loader báo. */
+    // Thêm một phần tử mới vào map pulse_last_syscall với khóa là pid_tgid (ID của thread) và giá trị là struct current
     if (bpf_map_update_elem(&pulse_last_syscall, &pid_tgid, &current, BPF_NOEXIST) < 0) {
         __u32 zero = 0;
         __u64 *failures = bpf_map_lookup_elem(&pulse_stats, &zero);
@@ -199,10 +200,18 @@ int pulse_sys_enter(struct bpf_raw_tracepoint_args *context)
 {
     return pulse_record_call((__u32)context->args[1], 0);
 }
+// args[0] = regs: con trỏ tới các thanh ghi của thread lúc gọi syscall (chứa tham số của syscall);
+// args[1] = id: số hiệu syscall.
+//https://github.com/torvalds/linux/blob/v6.8/include/trace/events/syscalls.h#L18-L20
+//Lấy mã định danh syscall từ đối số thứ hai (context->args[1]) rồi gọi hàm xử lý chung
+//pulse_record_call với cờ skipped = 0 (thể hiện đây là một syscall bình thường, không bị chặn)
 
 /* HOOK 2: fexit của hàm kernel __seccomp_filter — chạy SAU khi seccomp quyết định cho một syscall. Nếu kết quả là -1
  * (syscall bị bỏ qua/giả lập), syscall đó không đi tiếp tới sys_enter trên kernel 6.8 đã kiểm, nên ta ghi nó ở đây với
  * skipped = 1. Bỏ qua lần kiểm lại lồng nhau (recheck_after_trace) để không đếm hai lần. */
+
+// Chính những syscall bị chặn thường là dấu hiệu tấn công. Seccomp mặc định của container (RuntimeDefault) chặn các syscall nguy hiểm như unshare, mount, ptrace, keyctl.
+//  Kẻ tấn công thử thoát container hay leo quyền sẽ gọi chúng và bị trả EPERM
 SEC("fexit/__seccomp_filter")
 int BPF_PROG(pulse_seccomp_skip, int nr, const struct seccomp_data *sd,
              bool recheck_after_trace, int result)
@@ -210,7 +219,7 @@ int BPF_PROG(pulse_seccomp_skip, int nr, const struct seccomp_data *sd,
     /* Skip does not reach sys_enter on the validated Linux 6.8 entry path.
      * Avoid counting the nested TRACE recheck. KILL need not return here;
      * -1 can include emulation, so this is NOT labelled universally denied. */
-    if (result == -1 && !recheck_after_trace && nr >= 0)
+    if (result == -1 && !recheck_after_trace && nr >= 0) // seccomp đã bỏ qua syscall này. Syscall được phép (result == 0) thì để sys_enter lo như bình thường.
         return pulse_record_call((__u32)nr, 1);
     return 0;
 }
@@ -218,3 +227,5 @@ int BPF_PROG(pulse_seccomp_skip, int nr, const struct seccomp_data *sd,
 
 /* Giấy phép GPL là bắt buộc để dùng một số helper của kernel (bpf_probe_read_kernel...). */
 char LICENSE[] SEC("license") = "GPL";
+
+//

@@ -230,3 +230,20 @@ def test_token_window_carries_the_session_lineage_share():
         token_window(dict(row(), session_events=2, session=[[1, 2, 3, tok(0, 2, 4), 3]]), META)   # sum differs
     with pytest.raises(ValueError):
         token_window(dict(row(), session_events=1, session=[[9, 9, 9, 9, 1]]), META)              # not a gram of the window
+
+
+def test_branch_uses_the_top_k_of_its_fit(tmp_path):
+    """MODELS.json "top" (lidds-ml-v5-t3) sets the window score; absent keeps TOP = 10."""
+    from sentinel_pulse.detector.token_model import TokenBranch
+    lm = CountTokenLM()
+    lm.learn_window([[TOK_NONE, TOK_NONE, tok(1), tok(2), 50]])
+    lm.finalize()
+    path = tmp_path / 'lm.json.gz'
+    lm.save(path)
+    grams = [[TOK_NONE, TOK_NONE, tok(7), tok(8), 3], [TOK_NONE, TOK_NONE, tok(1), tok(2), 40]]
+    ten = TokenBranch({'w': dict(lm=str(path), lm_sha256=str(path), threshold=2.0)}, str).score(window(1.0, grams))
+    three = TokenBranch({'w': dict(lm=str(path), lm_sha256=str(path), threshold=2.0, top=3)}, str).score(window(1.0, grams))
+    loaded = CountTokenLM.load(path)
+    assert abs(ten['token_score'] - loaded.window_score(grams, 10)) < 1e-12
+    assert abs(three['token_score'] - loaded.window_score(grams, 3)) < 1e-12
+    assert three['token_score'] > ten['token_score']          # the three surprising events are not diluted by seen ones

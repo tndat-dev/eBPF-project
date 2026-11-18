@@ -25,7 +25,6 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sentinel_pulse.common import open_sealed  # noqa: E402
-from sentinel_pulse.detector.token_model import CountTokenLM  # noqa: E402
 import live_attribution as la  # noqa: E402
 import lidds_token_study as st  # noqa: E402
 import token_branch_fit as fit  # noqa: E402
@@ -161,7 +160,7 @@ def main():
     if check <= 1e-9:
         trials = la.live.load_trials(a.run_root / la.CAMPAIGN)
         windows, _ = la.collect(a.run_root, trials, a.jobs)
-        lms = {w: CountTokenLM.load(Path(models[w][0])) for w in sorted({t['workload'] for t in trials} & set(thr))}
+        lms = {w: la.load_lm(models[w][0]) for w in sorted({t['workload'] for t in trials} & set(thr))}
         doc['trials'] = trial_rates(trials, windows, models, lms, thr)
         doc['burden'] = burden(a.run_root, trials, thr)
         doc['lidds'] = lidds(a.model_scores, (st.m.load(a.lidds_alarms), st.m.load(a.cbds_alarms)))

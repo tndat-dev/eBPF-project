@@ -30,7 +30,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import live_attribution as la  # noqa: E402
 import pulse_live_v4 as live  # noqa: E402
-from sentinel_pulse.detector.token_model import CountTokenLM  # noqa: E402
 
 # v5 exec identity per trial label: admin runs image binaries (cat/ls/sh/...); the operator benign exec and the
 # blind attack are /operator/ binaries injected into the container, not part of the image.
@@ -108,7 +107,7 @@ def main():
     trials = live.load_trials(a.run_root / la.CAMPAIGN)
     models = la.load_models(a.models)
     windows, files = la.collect(a.run_root, trials, a.jobs)
-    lms = {w: CountTokenLM.load(Path(models[w][0])) for w in sorted({t['workload'] for t in trials} & set(models))}
+    lms = {w: la.load_lm(models[w][0]) for w in sorted({t['workload'] for t in trials} & set(models))}
 
     agg, per_command = tally(trials, models, lambda t: la.flagged(lms[t['workload']], models[t['workload']][1], windows, t))
 

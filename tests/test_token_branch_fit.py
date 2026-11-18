@@ -115,3 +115,18 @@ def test_an_earlier_extra_normal_is_learnt_and_held_out(tmp_path):
     train, validation = f.crossfit_span((1000.0, 1040.0), (1040.0, 1100.0), (0.0, 100.0))
     _, maxima, windows = f.crossfit_one(str(path), train[0], validation[1], 60.0, 5, 30.0)
     assert windows == 2 and ('p', 'c', 0) in maxima
+
+
+def test_top_and_trim_reach_the_threshold_and_the_spec(tmp_path):
+    """lidds-ml-v5-t3: the held-out maxima use the window score at top-k, the Gumbel drops `trim`, MODELS.json gets "top"."""
+    write(tmp_path / 'w.jsonl')
+    out = tmp_path / 'out'
+    out.mkdir()
+    base = ('w', str(tmp_path / 'w.jsonl'), (START, START + 500), (START + 500, START + 10 * CHUNK), 0.0003, 60.0, 2,
+            str(out), 5, CHUNK, 1.0, None)
+    _, row, entry = f.fit_crossfit(base + (3, 0.005))
+    _, maxima, _ = f.crossfit_one(str(tmp_path / 'w.jsonl'), START, START + 10 * CHUNK, 60.0, 5, CHUNK, 3)
+    assert entry['top'] == 3
+    assert abs(f.threshold(f.trimmed_gumbel(list(maxima.values()), 0.005), 0.0003) - entry['threshold']) < 1e-12
+    _, _, default = f.fit_crossfit(base)
+    assert 'top' not in default
