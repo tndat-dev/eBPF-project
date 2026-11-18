@@ -153,13 +153,13 @@ static __always_inline void pulse_tok_emit(struct pulse_task_state *state, __u64
          * Nếu chèn thất bại do CPU khác vừa chèn cùng khoá → tra lại và cộng; nếu vẫn không có → map đầy, đếm insert_fail. */
         __u64 *count = bpf_map_lookup_elem(&pulse_grams, &key);
         if (count) {
-            __sync_fetch_and_add(count, 1);
+            __sync_fetch_and_add(count, 1); //// (1) Gram đã có trong map -> Tăng thêm 1
         } else {
-            __u64 one = 1;
+            __u64 one = 1; //(2) Gram chưa có -> Khởi tạo giá trị bằng 1
             if (bpf_map_update_elem(&pulse_grams, &key, &one, BPF_NOEXIST) < 0) {
                 count = bpf_map_lookup_elem(&pulse_grams, &key);   /* lost a race with another CPU */
                 if (count)
-                    __sync_fetch_and_add(count, 1);
+                    __sync_fetch_and_add(count, 1); //// (3) Bị tranh chấp với CPU khác -> Tra lại và tăng thêm 1
                 else
                     pulse_tok_stat(0);
             }
@@ -208,15 +208,15 @@ static __always_inline __u32 pulse_tok_flags(__u32 nr)
 static __always_inline __u32 pulse_tok_dir_hash(const unsigned char *name)
 {
     char buffer[PULSE_TOK_DIR_CHARS];
-    if (bpf_probe_read_kernel_str(buffer, sizeof(buffer), name) <= 0)
+    if (bpf_probe_read_kernel_str(buffer, sizeof(buffer), name) <= 0)//để sao chép chuỗi tên thư mục từ vùng nhớ kernel vào bộ đệm cục bộ (buffer)
         return PULSE_TOK_DIR_UNKNOWN;
     __u32 hash = PULSE_TOK_FNV_BASIS;
     for (int index = 0; index < PULSE_TOK_DIR_CHARS - 1; index++) {
         char c = buffer[index];
         if (c == 0) break;
-        hash = (hash ^ (__u8)c) * PULSE_TOK_FNV_PRIME;
+        hash = (hash ^ (__u8)c) * PULSE_TOK_FNV_PRIME; //Fowler–Noll–Vo
     }
-    hash &= PULSE_TOK_DIR_MASK;
+    hash &= PULSE_TOK_DIR_MASK;//ép kết quả băm nằm trong giới hạn bit cho phép (20-bit)
     return hash >= PULSE_TOK_DIR_REL ? hash - 2 : hash;   /* keep the two reserved codes */
 }
 
@@ -251,7 +251,8 @@ static long pulse_tok_walk_step(__u32 index, void *context)
         walk->done = 1;
         return 1;
     }
-    if (dentry == BPF_CORE_READ(vfsmnt, mnt_root)) {
+    if (dentry == BPF_CORE_READ(vfsmnt, mnt_root)) //mnt_root: mount point
+    {
         struct mount *parent = BPF_CORE_READ(mnt, mnt_parent);
         if (parent == mnt) {            /* a filesystem root that is not the task's root */
             walk->result = PULSE_TOK_DIR_REL;
