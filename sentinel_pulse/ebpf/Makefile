@@ -43,7 +43,7 @@ tokens: check-deps
 	@test -n "$(TOKENS_BUILD_DIR)" || { echo 'explicit TOKENS_BUILD_DIR required' >&2; exit 2; }
 	mkdir -p "$(TOKENS_BUILD_DIR)"
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(TOKENS_BUILD_DIR)/vmlinux.h"
-	$(CLANG) $(BPF_CFLAGS) -I"$(TOKENS_BUILD_DIR)" -DPULSE_TOKENS -c pulse_counter.bpf.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens.bpf.o"
-	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_TOKENS pulse_counter_loader.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens_loader" -lbpf -lelf -lz
+	$(CLANG) $(BPF_CFLAGS) -I"$(TOKENS_BUILD_DIR)" -DPULSE_TOKENS $(TOKENS_DEFS) -c pulse_counter.bpf.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens.bpf.o"
+	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_TOKENS $(TOKENS_DEFS) pulse_counter_loader.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens_loader" -lbpf -lelf -lz
 	$(CC) -O2 -Wall -Wextra -Werror seccomp_fixture.c -o "$(TOKENS_BUILD_DIR)/seccomp_fixture" -lbpf -lelf -lz
 	$(CC) -O2 -Wall -Wextra -Werror ../../testbed/bench/syscall_bench.c -o "$(TOKENS_BUILD_DIR)/syscall_bench"

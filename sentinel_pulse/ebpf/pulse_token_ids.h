@@ -46,6 +46,24 @@
  * (mã lỗi, số byte, fd vừa mở), nên token chỉ phát được khi syscall trả về. Mọi syscall khác phát token "chỉ tên" ngay
  * lúc vào. Đồ án đo được: trên LID-DS chỉ 5 trong 39 syscall này thực sự cần (open, read, recv/recvfrom, stat,
  * write) — tập 39 là đủ nhưng rộng hơn cần thiết.*/
+/* improvement-round-v1 D6: build flag PULSE_HOOK_SMALL keeps only the families of token-design-study q1's smallest subset
+ * (open, read, recv/recvfrom, stat, write) mapped to the kernel calls that carry them on the cluster: the open family
+ * (open, creat, openat, openat2), the stat family (stat, fstat, lstat, newfstatat), read, write, recvfrom; futex is
+ * not hooked. Bản build nhỏ chỉ để đo chi phí; mô hình học trên token đủ 39 syscall không dùng được cho bản này. */
+#ifdef PULSE_HOOK_SMALL
+#define PULSE_HOOKED_ROWS(X) \
+    X(0, read, PULSE_TF_ERR | PULSE_TF_RW) \
+    X(1, write, PULSE_TF_ERR | PULSE_TF_RW) \
+    X(2, open, PULSE_TF_ERR | PULSE_TF_OPEN_SI) \
+    X(4, newstat, PULSE_TF_ERR) \
+    X(5, newfstat, PULSE_TF_ERR) \
+    X(6, newlstat, PULSE_TF_ERR) \
+    X(45, recvfrom, PULSE_TF_ERR | PULSE_TF_RW) \
+    X(85, creat, PULSE_TF_ERR | PULSE_TF_OPEN_CREAT) \
+    X(257, openat, PULSE_TF_ERR | PULSE_TF_OPEN_DX) \
+    X(262, newfstatat, PULSE_TF_ERR) \
+    X(437, openat2, PULSE_TF_OPEN_HOW)
+#else
 #define PULSE_HOOKED_ROWS(X) \
     X(0, read, PULSE_TF_ERR | PULSE_TF_RW) \
     X(1, write, PULSE_TF_ERR | PULSE_TF_RW) \
@@ -86,6 +104,7 @@
     X(299, recvmmsg, PULSE_TF_RW) \
     X(307, sendmmsg, PULSE_TF_RW) \
     X(437, openat2, PULSE_TF_OPEN_HOW)
+#endif
 
 /* futex(Fast Userspace Mutex) được tách riêng: nó là syscall rất "nóng" (gọi liên tục khi các thread chờ nhau), nên loader có cờ
  * futex_at_exit để bật/tắt việc hook nó lúc trả về (dùng khi đo chi phí). */

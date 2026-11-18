@@ -127,8 +127,10 @@ static __always_inline __u32 pulse_tok_plain(__u32 nr)
 /* 1 nếu syscall thuộc 39 syscall có hook (phát token lúc trả về). Macro sinh ra một switch với 39 nhánh case. */
 static __always_inline int pulse_tok_hooked(__u32 nr)
 {
+#ifndef PULSE_HOOK_SMALL
     if (nr == PULSE_FUTEX_NR)
         return pulse_tok_config.futex_at_exit;
+#endif
     switch (nr) {
 #define PULSE_CASE(number, name, flags) case number: return 1;
         PULSE_HOOKED_ROWS(PULSE_CASE)
