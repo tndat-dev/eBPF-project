@@ -23,6 +23,7 @@ import math
 from multiprocessing import Pool
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 
 import numpy as np
 
@@ -293,6 +294,56 @@ def evaluate(a):
     print(json.dumps(dict(better_than_t3=better)))
 
 
+# ------------------------------------------------------------------ D8, D17: richer caches (rich_token_cache.py)
+
+class SeenOnly(System):
+    """Seen-only simulation (token-design-study q4): threshold from the held-out top-10 maxima, applied to the score of the
+    events whose gram and token were seen in learning (column seen_top)."""
+
+    def __init__(self):
+        super().__init__('seenonly', col='top10', trim=0.01, alpha=0.00018)
+
+    def fit(self, arr, shape=None):
+        self.arr = arr
+        mx = [arr.col(k, 'top10')[1].max() for k in arr.held_out() if len(arr.col(k, 'top10')[1])]
+        self.thr = gumbel_threshold(mx, 0.01, 0.00018)
+        return self
+
+    def firings(self, branches, alpha, name):
+        t, x = self.arr.col(name, 'seen_top')
+        return sorted(t[x > self.thr].tolist()) if len(x) else []
+
+
+RICH_SPECS = {'select1f': ('base', []), 'path2': ('path2', []), 'path2+connect': ('path2', ['connect']), 'exec': ('exec', ['comm'])}
+
+
+def score_rich(caches_root, out, jobs):
+    """Score every variant spec on its cache directory (caches_root/<cache>); writes out/scores/<spec id>."""
+    for sid, (cache, extra) in RICH_SPECS.items():
+        spec = st.base_spec(tops=[3, 10], seen_only=True)
+        spec['open'] = sorted(set(spec['open']) | set(extra))
+        st.ensure(SimpleNamespace(caches=str(Path(caches_root) / cache), out=str(out), jobs=jobs), {f'rich-{sid}': spec})
+
+
+def rich(a):
+    docs21, cb21 = m.load(a.lidds_alarms), m.load(a.cbds_alarms)
+    docs19 = dev.inventory(Path(a.caches2019_root) / 'base')
+    out = {}
+    for sid in RICH_SPECS:
+        d21, d19 = Path(a.scores2021) / f'rich-{sid}', Path(a.scores2019) / f'rich-{sid}'
+        arr21, arr19 = load_dir(d21), load_dir(d19)
+        for name, make in (('t3', lambda: System('single', **T3)), ('seen-only', SeenOnly)):
+            f21 = lambda s, arr=arr21: make().fit(arr[s])
+            f19 = lambda s, arr=arr19: make().fit(arr[s])
+            r21 = evaluate_2021(f21, arr21, docs21, cb21)
+            r19 = evaluate_2019(f19, arr19, docs19)
+            out[f'{sid}/{name}'] = dict(lidds2021_development=r21, lidds2019_development=r19,
+                                        must=must(r21, r19) if name == 't3' else None)
+            print(sid, name, r21, r19['tolerance'], flush=True)
+    doc = dict(schema='improvement-round-v1-rich-tokens', protocol='improvement-round-v1 (D8) + amendment 2 (D17)', candidates=out)
+    Path(a.output).write_text(json.dumps(doc, indent=1, default=float))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest='step', required=True)
@@ -303,11 +354,22 @@ def main():
     p = sub.add_parser('evaluate')
     for k in ('--scores2021', '--scores2019', '--caches2019', '--lidds-alarms', '--cbds-alarms', '--output'):
         p.add_argument(k, required=True)
+    p = sub.add_parser('score-rich')
+    p.add_argument('--caches-root', required=True)
+    p.add_argument('--out', required=True)
+    p.add_argument('--jobs', type=int, default=4)
+    p = sub.add_parser('rich')
+    for k in ('--scores2021', '--scores2019', '--caches2019-root', '--lidds-alarms', '--cbds-alarms', '--output'):
+        p.add_argument(k, required=True)
     p = sub.add_parser('official')
     for k in ('--scores', '--lidds-alarms', '--cbds-alarms', '--output'):
         p.add_argument(k, required=True)
     a = ap.parse_args()
-    if a.step == 'official':
+    if a.step == 'score-rich':
+        score_rich(a.caches_root, a.out, a.jobs)
+    elif a.step == 'rich':
+        rich(a)
+    elif a.step == 'official':
         official(a.scores, a.lidds_alarms, a.cbds_alarms, a.output)
     elif a.step == 'score-kn':
         score_kn(a.caches, a.out, a.jobs)
