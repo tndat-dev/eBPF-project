@@ -70,6 +70,9 @@ TRIGGERS = ('candidate_alert_preview', 'tripwire_alert')
 ALERTNAMES = ('SentinelPulseAnomaly', 'SentinelPulseAnomalyPull')
 BUCKETS = (0.25, 0.5, 1, 1.5, 2, 3, 5, 10, 20, 30, 45, 60, 90, 120)
 PUSH_ATTEMPTS, PUSH_RETRY_SECONDS = 3, 0.5
+# improvement-round-v1 D3: with a queue file, a failed episode push is kept on disk and retried with exponential backoff
+# (0.5 s doubling to 30 s) until it is delivered or older than PUSH_MAX_AGE; a restarted bridge resumes the queue.
+PUSH_BACKOFF_MAX, PUSH_MAX_AGE = 30.0, 3600.0
 
 # Runs on the worker: follow the newest decision segment from its end, print only the lines holding the needle.
 FOLLOWER = r'''
@@ -334,15 +337,64 @@ class Bridge:
                         stream_up=dict(self.stream_up), at=time.time())
 
 
-# Luồng nền đẩy alert (POST /api/v2/alerts) — thử lại tối đa 3 lần, không có hàng đợi bền.
-def push_worker(bridge: Bridge, url, stop: threading.Event):
+class PushQueue:
+    """Undelivered episode pushes on disk (improvement-round-v1 D3): an append-only JSON-lines log of add and done
+    records; load() replays it, so a restarted bridge resumes what it had not delivered. Rewritten empty when nothing
+    is pending."""
+
+    def __init__(self, path: Path):
+        self.path, self.pending = Path(path), {}
+        self.load()
+
+    def load(self):
+        if self.path.exists():
+            for line in self.path.read_text().splitlines():
+                if not line.strip():
+                    continue
+                r = json.loads(line)
+                if r['op'] == 'add':
+                    self.pending[r['id']] = r
+                else:
+                    self.pending.pop(r['id'], None)
+
+    def _write(self, record):
+        with open(self.path, 'a') as handle:
+            handle.write(json.dumps(record, separators=(',', ':')) + '\n')
+            handle.flush()
+            os.fsync(handle.fileno())
+
+    def add(self, episode, alerts, first_failed_at):
+        r = dict(op='add', id=f'{episode}@{first_failed_at:.6f}', episode=episode, alerts=alerts, since=first_failed_at)
+        self.pending[r['id']] = r
+        self._write(r)
+        return r['id']
+
+    def done(self, item_id):
+        if self.pending.pop(item_id, None) is not None:
+            self._write(dict(op='done', id=item_id))
+        if not self.pending:
+            self.path.write_text('')
+
+
+def backoff(attempt):
+    return min(PUSH_BACKOFF_MAX, PUSH_RETRY_SECONDS * 2 ** max(0, attempt - 1))
+
+
+# Luồng nền đẩy alert (POST /api/v2/alerts). Không có file hàng đợi: thử lại tối đa 3 lần (hành vi cũ). Có file hàng đợi
+# (D3): đợt chưa giao được ghi xuống đĩa, thử lại với backoff tới khi giao được hoặc quá 1 giờ; khởi động lại vẫn giữ.
+def push_worker(bridge: Bridge, url, stop: threading.Event, store: Path | None = None):
     """POST each queued alert; a failed push of an episode alert is tried again (``PUSH_ATTEMPTS`` in all,
     ``PUSH_RETRY_SECONDS`` apart). An episode shorter than the refresh period has no other push before it resolves:
     on pulse-peer-discount-confirm 13 pushes timed out (3 s) and 6 of 5,181 episodes never arrived by push (25/10)."""
-    retries = deque()                                   # (due, episode, alerts, attempt), due in order
+    durable = PushQueue(store) if store is not None else None
+    retries = deque()                                   # (due, episode, alerts, attempt, queue id), due in order
+    if durable is not None:
+        for r in sorted(durable.pending.values(), key=lambda r: r['since']):
+            retries.append((time.time(), r['episode'], r['alerts'], 2, r['id']))
     while not stop.is_set():
+        item_id = None
         if retries and retries[0][0] <= time.time():
-            _, episode, alerts, attempt = retries.popleft()
+            _, episode, alerts, attempt, item_id = retries.popleft()
         else:
             wait = 0.5 if not retries else min(0.5, max(0.01, retries[0][0] - time.time()))
             try:
@@ -357,10 +409,20 @@ def push_worker(bridge: Bridge, url, stop: threading.Event):
                 response.read()
             if episode:
                 bridge.pushed(episode, time.time())
+            if item_id is not None:
+                durable.done(item_id)
             with bridge.lock:
                 bridge.count('pushes_ok')
         except OSError as error:
-            retry = bool(episode) and attempt < PUSH_ATTEMPTS
+            if durable is not None and episode and item_id is None:
+                item_id = durable.add(episode, alerts, time.time())
+            if durable is not None:
+                age = time.time() - durable.pending[item_id]['since'] if item_id in durable.pending else 0.0
+                retry = bool(episode) and age < PUSH_MAX_AGE
+                if not retry and item_id is not None:
+                    durable.done(item_id)
+            else:
+                retry = bool(episode) and attempt < PUSH_ATTEMPTS
             with bridge.lock:
                 bridge.count('pushes_failed')
                 if retry:
@@ -368,7 +430,9 @@ def push_worker(bridge: Bridge, url, stop: threading.Event):
             bridge.log('issues', dict(at=time.time(), issue='push_failed', error=str(error)[:200], episode=episode,
                                       attempt=attempt, retry=retry))
             if retry:
-                retries.append((time.time() + PUSH_RETRY_SECONDS, episode, alerts, attempt + 1))
+                due = time.time() + (backoff(attempt) if durable is not None else PUSH_RETRY_SECONDS)
+                retries.append((due, episode, alerts, attempt + 1, item_id))
+                retries = deque(sorted(retries, key=lambda r: r[0]))
 
 
 # Máy chủ HTTP: /metrics (Prometheus), webhook của Alertmanager, và các trang /cases xem case RCA.
@@ -523,7 +587,9 @@ def main():
     stop = threading.Event()
     signal.signal(signal.SIGTERM, lambda *_: stop.set()); signal.signal(signal.SIGINT, lambda *_: stop.set())
     server = serve(bridge, *cfg.get('listen', ['0.0.0.0', 9478]))
-    threading.Thread(target=push_worker, args=(bridge, cfg['alertmanager_url'], stop), daemon=True).start()
+    threading.Thread(target=push_worker, args=(bridge, cfg['alertmanager_url'], stop,
+                                              out / 'push-queue.jsonl' if cfg.get('durable_push', True) else None),
+                     daemon=True).start()
     streams = Streams(bridge, cfg)
     status_at = 0.0
     while not stop.is_set():

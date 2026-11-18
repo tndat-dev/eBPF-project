@@ -239,3 +239,45 @@ def test_token_rows_trigger_an_episode():
     other = dict(good, branch='counts')
     assert trigger_kind(other, good['candidate_manifest_sha256'], good['policy_sha256']) is None
     assert trigger_kind(dict(good, candidate_alert_preview=False), good['candidate_manifest_sha256'], good['policy_sha256']) is None
+
+
+def test_durable_queue_delivers_after_a_long_outage_and_survives_a_restart(tmp_path):
+    """improvement-round-v1 D3: five refused pushes (more than PUSH_ATTEMPTS) still end in one delivery; the queue
+    file holds the pending push while it is undelivered and is empty afterwards."""
+    import sentinel_pulse.ops.alert_bridge as ab
+    received, refuse = [], [5]
+
+    class Alertmanager(BaseHTTPRequestHandler):
+        def do_POST(self):
+            received.append(json.loads(self.rfile.read(int(self.headers['Content-Length']))))
+            code = 503 if refuse[0] > 0 else 200
+            refuse[0] -= 1
+            self.send_response(code)
+            self.send_header('Content-Length', '0'); self.end_headers()
+
+        def log_message(self, format, *args):
+            pass
+
+    old = ab.PUSH_RETRY_SECONDS
+    ab.PUSH_RETRY_SECONDS = 0.02
+    server = ThreadingHTTPServer(('127.0.0.1', 0), Alertmanager)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    store = tmp_path / 'push-queue.jsonl'
+    bridge, stop = Bridge(CFG, tmp_path), threading.Event()
+    ep = bridge.ingest(row(100.0), 100.3)
+    worker = threading.Thread(target=push_worker, args=(bridge, f'http://127.0.0.1:{server.server_address[1]}', stop, store))
+    worker.start()
+    try:
+        deadline = time.time() + 10
+        while ep['first_push_at'] is None and time.time() < deadline:
+            time.sleep(0.02)
+    finally:
+        stop.set(); worker.join(); server.shutdown(); ab.PUSH_RETRY_SECONDS = old
+    assert len(received) == 6 and all(r == received[0] for r in received)
+    assert ep['first_push_at'] is not None and bridge.counters['pushes_ok'] == 1
+    assert store.read_text() == ''
+    q = ab.PushQueue(tmp_path / 'other.jsonl')
+    item = q.add('ep-1', [{'labels': {}}], 1.0)
+    assert ab.PushQueue(tmp_path / 'other.jsonl').pending[item]['episode'] == 'ep-1'      # a restart resumes it
+    q.done(item)
+    assert ab.PushQueue(tmp_path / 'other.jsonl').pending == {}
