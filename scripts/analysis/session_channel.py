@@ -16,7 +16,7 @@ and harmless binaries.
 # KÊNH SESSION (vòng cải thiện D5b): học mô hình riêng cho dòng session từ normal (exec probe của kubelet), rồi xem nó
 # có tách được tấn công khỏi lệnh quản trị và binary vô hại không.
 import argparse
-from collections import defaultdict
+from collections import Counter, defaultdict
 import json
 import math
 from multiprocessing import Pool
@@ -37,52 +37,76 @@ import native_stream as ns  # noqa: E402
 TOP, TRIM, ALPHA, BLOCK = 3, 0.005, 0.0003, 60.0
 
 
-def session_rows(path):
-    """[(container key, window_end, session grams)] of one tokens.jsonl, windows with a session part only."""
-    out = []
+def file_counts(job):
+    """Pass 1 over one tokens.jsonl: session gram counts before and after the time split (no window is kept)."""
+    path, mid = job
+    early, late, n = Counter(), Counter(), 0
     with open_sealed(Path(path)) as stream:
         for line in stream:
             if '"session":[[' not in line:
                 continue
             w = json.loads(line)
-            if w.get('session'):
-                out.append(((w['pod_uid'], w['container_name']), float(w['window_end']), w['session']))
-    return out
+            if not w.get('session'):
+                continue
+            n += 1
+            target = early if float(w['window_end']) < mid else late
+            for *g, c in w['session']:
+                target[strip(g)] += int(c)
+    return early, late, n
 
 
-def capture_sessions(root, jobs):
-    files = [str(p) for p in sorted(Path(root).glob('workers/*/segments/*/tokens.jsonl*'))]
-    rows = []
-    with Pool(jobs) as pool:
-        for part in pool.imap_unordered(session_rows, files, chunksize=1):
-            rows.extend(part)
-    rows.sort(key=lambda r: r[1])
-    return rows
+LM_HALF = None
 
 
-def fit(rows):
-    """Learn on the first half by time, score the second half: (model on all, held-out window scores, block maxima)."""
-    if not rows:
-        raise SystemExit('the capture has no session part (not a lineage build)')
-    mid = rows[len(rows) // 2][1]
+def file_scores(job):
+    """Pass 2: held-out session window scores (after the split) by the first-half model, and 60 s block maxima."""
+    path, mid = job
+    scores, blocks = [], {}
+    with open_sealed(Path(path)) as stream:
+        for line in stream:
+            if '"session":[[' not in line:
+                continue
+            w = json.loads(line)
+            if not w.get('session') or float(w['window_end']) < mid:
+                continue
+            sc = LM_HALF.window_score(w['session'], TOP)
+            scores.append(sc)
+            cell = (w['pod_uid'], w['container_name'], math.floor(float(w['window_end']) / BLOCK))
+            blocks[cell] = max(blocks.get(cell, 0.0), sc)
+    return scores, blocks
+
+
+def lm_of(counters):
     lm = CountTokenLM()
-    for _, end, grams in rows:
-        if end < mid:
-            for *g, c in grams:
-                lm.learn(strip(g), int(c))
-    lm.finalize()
-    scores, blocks = [], defaultdict(float)
-    for key, end, grams in rows:
-        if end >= mid:
-            s = lm.window_score(grams, TOP)
-            scores.append(s)
-            cell = (key, math.floor(end / BLOCK))
-            blocks[cell] = max(blocks[cell], s)
-    full = CountTokenLM()
-    for _, _, grams in rows:
-        for *g, c in grams:
-            full.learn(strip(g), int(c))
-    return full.finalize(), np.asarray(scores), np.asarray(list(blocks.values()))
+    for counter in counters:
+        for g, c in counter.items():
+            lm.learn(g, c)
+    return lm.finalize()
+
+
+def fit(root, jobs):
+    """(model on the whole capture, held-out window scores, held-out block maxima, session windows) with a time split
+    in the middle of the capture span."""
+    global LM_HALF
+    cfg = json.loads((Path(root) / 'CONFIG.json').read_text())
+    mid = float(cfg['selection_start']) + float(cfg['seconds']) / 2
+    files = [(str(p), mid) for p in sorted(Path(root).glob('workers/*/segments/*/tokens.jsonl*'))]
+    early, late, n = Counter(), Counter(), 0
+    with Pool(jobs) as pool:
+        for e, l, k in pool.imap_unordered(file_counts, files, chunksize=1):
+            early.update(e)
+            late.update(l)
+            n += k
+    if not n:
+        raise SystemExit('the capture has no session part (not a lineage build)')
+    LM_HALF = lm_of([early])
+    scores, blocks = [], {}
+    with Pool(jobs) as pool:                                    # forked after LM_HALF is set
+        for sc, bl in pool.imap_unordered(file_scores, files, chunksize=1):
+            scores.extend(sc)
+            for cell, v in bl.items():
+                blocks[cell] = max(blocks.get(cell, 0.0), v)
+    return lm_of([early, late]), np.asarray(scores), np.asarray(list(blocks.values())), n
 
 
 def evaluate(trials, windows, lm, thresholds):
@@ -106,8 +130,7 @@ def main():
     ap.add_argument('--output', type=Path, required=True)
     ap.add_argument('--jobs', type=int, default=6)
     a = ap.parse_args()
-    rows = capture_sessions(a.capture, a.jobs)
-    lm, held, blocks = fit(rows)
+    lm, held, blocks, n_windows = fit(a.capture, a.jobs)
     thresholds = dict(gumbel_blocks=m.threshold(v4.trimmed_gumbel(blocks, TRIM), ALPHA),
                       empirical_999=float(np.quantile(held, 0.999)), empirical_9999=float(np.quantile(held, 0.9999)))
     trials = la.live.load_trials(a.run_root / la.CAMPAIGN)
@@ -117,7 +140,7 @@ def main():
                             and all(r.get(lab, {}).get('rate') is not None and r[lab]['rate'] <= 0.20 for lab in ('admin', 'benign')))
                  for name, r in res.items()}
     doc = dict(schema='improvement-round-v1-session-channel', protocol='sentinel_pulse/protocol/improvement-round-v1.json (D5b)',
-               capture=str(a.capture), run=str(a.run_root), session_windows=len(rows), held_out_windows=int(len(held)),
+               capture=str(a.capture), run=str(a.run_root), session_windows=n_windows, held_out_windows=int(len(held)),
                held_out_blocks=int(len(blocks)), thresholds=thresholds, intervals=res, criterion_met=criterion)
     a.output.write_text(json.dumps(doc, indent=1, default=float))
     print(json.dumps(dict(thresholds=thresholds, criterion_met=criterion,
