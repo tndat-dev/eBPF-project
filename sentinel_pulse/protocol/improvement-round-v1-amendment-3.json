@@ -1,0 +1,34 @@
+{
+ "schema": "sentinel-pulse-improvement-round-v1-amendment-3",
+ "amends": "sentinel_pulse/protocol/improvement-round-v1.json",
+ "registered_at": "2026-11-19T03:04+07:00",
+ "owner_decision": "19/11: the owner agreed to D18 (attack breadth with behaviour simulators)",
+ "registered_before": "any change of the campaign for D18 and any run with it",
+ "tool": {
+  "name": "falcosecurity/event-generator",
+  "version": "v0.13.0",
+  "license": "Apache-2.0",
+  "asset": "event-generator_0.13.0_linux_amd64.tar.gz",
+  "asset_sha256_from": "event-generator_0.13.0_checksums.txt (verified 19/11)",
+  "note": "a behaviour simulator of the Falco project, not an exploit; no vulnerable image, no CVE content"
+ },
+ "actions": [
+  "ReadSensitiveFileUntrusted",
+  "DirectoryTraversalMonitoredFileRead",
+  "CreateSymlinkOverSensitiveFiles",
+  "CreateHardlinkOverSensitiveFiles",
+  "ClearLogActivities",
+  "FindAwsCredentials",
+  "SearchPrivateKeysOrPasswords",
+  "ExecutionFromDevShm",
+  "DropAndExecuteNewBinaryInContainer",
+  "FilelessExecutionViaMemfdCreate",
+  "PtraceAntiDebugAttempt",
+  "RemoveBulkDataFromDisk",
+  "CreateFilesBelowDev",
+  "CreateHiddenFilesOrDirectories"
+ ],
+ "selection_rule": "the source of every action at v0.13.0 was read: kept only actions that read sensitive files (open only), act inside their own temp directory or /dev/shm, link or copy inside a temp directory and remove it, run a short child (ptrace TRACEME on sleep, memfd re-exec of itself doing nothing, a copy of ls under /bin removed at once); left out: every action that needs the network, a privileged container, the host, a container escape (release_agent, mount, debugfs), kubectl, a package manager, or that writes outside a temp path it removes",
+ "campaign": "one more step per trial, label attack_eventgen, through the same kubectl exec path: the binary is staged (sha256 pinned) beside the fixture and removed after the trial; action = actions[trial index % 14]; command: event-generator run ^syscall.<Action>$ --all --sleep 0s; an action skipped for a missing tool (ln, find, shred, sh) is recorded and left out of the rates",
+ "reported": "detection of the event-generator step by the model alone, per action and all, primary and all rates; it does not change any registered hypothesis of the final run"
+}
