@@ -303,8 +303,13 @@ def main():
     p = sub.add_parser('evaluate')
     for k in ('--scores2021', '--scores2019', '--caches2019', '--lidds-alarms', '--cbds-alarms', '--output'):
         p.add_argument(k, required=True)
+    p = sub.add_parser('official')
+    for k in ('--scores', '--lidds-alarms', '--cbds-alarms', '--output'):
+        p.add_argument(k, required=True)
     a = ap.parse_args()
-    if a.step == 'score-kn':
+    if a.step == 'official':
+        official(a.scores, a.lidds_alarms, a.cbds_alarms, a.output)
+    elif a.step == 'score-kn':
         score_kn(a.caches, a.out, a.jobs)
     else:
         evaluate(a)
@@ -312,3 +317,23 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def official(scores_dir, lidds_alarms, cbds_alarms, output):
+    """An adopted offline candidate on LID-DS 2021 official (scores of the amendment-1 run, spec tops 3 and 10)."""
+    docs21 = m.load(lidds_alarms)
+    arr = load_dir(scores_dir)
+    shape = pooled_shape(arr, 'top3', 1)
+    systems = {'t3': lambda: System('single', **T3),
+               'D16-gev-censor1-alpha0.00018': lambda: System('gev', col='top3', censor=1, alpha=0.00018),
+               'D16-gev-censor1-alpha0.0003': lambda: System('gev', col='top3', censor=1, alpha=0.0003)}
+    out = {}
+    for name, make in systems.items():
+        sc = {s: make().fit(arr[s], shape) for s in sorted(docs21['scenarios']) if s in arr}
+        r, per = m.score(sc, docs21, ('T',), None, 'official')
+        out[name] = dict({k: r[k] for k in ('detected', 'attack_recordings', 'false_alarm_recordings', 'normal_recordings',
+                                            'latency_p50', 'latency_p95', 'recall_ci95')},
+                         scenarios={s: [v['detected'], v['false_alarm_recordings']] for s, v in per.items()})
+        print(name, {k: out[name][k] for k in ('detected', 'false_alarm_recordings', 'latency_p95')}, flush=True)
+    doc = dict(schema='improvement-round-v1-official2021', pooled_shape_official=shape, candidates=out)
+    m.write_once(output, doc)
