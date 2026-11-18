@@ -344,6 +344,73 @@ def rate(caches, out, caches21, lidds_alarms, cbds_alarms, jobs):
     return doc
 
 
+AMENDMENT = 'sentinel_pulse/protocol/lidds2019-development-v1-amendment-1.json'
+CHOSEN = dict(top=3, trim=0.005, alpha=0.0003)               # amendment 1: n4-top3-trim0.005-alpha0.0003
+BASE = dict(top=st.TOP, trim=st.TRIM, alpha=st.ALPHA)
+SPEC = dict(tops=[3, 10])
+
+
+def official(caches, out, lidds_alarms, cbds_alarms, jobs):
+    """LID-DS 2021 official: the base spec must reproduce lidds-ml-v5 official, then the chosen system, once."""
+    target = Path(out) / 'official2021.json'
+    if target.exists():
+        raise SystemExit(f'{target} exists: LID-DS 2021 official is scored once for the chosen system')
+    for p in Path(caches).glob('*.json'):
+        if json.loads(p.read_text()).get('part') != 'official':
+            raise SystemExit(f'{p} is not an official cache')
+    a = SimpleNamespace(caches=str(caches), out=str(Path(out) / 'official2021'), jobs=jobs, docs=(m.load(lidds_alarms), m.load(cbds_alarms)))
+    Path(a.out).mkdir(parents=True, exist_ok=True)
+    st.ensure(a, {'official': st.base_spec(**SPEC)})
+    pick = lambda r: {k: r[k] for k in ('detected', 'attack_recordings', 'false_alarm_recordings', 'normal_recordings', 'latency_p50',
+                                         'latency_p95', 'detected_within_3s', 'recall_ci95', 'false_alarm_ci95', 'scenarios')}
+    base = st.Scored(a, 'official', f"top{BASE['top']}", BASE['trim']).metrics(BASE['alpha'], part='official')
+    if any(base[k] != v for k, v in st.OFFICIAL.items()) or round(base['latency_p95'], 2) != 1.47:
+        raise SystemExit(f'the base spec does not reproduce lidds-ml-v5 official: {pick(base)}')
+    chosen = st.Scored(a, 'official', f"top{CHOSEN['top']}", CHOSEN['trim']).metrics(CHOSEN['alpha'], part='official')
+    doc = dict(schema='lidds2019-development-official2021-v1', protocol=AMENDMENT, base_reproduces_lidds_ml_v5=True,
+               lidds_ml_v5=pick(base), chosen=dict(CHOSEN, n=4, **pick(chosen)))
+    m.write_once(target, doc)
+    return doc
+
+
+def holdout(archives, split_path, token_dir, out, jobs):
+    """2019 holdout, once: holdout caches, the base spec must reproduce the registered lidds-ml-v5 decisions, then the chosen system."""
+    target = Path(out) / 'holdout.json'
+    if target.exists():
+        raise SystemExit(f'{target} exists: the holdout is scored once')
+    if not (Path(out) / 'official2021.json').exists():
+        raise SystemExit('score LID-DS 2021 official first (amendment 1 order)')
+    split_doc = json.loads(Path(split_path).read_text())
+    hc = Path(out) / 'holdout-caches'
+    hc.mkdir(parents=True, exist_ok=True)
+    for scenario in sorted(split_doc['scenarios']):
+        if not (hc / f'{scenario}.npz').exists():
+            print(json.dumps(cache(archives, scenario, split_doc, hc / f'{scenario}.npz', n=4, part='holdout')), flush=True)
+    docs = inventory(hc)
+    st.ensure(namespace(hc, Path(out) / 'holdout', jobs), {'holdout': st.base_spec(**SPEC)})
+    d = Path(out) / 'holdout' / 'scores' / 'holdout'
+    cols = json.loads((d / 'SPEC.json').read_text())['columns']
+    sys_of = lambda c: {s: Fixed(st.TokenScenario(d / f'{s}.npz', f"top{c['top']}", cols, c['trim']), c['alpha']) for s in sorted(docs['scenarios'])}
+    base_p, _ = evaluate(sys_of(BASE), docs)
+    ref_p, _ = evaluate({s: l19.TokenScenario(s, token_dir) for s in sorted(docs['scenarios'])}, docs)
+    keys = ('detected', 'attack_recordings', 'false_alarm_recordings', 'normal_recordings')
+    if any(base_p[k] != ref_p[k] for k in keys):
+        raise SystemExit(f'the base spec does not reproduce the registered lidds-ml-v5 holdout decisions: {base_p} vs {ref_p}')
+    res = {}
+    for name, c in (('lidds_ml_v5', BASE), ('chosen', CHOSEN)):
+        scen = sys_of(c)
+        p, per = evaluate(scen, docs)
+        t, tper = evaluate(scen, l19.shifted(docs, TOLERANCE))
+        res[name] = dict(primary=p, tolerance=t, C1_primary=l19.c1(p), C1_tolerance=l19.c1(t),
+                         scenarios={s: dict(primary=[per[s]['detected'], per[s]['attack_recordings'], per[s]['false_alarm_recordings'], per[s]['normal_recordings']],
+                                            tolerance=[tper[s]['detected'], tper[s]['false_alarm_recordings'], tper[s]['latency_p95']]) for s in per})
+    doc = dict(schema='lidds2019-development-holdout-v1', protocol=AMENDMENT, part='holdout', tolerance_seconds=TOLERANCE,
+               base_reproduces_registered=True, note='the holdout recordings were scored by lidds-ml-v5 in lidds2019-confirmation-v2',
+               chosen_system=dict(CHOSEN, n=4), **res)
+    m.write_once(target, doc)
+    return doc
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest='step', required=True)
@@ -370,6 +437,18 @@ def main():
     p.add_argument('--caches-2021', required=True)
     p.add_argument('--lidds-alarms', required=True)
     p.add_argument('--cbds-alarms', required=True)
+    p.add_argument('--jobs', type=int, default=4)
+    p = sub.add_parser('official')
+    p.add_argument('--caches', required=True)
+    p.add_argument('--out', type=Path, required=True)
+    p.add_argument('--lidds-alarms', required=True)
+    p.add_argument('--cbds-alarms', required=True)
+    p.add_argument('--jobs', type=int, default=4)
+    p = sub.add_parser('holdout')
+    p.add_argument('--archives', required=True)
+    p.add_argument('--split', required=True)
+    p.add_argument('--tokens', required=True)
+    p.add_argument('--out', type=Path, required=True)
     p.add_argument('--jobs', type=int, default=4)
     p = sub.add_parser('latency')
     p.add_argument('--caches', required=True)
@@ -402,6 +481,13 @@ def main():
     elif a.step == 'rate':
         d = rate(a.caches, a.out, a.caches_2021, a.lidds_alarms, a.cbds_alarms, a.jobs)
         print(json.dumps({c: (r['tolerance']['detected'], r['tolerance']['latency_p95'], r['must']) for c, r in d['candidates'].items()}, default=float))
+    elif a.step == 'official':
+        d = official(a.caches, a.out, a.lidds_alarms, a.cbds_alarms, a.jobs)
+        print(json.dumps({k: {x: d[k][x] for x in ('detected', 'false_alarm_recordings', 'latency_p95')} for k in ('lidds_ml_v5', 'chosen')}, default=float))
+    elif a.step == 'holdout':
+        d = holdout(a.archives, a.split, a.tokens, a.out, a.jobs)
+        print(json.dumps({k: {r: {x: d[k][r][x] for x in ('detected', 'attack_recordings', 'false_alarm_recordings', 'latency_p95')}
+                              for r in ('primary', 'tolerance')} for k in ('lidds_ml_v5', 'chosen')}, default=float))
     elif a.step == 'latency':
         d = latency(a.caches, a.out)
         print(json.dumps({s: sum(r.get('first_alarm_after') is not None for r in v['recordings']) for s, v in d['scenarios'].items()}))
