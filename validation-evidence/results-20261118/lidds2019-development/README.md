@@ -49,3 +49,30 @@ every candidate tried, including the ones that fail the LID-DS 2021 rule.
   Bruteforce_CWE-307 the alarm comes with the first unseen window.
 
 Outcome unchanged: **lidds-ml-v5 stays**; no LID-DS 2021 official rerun and no holdout scoring.
+
+## Amendment 1 (registered 18/11 21:08, before these scorings): chosen n4-top3-trim0.005-α′0.0003
+
+LID-DS 2021 development rule relaxed by one detection (owner decision, written knowing the development results), n = 4
+only. Run on `.234` 18/11 14:09–16:46 UTC (unit `lidds2019-amend1`, runner `scripts/lidds2019_amendment1_run.sh`).
+
+**LID-DS 2021 official** (`official2021.json`, official caches built for this run; the base spec first reproduced
+lidds-ml-v5 official exactly):
+
+| | Detected | False-alarm recordings | p95 |
+|---|---|---|---|
+| lidds-ml-v5 | 1,238/1,271 (97.40 %) | 26/7,938 (0.33 %) | 1.47 s |
+| chosen (top 3, trim 0.5 %, α′ 0.0003) | 1,236/1,271 (97.25 %, [96.19, 98.01]) | 15/7,938 (0.19 %) | 1.54 s |
+
+Two detections fewer (ZipSlip 83 → 81), eleven false-alarm recordings fewer; the registered LID-DS 2021 targets hold.
+
+**LID-DS 2019 holdout** (`holdout.json`, 841 attack + 5,395 normal recordings, scored once; the base spec first gave
+exactly the registered lidds-ml-v5 decisions on these recordings; they were scored by lidds-ml-v5 in
+lidds2019-confirmation-v2):
+
+| | 1 s label tolerance | False-alarm recordings | p95 | Registered exploit time |
+|---|---|---|---|---|
+| lidds-ml-v5 | 761/841 (90.49 %) | 28/5,395 (0.52 %) | 10.57 s | 526/841 |
+| chosen | **817/841 (97.15 %, [95.79, 98.07])** | 25/5,395 (0.46 %) | 10.95 s | 582/841 |
+
+C1 with the 1 s tolerance: recall met, false alarms met, p95 not met (latency bound of the development study). The gain
+is CVE-2014-0160 (17 → 73 of 77); the other scenarios are unchanged in detections.

@@ -1,0 +1,386 @@
+{
+ "schema": "lidds2019-development-holdout-v1",
+ "protocol": "sentinel_pulse/protocol/lidds2019-development-v1-amendment-1.json",
+ "part": "holdout",
+ "tolerance_seconds": 1.0,
+ "base_reproduces_registered": true,
+ "note": "the holdout recordings were scored by lidds-ml-v5 in lidds2019-confirmation-v2",
+ "chosen_system": {
+  "top": 3,
+  "trim": 0.005,
+  "alpha": 0.0003,
+  "n": 4
+ },
+ "lidds_ml_v5": {
+  "primary": {
+   "attack_recordings": 841,
+   "detected": 526,
+   "recall": 0.6254458977407847,
+   "recall_ci95": [
+    0.5922327176852112,
+    0.6575182415478568
+   ],
+   "normal_recordings": 5395,
+   "false_alarm_recordings": 28,
+   "false_alarm_rate": 0.005189990732159407,
+   "false_alarm_ci95": [
+    0.0035932861513478043,
+    0.007490869383054241
+   ],
+   "latency_p50": 1.2578574059989478,
+   "latency_p95": 10.501967543749856,
+   "precision_1to1": 0.9917702261685,
+   "precision_base_rate": 0.9494584837545126,
+   "detected_within_3s": 337
+  },
+  "tolerance": {
+   "attack_recordings": 841,
+   "detected": 761,
+   "recall": 0.9048751486325802,
+   "recall_ci95": [
+    0.8831648541202909,
+    0.922903407669848
+   ],
+   "normal_recordings": 5395,
+   "false_alarm_recordings": 28,
+   "false_alarm_rate": 0.005189990732159407,
+   "false_alarm_ci95": [
+    0.0035932861513478043,
+    0.007490869383054241
+   ],
+   "latency_p50": 1.1114019579981687,
+   "latency_p95": 10.574005795000176,
+   "precision_1to1": 0.994297121702978,
+   "precision_base_rate": 0.9645120405576679,
+   "detected_within_3s": 524
+  },
+  "C1_primary": {
+   "recall": false,
+   "false_alarm_rate": true,
+   "latency_p95": false
+  },
+  "C1_tolerance": {
+   "recall": false,
+   "false_alarm_rate": true,
+   "latency_p95": false
+  },
+  "scenarios": {
+   "Bruteforce_CWE-307": {
+    "primary": [
+     68,
+     73,
+     4,
+     492
+    ],
+    "tolerance": [
+     68,
+     4,
+     14.443291215599857
+    ]
+   },
+   "CVE-2012-2122": {
+    "primary": [
+     66,
+     114,
+     1,
+     683
+    ],
+    "tolerance": [
+     111,
+     1,
+     1.1509615309973924
+    ]
+   },
+   "CVE-2014-0160": {
+    "primary": [
+     17,
+     77,
+     4,
+     515
+    ],
+    "tolerance": [
+     17,
+     4,
+     10.281181230800575
+    ]
+   },
+   "CVE-2017-7529": {
+    "primary": [
+     21,
+     123,
+     0,
+     514
+    ],
+    "tolerance": [
+     114,
+     0,
+     1.1748001980515255
+    ]
+   },
+   "CVE-2018-3760": {
+    "primary": [
+     36,
+     91,
+     0,
+     576
+    ],
+    "tolerance": [
+     88,
+     0,
+     1.0658306076034931
+    ]
+   },
+   "CVE-2019-5418": {
+    "primary": [
+     24,
+     69,
+     0,
+     516
+    ],
+    "tolerance": [
+     69,
+     0,
+     1.2479574653989403
+    ]
+   },
+   "EPS_CWE-434": {
+    "primary": [
+     65,
+     65,
+     6,
+     517
+    ],
+    "tolerance": [
+     65,
+     6,
+     2.3922168234006675
+    ]
+   },
+   "PHP_CWE-434": {
+    "primary": [
+     80,
+     80,
+     0,
+     545
+    ],
+    "tolerance": [
+     80,
+     0,
+     5.511780018452191
+    ]
+   },
+   "SQL_Injection_CWE-89": {
+    "primary": [
+     72,
+     72,
+     12,
+     526
+    ],
+    "tolerance": [
+     72,
+     12,
+     4.836204289950183
+    ]
+   },
+   "ZipSlip": {
+    "primary": [
+     77,
+     77,
+     1,
+     511
+    ],
+    "tolerance": [
+     77,
+     1,
+     2.2681713823985774
+    ]
+   }
+  }
+ },
+ "chosen": {
+  "primary": {
+   "attack_recordings": 841,
+   "detected": 582,
+   "recall": 0.6920332936979786,
+   "recall_ci95": [
+    0.6600175145172981,
+    0.7223026742612849
+   ],
+   "normal_recordings": 5395,
+   "false_alarm_recordings": 25,
+   "false_alarm_rate": 0.004633920296570899,
+   "false_alarm_ci95": [
+    0.003140792774542399,
+    0.006832013243696771
+   ],
+   "latency_p50": 2.548414873999718,
+   "latency_p95": 10.721798689798238,
+   "precision_1to1": 0.9933484449914027,
+   "precision_base_rate": 0.9588138385502472,
+   "detected_within_3s": 326
+  },
+  "tolerance": {
+   "attack_recordings": 841,
+   "detected": 817,
+   "recall": 0.9714625445897741,
+   "recall_ci95": [
+    0.9578882547623352,
+    0.9807492365733187
+   ],
+   "normal_recordings": 5395,
+   "false_alarm_recordings": 25,
+   "false_alarm_rate": 0.004633920296570899,
+   "false_alarm_ci95": [
+    0.003140792774542399,
+    0.006832013243696771
+   ],
+   "latency_p50": 1.2167176360017038,
+   "latency_p95": 10.94575957979977,
+   "precision_1to1": 0.9952526000623202,
+   "precision_base_rate": 0.9703087885985748,
+   "detected_within_3s": 524
+  },
+  "C1_primary": {
+   "recall": false,
+   "false_alarm_rate": true,
+   "latency_p95": false
+  },
+  "C1_tolerance": {
+   "recall": true,
+   "false_alarm_rate": true,
+   "latency_p95": false
+  },
+  "scenarios": {
+   "Bruteforce_CWE-307": {
+    "primary": [
+     68,
+     73,
+     5,
+     492
+    ],
+    "tolerance": [
+     68,
+     5,
+     14.443291215599857
+    ]
+   },
+   "CVE-2012-2122": {
+    "primary": [
+     66,
+     114,
+     1,
+     683
+    ],
+    "tolerance": [
+     111,
+     1,
+     1.1213640829955693
+    ]
+   },
+   "CVE-2014-0160": {
+    "primary": [
+     73,
+     77,
+     4,
+     515
+    ],
+    "tolerance": [
+     73,
+     4,
+     11.781950238397984
+    ]
+   },
+   "CVE-2017-7529": {
+    "primary": [
+     21,
+     123,
+     1,
+     514
+    ],
+    "tolerance": [
+     114,
+     1,
+     1.1748001980515255
+    ]
+   },
+   "CVE-2018-3760": {
+    "primary": [
+     36,
+     91,
+     0,
+     576
+    ],
+    "tolerance": [
+     88,
+     0,
+     1.0658306076034931
+    ]
+   },
+   "CVE-2019-5418": {
+    "primary": [
+     24,
+     69,
+     0,
+     516
+    ],
+    "tolerance": [
+     69,
+     0,
+     1.2479574653989403
+    ]
+   },
+   "EPS_CWE-434": {
+    "primary": [
+     65,
+     65,
+     6,
+     517
+    ],
+    "tolerance": [
+     65,
+     6,
+     2.3922168234006675
+    ]
+   },
+   "PHP_CWE-434": {
+    "primary": [
+     80,
+     80,
+     0,
+     545
+    ],
+    "tolerance": [
+     80,
+     0,
+     5.636711156047386
+    ]
+   },
+   "SQL_Injection_CWE-89": {
+    "primary": [
+     72,
+     72,
+     7,
+     526
+    ],
+    "tolerance": [
+     72,
+     7,
+     4.836204289950183
+    ]
+   },
+   "ZipSlip": {
+    "primary": [
+     77,
+     77,
+     1,
+     511
+    ],
+    "tolerance": [
+     77,
+     1,
+     2.2681713823985774
+    ]
+   }
+  }
+ }
+}

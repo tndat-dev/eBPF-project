@@ -22,3 +22,36 @@
 2026-11-18T14:00:04+00:00 k8s-master.local bash[2116699]: {"model-or-rate-2e-05": [295, 10.08423698929815, {"dev_false_alarms": true, "lidds2021_and_cbds": false}], "model-or-rate-1e-05": [295, 10.08423698929815, {"dev_false_alarms": true, "lidds2021_and_cbds": false}], "model-or-rate-5e-06": [295, 10.08423698929815, {"dev_false_alarms": true, "lidds2021_and_cbds": false}], "model-or-rate-1e-06": [295, 10.08423698929815, {"dev_false_alarms": true, "lidds2021_and_cbds": false}], "model-or-rate-1e-07": [295, 10.08423698929815, {"dev_false_alarms": true, "lidds2021_and_cbds": false}], "model-or-rate-1e-08": [295, 10.08423698929815, {"dev_false_alarms": true, "lidds2021_and_cbds": true}]}
 2026-11-18T14:00:04+00:00 k8s-master.local systemd[1]: lidds2019-rate.service: Deactivated successfully.
 2026-11-18T14:00:04+00:00 k8s-master.local systemd[1]: lidds2019-rate.service: Consumed 9min 47.020s CPU time.
+2026-11-18T14:09:54+00:00 k8s-master.local systemd[1]: Started lidds2019-amend1.service - /usr/bin/bash /home/dat/eBPF-project/scripts/lidds2019_amendment1_run.sh.
+2026-11-18T14:10:10+00:00 k8s-master.local bash[2120210]: official cache CVE-2014-0160 2026-11-18T14:10:10
+2026-11-18T14:10:56+00:00 k8s-master.local bash[2120212]: official cache Bruteforce_CWE-307 2026-11-18T14:10:56
+2026-11-18T14:12:16+00:00 k8s-master.local bash[2120211]: official cache CVE-2012-2122 2026-11-18T14:12:16
+2026-11-18T14:13:49+00:00 k8s-master.local bash[2120213]: official cache CVE-2020-23839 2026-11-18T14:13:49
+2026-11-18T14:18:48+00:00 k8s-master.local bash[2120372]: official cache CWE-89-SQL-injection 2026-11-18T14:18:48
+2026-11-18T14:19:12+00:00 k8s-master.local bash[2123032]: official cache CVE-2017-7529 2026-11-18T14:19:12
+2026-11-18T14:19:57+00:00 k8s-master.local bash[2120523]: official cache PHP_CWE-434 2026-11-18T14:19:57
+2026-11-18T14:22:09+00:00 k8s-master.local bash[2121066]: official cache CVE-2018-3760 2026-11-18T14:22:09
+2026-11-18T14:31:33+00:00 k8s-master.local bash[2124093]: official cache ZipSlip 2026-11-18T14:31:33
+2026-11-18T14:32:17+00:00 k8s-master.local bash[2121508]: official cache CVE-2020-9484 2026-11-18T14:32:17
+2026-11-18T14:50:24+00:00 k8s-master.local bash[2123149]: official cache CVE-2019-5418 2026-11-18T14:50:24
+2026-11-18T14:54:40+00:00 k8s-master.local bash[2123453]: official cache Juice-Shop 2026-11-18T14:54:40
+2026-11-18T15:02:14+00:00 k8s-master.local bash[2126933]: official cache EPS_CWE-434 2026-11-18T15:02:14
+2026-11-18T15:56:54+00:00 k8s-master.local bash[2127294]: official cache CVE-2017-12635_6 2026-11-18T15:56:54
+2026-11-18T16:03:16+00:00 k8s-master.local bash[2132495]: official cache CVE-2020-13942 2026-11-18T16:03:16
+2026-11-18T16:03:16+00:00 k8s-master.local bash[2120189]: official 2026-11-18T16:03:16
+2026-11-18T16:04:03+00:00 k8s-master.local bash[2154080]: {"lidds_ml_v5": {"detected": 1238, "false_alarm_recordings": 26, "latency_p95": 1.4747861981391888}, "chosen": {"detected": 1236, "false_alarm_recordings": 15, "latency_p95": 1.543719232082367}}
+2026-11-18T16:04:03+00:00 k8s-master.local bash[2120189]: holdout 2026-11-18T16:04:03
+2026-11-18T16:04:37+00:00 k8s-master.local bash[2154449]: {"scenario": "Bruteforce_CWE-307", "part": "holdout", "recordings": 815, "facts": 92, "events": 4206524, "seconds": 35}
+2026-11-18T16:05:08+00:00 k8s-master.local bash[2154449]: {"scenario": "CVE-2012-2122", "part": "holdout", "recordings": 1047, "facts": 42, "events": 4185832, "seconds": 31}
+2026-11-18T16:05:33+00:00 k8s-master.local bash[2154449]: {"scenario": "CVE-2014-0160", "part": "holdout", "recordings": 842, "facts": 93, "events": 3007599, "seconds": 25}
+2026-11-18T16:05:46+00:00 k8s-master.local bash[2154449]: {"scenario": "CVE-2017-7529", "part": "holdout", "recordings": 887, "facts": 32, "events": 1366288, "seconds": 12}
+2026-11-18T16:07:07+00:00 k8s-master.local bash[2154449]: {"scenario": "CVE-2018-3760", "part": "holdout", "recordings": 917, "facts": 70, "events": 14461107, "seconds": 82}
+2026-11-18T16:08:25+00:00 k8s-master.local bash[2154449]: {"scenario": "CVE-2019-5418", "part": "holdout", "recordings": 835, "facts": 69, "events": 13928475, "seconds": 78}
+2026-11-18T16:20:42+00:00 k8s-master.local bash[2154449]: {"scenario": "EPS_CWE-434", "part": "holdout", "recordings": 832, "facts": 121, "events": 97497358, "seconds": 736}
+2026-11-18T16:22:42+00:00 k8s-master.local bash[2154449]: {"scenario": "PHP_CWE-434", "part": "holdout", "recordings": 875, "facts": 171, "events": 17447290, "seconds": 120}
+2026-11-18T16:24:45+00:00 k8s-master.local bash[2154449]: {"scenario": "SQL_Injection_CWE-89", "part": "holdout", "recordings": 848, "facts": 127, "events": 18343723, "seconds": 124}
+2026-11-18T16:46:07+00:00 k8s-master.local bash[2154449]: {"scenario": "ZipSlip", "part": "holdout", "recordings": 838, "facts": 124, "events": 198223554, "seconds": 1282}
+2026-11-18T16:46:33+00:00 k8s-master.local bash[2154449]: {"lidds_ml_v5": {"primary": {"detected": 526, "attack_recordings": 841, "false_alarm_recordings": 28, "latency_p95": 10.501967543749856}, "tolerance": {"detected": 761, "attack_recordings": 841, "false_alarm_recordings": 28, "latency_p95": 10.574005795000176}}, "chosen": {"primary": {"detected": 582, "attack_recordings": 841, "false_alarm_recordings": 25, "latency_p95": 10.721798689798238}, "tolerance": {"detected": 817, "attack_recordings": 841, "false_alarm_recordings": 25, "latency_p95": 10.94575957979977}}}
+2026-11-18T16:46:33+00:00 k8s-master.local bash[2120189]: done 2026-11-18T16:46:33
+2026-11-18T16:46:33+00:00 k8s-master.local systemd[1]: lidds2019-amend1.service: Deactivated successfully.
+2026-11-18T16:46:33+00:00 k8s-master.local systemd[1]: lidds2019-amend1.service: Consumed 6h 2min 21.306s CPU time, 14.3G memory peak, 0B memory swap peak.
