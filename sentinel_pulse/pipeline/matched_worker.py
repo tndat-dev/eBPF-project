@@ -40,7 +40,7 @@ import time
 from ..detector.candidate_policy import load_preview_policy
 from ..collector.extended_capture import ExtendedFeatureStream
 from ..collector.features import TRACKED_SYSCALLS
-from ..collector.token_capture import token_window
+from ..collector.token_capture import MapOverflow, token_window
 from ..detector.token_model import TokenBranch
 from ..detector.v3_policy import CountBranches
 from ..detector.idle_batch import IdleBatchRuntime
@@ -208,6 +208,7 @@ def run(config_path):
         stream=ExtendedFeatureStream(include_idle=True)
         runtime=IdleBatchRuntime(scorer,policy,fast=bool(cfg.get('fast_scoring',False)),novelty=novelty)
         previous={};metadata={};mtime=None;pending=[];token_pending=[];buffer=b'';last=None
+        overflow=MapOverflow()      # D1: gram map full -> alert on the heaviest window (loader counters reset per segment)
         segment_begin=time.monotonic();last_data=segment_begin;checkpoint=segment_begin
         def issue(reason):
             state['issues']+=1
@@ -315,11 +316,16 @@ def run(config_path):
                                     state['preview_positive']+=decision.get('candidate_alert_preview') is True
                             if exchange is not None:exchange.publish(novelty.drain_outbox())
                             # PHẦN TOKEN — đường cảnh báo thật: chấm từng cửa sổ token đã đóng, ghi decision và tokens.jsonl.
-                            for token_row in token_pending:
+                            heavy,incomplete=overflow.frame(state.get('token_drain') if tokens_cfg else None,token_pending)
+                            if incomplete:issue('gram_map_overflow')
+                            for row_index,token_row in enumerate(token_pending):
                                 window=token_window(token_row,metadata)
                                 if window is None:continue
                                 window.update(run_id=cfg['run_id'],capture_segment=segment.name,emitted_at=now)
                                 scored=token_branch.score(window) if token_branch is not None else None
+                                if scored is not None and incomplete:scored['token_incomplete']=True
+                                if scored is not None and row_index==heavy:
+                                    scored.update(token_alert=True,token_alert_reason='gram_map_overflow')
                                 if scored is not None:
                                     window.update(scored,token_scored_at=time.time())
                                     decision=dict(status='token-score',branch='token',
@@ -331,7 +337,7 @@ def run(config_path):
                                             'container_name','workload_revision','cgroup_id','run_id','capture_segment',
                                             'token_score','token_threshold','events') },
                                         **{k:window[k] for k in ('token_alert_raw','token_pool_score','token_pool_threshold',
-                                            'token_exec_held') if k in window})
+                                            'token_exec_held','token_alert_reason','token_incomplete') if k in window})
                                     line=json.dumps(decision,separators=(',',':'),allow_nan=False)+'\n'
                                     decisions.write(line);local.write(line)
                                     state['token_scored']+=1;state['token_alerts']+=scored['token_alert']

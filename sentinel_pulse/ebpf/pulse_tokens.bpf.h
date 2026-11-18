@@ -275,7 +275,7 @@ static long pulse_tok_walk_step(__u32 index, void *context)
 static __always_inline __u32 pulse_tok_dir_of_fd(long fd)
 {
     struct task_struct *task = (struct task_struct *)bpf_get_current_task();
-    struct fdtable *table = BPF_CORE_READ(task, files, fdt);
+    struct fdtable *table = BPF_CORE_READ(task, files, fdt);//Truy cập vào bảng quản lý file (files) và lấy bảng mô tả file (fdtable) của tiến trình đó
     if (!table || fd < 0 || fd >= BPF_CORE_READ(table, max_fds))
         return PULSE_TOK_DIR_UNKNOWN;
     struct file **files = BPF_CORE_READ(table, fd);

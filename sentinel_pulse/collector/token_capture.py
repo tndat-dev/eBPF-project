@@ -83,3 +83,27 @@ def token_window(row: dict, metadata: dict):
                 container_name=item['container_name'], workload_revision=item['workload_revision'],
                 node_name=item['node_name'], window=int(row['window']), window_end=window_end,
                 events=int(row['events']), grams=row['grams'], **lineage)
+
+
+class MapOverflow:
+    """Gram-map overflow as an alert (improvement-round-v1 D1). The loader's insert_fail_cumulative grows when the kernel
+    could not insert a gram (map full): the window of that frame with the most distinct grams belongs to the cgroup that
+    filled the map, and it is turned into an alert; every window of the frame is flagged incomplete. A loader restart
+    (new segment) resets the counter, so a decrease only resets the reference. If the frame holds no window, the alert
+    waits for the next frame that does."""
+
+    def __init__(self):
+        self.seen = None
+        self.pending = False
+
+    def frame(self, drain: dict | None, windows: list):
+        """-> (index of the window to alert or None, incomplete flag for the frame)."""
+        cur = None if not drain else drain.get('insert_fail_cumulative')
+        grew = cur is not None and self.seen is not None and int(cur) > self.seen
+        if cur is not None:
+            self.seen = int(cur)
+        self.pending = self.pending or grew
+        if not self.pending or not windows:
+            return None, grew
+        self.pending = False
+        return max(range(len(windows)), key=lambda i: len(windows[i].get('grams', ()))), True

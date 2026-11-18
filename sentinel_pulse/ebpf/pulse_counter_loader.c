@@ -320,7 +320,7 @@ static long drain_grams(int map_fd, uint64_t now_window, double wall_minus_mono,
             printf("{\"type\":\"token_grams\",\"contract\":\"pulse-token-select1f-v1\",\"cgroup_id\":%llu,\"window\":%u,"
                    "\"window_end\":%.3f,\"events\":%llu,\"grams\":[",
                    (unsigned long long)head->cgroup_id, head->window,
-                   (double)(head->window + 1) * 0.5 + wall_minus_mono, (unsigned long long)events);
+                   (double)(head->window + 1) * (PULSE_TOK_WINDOW_NS / 1e9) + wall_minus_mono, (unsigned long long)events);
             uint64_t session_events = 0;
             for (uint32_t index = start; index < end;) {      /* the group is sorted by gram, then lineage */
                 const struct pulse_gram_key *key = &gram_keys[old_index[index]];
