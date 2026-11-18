@@ -158,6 +158,8 @@ LID-DS 2019 có 10 kịch bản, đều thuộc nhóm lỗ hổng của LID-DS 2
 \item
   \textbf{Độ nhạy theo cách đặt thời điểm exploit:} với quy ước của thư viện LID-DS (sớm hơn), recall là 92,60\% nhưng độ trễ trung vị 17,39 s. Tức là ở nhiều bản ghi, mô hình báo sau giai đoạn khởi động nhưng trước thời điểm exploit đã đăng ký, và không báo sau đó. Giải thích nguyên nhân cần đọc quy trình exploit của từng kịch bản, việc mà đồ án không làm, nên nguyên nhân còn mở.
 \item
+\item
+  \textbf{Độ phân giải của nhãn (phân tích đặt ra sau khi thấy thất bại, amendment 1):} mọi thời điểm exploit của LID-DS 2019 là số nguyên giây, và trong 439 bản ghi bị lọt có 353 bản ghi mà cửa sổ báo kết thúc trước mốc nhãn trung bình 0,36 s và không báo sau đó. Tính thêm cửa sổ báo kết thúc trong 1 s trước mốc nhãn thì phát hiện 1.056/1.162 (90,88\%), báo nhầm không đổi, p95 10,55 s; cùng quy tắc trên LID-DS 2021 official vẫn cho 1.238/1.271, tức quy tắc không thêm phát hiện nào khi nhãn chính xác. C1 vẫn không đạt: 76 bản ghi Heartbleed không có cảnh báo nào, và độ trễ của Bruteforce và Heartbleed cao. Kết quả đăng ký ở trên vẫn là kết quả chính.
   \textbf{Thăm dò (không đăng ký trước):} token của bản ghi 2019 vẫn mang chi tiết; tỉ lệ token nhóm cỡ và token mở file tương đương 2021. Riêng token mã lỗi hiếm hơn hẳn ở một số kịch bản (CVE-2017-7529: 0,1\% so với 8,2\%), gợi ý rằng trace 2019 ghi lỗi khác 2021.
 \end{itemize}
 

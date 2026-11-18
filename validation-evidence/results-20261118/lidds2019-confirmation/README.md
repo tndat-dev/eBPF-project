@@ -39,3 +39,24 @@ Reported as registered: a failure, no re-run with other settings.
   in many attack recordings the model alarms after the warm-up but before the registered exploit_start_time and not
   after it. Explaining this needs the exploit procedure of each scenario, which this project does not read (owner rule,
   15/11), so the cause is left open.
+
+## Amendment 1 (registered 18/11 20:07, after the failure was seen): label resolution
+
+Every exploit_start_time of the 2019 release is a whole number of seconds; of the 439 missed attack recordings, 353 had
+an alarm window ending before the registered exploit time and none after it (mean gap 0.36 s), 86 had no alarm (76 of
+them CVE-2014-0160). The amendment adds, beside the registered result, a tolerance equal to the label resolution: a
+recording also counts as detected when an alarm window ends after (exploit time − 1 s). Normal recordings are unchanged.
+Code: `scripts/analysis/lidds2019_token.py tolerance` (`tolerance.json`).
+
+| | Registered rule | 1 s tolerance (post hoc) |
+|---|---|---|
+| LID-DS 2019 detected | 723/1,162 (62.22 %) | 1,056/1,162 (90.88 %), Wilson [89.08; 92.40] |
+| LID-DS 2019 false-alarm recordings | 34/7,706 | 34/7,706 |
+| LID-DS 2019 latency p50 / p95 | 1.22 / 10.48 s | 1.10 / 10.55 s |
+| LID-DS 2021 official detected (same rule, same code path) | 1,238/1,271 | 1,238/1,271 (unchanged; latency +1 s by definition) |
+
+Per scenario under the tolerance: Bruteforce_CWE-307 92/98, CVE-2012-2122 152/155, CVE-2014-0160 24/100,
+CVE-2017-7529 157/174, CVE-2018-3760 133/137, CVE-2019-5418 98/98, EPS_CWE-434 99/99, PHP_CWE-434 103/103,
+SQL_Injection_CWE-89 100/100, ZipSlip 98/98. C1 stays not met (recall 90.88 % < 95 %, p95 10.55 s > 3 s): CVE-2014-0160
+(76 recordings without any alarm) and the latency of the brute-force and CVE-2014-0160 recordings remain. The registered
+result above is the primary result.

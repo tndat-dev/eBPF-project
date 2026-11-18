@@ -499,6 +499,12 @@ def claims():
     for s, m in l19['primary']['scenarios'].items():
         add(f'l19-{s}', thesis, f"{s.replace('_', chr(92) + '_')}}} & {m['detected']}/{m['attack_recordings']} & "
             f"{m['false_alarm_recordings']}/{m['normal_recordings']} \\\\", [], L19)
+    TOL = 'results-20261118/lidds2019-confirmation/tolerance.json'
+    tl = receipt(TOL)
+    t19, t21 = tl['lidds2019']['tolerance'], tl['lidds2021_official']['tolerance']
+    add('l19-tolerance', thesis, f"phát hiện {thousands(t19['detected'])}/{thousands(t19['attack_recordings'])} ({num(100 * t19['recall'], 2)}\\%), báo nhầm "
+        f"không đổi, p95 {num(t19['latency_p95'], 2)} s; cùng quy tắc trên LID-DS 2021 official vẫn cho {thousands(t21['detected'])}/"
+        f"{thousands(t21['attack_recordings'])}", [], TOL)
     # the four status reports were removed on 07/11 (owner); their claims are retired, the LaTeX and TODO claims stay
     return [c for c in out if c['doc'] not in RETIRED]
 
