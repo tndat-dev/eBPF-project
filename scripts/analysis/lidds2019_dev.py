@@ -36,6 +36,8 @@ import sys
 import time
 from types import SimpleNamespace
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import lidds2019_token as l19  # noqa: E402
 import lidds_ml_v2 as m  # noqa: E402
@@ -255,7 +257,8 @@ def grid(caches, out, caches21, lidds_alarms, cbds_alarms, jobs):
     return doc
 
 
-SLOW = ('Bruteforce_CWE-307', 'CVE-2014-0160', 'PHP_CWE-434', 'SQL_Injection_CWE-89')
+SLOW = ('Bruteforce_CWE-307', 'CVE-2012-2122', 'CVE-2014-0160', 'CVE-2017-7529', 'CVE-2018-3760', 'CVE-2019-5418', 'EPS_CWE-434',
+        'PHP_CWE-434', 'SQL_Injection_CWE-89', 'ZipSlip')
 
 
 def latency(caches, out, scenarios=SLOW):
@@ -280,14 +283,64 @@ def latency(caches, out, scenarios=SLOW):
             after = t > ex - TOLERANCE
             fire = t[(x > thr) & after]
             i = int(x[after].argmax()) if after.any() else None
+            u = a[:, spec['columns'].index('unseen_any')]
+            novel = t[(u > 0) & after]
             rows.append(dict(name=name, exploit=ex, end=float(t.max()), first_alarm_after=float(fire[0] - ex) if len(fire) else None,
+                             first_unseen_after=float(novel[0] - ex) if len(novel) else None,
                              alarms_before=int(((x > thr) & ~after).sum()), alarms_after=int(len(fire)),
                              max_after=float(x[after][i]) if i is not None else None,
                              max_after_at=float(t[after][i] - ex) if i is not None else None,
                              max_before=float(x[~after].max()) if (~after).any() else None))
         res[s] = dict(threshold=thr, recordings=rows)
-    doc = dict(schema='lidds2019-development-latency-v1', protocol=PROTOCOL, part='development', scenarios=res)
+    lat = [r['first_unseen_after'] for v in res.values() for r in v['recordings'] if r.get('first_unseen_after') is not None]
+    doc = dict(schema='lidds2019-development-latency-v1', protocol=PROTOCOL, part='development', scenarios=res,
+               note='first_unseen_after: first window (after exploit - 1 s) holding any gram or token unseen in learning, a lower '
+                    'bound on the latency of any detector that fires on unseen sequences')
+    doc['first_unseen_after_p50_p95'] = [float(np.percentile(lat, 50)), float(np.percentile(lat, 95))] if lat else None
     (Path(out) / 'latency.json').write_text(json.dumps(doc, indent=1, default=float))
+    return doc
+
+
+RATE_LEVELS = (2e-5, 1e-5, 5e-6, 1e-6, 1e-7, 1e-8)
+
+
+def rate(caches, out, caches21, lidds_alarms, cbds_alarms, jobs):
+    """Token model (lidds-ml-v5) OR the rate branch of ml-final-study-v1 part D at a grid of rate levels, on both datasets."""
+    import lidds_token_rate as tr
+    from multiprocessing import Pool
+    docs19 = inventory(caches)
+    o19, o21 = Path(out) / 'rate2019', Path(out) / 'rate2021'
+    jobs_ = [(str(c), str(o19)) for c in sorted(Path(caches).glob('*.npz'), key=lambda p: -p.stat().st_size)]
+    jobs_ += [(str(c), str(o21)) for c in sorted(Path(caches21).glob('*.npz'), key=lambda p: -p.stat().st_size)]
+    with Pool(min(jobs, len(jobs_))) as pool:
+        for name in pool.imap_unordered(tr.task, jobs_, chunksize=1):
+            print('rate scored', name, flush=True)
+    cols = st.columns_of(st.base_spec())
+    load = lambda d, kind, s, col, cs: st.TokenScenario(d / kind / f'{s}.npz', col, cs)
+    lidds, cbds = m.load(lidds_alarms), m.load(cbds_alarms)
+    rows = {}
+    for level in RATE_LEVELS:
+        both19 = {s: tr.EitherSplit(load(o19, 'rate', s, 'rate', tr.COLUMNS), load(o19, 'model', s, 'top10', cols), a_rate=level)
+                  for s in sorted(docs19['scenarios'])}
+        primary, per = evaluate(both19, docs19)
+        tol, tol_per = evaluate(both19, l19.shifted(docs19, TOLERANCE))
+        r21 = {}
+        for doc, part, key in ((lidds, 'development', 'lidds'), (cbds, 'all', 'cbds')):
+            names = sorted(s for s in doc['scenarios'] if (o21 / 'rate' / f'{s}.npz').exists())
+            sc = {s: tr.EitherSplit(load(o21, 'rate', s, 'rate', tr.COLUMNS), load(o21, 'model', s, 'top10', cols), a_rate=level) for s in names}
+            pooled, _ = m.score(sc, doc, ('T',), st.ALPHA, part)
+            r21[key] = pooled
+        m21 = dict(detected=r21['lidds']['detected'], false_alarm_recordings=r21['lidds']['false_alarm_recordings'],
+                   latency_p95=r21['lidds']['latency_p95'], cb_detected=r21['cbds']['detected'],
+                   cb_false_alarm_recordings=r21['cbds']['false_alarm_recordings'])
+        keep = lambda r: dict(detected=r['detected'], attack_recordings=r['attack_recordings'], false_alarm_recordings=r['false_alarm_recordings'],
+                              false_alarm_rate=r['false_alarm_rate'], recall=r['recall'], latency_p50=r['latency_p50'], latency_p95=r['latency_p95'])
+        rows[f'model-or-rate-{level:g}'] = dict(primary=keep(primary), tolerance=keep(tol), lidds2021_development=m21,
+                                                scenarios={s: [tol_per[s]['detected'], tol_per[s]['attack_recordings'],
+                                                               tol_per[s]['false_alarm_recordings'], tol_per[s]['latency_p95']] for s in tol_per},
+                                                must=dict(dev_false_alarms=tol['false_alarm_rate'] <= DEV_FA_LIMIT, lidds2021_and_cbds=st.keeps(m21)))
+    doc = dict(schema='lidds2019-development-rate-v1', protocol=PROTOCOL, part='development', model_alpha=st.ALPHA, candidates=rows)
+    (Path(out) / 'rate.json').write_text(json.dumps(doc, indent=1, default=float))
     return doc
 
 
@@ -305,6 +358,13 @@ def main():
     p.add_argument('--n', type=int, default=5)
     p.add_argument('--output', type=Path, required=True)
     p = sub.add_parser('grid')
+    p.add_argument('--caches', required=True)
+    p.add_argument('--out', type=Path, required=True)
+    p.add_argument('--caches-2021', required=True)
+    p.add_argument('--lidds-alarms', required=True)
+    p.add_argument('--cbds-alarms', required=True)
+    p.add_argument('--jobs', type=int, default=4)
+    p = sub.add_parser('rate')
     p.add_argument('--caches', required=True)
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--caches-2021', required=True)
@@ -339,6 +399,9 @@ def main():
     elif a.step == 'grid':
         d = grid(a.caches, a.out, a.caches_2021, a.lidds_alarms, a.cbds_alarms, a.jobs)
         print(json.dumps(dict(pass_must=len(d['pass_must']), best=d['best'], selected=d['selected'])))
+    elif a.step == 'rate':
+        d = rate(a.caches, a.out, a.caches_2021, a.lidds_alarms, a.cbds_alarms, a.jobs)
+        print(json.dumps({c: (r['tolerance']['detected'], r['tolerance']['latency_p95'], r['must']) for c, r in d['candidates'].items()}, default=float))
     elif a.step == 'latency':
         d = latency(a.caches, a.out)
         print(json.dumps({s: sum(r.get('first_alarm_after') is not None for r in v['recordings']) for s, v in d['scenarios'].items()}))
