@@ -195,7 +195,8 @@ def one_pair(runtime,cfg,root,item,index):
             append_jsonl(root/'DISPATCH.jsonl',injection)
             result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',
                 path,item['scenario'],'15',str(item['rate_per_second']),str(item['seed']),
-                *([str(item['pad'])] if item.get('pad') else [])],timeout=45,check=False)
+                *([str(item.get('pad') or 0)] if item.get('pad') or item.get('on_off') else []),
+                *([str(item['on_off'])] if item.get('on_off') else [])],timeout=45,check=False)
             (trial_dir/'attack.stdout').write_bytes(result.stdout);(trial_dir/'attack.stderr').write_bytes(result.stderr)
             if result.returncode or b'done' not in result.stderr:injection['infrastructure_issue']='fixture_execution_failed'
             capture.wait(timeout=12);capture=None

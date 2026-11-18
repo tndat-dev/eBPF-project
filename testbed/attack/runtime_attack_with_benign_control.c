@@ -103,22 +103,26 @@ static void execveat_resolution_probe(void) {
 /* Vòng chính: mỗi 1/RATE giây chạy một thao tác của MODE (+ PAD cặp syscall đệm), tới hết SECONDS hoặc bị SIGTERM. */
 int main(int argc, char **argv) {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s MODE [SECONDS] [RATE] [SEED] [PAD]\n", argv[0]);
+        fprintf(stderr, "usage: %s MODE [SECONDS] [RATE] [SEED] [PAD] [ON_OFF]\n", argv[0]);
         return 2;
     }
     const char *mode = argv[1];
     int seconds = argc > 2 ? atoi(argv[2]) : 45;
-    int rate = argc > 3 ? atoi(argv[3]) : 12;
+    // RATE may be fractional (improvement-round-v1 D12, slow attacker: 0.5, 0.2, 0.1 operations per second)
+    double rate = argc > 3 ? strtod(argv[3], NULL) : 12.0;
     unsigned long seed = argc > 4 ? strtoul(argv[4], NULL, 10) : 1UL;
     // PAD (adaptive attacker, dilution): after each operation, PAD pairs of common calls (getpid, sched_yield), so the
     // attack's own calls are a smaller share of its windows. 0, the default, is the fixture of the earlier runs.
     int pad = argc > 5 ? atoi(argv[5]) : 0;
-    if (seconds < 1 || seconds > 600 || rate < 1 || rate > 100 || pad < 0 || pad > 10000) return 2;
+    // ON_OFF (D12, on-off attacker): operations only in the first second of every ON_OFF-second period; 0 = always on
+    int on_off = argc > 6 ? atoi(argv[6]) : 0;
+    if (seconds < 1 || seconds > 600 || rate < 0.05 || rate > 100 || pad < 0 || pad > 10000 || on_off < 0 || on_off > 60)
+        return 2;
     rng_state = seed ? seed : 1UL;
 
     signal(SIGINT, stop_handler);
     signal(SIGTERM, stop_handler);
-    const long interval_ns = 1000000000L / rate;
+    const long interval_ns = (long)(1e9 / rate);
     const struct timespec pause = {
         .tv_sec = interval_ns / 1000000000L,
         .tv_nsec = interval_ns % 1000000000L,
@@ -126,10 +130,16 @@ int main(int argc, char **argv) {
     const time_t deadline = time(NULL) + seconds;
     unsigned long iterations = 0;
     fprintf(stderr,
-            "sentinel-runtime-attack start mode=%s seconds=%d rate=%d seed=%lu pad=%d\n",
-            mode, seconds, rate, seed, pad);
+            "sentinel-runtime-attack start mode=%s seconds=%d rate=%g seed=%lu pad=%d on_off=%d\n",
+            mode, seconds, rate, seed, pad, on_off);
+    const time_t started = time(NULL);
 
     while (running && time(NULL) < deadline) {
+        if (on_off > 0 && (time(NULL) - started) % on_off != 0) {     // off phase: wait for the next period
+            struct timespec tick = {.tv_sec = 0, .tv_nsec = 100000000L};
+            nanosleep(&tick, NULL);
+            continue;
+        }
         if (strcmp(mode, "anonymous_mprotect_churn") == 0)
             anonymous_mprotect_churn();
         else if (strcmp(mode, "child_ptrace_handshake") == 0)

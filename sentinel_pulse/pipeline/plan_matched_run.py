@@ -154,6 +154,11 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
         cfg['schedule']+=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
                                scenario=scenario,rate_per_second=tokens['dilution_rate'],seed=61501,pad=pad)
                           for key in keys for scenario in scenarios for pad in tokens['dilution_pads']]
+    if tokens and tokens.get('on_off'):
+        # D12 on-off attacker: operations only in the first second of each period
+        cfg['schedule']+=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
+                               scenario=scenario,rate_per_second=tokens['on_off_rate'],seed=61501,on_off=period)
+                          for key in keys for scenario in scenarios for period in tokens['on_off']]
     # Xáo thứ tự trial bằng seed cố định → lịch giống hệt nếu dựng lại, nhưng không theo thứ tự workload.
     random.Random(20261015).shuffle(cfg['schedule'])
     # Lịch tải: hai vòng 5 pha (756 s rồi 324 s mỗi pha) trong đoạn selection, rồi 'steady' tới hết lượt.
@@ -178,7 +183,7 @@ if __name__=='__main__':
     for key in ('candidate','model-hash','policy','policy-hash','fixture'):p.add_argument('--'+key)
     p.add_argument('--seconds',type=int,default=86400)
     for key in ('benign-exec-control','no-raw-frames','fast-scoring'):p.add_argument('--'+key,action='store_true')
-    p.add_argument('--attack-rates',default='6,12,24',help='fixture attack rates per second (1-100), comma-separated')
+    p.add_argument('--attack-rates',default='6,12,24',help='fixture attack rates per second (0.05-100), comma-separated')
     p.add_argument('--tripwire-exec-set',type=Path,help='final system: tripwire A1 in the worker with this frozen exec set')
     p.add_argument('--stream-root',default='/var/lib/sentinel-pulse-live',help='final system: local decision copy on each worker')
     p.add_argument('--recalibration',help='rolling-W-R: every R hours recalibrate on the preceding W hours of all workers')
@@ -194,9 +199,15 @@ if __name__=='__main__':
     p.add_argument('--lotl-attack',action='store_true',help='add a living-off-the-land attack step made of image tools')
     p.add_argument('--dilution-pads',help='adaptive attacker: comma-separated PAD values (1-10000), extra trials at --dilution-rate')
     p.add_argument('--dilution-rate',type=int,default=12)
+    p.add_argument('--on-off',help='on-off attacker (improvement-round-v1 D12): comma-separated periods in s (2-60), extra trials '
+                   'at --on-off-rate with operations only in the first second of each period')
+    p.add_argument('--on-off-rate',type=float,default=12)
     a=p.parse_args()
-    rates=tuple(int(x) for x in a.attack_rates.split(','))
-    if not rates or not all(1<=r<=100 for r in rates):p.error('attack rates must be 1-100 per second')
+    # D12: fractional rates (slow attacker, e.g. 0.5, 0.2, 0.1 per second); integers print as before (6, not 6.0)
+    rates=tuple((lambda r:int(r) if r==int(r) else r)(float(x)) for x in a.attack_rates.split(','))
+    if not rates or not all(0.05<=r<=100 for r in rates):p.error('attack rates must be 0.05-100 per second')
+    onoff=tuple(int(x) for x in a.on_off.split(',')) if a.on_off else ()
+    if not all(2<=x<=60 for x in onoff) or not 0.05<=a.on_off_rate<=100:p.error('on-off periods must be 2-60 s')
     pads=tuple(int(x) for x in a.dilution_pads.split(',')) if a.dilution_pads else ()
     if not all(1<=x<=10000 for x in pads) or not 1<=a.dilution_rate<=100:p.error('dilution pads must be 1-10000, rate 1-100')
     custom=None
@@ -215,6 +226,7 @@ if __name__=='__main__':
     if (a.token_models or a.v3_counts) and not a.token_build:p.error('token models and count thresholds need --token-build')
     tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts,gate=a.token_gate,admin_control=a.admin_control,
                 admin_commands=a.admin_commands,random_trial_order=a.random_trial_order,lotl_attack=a.lotl_attack,
-                dilution_pads=pads,dilution_rate=a.dilution_rate) if a.token_build else None
+                dilution_pads=pads,dilution_rate=a.dilution_rate,on_off=onoff,
+                on_off_rate=(lambda r:int(r) if r==int(r) else r)(a.on_off_rate)) if a.token_build else None
     plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal,tokens,
          a.stream_root if a.local_decisions else None)

@@ -47,6 +47,8 @@ def test_dilution_trials_are_extra_items_at_one_rate():
     text = (Path(__file__).resolve().parents[1] / 'sentinel_pulse/pipeline/plan_matched_run.py').read_text()
     assert "pad=pad)" in text and "tokens.get('dilution_pads')" in text
     campaign = (Path(__file__).resolve().parents[1] / 'sentinel_pulse/attack/preview_campaign.py').read_text()
-    assert "*([str(item['pad'])] if item.get('pad') else [])" in campaign      # PAD 0 keeps the earlier argv
+    # PAD 0 without on-off keeps the earlier argv; an on-off trial passes PAD (0) and its period (improvement-round-v1 D12)
+    assert "*([str(item.get('pad') or 0)] if item.get('pad') or item.get('on_off') else [])" in campaign
+    assert "*([str(item['on_off'])] if item.get('on_off') else [])" in campaign
     fixture = (Path(__file__).resolve().parents[1] / 'testbed/attack/runtime_attack_with_benign_control.c').read_text()
     assert re.search(r'int pad = argc > 5 \? atoi\(argv\[5\]\) : 0;', fixture)

@@ -110,7 +110,10 @@ def load_trials(campaign):
         trials.append(dict(label=label, start=float(row['start_at']), key=(row['pod_uid'], row['container_name']),
                            pair=int(str(row['trial_id']).split(':')[0]), workload=row['workload_key'],
                            rate=row.get('rate_per_second'), scenario=row.get('scenario'), kernel=None,
-                           command=row.get('admin_command'), pad=row.get('pad', 0)))
+                           command=row.get('admin_command'),
+                           # D12 on-off trials are their own set, kept apart from the base as the dilution trials are:
+                           # pad -period (a negative PAD never occurs otherwise)
+                           pad=-int(row['on_off']) if row.get('on_off') else row.get('pad', 0)))
     for trial in trials:
         if trial['label'] == 'attack':
             path = campaign / 'trials' / f"{trial['pair']:04d}" / 'EVALUATION_INPUT.json'
@@ -272,7 +275,7 @@ def analyse(root, reps, stalls=(), protocol='sentinel_pulse/protocol/pulse-live-
         primary = trial_metrics(trials, at, lambda rate: rate in PRIMARY)
         pads = sorted({t.get('pad') or 0 for t in trials if t['label'] == 'attack'} - {0})
         arms[arm] = dict(primary=primary, all_rates=trial_metrics(trials, at, lambda rate: rate is not None),
-                         dilution={f'pad{p}': trial_metrics(trials, at, lambda rate: rate is not None, pad=p) for p in pads},
+                         dilution={(f'pad{p}' if p > 0 else f'onoff{-p}'): trial_metrics(trials, at, lambda rate: rate is not None, pad=p) for p in pads},
                          recall_by_rate=by_field(trials, at, 'rate'), recall_by_scenario=by_field(trials, at, 'scenario'),
                          admin_by_command=by_field(trials, at, 'command', 'admin'),
                          expectations=expectations(primary),
