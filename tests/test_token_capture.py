@@ -11,3 +11,16 @@ def test_map_overflow_alerts_the_heaviest_window_once():
     assert o.frame(dict(insert_fail_cumulative=7), w) == (None, False)
     assert o.frame(dict(insert_fail_cumulative=0), w) == (None, False)          # loader restart resets the reference
     assert o.frame(None, w) == (None, False)
+
+
+def test_overflow_replay_names_the_stress_cgroup():
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+    import map_overflow_test as t
+    lines = ['{"type":"token_drain","insert_fail_cumulative":0}', '{"type":"snapshot_end","observed_at":1.0}',
+             '{"type":"token_grams","cgroup_id":7,"window_end":1.5,"grams":[[1,2,3,4,1]]}',
+             '{"type":"token_grams","cgroup_id":9,"window_end":1.5,"grams":[[1,2,3,4,1],[1,2,3,5,1]]}',
+             '{"type":"token_drain","insert_fail_cumulative":40}', '{"type":"snapshot_end","observed_at":1.5}']
+    res = t.judge(t.frames(lines), 9)
+    assert res['met'] and res['alert_cgroup'] == 9 and res['delay'] == 0.0
