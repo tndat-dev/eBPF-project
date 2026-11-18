@@ -26,6 +26,7 @@ PORT = 31088
 LOADER = '/home/dat/pulse-matched-20261015/build/pulse_counter_extended_loader'
 OBJECT = '/home/dat/pulse-matched-20261015/build/pulse_counter_extended.bpf.o'
 UNIT = 'pulse-app-overhead-probe'
+LOADER_ARGS = ''      # improvement-round-v1 D7: '--tokens grams' for the token probe
 MIN_AVAILABLE_KB = 4 << 20
 MAX_ERROR_SHARE = 0.20
 
@@ -67,7 +68,7 @@ def precheck(lab, host):
 def attach(lab, host):
     lab.run(host, f'systemctl reset-failed {UNIT} 2>/dev/null; systemd-run --unit={UNIT} --property=CPUAccounting=yes '
                   f'--property=StandardOutput=null {LOADER} --object {OBJECT} '
-                  f'--allow-cgroup-file /run/sentinel-pulse/allowed-cgroups --interval-ms 500', root=True)
+                  f'--allow-cgroup-file /run/sentinel-pulse/allowed-cgroups --interval-ms 500 {LOADER_ARGS}', root=True)
     time.sleep(3)
     return lab.run(host, f'systemctl is-active {UNIT}')[1] == 'active'
 
@@ -135,7 +136,12 @@ def main():
     ap.add_argument('--credential', required=True); ap.add_argument('--output', type=Path, required=True)
     ap.add_argument('--rounds', type=int, default=12); ap.add_argument('--block-seconds', type=float, default=300)
     ap.add_argument('--warmup-seconds', type=float, default=60)
+    ap.add_argument('--loader', help='loader path on the workers (default: the matched probe of app-overhead-v1)')
+    ap.add_argument('--object', help='BPF object path on the workers')
+    ap.add_argument('--loader-args', default='', help="extra loader arguments, e.g. '--tokens grams'")
     a = ap.parse_args()
+    global LOADER, OBJECT, LOADER_ARGS
+    LOADER, OBJECT, LOADER_ARGS = a.loader or LOADER, a.object or OBJECT, a.loader_args
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(1))   # systemctl stop -> finally detaches the probe
     lab = Lab(a.credential); a.output.mkdir(parents=True, exist_ok=True)
     blocks = open(a.output / 'blocks.jsonl', 'a')
