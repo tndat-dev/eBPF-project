@@ -1,0 +1,25 @@
+{
+ "schema": "sentinel-pulse-improvement-round-v1-amendment-1",
+ "amends": "sentinel_pulse/protocol/improvement-round-v1.json",
+ "registered_at": "2026-11-19T02:31+07:00",
+ "registered_before": "any work on D10-D13 and before any computation of D1-D9",
+ "source": "owner 19/11: re-read notes/RESEARCH_NOTES.md and reports/*.md for further directions; directions written for the old count system (tree, support, tripwire, discount, calibration refresh) that no longer apply to the token model are not carried over",
+ "added": {
+  "D10_incident_grouping": {
+   "what": "group alert episodes into incidents (same workload, overlapping in time) and label operational triggers from Kubernetes events (rollout, restart, failover) instead of dropping them (Gandalf / NoDoze style)",
+   "criterion": "reported burden as incidents per day and as episodes per replica-hour on pulse-live-v5-1110 and pulse-live-v6-1117 normal; attack trials keep their own incident (no attack merged into an operational label)"
+  },
+  "D11_replica_consensus": {
+   "what": "an alarm of a workload in the same 0.5 s windows on most of its replicas is labelled workload-wide drift (all replicas changed together, e.g. an aging model), an alarm on one replica stays an attack candidate (ReplicaWatcher idea, training-free)",
+   "criterion": "offline on v5 and v6: burden of the single-replica channel lower than the whole, campaign attacks (one replica) unchanged"
+  },
+  "D12_slow_and_onoff_attacks": {
+   "what": "campaign rates 0.5, 0.2, 0.1 actions/s and on-off timing for the final live run (adaptive attacker of the reports, A1-A4)",
+   "criterion": "measured in the final live run (reported, not adopted on it)"
+  },
+  "D13_io_uring_blind_spot": {
+   "what": "check whether io_uring is reachable from the cluster pods (RuntimeDefault seccomp); if it is, add io_uring operations as tokens",
+   "criterion": "if io_uring_setup returns EPERM in a production-like pod, record the path as closed by seccomp (the seccomp hook sees the attempt); otherwise design the token and measure overhead"
+  }
+ }
+}
