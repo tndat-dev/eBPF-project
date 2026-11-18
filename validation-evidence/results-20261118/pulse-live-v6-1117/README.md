@@ -52,5 +52,15 @@ Lineage separation is the first learnt mechanism that removes the false flags on
 0.21 %, harmless binary 100 % → 0.19 % on the native part), but the same split removes the campaign's exec-launched
 attacks from the native stream (0/525): which stream an alert comes from has to enter the decision. Rule R1 as defined
 removes the admin false alarms and also every living-off-the-land attack (314 → 0), so it is not adopted. RCA rank 1 no
-longer depends on the step order; it fell to 75.9 % with more processes per trial (to be explained before it is reported
-as a property of the ranking).
+longer depends on the step order; it fell to 75.9 % because each v6 trial has a second attack (see below).
+
+## Exploratory (not registered): why the attack fixture is not rank 1
+
+Ad-hoc read of the 730 attack trials with a matched case (`cases/*.json` against each trial's `EVALUATION_INPUT.json`, the
+`rca_coverage.py` matching rule; run as root on `.234`, 18/11): rank of the fixture binary 1: 540, 2: 80, 3: 1, 4: 23,
+5: 6, 7: 3, 14: 1, 17: 38, not listed: 19. Of the 170 cases where it is not first, the first suspect is `sh` (84), `cat`
+(67) or `rm` (11) in 162 — the processes of the same trial's living-off-the-land step (the v6 admin set has none of these
+tools) — and an admin tool (`sleep`, `head`, `hostname`, `stat`: 5), the harmless binary (1), an exec probe
+(`pg_isready`, 1) or `/bin/cat` outside the lotl path (1) in the rest. Reasons of those first suspects: started in window
+168, novel binary 165, spawned children 85, failed syscall 76. So a process of one of the trial's two attacks is first in
+about 702 of 711 own cases (98.7 %); the fixture-only rank 1 (75.9 %) is the registered number.
