@@ -184,7 +184,7 @@ def open_sealed(path: Path, mode: str = 'r', encoding: str | None = 'utf-8'):
     import gzip
     real = sealed_path(path)
     binary = 'b' in mode
-    if real.suffix == '.gz' and path.suffix != '.gz':
+    if real.suffix == '.gz':                     # also a .gz path given directly (globs like tokens.jsonl*)
         return gzip.open(real, 'rb' if binary else 'rt', encoding=None if binary else encoding)
     return real.open('rb' if binary else 'r', encoding=None if binary else encoding)
 

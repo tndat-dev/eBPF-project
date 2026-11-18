@@ -24,3 +24,13 @@ def test_overflow_replay_names_the_stress_cgroup():
              '{"type":"token_drain","insert_fail_cumulative":40}', '{"type":"snapshot_end","observed_at":1.5}']
     res = t.judge(t.frames(lines), 9)
     assert res['met'] and res['alert_cgroup'] == 9 and res['delay'] == 0.0
+
+
+def test_open_sealed_reads_a_gz_path_given_directly(tmp_path):
+    import gzip
+    from sentinel_pulse.common import open_sealed
+    (tmp_path / 'tokens.jsonl.gz').write_bytes(gzip.compress(b'{"a":1}\n'))
+    with open_sealed(tmp_path / 'tokens.jsonl.gz') as f:
+        assert f.read() == '{"a":1}\n'
+    with open_sealed(tmp_path / 'tokens.jsonl') as f:
+        assert f.read() == '{"a":1}\n'

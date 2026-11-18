@@ -1,0 +1,24 @@
+{
+ "schema": "improvement-round-v1-map-overflow",
+ "protocol": "sentinel_pulse/protocol/improvement-round-v1.json (D1)",
+ "rate": 400000,
+ "threads": 8,
+ "seconds": 10.0,
+ "stress_started_at": 1795031287.0181386,
+ "stress_ended_at": 1795031297.0335855,
+ "gram_stress": {
+  "threads": 8,
+  "rate": 50000,
+  "seconds": 10.0,
+  "events": 4000192
+ },
+ "frames": 24,
+ "quiet_cgroup": 1970272,
+ "first_failure_at": 1795031287.6388786,
+ "first_alert_at": 1795031287.6388786,
+ "alert_cgroup": 1970193,
+ "stress_cgroup": 1970193,
+ "delay": 0.0,
+ "alerts_before_failure": 0,
+ "met": true
+}
