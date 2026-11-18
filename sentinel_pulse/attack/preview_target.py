@@ -16,7 +16,8 @@ ATTACK_PATHS = {
     '/operator/sentinel-runtime-attack-blind',
 }
 # the benign-exec control copy beside each (attack/cluster.py benign_path_for)
-ALLOWED_PATHS = ATTACK_PATHS | {p.rsplit('/', 1)[0] + '/sentinel-benign-exec-control' for p in ATTACK_PATHS}
+ALLOWED_PATHS = (ATTACK_PATHS | {p.rsplit('/', 1)[0] + '/sentinel-benign-exec-control' for p in ATTACK_PATHS}
+                 | {p.rsplit('/', 1)[0] + '/sentinel-eventgen' for p in ATTACK_PATHS})     # improvement-round-v1 D18
 
 
 def target(container_id, pod_uid, container_name):

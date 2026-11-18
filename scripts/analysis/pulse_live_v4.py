@@ -97,20 +97,26 @@ def admin_failed(campaign, pair):
 def load_trials(campaign):
     """The campaign's intervals with their label (attack, control, benign) and the attack's kernel event."""
     trials = []
+    # D18: an event-generator step whose action was skipped (a tool missing in the image) or gave no outcome is left out
+    egfile = campaign / 'EVENTGEN.jsonl'
+    eg = {json.loads(l)['trial_id']: json.loads(l)['outcome'] for l in egfile.read_text().splitlines() if l} if egfile.exists() else {}
     for line in (campaign / 'INTERVALS.jsonl').read_text().splitlines():
         if not line:
             continue
         row = json.loads(line)
         label = ('attack' if row['label'] == 'attack' else 'lotl' if row['label'] == 'attack_lotl'
+                 else 'eventgen' if row['label'] == 'attack_eventgen'
                  else 'admin' if row.get('control_kind') == 'admin_exec'
                  else 'benign' if row.get('control_kind') else 'control')
         pair = int(str(row['trial_id']).split(':')[0])
         if label == 'admin' and admin_failed(campaign, pair):
             continue
+        if label == 'eventgen' and eg.get(row['trial_id']) not in ('executed', 'error'):
+            continue
         trials.append(dict(label=label, start=float(row['start_at']), key=(row['pod_uid'], row['container_name']),
                            pair=int(str(row['trial_id']).split(':')[0]), workload=row['workload_key'],
                            rate=row.get('rate_per_second'), scenario=row.get('scenario'), kernel=None,
-                           command=row.get('admin_command'),
+                           command=row.get('admin_command') or row.get('eventgen_action'),
                            # D12 on-off trials are their own set, kept apart from the base as the dilution trials are:
                            # pad -period (a negative PAD never occurs otherwise)
                            pad=-int(row['on_off']) if row.get('on_off') else row.get('pad', 0)))
@@ -178,7 +184,7 @@ def trial_metrics(trials, at, keep, pad=0):
     pair_rate = {t['pair']: t['rate'] for t in trials if t['label'] == 'attack' and (t.get('pad') or 0) == pad}
     idx = [i for i, t in enumerate(trials) if keep(pair_rate.get(t['pair']))]
     out = {}
-    for label in ('attack', 'control', 'benign', 'admin', 'lotl'):
+    for label in ('attack', 'control', 'benign', 'admin', 'lotl', 'eventgen'):
         members = [i for i in idx if trials[i]['label'] == label]
         out[label] = rate_row(sum(at[i] is not None for i in members), len(members))
     tp, fp = out['attack']['hits'], out['control']['hits']
@@ -278,6 +284,7 @@ def analyse(root, reps, stalls=(), protocol='sentinel_pulse/protocol/pulse-live-
                          dilution={(f'pad{p}' if p > 0 else f'onoff{-p}'): trial_metrics(trials, at, lambda rate: rate is not None, pad=p) for p in pads},
                          recall_by_rate=by_field(trials, at, 'rate'), recall_by_scenario=by_field(trials, at, 'scenario'),
                          admin_by_command=by_field(trials, at, 'command', 'admin'),
+                         eventgen_by_action=by_field(trials, at, 'command', 'eventgen'),
                          expectations=expectations(primary),
                          burden=burden(episodes_per_workload(alarms[arm], workload_of, normal, spans), seconds, reps))
     return dict(schema='pulse-live-v4-arms-v1', run=cfg['run_id'], protocol=protocol,

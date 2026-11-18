@@ -52,3 +52,13 @@ def test_dilution_trials_are_extra_items_at_one_rate():
     assert "*([str(item['on_off'])] if item.get('on_off') else [])" in campaign
     fixture = (Path(__file__).resolve().parents[1] / 'testbed/attack/runtime_attack_with_benign_control.c').read_text()
     assert re.search(r'int pad = argc > 5 \? atoi\(argv\[5\]\) : 0;', fixture)
+
+
+def test_eventgen_step_and_outcome():
+    from sentinel_pulse.attack.preview_campaign import EVENTGEN_ACTIONS, eventgen_outcome, step_order
+    assert len(EVENTGEN_ACTIONS) == 14 and len(set(EVENTGEN_ACTIONS)) == 14
+    assert eventgen_outcome(b'INFO action executed action=syscall.X') == 'executed'
+    assert eventgen_outcome(b'ERRO action error error="permission denied"') == 'error'
+    assert eventgen_outcome(b'WARN action skipped reason=...') == 'skipped'
+    assert 'eventgen' in step_order(dict(eventgen_binary='/x'), dict(seed=1), 3)
+    assert 'eventgen' not in step_order({}, dict(seed=1), 3)

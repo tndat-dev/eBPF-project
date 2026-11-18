@@ -103,6 +103,8 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
         if tokens.get('admin_commands'):cfg['admin_commands']=tokens['admin_commands']
         if tokens.get('random_trial_order'):cfg['random_trial_order']=True
         if tokens.get('lotl_attack'):cfg['lotl_attack']=True
+        if tokens.get('eventgen'):                      # improvement-round-v1 D18: pinned event-generator binary
+            cfg['eventgen_binary']=str(Path(tokens['eventgen']).resolve());cfg['eventgen_hash']=sha256_file(Path(tokens['eventgen']))
         if tokens.get('v3_counts'):
             cfg['v3_counts']=dict(path=str(tokens['v3_counts']),sha256=sha256_file(Path(tokens['v3_counts'])))
     # evidence discount (policy rule key evidence_discount): every worker serves its window masks on PEER_PORT and
@@ -199,6 +201,7 @@ if __name__=='__main__':
     p.add_argument('--lotl-attack',action='store_true',help='add a living-off-the-land attack step made of image tools')
     p.add_argument('--dilution-pads',help='adaptive attacker: comma-separated PAD values (1-10000), extra trials at --dilution-rate')
     p.add_argument('--dilution-rate',type=int,default=12)
+    p.add_argument('--eventgen',help='D18: path of the Falco event-generator binary (one event-generator step per trial)')
     p.add_argument('--on-off',help='on-off attacker (improvement-round-v1 D12): comma-separated periods in s (2-60), extra trials '
                    'at --on-off-rate with operations only in the first second of each period')
     p.add_argument('--on-off-rate',type=float,default=12)
@@ -226,7 +229,7 @@ if __name__=='__main__':
     if (a.token_models or a.v3_counts) and not a.token_build:p.error('token models and count thresholds need --token-build')
     tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts,gate=a.token_gate,admin_control=a.admin_control,
                 admin_commands=a.admin_commands,random_trial_order=a.random_trial_order,lotl_attack=a.lotl_attack,
-                dilution_pads=pads,dilution_rate=a.dilution_rate,on_off=onoff,
+                dilution_pads=pads,dilution_rate=a.dilution_rate,on_off=onoff,eventgen=a.eventgen,
                 on_off_rate=(lambda r:int(r) if r==int(r) else r)(a.on_off_rate)) if a.token_build else None
     plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal,tokens,
          a.stream_root if a.local_decisions else None)

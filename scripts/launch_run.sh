@@ -70,6 +70,7 @@ plan() {
   [ "${LOTL_ATTACK:-0}" = 1 ] && flags+=(--lotl-attack)
   [ -n "${DILUTION_PADS:-}" ] && flags+=(--dilution-pads "$DILUTION_PADS" --dilution-rate "${DILUTION_RATE:-12}")
   [ -n "${ON_OFF:-}" ] && flags+=(--on-off "$ON_OFF" --on-off-rate "${ON_OFF_RATE:-12}")   # D12 on-off attacker
+  [ -n "${EVENTGEN:-}" ] && flags+=(--eventgen "$EVENTGEN")   # D18 event-generator step (binary on NFS)
   [ "${LOCAL_DECISIONS:-0}" = 1 ] && flags+=(--local-decisions --stream-root "$STREAM_ROOT")
   [ "${RECAL_EXCLUDE_CAMPAIGN:-0}" = 1 ] && flags+=(--recalibration-exclude-campaign)
   PYTHONPATH=$SNAP /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.plan_matched_run \

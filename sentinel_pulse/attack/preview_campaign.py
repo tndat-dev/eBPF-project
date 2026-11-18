@@ -71,10 +71,24 @@ STEPS=('admin','benign','attack')
 
 
 # Thứ tự các bước sau control. Xáo có seed (seed của item + chỉ số trial) → chạy lại cho đúng thứ tự cũ; dùng cho H6 (RCA).
+# improvement-round-v1 amendment 3 (D18): the 14 Falco event-generator v0.13.0 actions chosen after reading their source.
+EVENTGEN_ACTIONS=['ReadSensitiveFileUntrusted','DirectoryTraversalMonitoredFileRead','CreateSymlinkOverSensitiveFiles',
+    'CreateHardlinkOverSensitiveFiles','ClearLogActivities','FindAwsCredentials','SearchPrivateKeysOrPasswords','ExecutionFromDevShm',
+    'DropAndExecuteNewBinaryInContainer','FilelessExecutionViaMemfdCreate','PtraceAntiDebugAttempt','RemoveBulkDataFromDisk',
+    'CreateFilesBelowDev','CreateHiddenFilesOrDirectories']
+
+
+def eventgen_outcome(stderr:bytes):
+    """executed / error (the attempt happened, e.g. permission denied) / skipped (a tool is missing) / unknown."""
+    text=stderr.decode(errors='replace')
+    return ('skipped' if 'action skipped' in text else 'executed' if 'action executed' in text
+            else 'error' if 'action error' in text else 'unknown')
+
+
 def step_order(cfg,item,index):
     """Order of the trial's steps after its control. Fixed (admin, benign, attack, then lotl) unless the run registers
     random_trial_order: a per-pair shuffle seeded by the item's seed and the pair index, so a rerun repeats it."""
-    steps=list(STEPS)+(['lotl'] if cfg.get('lotl_attack') else [])
+    steps=list(STEPS)+(['lotl'] if cfg.get('lotl_attack') else [])+(['eventgen'] if cfg.get('eventgen_binary') else [])
     if cfg.get('random_trial_order'):random.Random(f"{item['seed']}:{index}").shuffle(steps)
     return steps
 
@@ -125,7 +139,7 @@ def one_pair(runtime,cfg,root,item,index):
     prefix=['/usr/bin/env','PYTHONPATH='+cfg['source'],'PYTHONDONTWRITEBYTECODE=1',
             '/opt/sentinel-pulse/runtime-venv/bin/python','-m','sentinel_pulse.attack.preview_target']
     runtime.remote_sudo(worker['host'],shlex.join([*prefix,'stage',*args]))
-    sensor=None;capture=None;staged=True;injection=None;benign=None;benign_args=None;lotl=None
+    sensor=None;capture=None;staged=True;injection=None;benign=None;benign_args=None;lotl=None;eventgen=None;eventgen_args=None
     benign_path=path
     if cfg.get('benign_exec_control') and cfg.get('benign_binary_distinct'):
         benign_path=benign_path_for(path)
@@ -174,6 +188,25 @@ def one_pair(runtime,cfg,root,item,index):
         marks['lotl']=lotl['start_at']
         time.sleep(max(0.,lotl['start_at']+20-time.time()))
 
+    def eventgen_step():
+        nonlocal eventgen,eventgen_args
+        action=EVENTGEN_ACTIONS[index%len(EVENTGEN_ACTIONS)]
+        egpath=path.rsplit('/',1)[0]+'/sentinel-eventgen'
+        eventgen_args=['--container-id',identity['container_id'],'--pod-uid',identity['pod_uid'],'--container-name',container,
+                       '--binary',cfg['eventgen_binary'],'--sha256',cfg['eventgen_hash'],'--path',egpath]
+        runtime.remote_sudo(worker['host'],shlex.join([*prefix,'stage',*eventgen_args]))
+        eventgen=dict(identity,**item,label='attack_eventgen',attack_kind='event_generator',eventgen_action=action,
+                      start_at=time.time(),trial_id=f'{index}:eventgen',binary_path=egpath,duration_seconds=15)
+        append_jsonl(root/'INTERVALS.jsonl',eventgen)
+        result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',egpath,'run',
+                            f'^syscall\\.{action}$','--all','--sleep','0s'],timeout=45,check=False)
+        (trial_dir/'eventgen.stderr').write_bytes(result.stderr)
+        outcome=eventgen_outcome(result.stderr)
+        atomic_json(trial_dir/'EVENTGEN.json',dict(action=action,returncode=result.returncode,outcome=outcome))
+        append_jsonl(root/'EVENTGEN.jsonl',dict(trial_id=eventgen['trial_id'],action=action,outcome=outcome,returncode=result.returncode))
+        marks['eventgen']=eventgen['start_at']
+        time.sleep(max(0.,eventgen['start_at']+20-time.time()))
+
     def attack_step():
         nonlocal sensor,capture,injection
         sensors=runtime.kubectl_json('get','pods','-n','kube-system','-l','app.kubernetes.io/name=tetragon','-o','json')
@@ -209,7 +242,7 @@ def one_pair(runtime,cfg,root,item,index):
         except ValueError as exc:injection['infrastructure_issue']='kernel_provenance: '+str(exc)
         if order.index('attack')<len(order)-1:time.sleep(3)   # keep attack windows out of the next interval's history
 
-    steps=dict(admin=admin_step,benign=benign_step,attack=attack_step,lotl=lotl_step)
+    steps=dict(admin=admin_step,benign=benign_step,attack=attack_step,lotl=lotl_step,eventgen=eventgen_step)
     try:
         for step in order:steps[step]()
         atomic_json(trial_dir/'ORDER.json',marks)
@@ -238,6 +271,8 @@ def one_pair(runtime,cfg,root,item,index):
             runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*args]))
         if benign_args is not None:
             runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*benign_args]))
+        if eventgen_args is not None:
+            runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*eventgen_args]))
 
 
 # VÒNG CAMPAIGN: kiểm binary/policy đúng SHA-256 đã đăng ký → chờ hết đoạn normal đầu lượt (attack_not_before) → với mỗi
