@@ -1,0 +1,11 @@
+{
+ "schema": "sentinel-pulse-improvement-round-v1-amendment-4",
+ "amends": "sentinel_pulse/protocol/improvement-round-v1-amendment-3.json",
+ "registered_at": "2026-11-19T03:40+07:00",
+ "registered_before": "any run with the event-generator step",
+ "reason": "the release binary of event-generator v0.13.0 is a PIE that needs the glibc loader (/lib64/ld-linux-x86-64.so.2); aims-frontend, aims-redis and aims-redis-sentinel run musl images, so the step would not start there",
+ "change": "the binary is built from the v0.13.0 source tarball (GitHub archive of the tag) with Go 1.26.3, CGO_ENABLED=0, no PIE, -trimpath -ldflags \"-s -w\", after make events/k8saudit/yaml/bundle.go: statically linked; checked in alpine:3.20 and busybox:1.36 as uid 1000 (actions executed or permission denied as on glibc)",
+ "binary_sha256": "346310f1816ad468e1dd8ba2c1b3ebcae47f17af01e3d24431ced24aeea6ecec",
+ "nfs_path": "/mnt/sentinel-pulse-archive/tools/event-generator-0.13.0-static",
+ "actions_unchanged": true
+}
