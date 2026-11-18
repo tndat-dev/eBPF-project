@@ -40,8 +40,28 @@ PEER_PORT = 9479
 
 # Hàm chính. source = snapshot mã nguồn; root = thư mục lượt chạy trên NFS (phải CHƯA tồn tại); custom = các giá trị
 # ghim (candidate, policy, fixture, seconds...); tokens = cấu hình probe token và mô hình; rates = các tốc độ tấn công.
+# Pre-flight of the final run: one trial of every kind, on the workloads with the unusual paths and images (musl
+# frontend and Redis, the distroless waypoint, Postgres staging in /run, RabbitMQ in /operator), so every new campaign
+# step runs end to end once before the real run.
+REHEARSAL_TARGETS=('aims-frontend','aims-redis','aims-waypoint','aims-postgres-cnpg','aims-rabbitmq-server','api-gateway')
+
+
+def rehearsal_schedule(schedule):
+    kinds=[lambda i:not i.get('pad') and not i.get('on_off') and i['rate_per_second']==6,
+           lambda i:not i.get('pad') and not i.get('on_off') and i['rate_per_second']<1,
+           lambda i:bool(i.get('pad')),lambda i:bool(i.get('on_off')),
+           lambda i:not i.get('pad') and not i.get('on_off') and i['rate_per_second']==24,
+           lambda i:not i.get('pad') and not i.get('on_off') and i['rate_per_second']==12]
+    out=[]
+    for controller,kind in zip(REHEARSAL_TARGETS,kinds):
+        hit=next((i for i in schedule if i['workload_controller']==controller and kind(i)),None) or \
+            next((i for i in schedule if kind(i) and i not in out),None)
+        if hit is not None:out.append(hit)
+    return out
+
+
 def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,custom=None,rates=(6,12,24),
-         final_system=None,recalibration=None,tokens=None,local_decisions=None):
+         final_system=None,recalibration=None,tokens=None,local_decisions=None,rehearsal=False):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
     # custom: every pinned value comes from the command line (later runs need no code change)
     if profile!='custom' or not custom:raise ValueError('a run needs the custom profile with every pinned value')
@@ -79,8 +99,9 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
         zero_alert_gate=False,stop_on_miss=False,stop_on_false_positive=False)
     # Mốc thời gian của lượt: selection 90 phút (học/kiểm normal đầu lượt, không trial), tấn công sau đó 2 phút.
     start=time.time()+180
-    cfg.update(selection_start=start,selection_seconds=5400,selection_end=start+5400,
-               attack_not_before=start+5400+120)
+    selection=120 if rehearsal else 5400          # rehearsal (pre-flight of the final run): a two-minute selection span
+    cfg.update(selection_start=start,selection_seconds=selection,selection_end=start+selection,
+               attack_not_before=start+selection+120,rehearsal=bool(rehearsal))
     # Mặc định worker dùng build cũ (bộ đếm); khối `tokens` ngay dưới thay bằng build token của từng node.
     cfg['workers']={host:dict(node_name=node,output=str(root/'workers'/node),
         loader='/home/dat/pulse-matched-20261015/build/pulse_counter_extended_loader',
@@ -163,6 +184,7 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
                           for key in keys for scenario in scenarios for period in tokens['on_off']]
     # Xáo thứ tự trial bằng seed cố định → lịch giống hệt nếu dựng lại, nhưng không theo thứ tự workload.
     random.Random(20261015).shuffle(cfg['schedule'])
+    if rehearsal:cfg['schedule']=rehearsal_schedule(cfg['schedule'])
     # Lịch tải: hai vòng 5 pha (756 s rồi 324 s mỗi pha) trong đoạn selection, rồi 'steady' tới hết lượt.
     cfg['traffic_schedule']=[]
     t=start
@@ -180,6 +202,7 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('source','root'):p.add_argument('--'+key,type=Path,required=True)
     p.add_argument('--run-id',required=True);p.add_argument('--smoke',action='store_true')
+    p.add_argument('--rehearsal',action='store_true',help='pre-flight: 2-minute selection, one trial of each kind')
     p.add_argument('--profile',choices=['custom'],default='custom')
     p.add_argument('--frozen-source',type=Path,required=True,help='source snapshot whose scorer bytes the worker must match')
     for key in ('candidate','model-hash','policy','policy-hash','fixture'):p.add_argument('--'+key)
@@ -232,4 +255,4 @@ if __name__=='__main__':
                 dilution_pads=pads,dilution_rate=a.dilution_rate,on_off=onoff,eventgen=a.eventgen,
                 on_off_rate=(lambda r:int(r) if r==int(r) else r)(a.on_off_rate)) if a.token_build else None
     plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal,tokens,
-         a.stream_root if a.local_decisions else None)
+         a.stream_root if a.local_decisions else None,rehearsal=a.rehearsal)

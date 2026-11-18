@@ -62,3 +62,14 @@ def test_eventgen_step_and_outcome():
     assert eventgen_outcome(b'WARN action skipped reason=...') == 'skipped'
     assert 'eventgen' in step_order(dict(eventgen_binary='/x'), dict(seed=1), 3)
     assert 'eventgen' not in step_order({}, dict(seed=1), 3)
+
+
+def test_rehearsal_takes_one_trial_of_each_kind():
+    from sentinel_pulse.pipeline.plan_matched_run import REHEARSAL_TARGETS, rehearsal_schedule
+    sched = [dict(workload_controller=c, rate_per_second=r, scenario='s', seed=1) for c in REHEARSAL_TARGETS for r in (0.1, 1, 6, 12, 24)]
+    sched += [dict(workload_controller=c, rate_per_second=12, scenario='s', seed=1, pad=300) for c in REHEARSAL_TARGETS]
+    sched += [dict(workload_controller=c, rate_per_second=12, scenario='s', seed=1, on_off=10) for c in REHEARSAL_TARGETS]
+    out = rehearsal_schedule(sched)
+    assert len(out) == 6
+    assert [o['workload_controller'] for o in out] == list(REHEARSAL_TARGETS)
+    assert out[1]['rate_per_second'] < 1 and out[2].get('pad') and out[3].get('on_off')
