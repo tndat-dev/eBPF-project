@@ -62,7 +62,7 @@ p95 kernel → Alertmanager & & 0,68 s (1,53 s) \\
 \item
   Mô hình bắt ``process mới'' chứ chưa phân biệt được ác ý: binary vô hại bị gắn cờ 314/314 và lệnh quản trị thật 419/436. Thẻ dòng dõi trong kernel cho thấy hướng ra: chấm riêng phần native thì lệnh quản trị chỉ còn 1/475 và binary vô hại 1/525 bị gắn cờ, nhưng tấn công vào qua \texttt{kubectl exec} cũng nằm ngoài phần đó. Mô hình hơn rõ một luật đếm 4-gram chưa thấy ở báo nhầm thấp, nhưng khi tấn công chỉ dùng chuỗi đã thấy thì cả hai đều không phát hiện gì.
 \item
-  Trên LID-DS 2019, chấm đúng một lần theo protocol đăng ký trước, mô hình không đạt: phát hiện 723/1.162 bản ghi tấn công (62,22\%) với 0,44\% bản ghi normal bị báo nhầm; năm kịch bản chỉ đạt 17--59\%. Mô hình học từ normal phụ thuộc vào đúng loại thông tin mà trace ghi lại.
+  Trên LID-DS 2019, chấm một lần, mô hình không đổi phát hiện 1.056/1.162 bản ghi tấn công (90,88\%, tính theo độ phân giải 1 s của nhãn) với 0,44\% bản ghi normal bị báo nhầm, nhưng không đạt mức đăng ký: Heartbleed chỉ 24/100, và p95 10,55 s vì ở bốn kịch bản hành vi lạ đầu tiên xuất hiện nhiều giây sau mốc nhãn.
 \item
   Gánh cảnh báo còn trên ngân sách 0,1 đợt/replica-giờ.
 \item

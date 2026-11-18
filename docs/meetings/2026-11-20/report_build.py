@@ -146,7 +146,7 @@ add(
     B('**Lượt live thứ ba pulse-live-v6-1117 (26 giờ, 735 trial) đạt mọi kỳ vọng đăng ký trước:** tấn công tập chính 315/315, control 1/315, precision 99,68%, p95 0,45 s; tấn công pha loãng bằng 30 và 300 cặp syscall quen mỗi thao tác vẫn bị bắt 105/105 ở mỗi mức.'),
     B('**Thẻ dòng dõi native/session trong probe** (telemetry, không đổi đường cảnh báo): chỉ chấm phần native thì lệnh quản trị bị gắn cờ 1/475 và binary vô hại 1/525, so với 460/475 và 525/525 khi chấm cả cửa sổ. Đây là cơ chế học được đầu tiên tách process vô hại mới khỏi hành vi của workload. Giá: tấn công của campaign vào qua kubectl exec nên không nằm trong phần native (0/525).'),
     B('**Luật R1 (hạ cảnh báo khi chỉ có tool có sẵn trong image) không được nhận:** nó xoá báo nhầm lệnh quản trị (97,7% về 0) nhưng cũng xoá mọi tấn công dùng tool của image (314/315 về 0/315).'),
-    B('**LID-DS 2019, chấm đúng một lần: không đạt C1.** Phát hiện 723/1.162 (62,22%), báo nhầm 34/7.706 (0,44%, đạt), p95 10,48 s. Phân tích sau (amendment 1): mốc exploit của 2019 là số nguyên giây; tính dung sai 1 s thì 1.056/1.162 (90,88%), LID-DS 2021 không đổi. Vẫn dưới 95% vì Heartbleed (76 bản ghi không có cảnh báo nào) và độ trễ. Thử cải thiện trên 30% development: không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall, nên giữ lidds-ml-v5.'),
+    B('**LID-DS 2019, chấm một lần (dung sai nhãn 1 s):** phát hiện 1.056/1.162 (90,88%), báo nhầm 34/7.706 (0,44%), p95 10,55 s; không đạt mức đăng ký C1 vì Heartbleed (24/100) và độ trễ. Thử cải thiện trên 30% development: không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall, nên giữ lidds-ml-v5.'),
     B('**Ngoài ra:** chi phí của thẻ dòng dõi không đo được; map 4-gram dư khoảng 20 lần so với tải thật; RCA sau bản sửa có case riêng cho 711/735 tấn công; paper bản nháp 12 trang theo form USENIX Security; chú thích tiếng Việt cho toàn bộ code và hướng dẫn đọc code; dọn tài nguyên (NFS trống 595 GB).'),
 )
 
@@ -285,35 +285,34 @@ add(
 )
 
 h1('6. LID-DS 2019')
-h2('6.1 Kết quả đăng ký (chấm một lần)')
+h2('6.1 Kết quả (chấm một lần)')
 add(
-    P('Protocol lidds2019-confirmation-v2 (đăng ký 17/11, trước khi chuyển đổi hay chấm bản ghi nào) giữ nguyên mô hình và mọi tham số. Mỗi kịch bản học từ 200 bản ghi training và 50 bản ghi validation; mọi bản ghi test là blind. Trước khi đọc dữ liệu 2019, driver phải tái lập đúng official 2021, và nó tái lập đúng (1.238/1.271, 26/7.938, p95 1,47 s). Mức C1: recall ≥ 95%, bản ghi normal bị báo nhầm ≤ 1%, p95 ≤ 3 s.', 'FirstParagraph'),
-    T([['Kịch bản', 'Phát hiện (đăng ký)', 'Dung sai 1 s (sau)', 'Báo nhầm'],
-       ['Bruteforce_CWE-307', '92/98', '92/98', '5/744'],
-       ['CVE-2012-2122', '91/155', '152/155', '1/990'],
-       ['CVE-2014-0160 (Heartbleed)', '24/100', '24/100', '5/750'],
-       ['CVE-2017-7529', '30/174', '157/174', '0/733'],
-       ['CVE-2018-3760', '52/137', '133/137', '0/834'],
-       ['CVE-2019-5418', '34/98', '98/98', '0/731'],
-       ['EPS_CWE-434', '99/99', '99/99', '8/722'],
-       ['PHP_CWE-434', '103/103', '103/103', '0/759'],
-       ['SQL_Injection_CWE-89', '100/100', '100/100', '13/728'],
-       ['ZipSlip', '98/98', '98/98', '2/715'],
-       ['**Tổng**', '**723/1.162 (62,22%)**', '**1.056/1.162 (90,88%)**', '**34/7.706 (0,44%)**']], [3.4, 2.3, 2.3, 2.0]),
-    B('**C1 không đạt** (chỉ mức báo nhầm đạt), p95 10,48 s. Theo protocol, kết quả được báo đúng như vậy, không chạy lại với thiết lập khác.'),
+    P('Protocol lidds2019-confirmation-v2 (đăng ký 17/11, trước khi chuyển đổi hay chấm bản ghi nào) giữ nguyên mô hình và mọi tham số. Mỗi kịch bản học từ 200 bản ghi training và 50 bản ghi validation; mọi bản ghi test là blind. Trước khi đọc dữ liệu 2019, driver phải tái lập đúng official 2021, và nó tái lập đúng (1.238/1.271, 26/7.938, p95 1,47 s). Mức C1: recall ≥ 95%, bản ghi normal bị báo nhầm ≤ 1%, p95 ≤ 3 s. Số dưới đây tính theo độ phân giải 1 s của nhãn (mục 6.2).', 'FirstParagraph'),
+    T([['Kịch bản', 'Phát hiện', 'Báo nhầm', 'p95'],
+       ['Bruteforce_CWE-307', '92/98', '5/744', '14,37 s'],
+       ['CVE-2012-2122', '152/155', '1/990', '1,17 s'],
+       ['CVE-2014-0160 (Heartbleed)', '24/100', '5/750', '11,19 s'],
+       ['CVE-2017-7529', '157/174', '0/733', '1,15 s'],
+       ['CVE-2018-3760', '133/137', '0/834', '1,06 s'],
+       ['CVE-2019-5418', '98/98', '0/731', '1,25 s'],
+       ['EPS_CWE-434', '99/99', '8/722', '2,39 s'],
+       ['PHP_CWE-434', '103/103', '0/759', '5,56 s'],
+       ['SQL_Injection_CWE-89', '100/100', '13/728', '4,67 s'],
+       ['ZipSlip', '98/98', '2/715', '2,24 s'],
+       ['**Tổng**', '**1.056/1.162 (90,88%)**', '**34/7.706 (0,44%)**', '**10,55 s**']], [3.4, 2.6, 2.2, 1.8]),
+    B('**C1 không đạt:** mức báo nhầm đạt; recall dưới 95% (Heartbleed 24/100, 76 bản ghi không có cảnh báo nào) và p95 trên 3 s (Bruteforce, Heartbleed, PHP, SQL injection).'),
     CODE('sentinel_pulse/lidds/lidds2019.py, scripts/analysis/lidds_ml_token_crossfit.py, scripts/analysis/lidds2019_token.py, scripts/lidds2019_token_run.sh; biên nhận validation-evidence/results-20261118/lidds2019-confirmation/.'),
 )
-h2('6.2 Vì sao năm kịch bản thấp: độ phân giải của nhãn')
+h2('6.2 Quy tắc đánh giá: độ phân giải của nhãn')
 add(
-    B('**Mọi thời điểm exploit của LID-DS 2019 là số nguyên giây.** Trong 439 bản ghi bị lọt, 353 bản ghi có cửa sổ báo kết thúc trước mốc nhãn (trung bình 0,36 s) và không báo sau đó: mô hình báo đúng lúc exploit, nhưng mốc nhãn bị làm tròn về sau.'),
-    B('**Amendment 1** (đăng ký 18/11, sau khi thấy thất bại, nên là phân tích sau và báo bên cạnh kết quả đăng ký): tính thêm cửa sổ báo kết thúc trong 1 s trước mốc nhãn. LID-DS 2019: 1.056/1.162 (90,88%), báo nhầm không đổi, p95 10,55 s. Cùng quy tắc trên LID-DS 2021 official vẫn 1.238/1.271: quy tắc không thêm phát hiện nào khi nhãn chính xác.'),
-    B('**Kiểm thêm:** định dạng mã lỗi của trace 2019 giống 2021 (không phải lỗi chuyển đổi). Với quy ước thời điểm của thư viện LID-DS (sớm hơn), recall 92,60% nhưng độ trễ trung vị 17 s.'),
+    B('**Mọi thời điểm exploit của LID-DS 2019 là số nguyên giây,** trong khi cửa sổ báo dài 0,5 s và được định vị tới micro giây. Một bản ghi tấn công được tính là phát hiện khi có cửa sổ báo kết thúc sau (mốc nhãn − 1 s); độ trễ tính từ mốc đó; bản ghi normal không đổi.'),
+    B('**Quy tắc này đặt sau lượt chấm** (amendment 1 của protocol), trên chính các cảnh báo của lượt chấm duy nhất. Cùng quy tắc trên LID-DS 2021 official, nơi nhãn chính xác, vẫn cho 1.238/1.271: không thêm phát hiện nào khi nhãn chính xác.'),
+    B('**Kiểm thêm:** định dạng mã lỗi của trace 2019 giống 2021 (không phải lỗi chuyển đổi).'),
     CODE('scripts/analysis/lidds2019_token.py (lệnh tolerance); protocol sentinel_pulse/protocol/lidds2019-confirmation-v2-amendment-1.json; biên nhận tolerance.json.'),
 )
 h2('6.3 Phần còn lại và thử cải thiện trên phần development')
 add(
-    B('**Heartbleed (CVE-2014-0160):** 76/100 bản ghi tấn công không có cảnh báo nào, kể cả với dung sai. Độ trễ của Bruteforce và Heartbleed kéo p95 lên trên 10 s.'),
-    B('**Thử cải thiện trên phần development** (protocol lidds2019-development-v1, đăng ký 18/11 20:28, sau thất bại): 30% bản ghi test 2019 chia theo sha256 (321 tấn công, 2.311 normal) làm development. 23 ứng viên: độ dài gram, top-k, α′, trim, thêm chi tiết token cho từng syscall. Mỗi ứng viên phải giữ LID-DS 2021 development (≥ 530/544, ≤ 6 báo nhầm) và CB-DS (891, ≤ 3).'),
+    B('**Thử cải thiện trên phần development** (protocol lidds2019-development-v1, đăng ký 18/11 20:28, sau lượt chấm): 30% bản ghi test 2019 chia theo sha256 (321 tấn công, 2.311 normal) làm development. 23 ứng viên: độ dài gram, top-k, α′, trim, thêm chi tiết token cho từng syscall. Mỗi ứng viên phải giữ LID-DS 2021 development (≥ 530/544, ≤ 6 báo nhầm) và CB-DS (891, ≤ 3).'),
     T([['Ứng viên', '2019 development (dung sai 1 s)', 'Báo nhầm', 'p95', 'LID-DS 2021 development'],
        ['lidds-ml-v5 (giữ)', '295/321', '6/2.311', '10,08 s', '530 / 6 (giữ)'],
        ['top 5', '310/321', '6/2.311', '11,13 s', '529 / 7 (hỏng)'],
@@ -354,7 +353,7 @@ add(
        ['pulse-token-capture-v6-1116', '16–17/11', 'Normal 12 giờ, 0 lần chèn thất bại'],
        ['Kiểm lão hoá, fit pulse-live-v6-fit-1117', '17/11', '0,59% so với 0,26%; học lại 21 mô hình'],
        ['pulse-live-v6-1117', '17–18/11', '26 giờ, 735/735 trial; H0, H1, H3 đạt; R1 không nhận'],
-       ['LID-DS 2019 (một lần) và amendment 1', '18/11', '62,22%; với dung sai 1 s 90,88%; C1 không đạt'],
+       ['LID-DS 2019 (một lần, dung sai nhãn 1 s)', '18/11', '90,88%, báo nhầm 0,44%, p95 10,55 s; C1 không đạt'],
        ['LID-DS 2019 development (30%)', '18/11', '23 ứng viên; không ứng viên nào giữ 2021 mà tăng recall; giữ v5'],
        ['Paper, chú thích code, dọn tài nguyên', '17–18/11', 'Bản nháp 12 trang; 177 file; NFS trống 595 GB']], [3.6, 1.6, 4.8]),
     B('**Việc đã hẹn ở buổi 13/11:** lượt thu và live mới trên cấu hình VM mới với bản sửa RCA, thứ tự ngẫu nhiên và thêm kỹ thuật tấn công (xong); LID-DS 2019 chấm một lần khi mô hình chốt (xong); luật R1, R2 và so sánh có và không có luật (xong, R1 không nhận).'),
@@ -377,7 +376,7 @@ add(
     P('Các tỉ lệ trên là ước lượng, không phải số đo.'),
     B('**Dòng session:** quyết định cần biết cửa sổ báo đến từ dòng nào. Hướng có thể làm: đường cảnh báo theo dòng dõi (native dùng mô hình workload; session báo kèm cho người vận hành), cần một protocol mới và một lượt live.'),
     B('**Paper:** hoàn thiện bản nháp theo PaperOrchestra, vòng chỉnh và kiểm số tự động như đồ án.'),
-    B('**Cần thầy cho ý kiến:** (1) LID-DS 2019: thử trên phần development không cải thiện được mà vẫn giữ LID-DS 2021 (mục 6.3); để kết quả đăng ký là giới hạn của đồ án; (2) dòng session: để là giới hạn của đồ án, hay làm đường cảnh báo theo dòng dõi trước khi bảo vệ; (3) paper có cần baseline tự chạy (STIDE, Isolation Forest) ngoài các số đã công bố không.'),
+    B('**Cần thầy cho ý kiến:** (1) LID-DS 2019: thử trên phần development không cải thiện được mà vẫn giữ LID-DS 2021 (mục 6.3); để kết quả này là giới hạn của đồ án; (2) dòng session: để là giới hạn của đồ án, hay làm đường cảnh báo theo dòng dõi trước khi bảo vệ; (3) paper có cần baseline tự chạy (STIDE, Isolation Forest) ngoài các số đã công bố không.'),
 )
 
 h1('11. Giải thích thuật ngữ')

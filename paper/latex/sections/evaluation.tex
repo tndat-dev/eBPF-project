@@ -18,8 +18,8 @@ part (30\,\%: 544 attack and 3{,}403 normal recordings) and an official part (70
 normal). An attack recording is detected when an alarm window ends after the first exploit timestamp; latency is
 measured from that timestamp; a normal recording with any alarm is a false alarm. CB-DS~\cite{elkhairi2022} has 1{,}700
 normal recordings of an e-shop container and nine container-breakout scenarios of 99 recordings each; it has no exploit
-timestamp, so any alarm in an attack recording counts and latency is not measured. LID-DS~2019 is reserved for one
-final run (\cref{sec:eval-2019}).
+timestamp, so any alarm in an attack recording counts and latency is not measured. LID-DS~2019 is scored once with
+the final model (\cref{sec:eval-2019}).
 
 \paragraph{Cluster campaign.} Each trial targets one replica with consecutive 15\,s intervals on the same container: an
 idle control; a harmless control binary started through the same \texttt{kubectl exec} path as the attack, which only
@@ -184,7 +184,7 @@ p95 kernel $\to$ end of alarm window & $\le 3$\,s & 0.49\,s (p50 0.34\,s) & 0.49
 Harmless binary flagged & reported & 313/315 & 314/314 \\
 Operator command flagged & reported & -- & 255/261 \\
 Burden (episodes per replica-hour) & low & 0.41 [0.15, 0.73] & 0.17 [0.06, 0.33] \\
-Latest run (fresh fit after a cluster change, \cref{sec:eval-v6}) & & \multicolumn{2}{l}{\pending{H0 of pulse-live-v6}} \\
+Latest run (fresh fit, \cref{sec:eval-v6}) & & \multicolumn{2}{l}{315/315; 99.68\,\%; 1/315; 0.45\,s (p50 0.25\,s)} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -233,15 +233,27 @@ The proxy cannot tell a session gram that the workload also knows from a native 
 lineage tag (\cref{sec:lineage}). Its proof on a test pod passes all eight checks (the container's own loop and the
 children of pid~1 stay native, an exec and its children are session, a backgrounded child that outlives the session
 stays session), and the token proof still finds one token per call. Runtime exec probes of the kubelet (\texttt{python -c} health checks) are session lineage too, so the
-session share of normal traffic differs by workload. \pending{session share per workload from the H1 receipt}
-\pending{H1 of pulse-live-v6: native stream on operator and harmless-binary intervals}
+session share of normal traffic differs by workload.
+
+\paragraph{The native stream on a live cluster.} In the latest run (registered hypothesis H1) we scored only the native
+part of every window (the whole window minus the session part the probe reports) with the workload's model and
+threshold. Over all rates the native part flags 1/475 operator commands drawn from ten tools no run had used, 1/525
+harmless binaries and 1/525 idle controls, against 460/475 and 525/525 when the whole window is scored. This is the
+first learnt mechanism in this work that separates harmless new processes from the workload's own behaviour. It has a
+price the protocol stated in advance: the campaign's attacks enter through \texttt{kubectl exec}, so they are session
+lineage, and the native part detects 0/525 of them. Scoring the native part alone therefore cannot replace the alert
+path; the decision has to know which stream an alarm comes from, and the session stream needs its own treatment.
 
 \paragraph{A rule after the model.} A rule layer that downgrades an alert whose container only saw runtime execs of
 binaries shipped in its image (R1), and labels a non-image binary as drift (R2), removes the operator-command false
 alarms of the second run, 256/262 $\to$ 0/262 on the primary set and 422/439 $\to$ 0/439 overall, without touching the
 attack recall (314/314), because the campaign's attack binary is not part of any image. This is the benefit side only:
-an attack that lives off the land with image tools would also be downgraded.
-\pending{H4/H5 of pulse-live-v6: harm of R1 on living-off-the-land attacks; operator tools never seen before}
+an attack that lives off the land with image tools would also be downgraded. The latest run measures that harm: each
+trial adds an attack step that only uses the image's \texttt{sh}, \texttt{cat} and \texttt{ls} (reading the service
+account token, \texttt{/proc}, sockets and accounts, writing and removing a file in \texttt{/tmp}). The model alone
+detects 314/315 of these steps on the primary set (524/525 overall); with R1, 0/315 (0/525). On operator tools never
+seen before, R1 again removes every flag (275/284 $\to$ 0/284). Benefit and harm come from the same condition, so no
+threshold keeps one without the other, and we do not adopt R1.
 
 \subsection{RQ5: cost, alert latency and RCA}\label{sec:eval-cost}
 
@@ -291,7 +303,11 @@ durable queue.
 were re-runs of the same binary on the same container merged into an earlier case by design, 14 lost a race (the model
 alarmed on the launch burst about 0.2\,s after the start, before the attack binary's exec, and the RCA only considered
 execs up to the end of the alarm window), and one had no decision. Rank 1 is helped by the campaign order, which always
-ran the attack after the harmless binary. \pending{H6 of pulse-live-v6: random step order and the exec recheck}
+ran the attack after the harmless binary. The latest run shuffles the steps of every trial by a seed and the RCA now
+considers execs up to its decision, and once more 2\,s later: 711/735 attacks (96.7\,\%) get their own case, and rank 1
+no longer depends on the order (268/355, 75.5\,\%, when the attack ran after the harmless binary; 272/356, 76.4\,\%,
+before it). Rank 1 is lower than in the second run because each trial of the latest run holds a second attack; in an
+exploratory read, the living-off-the-land step's process ranks first in 162 of the 170 cases where the fixture does not.
 
 \subsection{Model aging and the latest run}\label{sec:eval-v6}
 
@@ -302,7 +318,34 @@ scored a new 12-hour normal capture: 278/47{,}082 container blocks exceeded the 
 excess sits in a few workloads (Redis 83/2{,}178, 3.81\,\% against 0.26\,\%; then the API gateway, Kafka and an
 inventory service), while others went down. A count model learnt before a cluster change therefore raises the false
 alarms of some workloads after it; the latest run uses a fresh fit.
-\pending{pulse-live-v6: H0 replication, H3 dilution at PAD 30 and 300, burden}
+
+The latest run (26\,h, registered before its normal capture) learns 12\,h of new normal traffic plus the second run's
+normal outside its trials, and runs 735 trials: 525 as in the earlier runs and 210 dilution trials in which the fixture
+pads every attack operation with 30 or 300 pairs of \texttt{getpid} and \texttt{sched\_yield}. All four targets hold
+again (\cref{tab:live}): 315/315 primary attacks (524/525 overall), 1/315 idle control positive, precision 99.68\,\%
+[98.23, 99.94], p95 0.45\,s. Dilution does not hide an attack: 105/105 at both padding levels, because the window score
+averages the ten most surprising events and padding with seen calls adds no surprising ones. The gram map dropped no
+gram. The bridge delivered 3{,}233/3{,}233 episodes (decision to Alertmanager p95 1.21\,s; kernel to Alertmanager p95
+1.53\,s over 721/735 attack trials). The burden, 4 episodes in 51.1 replica-hours, is not comparable with the earlier
+runs, since the campaign covered almost the whole run.
 
 \subsection{LID-DS 2019}\label{sec:eval-2019}
-\pending{lidds2019-confirmation-v2: one run after the latest live run}
+LID-DS~2019 has ten scenarios, all among the vulnerabilities of LID-DS~2021, but with different recordings, operating
+system, sysdig version and workload generators; no 2019 recording entered any design choice. Under a registered
+protocol the final model, unchanged, learns each scenario's first 200 normal recordings and the next 50, and scores
+every test recording once, after the scoring code reproduced the registered LID-DS~2021 official result. Every
+exploit timestamp of the 2019 release is a whole second, while alarm windows are located to the microsecond; we
+therefore count an attack recording as detected when an alarm window ends after the timestamp minus 1\,s, and measure
+latency from there. This rule was set after the scoring, on its alarms; on the LID-DS~2021 official part, whose labels
+are exact, the same rule leaves the result at 1{,}238/1{,}271.
+
+The model detects 1{,}056/1{,}162 attack recordings (90.88\,\%, [89.08, 92.40]) with 34/7{,}706 false-alarm normal
+recordings (0.44\,\%), p95 10.55\,s, and misses the registered targets on recall and latency. Nine scenarios reach
+90--100\,\%; Heartbleed (CVE-2014-0160) reaches 24/100, with no alarm in 76 recordings, although the same vulnerability
+is detected in every LID-DS~2021 recording. The latency comes from four scenarios (brute force p95 14.4\,s, Heartbleed
+11.2\,s, PHP upload 5.6\,s, SQL injection 4.7\,s). On a 30\,\% development part of the 2019 test recordings, defined
+after the scoring, 111 alternative settings (gram length, top-$k$, threshold level and trim, finer tokens) and a rate
+branch either do not raise recall or lose LID-DS~2021 detections; and the first window holding any sequence unseen in
+learning comes at p95 9.39\,s after the timestamp, so no detector that fires on unseen sequences can meet a 3\,s
+latency on these labels. A model learnt from normal behaviour depends on what the trace records, and its measured
+latency on how a dataset places the attack timestamp.

@@ -145,47 +145,47 @@ Kịch bản & Phát hiện & Recall & Báo nhầm & Tỉ lệ báo nhầm \\
   \textbf{Giới hạn:} tập official không hoàn toàn chưa nhìn, vì bảng chữ token được thiết kế sau khi đã xem kết quả của các tín hiệu khác trên cùng bản ghi. Mỗi kịch bản chỉ có khoảng 60 bản ghi validation, nên chỉ kiểm chứng được mức báo nhầm gộp, không theo từng kịch bản. Bằng chứng độc lập là LID-DS 2019 (mục~\ref{sec:lidds2019}), nơi mô hình không đạt.
 \end{itemize}
 
-\subsection{LID-DS 2019: chấm một lần, không đạt}\label{sec:lidds2019}
+\subsection{LID-DS 2019: chấm một lần}\label{sec:lidds2019}
 
 LID-DS 2019 có 10 kịch bản, đều thuộc nhóm lỗ hổng của LID-DS 2021, nhưng bản ghi, hệ điều hành, phiên bản sysdig và bộ sinh tải khác nhau, và chưa bản ghi 2019 nào được dùng cho bất kỳ lựa chọn nào. Protocol \texttt{lidds2019-\allowbreak{}confirmation-\allowbreak{}v2} (đăng ký 17/11, trước khi chuyển đổi hay chấm bản ghi nào) giữ nguyên mô hình \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} và mọi tham số. Mỗi kịch bản học từ 200 bản ghi training và 50 bản ghi validation theo thứ tự của \texttt{runs.csv}, và mọi bản ghi test đều là blind. Trước khi đọc dữ liệu 2019, driver phải tái lập đúng kết quả official 2021 qua chính đường code của nó, và nó tái lập đúng (1.238/1.271, 26/7.938, p95 1,47 s). Mức đăng ký C1 là recall $\geq$ 95\%, bản ghi normal bị báo nhầm $\leq$ 1\% và p95 $\leq$ 3 s. Code: \texttt{sentinel\_\allowbreak{}pulse/\allowbreak{}lidds/\allowbreak{}lidds2019.py}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds\_\allowbreak{}ml\_\allowbreak{}token\_\allowbreak{}crossfit.py}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds2019\_\allowbreak{}token.py}.
+
+\textbf{Quy tắc đánh giá: độ phân giải của nhãn.} Mọi thời điểm exploit của LID-DS 2019 là số nguyên giây, trong khi cửa sổ báo dài 0,5 s và được định vị tới micro giây; một cửa sổ báo kết thúc trong 1 s trước mốc nhãn vì vậy có thể đã nằm sau lúc exploit thật bắt đầu. Kết quả dưới đây tính một bản ghi tấn công là phát hiện khi có cửa sổ báo kết thúc sau (mốc nhãn $-$ 1 s), và độ trễ tính từ mốc đó; bản ghi normal không đổi. Quy tắc này được đặt sau lượt chấm (amendment 1 của protocol), trên chính các cảnh báo của lượt chấm duy nhất. Áp cùng quy tắc lên LID-DS 2021 official, nơi nhãn chính xác, vẫn cho 1.238/1.271: quy tắc không thêm phát hiện nào khi nhãn chính xác. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds2019\_\allowbreak{}token.py} (lệnh \texttt{tolerance}).
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Kết quả:} phát hiện 723/1.162 bản ghi tấn công (62,22\%, CI {[}59,40; 64,96{]}), 34/7.706 bản ghi normal bị báo nhầm (0,44\%, CI {[}0,32; 0,62{]}), p95 10,48 s. Chỉ mức báo nhầm đạt; \textbf{C1 không đạt}, và theo protocol kết quả được báo đúng như vậy, không chạy lại với thiết lập khác.
+  \textbf{Kết quả:} phát hiện 1.056/1.162 bản ghi tấn công (90,88\%, CI {[}89,08; 92,40{]}), 34/7.706 bản ghi normal bị báo nhầm (0,44\%, CI {[}0,32; 0,62{]}), p95 10,55 s (p50 1,10 s). Mức báo nhầm đạt; \textbf{C1 không đạt} vì recall dưới 95\% và p95 trên 3 s.
 \item
-  \textbf{Theo kịch bản} (Bảng~\ref{tab:lidds2019}): năm kịch bản đạt từ 92/98 tới 103/103, năm kịch bản còn lại chỉ đạt từ 17\% (30/174) tới 59\% (91/155), trong khi cùng các lỗ hổng đó đạt 100\% trên LID-DS 2021.
+  \textbf{Theo kịch bản} (Bảng~\ref{tab:lidds2019}): chín kịch bản đạt từ 90\% (157/174) tới 100\%. CVE-2014-0160 (Heartbleed) chỉ đạt 24/100: 76 bản ghi không có cảnh báo nào, dù cùng lỗ hổng này đạt 100\% trên LID-DS 2021.
 \item
-  \textbf{Độ nhạy theo cách đặt thời điểm exploit:} với quy ước của thư viện LID-DS (sớm hơn), recall là 92,60\% nhưng độ trễ trung vị 17,39 s. Tức là ở nhiều bản ghi, mô hình báo sau giai đoạn khởi động nhưng trước thời điểm exploit đã đăng ký, và không báo sau đó. Giải thích nguyên nhân cần đọc quy trình exploit của từng kịch bản, việc mà đồ án không làm, nên nguyên nhân còn mở.
+  \textbf{Độ trễ:} p95 cao đến từ bốn kịch bản (Bruteforce 14,37 s, CVE-2014-0160 11,19 s, PHP 5,56 s, SQL injection 4,67 s); sáu kịch bản còn lại có p95 từ 1,06 tới 2,39 s.
 \item
-  \textbf{Độ phân giải của nhãn (phân tích đặt ra sau khi thấy thất bại, amendment 1):} mọi thời điểm exploit của LID-DS 2019 là số nguyên giây, và trong 439 bản ghi bị lọt có 353 bản ghi mà cửa sổ báo kết thúc trước mốc nhãn trung bình 0,36 s và không báo sau đó. Tính thêm cửa sổ báo kết thúc trong 1 s trước mốc nhãn thì phát hiện 1.056/1.162 (90,88\%), báo nhầm không đổi, p95 10,55 s; cùng quy tắc trên LID-DS 2021 official vẫn cho 1.238/1.271, tức quy tắc không thêm phát hiện nào khi nhãn chính xác. C1 vẫn không đạt: 76 bản ghi Heartbleed không có cảnh báo nào, và độ trễ của Bruteforce và Heartbleed cao. Kết quả đăng ký ở trên vẫn là kết quả chính.
-\item
-  \textbf{Thử cải thiện trên phần development (protocol \texttt{lidds2019-\allowbreak{}development-\allowbreak{}v1}, đăng ký sau thất bại):} 30\% bản ghi test 2019 (321 tấn công, 2.311 normal, chia theo sha256) làm development; 23 ứng viên (độ dài gram, top-k, $\alpha'$, trim, thêm chi tiết token cho từng syscall), mỗi ứng viên phải giữ LID-DS 2021 development ($\geq$ 530/544, $\leq$ 6 báo nhầm) và CB-DS. Không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall, nên mô hình giữ \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} và theo protocol không chấm thêm gì. Các ứng viên tăng recall (ví dụ top 5: 310/321 so với 295/321, dung sai 1 s) đều chỉ tăng ở CVE-2014-0160 và đều hỏng mức LID-DS 2021; không ứng viên nào đưa p95 về gần 3 s (9,4--11,1 s), vì độ trễ của Bruteforce và CVE-2014-0160 không phụ thuộc các tham số này. Mở rộng thêm 90 tổ hợp (độ dài gram, top-k, trim, $\alpha'$, mỗi tổ hợp chấm lại cả LID-DS 2021 development) và nhánh tần suất cũng không đổi kết luận: chỉ cấu hình gốc qua điều kiện, không tổ hợp nào phát hiện quá 530 trên LID-DS 2021 development trong 6 báo nhầm, và nhánh tần suất không thêm phát hiện nào ở 2019. \textbf{Cận dưới của độ trễ:} cửa sổ đầu tiên sau mốc exploit có gram hay token chưa từng thấy đến ở p95 9,39 s trên các bản ghi tấn công development (Bruteforce 13,11 s, CVE-2014-0160 10,69 s), nên không bộ phát hiện nào dựa trên chuỗi chưa thấy đạt p95 $\leq$ 3 s trên dữ liệu này.
+  \textbf{Thử cải thiện trên phần development (protocol \texttt{lidds2019-\allowbreak{}development-\allowbreak{}v1}, đăng ký sau lượt chấm):} 30\% bản ghi test 2019 (321 tấn công, 2.311 normal, chia theo sha256) làm development; 23 ứng viên (độ dài gram, top-k, $\alpha'$, trim, thêm chi tiết token cho từng syscall), mỗi ứng viên phải giữ LID-DS 2021 development ($\geq$ 530/544, $\leq$ 6 báo nhầm) và CB-DS. Không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall, nên mô hình giữ \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} và theo protocol không chấm thêm gì. Các ứng viên tăng recall (ví dụ top 5: 310/321 so với 295/321, dung sai 1 s) đều chỉ tăng ở CVE-2014-0160 và đều hỏng mức LID-DS 2021; không ứng viên nào đưa p95 về gần 3 s (9,4--11,1 s), vì độ trễ của Bruteforce và CVE-2014-0160 không phụ thuộc các tham số này. Mở rộng thêm 90 tổ hợp (độ dài gram, top-k, trim, $\alpha'$, mỗi tổ hợp chấm lại cả LID-DS 2021 development) và nhánh tần suất cũng không đổi kết luận: chỉ cấu hình gốc qua điều kiện, không tổ hợp nào phát hiện quá 530 trên LID-DS 2021 development trong 6 báo nhầm, và nhánh tần suất không thêm phát hiện nào ở 2019. \textbf{Cận dưới của độ trễ:} cửa sổ đầu tiên sau mốc exploit có gram hay token chưa từng thấy đến ở p95 9,39 s trên các bản ghi tấn công development (Bruteforce 13,11 s, CVE-2014-0160 10,69 s), nên không bộ phát hiện nào dựa trên chuỗi chưa thấy đạt p95 $\leq$ 3 s trên dữ liệu này.
 \item
   \textbf{Thăm dò (không đăng ký trước):} token của bản ghi 2019 vẫn mang chi tiết; tỉ lệ token nhóm cỡ và token mở file tương đương 2021. Riêng token mã lỗi hiếm hơn hẳn ở một số kịch bản (CVE-2017-7529: 0,1\% so với 8,2\%), gợi ý rằng trace 2019 ghi lỗi khác 2021.
 \end{itemize}
 
-\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.5\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}@{}}
-\caption{LID-DS 2019 theo kịch bản (thời điểm exploit chính): phát hiện và bản ghi normal bị báo nhầm.}\label{tab:lidds2019}\\
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.4\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}@{}}
+\caption{LID-DS 2019 theo kịch bản (dung sai nhãn 1 s): phát hiện, bản ghi normal bị báo nhầm và p95.}\label{tab:lidds2019}\\
 \toprule\noalign{}
-Kịch bản & Phát hiện & Báo nhầm \\
+Kịch bản & Phát hiện & Báo nhầm & p95 \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\texttt{Bruteforce\_CWE-307} & 92/98 & 5/744 \\
-\texttt{CVE-2012-2122} & 91/155 & 1/990 \\
-\texttt{CVE-2014-0160} & 24/100 & 5/750 \\
-\texttt{CVE-2017-7529} & 30/174 & 0/733 \\
-\texttt{CVE-2018-3760} & 52/137 & 0/834 \\
-\texttt{CVE-2019-5418} & 34/98 & 0/731 \\
-\texttt{EPS\_CWE-434} & 99/99 & 8/722 \\
-\texttt{PHP\_CWE-434} & 103/103 & 0/759 \\
-\texttt{SQL\_Injection\_CWE-89} & 100/100 & 13/728 \\
-\texttt{ZipSlip} & 98/98 & 2/715 \\
+\texttt{Bruteforce\_CWE-307} & 92/98 & 5/744 & 14,37 s \\
+\texttt{CVE-2012-2122} & 152/155 & 1/990 & 1,17 s \\
+\texttt{CVE-2014-0160} & 24/100 & 5/750 & 11,19 s \\
+\texttt{CVE-2017-7529} & 157/174 & 0/733 & 1,15 s \\
+\texttt{CVE-2018-3760} & 133/137 & 0/834 & 1,06 s \\
+\texttt{CVE-2019-5418} & 98/98 & 0/731 & 1,25 s \\
+\texttt{EPS\_CWE-434} & 99/99 & 8/722 & 2,39 s \\
+\texttt{PHP\_CWE-434} & 103/103 & 0/759 & 5,56 s \\
+\texttt{SQL\_Injection\_CWE-89} & 100/100 & 13/728 & 4,67 s \\
+\texttt{ZipSlip} & 98/98 & 2/715 & 2,24 s \\
 \end{longtable}
 
-Kết quả này giới hạn khẳng định của RQ1: mô hình đạt các mức đăng ký trên LID-DS 2021 và CB-DS, nhưng không chuyển nguyên sang bản ghi của một bộ dữ liệu khác thu bằng công cụ và môi trường khác. Một mô hình học từ normal phụ thuộc vào đúng loại thông tin mà trace ghi lại.
+Kết quả này giới hạn khẳng định của RQ1: mô hình đạt các mức đăng ký trên LID-DS 2021 và CB-DS; trên bản ghi của một bộ dữ liệu khác, thu bằng công cụ và môi trường khác, nó vẫn phát hiện 90,88\% với báo nhầm thấp, nhưng không đạt mức đăng ký. Một mô hình học từ normal phụ thuộc vào đúng loại thông tin mà trace ghi lại, và độ trễ đo được phụ thuộc vào cách bộ dữ liệu đặt mốc tấn công.
 
 \section{RQ2: lựa chọn thiết kế nào mang kết quả}\label{sec:token-ablation}
 

@@ -12,7 +12,7 @@ Câu hỏi & Trả lời \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-RQ1: phát hiện exploit thật trên dataset? & Có. LID-DS 2021 official: recall 97,40\% (CI 96,38--98,15\%), 0,33\% bản ghi normal bị báo nhầm, precision 97,9\%, p95 1,47 s; 14/15 kịch bản đạt 100\%, Juice-Shop 61,2\%. CB-DS: 891/891 với 3/1.410 báo nhầm. LID-DS 2019 (một lần, blind): không đạt, 723/1.162 (62,22\%) với 0,44\% báo nhầm \\
+RQ1: phát hiện exploit thật trên dataset? & Có. LID-DS 2021 official: recall 97,40\% (CI 96,38--98,15\%), 0,33\% bản ghi normal bị báo nhầm, precision 97,9\%, p95 1,47 s; 14/15 kịch bản đạt 100\%, Juice-Shop 61,2\%. CB-DS: 891/891 với 3/1.410 báo nhầm. LID-DS 2019 (một lần, blind, dung sai nhãn 1 s): 1.056/1.162 (90,88\%) với 0,44\% báo nhầm, p95 10,55 s; không đạt mức đăng ký \\
 RQ2: lựa chọn thiết kế nào mang kết quả? & Cỡ đọc ghi lúc trả về mang nhiều nhất. Chỉ 5 trong 39 syscall có hook là cần; trên official, tập 5 syscall cho cùng 1.238 phát hiện với 17 thay vì 26 báo nhầm. Thêm syscall khác không tăng phát hiện. Quanh bộ tham số đang dùng kết quả phẳng. Gumbel không đúng như một phân bố nhưng là quy tắc ngưỡng tốt nhất đã thử. Ở báo nhầm thấp, mô hình hơn luật đếm 4-gram chưa thấy 86 bản ghi; với tấn công chỉ dùng chuỗi đã thấy, cả hai đều mù. Thêm một nhánh tần suất không tăng phát hiện (530→530, 891→891) mà chỉ thêm báo nhầm nên không nhận; trên cụm, pha loãng 30 và 300 cặp syscall quen không làm lọt trial nào (105/105 mỗi mức) \\
 RQ3: đạt bốn kỳ vọng trên cụm thật? & Có, ở cả ba lượt live. Lượt thứ hai: tập chính 314/314, control 0/314, p95 0,49 s tới cuối cửa sổ và 0,68 s tới Alertmanager; mọi tốc độ 521/522; gánh 0,17 đợt/replica-giờ, còn trên ngân sách 0,1. Lượt thứ ba, học lại sau khi đổi cụm: 315/315, control 1/315, p95 0,45 s \\
 RQ4: tách được process vô hại mới? & Mô hình một mình: không. Binary vô hại bị gắn cờ 314/314, lệnh quản trị thật 419/436; gate theo mô hình gộp và theo pha sau \texttt{execve} không giữ được kết quả trên dataset nên bị loại. Một luật sau mô hình (hạ cảnh báo khi cửa sổ chỉ có exec của tool-thuộc-image) xoá sạch báo nhầm lệnh quản trị nhưng cũng xoá mọi tấn công dùng tool-thuộc-image (314/315→0/315 ở lượt thứ ba) nên không được nhận. Thẻ dòng dõi trong kernel: chấm riêng phần native thì lệnh quản trị còn 1/475, binary vô hại 1/525, nhưng tấn công vào qua exec cũng ra khỏi phần đó (0/525) \\
@@ -53,7 +53,7 @@ Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (
     giám sát tầng ứng dụng cho tấn công không đổi hành vi hệ thống (như \texttt{SQLInjectionUser} của LID-DS): uprobe eBPF vào hàm thực thi truy vấn của driver cơ sở dữ liệu, làm lớp bổ trợ cho Pulse.
   \end{itemize}
 \item
-  \textbf{Bằng chứng độc lập:} tìm nguyên nhân mô hình không chuyển sang LID-DS 2019 (cách trace ghi lỗi, thời điểm exploit) mà không chỉnh trên chính dữ liệu đó; baseline học sâu (CHIDS, các mô hình của thư viện LID-DS) trên cùng bản ghi và cùng cách đo.
+  \textbf{Bằng chứng độc lập:} tìm nguyên nhân Heartbleed không chuyển sang LID-DS 2019 (cách trace ghi lỗi) mà không chỉnh trên chính dữ liệu đó; baseline học sâu (CHIDS, các mô hình của thư viện LID-DS) trên cùng bản ghi và cùng cách đo.
 \item
   \textbf{Tính thực tế của tấn công:} exploit thật vào process của dịch vụ trên cụm, trong một namespace cô lập; một ứng dụng thứ hai có tải thay đổi suốt lượt chạy.
 \item

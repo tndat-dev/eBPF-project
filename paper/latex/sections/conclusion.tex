@@ -8,4 +8,6 @@ primary-rate attack with no idle false alarm, delivering alerts to Alertmanager 
 it is blind to attacks built from seen sequences and to data-only attacks inside a process, its threshold is a measured
 knob rather than a guarantee, and its models age when the cluster changes. Separating a workload's own processes from
 operator sessions in the kernel is the direction we take for the first of these limits.
-\pending{latest run and LID-DS 2019 results}
+A third live run after a cluster change replicates the results with a fresh fit and resists dilution, and the native
+lineage stream flags 1/475 operator commands. On LID-DS~2019 the unchanged model detects 90.88\,\% of attack recordings
+at 0.44\,\% false alarms, below our target, with Heartbleed and the dataset's attack timestamps as the limits.

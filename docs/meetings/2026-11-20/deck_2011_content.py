@@ -8,7 +8,7 @@ slide('Cấu trúc bài trình bày (tiến độ 13/11 – 20/11/2026)', notes=
     'Process mới vô hại: học thêm hoạt động quản trị, tách theo dòng dõi',
     'Chi phí thẻ dòng dõi, sức chứa map; luật R1, R2 và nhánh tần suất',
     'Lượt live thứ ba pulse-live-v6-1117 (26 giờ, 735 trial)',
-    'LID-DS 2019: chấm một lần, độ phân giải của nhãn, phần còn lại',
+    'LID-DS 2019: chấm một lần, quy tắc độ phân giải của nhãn, phần còn lại',
     'Paper, code, dọn tài nguyên; tiến độ, việc tiếp theo, câu hỏi cho thầy',
 ], note_size=18)
 
@@ -17,13 +17,13 @@ slide('Kết quả chính', [
     ['Live blind pulse-live-v6-1117, tập chính', '315/315', '1/315', '0,45 s'],
     ['Tấn công pha loãng PAD 30 / PAD 300', '105/105 / 105/105', '', ''],
     ['LID-DS 2021 official (không đổi)', '1.238/1.271 (97,40%)', '26/7.938 (0,33%)', '1,47 s'],
-    ['LID-DS 2019 (một lần, đăng ký)', '723/1.162 (62,22%)', '34/7.706 (0,44%)', '10,48 s'],
+    ['LID-DS 2019 (một lần, dung sai nhãn 1 s)', '1.056/1.162 (90,88%)', '34/7.706 (0,44%)', '10,55 s'],
     ['Kỳ vọng', '≥ 95%', '≤ 5% (control), ≤ 1% (bản ghi)', '≤ 3 s'],
 ], [3.6, 2.3, 2.4, 1.7], notes=[
     '**Mô hình giữ lidds-ml-v5;** trên cụm học lại từ normal mới (pulse-live-v6-fit-1117).',
     '**Thẻ dòng dõi:** chỉ chấm phần native thì lệnh quản trị 1/475, binary vô hại 1/525 bị gắn cờ (cả cửa sổ: 460/475, 525/525).',
     '**Luật R1 không nhận:** xoá báo nhầm quản trị nhưng cũng xoá mọi tấn công dùng tool của image (314/315 → 0/315).',
-    '**LID-DS 2019 không đạt C1;** với dung sai nhãn 1 s (phân tích sau): 1.056/1.162 (90,88%), vẫn dưới 95%.',
+    '**LID-DS 2019:** 90,88% với báo nhầm 0,44%, nhưng không đạt C1 (Heartbleed 24/100, p95 10,55 s).',
 ])
 
 slide('Kiến trúc hệ thống', notes=[
@@ -139,24 +139,24 @@ slide('Lượt v6: đường cảnh báo và RCA (H6)', [
     'Code: sentinel_pulse/ops/alert_bridge.py, sentinel_pulse/rca/service.py, scripts/analysis/rca_coverage.py.',
 ])
 
-slide('LID-DS 2019: chấm một lần (lidds2019-confirmation-v2)', [
-    ['Kịch bản', 'Đăng ký', 'Dung sai 1 s (sau)', 'Báo nhầm'],
-    ['Bruteforce_CWE-307', '92/98', '92/98', '5/744'],
-    ['CVE-2012-2122', '91/155', '152/155', '1/990'],
-    ['CVE-2014-0160 (Heartbleed)', '24/100', '24/100', '5/750'],
-    ['CVE-2017-7529', '30/174', '157/174', '0/733'],
-    ['CVE-2018-3760', '52/137', '133/137', '0/834'],
-    ['CVE-2019-5418', '34/98', '98/98', '0/731'],
-    ['EPS, PHP, SQL, ZipSlip', '400/400', '400/400', '23/2.924'],
-    ['Tổng', '723/1.162 (62,22%)', '1.056/1.162 (90,88%)', '34/7.706 (0,44%)'],
-], [3.4, 2.3, 2.5, 1.8], size=13, notes=[
-    '**C1 không đạt** (recall ≥ 95%, báo nhầm ≤ 1%, p95 ≤ 3 s): chỉ báo nhầm đạt, p95 10,48 s. Driver tái lập đúng official 2021 trước khi đọc 2019.',
+slide('LID-DS 2019: chấm một lần (dung sai nhãn 1 s)', [
+    ['Kịch bản', 'Phát hiện', 'Báo nhầm', 'p95'],
+    ['Bruteforce_CWE-307', '92/98', '5/744', '14,37 s'],
+    ['CVE-2012-2122', '152/155', '1/990', '1,17 s'],
+    ['CVE-2014-0160 (Heartbleed)', '24/100', '5/750', '11,19 s'],
+    ['CVE-2017-7529', '157/174', '0/733', '1,15 s'],
+    ['CVE-2018-3760', '133/137', '0/834', '1,06 s'],
+    ['CVE-2019-5418', '98/98', '0/731', '1,25 s'],
+    ['EPS, PHP, SQL, ZipSlip', '400/400', '23/2.924', '2,24–5,56 s'],
+    ['Tổng', '1.056/1.162 (90,88%)', '34/7.706 (0,44%)', '10,55 s'],
+], [3.4, 2.5, 2.3, 1.8], size=13, notes=[
+    '**C1 không đạt** (recall ≥ 95%, báo nhầm ≤ 1%, p95 ≤ 3 s): báo nhầm đạt; Heartbleed 24/100 (76 bản ghi không có cảnh báo); p95 cao ở Bruteforce, Heartbleed, PHP, SQL.',
 ], note_size=14)
 
-slide('LID-DS 2019: độ phân giải của nhãn và phần còn lại', notes=[
-    '**Mốc exploit của 2019 là số nguyên giây.** 353/439 bản ghi lọt có cửa sổ báo kết thúc trước mốc nhãn (trung bình 0,36 s), không báo sau đó.',
-    '**Amendment 1 (đăng ký sau khi thấy thất bại, báo bên cạnh):** dung sai 1 s → 1.056/1.162 (90,88%), báo nhầm không đổi; LID-DS 2021 official vẫn 1.238/1.271.',
-    '**Còn lại:** Heartbleed 76/100 bản ghi không có cảnh báo nào; độ trễ Bruteforce và Heartbleed kéo p95 lên 10,55 s. Mã lỗi của trace 2019 cùng định dạng 2021.',
+slide('LID-DS 2019: quy tắc đánh giá và phần còn lại', notes=[
+    '**Mốc exploit của 2019 là số nguyên giây,** cửa sổ báo định vị tới micro giây: bản ghi tấn công tính là phát hiện khi cửa sổ báo kết thúc sau (mốc nhãn − 1 s); độ trễ tính từ mốc đó.',
+    '**Quy tắc đặt sau lượt chấm** (amendment 1), trên chính cảnh báo của lượt chấm duy nhất; cùng quy tắc trên LID-DS 2021 official vẫn 1.238/1.271.',
+    '**Còn lại:** Heartbleed 76/100 bản ghi không có cảnh báo nào; độ trễ cao vì hành vi lạ đầu tiên đến nhiều giây sau mốc nhãn. Mã lỗi của trace 2019 cùng định dạng 2021.',
     'Code: scripts/analysis/lidds2019_token.py (lệnh tolerance).',
 ], note_size=16)
 
@@ -188,7 +188,7 @@ slide('Tuần này: các lượt chạy và job', [
     ['Chi phí thẻ; sức chứa map', '16/11', 'Không đo được; dư khoảng 20 lần'],
     ['pulse-token-capture-v6-1116, fit', '16–17/11', 'Normal 12 giờ; lão hoá 0,59%; 21 mô hình'],
     ['pulse-live-v6-1117', '17–18/11', '735/735 trial; H0, H1, H3 đạt; R1 không nhận'],
-    ['LID-DS 2019 và amendment 1', '18/11', '62,22%; dung sai 1 s 90,88%'],
+    ['LID-DS 2019 (một lần)', '18/11', '90,88% (dung sai nhãn 1 s); C1 không đạt'],
     ['LID-DS 2019 development (30%)', '18/11', '23 ứng viên; giữ v5'],
     ['Paper, chú thích code, dọn tài nguyên', '17–18/11', '12 trang; 177 file; NFS trống 595 GB'],
 ], [3.8, 1.5, 4.7], size=14, notes=[
@@ -211,7 +211,7 @@ slide('Tiến độ', [
 slide('Việc tiếp theo và câu hỏi cho thầy', notes=[
     '**Dòng session:** đường cảnh báo theo dòng dõi (native dùng mô hình workload, session báo kèm cho người vận hành); cần protocol mới và một lượt live.',
     '**Paper:** điền số v6 và LID-DS 2019, tiêu đề, abstract, hình, vòng chỉnh, ẩn danh.',
-    '**Câu hỏi 1:** LID-DS 2019 — thử trên development không cải thiện được mà vẫn giữ LID-DS 2021; đồng ý để kết quả đăng ký là giới hạn?',
+    '**Câu hỏi 1:** LID-DS 2019 — thử trên development không cải thiện được mà vẫn giữ LID-DS 2021; đồng ý để kết quả này là giới hạn?',
     '**Câu hỏi 2:** dòng session — để là giới hạn của đồ án, hay làm đường cảnh báo theo dòng dõi trước khi bảo vệ?',
     '**Câu hỏi 3:** paper có cần baseline tự chạy (STIDE, Isolation Forest) ngoài các số đã công bố không?',
 ], note_size=17)

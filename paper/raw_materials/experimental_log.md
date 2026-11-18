@@ -130,7 +130,7 @@ one token per syscall (411,052 events = 411,052 syscalls). Proofs valid on all t
 Rule layer after the model (`results-20261115/rule-e-benefit/`), run v5 campaign, primary: recall 314/314 model only and
 model + rule; operator commands (image tools) flagged 256/262 (97.7 %) -> 0/262; non-image harmless exec 314/314 kept
 (labelled drift). All rates: recall 521/522 both; admin 422/439 -> 0/439; pooled false alarms over benign classes
-942/1,487 -> 520/1,487. Harm side (living-off-the-land attacks with image tools): PENDING (E7, H4).
+942/1,487 -> 520/1,487. Harm side (living-off-the-land attacks with image tools), E7 H4: 314/315 -> 0/315 primary (524/525 -> 0/525); R1 not adopted.
 
 ## E5. Overhead — `results-20261107/token-probe-overhead/overhead-run3.json`, `results-20261116/lineage-overhead/`
 
@@ -162,7 +162,7 @@ RCA: own case 467/522 (89.5 %); attack binary rank 1 in 464/467 (99.4 %); alert 
 exec event delay p95 0.10 s, max 0.38 s. 55 without own case: 40 re-runs merged by design, 14 a race (alarm on the launch
 burst ~0.2 s after start, before the attack binary's exec; RCA considered execs only up to window end), 1 no decision.
 Rank 1 is helped by the campaign order (attack always after the benign binary). Fix (consider execs up to the decision,
-recheck after 2 s) not yet measured live: PENDING (E7, H6).
+recheck after 2 s) measured live in E7: 711/735 own case (96.7 %).
 
 ## E7. Model aging and the latest live run (pulse-live-v6-v1 with amendment 1)
 
@@ -174,12 +174,20 @@ the 12/11 VM resize and cluster recovery: 278/47,082 container blocks above thre
 Run pulse-live-v6-1117 (17/11 11:56 -> about 18/11 13:55; 735 trials = 525 base + 105 PAD 30 + 105 PAD 300; operator
 command set never used before; seeded random step order; living-off-the-land step; lineage build; fresh fit
 `pulse-live-v6-fit-1117`: 21 models, cross-fit over the v5 normal and the new 12 h capture):
-- H0 replication (recall, control, precision, p95): PENDING
-- H1 native stream flags <= 5 % of admin and harmless-binary intervals: PENDING
-- H3 dilution recall at PAD 30 / 300 >= 95 %: PENDING
-- H4 living-off-the-land: ML-only detection and share downgraded by rule R1 (harm of R1): PENDING
-- H5 unseen operator tools, ML-only vs ML + rule: PENDING
-- H6 RCA rank 1 by step order; follow-up recheck measured live: PENDING
-- Burden of the run: PENDING
+- H0 replication: met. 315/315 [98.8, 100], control 1/315, precision 99.68 % [98.23, 99.94], p95 0.45 s (p50 0.25 s); all rates 524/525, control 1/525
+- H1 native stream: met. admin 1/475, harmless 1/525, control 1/525 (whole window 460/475, 525/525); fixture attacks 0/525, lotl 1/525 on the native part
+- H3 dilution: met. PAD 30 105/105, PAD 300 105/105
+- H4 lotl: ML only 314/315 primary (524/525 all); with R1 0/315 (0/525); R1 not adopted
+- H5 unseen operator tools: ML only 275/284 primary (460/475 all); with R1 0/284 (0/475)
+- H6: own case 711/735; fixture rank 1 268/355 (75.5 %) after harmless, 272/356 (76.4 %) before; exploratory: lotl process first in 162/170 non-top-1 cases
+- Burden: 4 episodes / 51.1 replica-hours = 0.078 [0.018, 0.157], not comparable (campaign covered almost the run). Bridge 3,233/3,233, decision -> Alertmanager p95 1.21 s, kernel -> Alertmanager p95 1.53 s (721/735)
 
-## E8. LID-DS 2019 (once, when the model is final): PENDING
+## E8. LID-DS 2019 (once, lidds2019-confirmation-v2; reported with the 1 s label tolerance of amendment 1, set after the scoring)
+
+Source: validation-evidence/results-20261118/lidds2019-confirmation/tolerance.json. 1,056/1,162 detected (90.88 % [89.08, 92.40]),
+34/7,706 false-alarm recordings (0.44 % [0.32, 0.62]), p95 10.55 s (p50 1.10 s); C1 not met (recall, latency). Same rule on
+LID-DS 2021 official: 1,238/1,271 unchanged. Per scenario: Bruteforce 92/98 (p95 14.37 s), CVE-2012-2122 152/155, CVE-2014-0160
+24/100 (76 without alarm, p95 11.19 s), CVE-2017-7529 157/174, CVE-2018-3760 133/137, CVE-2019-5418 98/98, EPS 99/99, PHP
+103/103 (p95 5.56 s), SQL 100/100 (p95 4.67 s), ZipSlip 98/98. Development study (lidds2019-development-v1, 30 % part, after the
+scoring): 23 single changes + 90 combinations + rate branch, none keeps LID-DS 2021 development while raising recall; novelty
+latency lower bound p95 9.39 s (validation-evidence/results-20261118/lidds2019-development/).
