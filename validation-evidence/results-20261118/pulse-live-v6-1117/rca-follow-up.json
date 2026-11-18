@@ -1,0 +1,665 @@
+{
+ "schema": "rca-follow-up-audit-v1",
+ "since": 1794896970.865773,
+ "stalled_spans": [],
+ "attack_trials": 735,
+ "classes": {
+  "own_case": 705,
+  "exec_missing": 10,
+  "exec_known_refused": 15,
+  "no_decision": 5
+ },
+ "verdicts_of_trials_without_own_case": {
+  "binary_not_new": 21,
+  "binary_not_new_recheck": 21,
+  "cap": 3,
+  "too_soon": 4,
+  "no_exec": 1,
+  "no_exec_recheck": 1
+ },
+ "without_own_case_in_stall": 0,
+ "audit_lines": 2614,
+ "audit_verdicts": {
+  "no_exec": 139,
+  "no_exec_recheck": 135,
+  "binary_not_new": 102,
+  "binary_not_new_recheck": 100,
+  "allowed": 2044,
+  "too_soon": 83,
+  "allowed_recheck": 4,
+  "cap": 7
+ },
+ "exec_lag_seconds": {
+  "outside_stall": {
+   "n": 2569,
+   "p50": 0.045319557189941406,
+   "p95": 0.17971372604370117,
+   "p99": 0.36281681060791016,
+   "max": 43.03066039085388,
+   "over_2s": 2,
+   "over_10s": 2
+  },
+  "inside_stall": null,
+  "attack_binary": {
+   "n": 454,
+   "p50": 0.0452730655670166,
+   "p95": 0.13744568824768066,
+   "p99": 0.3400876522064209,
+   "max": 0.4749107360839844,
+   "over_2s": 0,
+   "over_10s": 0
+  }
+ },
+ "trials_without_own_case": [
+  {
+   "start": 1794902630.2252927,
+   "identity": [
+    "k8s-worker1.local",
+    "ad00b2b5-ed80-4e81-967d-98ca55833793",
+    "rabbitmq"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794902630.618,
+     "latest": "/usr/bin/df"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794902630.618,
+     "latest": "/usr/bin/df"
+    },
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794902638.618,
+     "latest": "/usr/bin/df"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794902638.618,
+     "latest": "/usr/bin/df"
+    }
+   ]
+  },
+  {
+   "start": 1794907460.6172879,
+   "identity": [
+    "k8s-worker1.local",
+    "ad00b2b5-ed80-4e81-967d-98ca55833793",
+    "rabbitmq"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794907461.118,
+     "latest": "/usr/bin/df"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794907461.118,
+     "latest": "/usr/bin/df"
+    }
+   ]
+  },
+  {
+   "start": 1794915810.6062953,
+   "identity": [
+    "k8s-worker3.local",
+    "f89a62ea-558a-4219-bab7-10029929fbf3",
+    "topic-operator"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "cap",
+     "window_end": 1794915811.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "cap",
+     "window_end": 1794915825.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794916623.586692,
+   "identity": [
+    "k8s-worker4.local",
+    "1b31a6e3-316a-406f-a1f0-3afb142f036d",
+    "sidecar"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794916624.056,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794916624.056,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794920318.1832743,
+   "identity": [
+    "k8s-worker1.local",
+    "099fb073-13de-4b3b-bf18-948da4853c21",
+    "app"
+   ],
+   "cls": "no_decision",
+   "stalled": false,
+   "decisions": []
+  },
+  {
+   "start": 1794922971.5912898,
+   "identity": [
+    "k8s-worker1.local",
+    "040218e6-005b-444c-93dd-973a21e400a6",
+    "app"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "too_soon",
+     "window_end": 1794922980.618,
+     "latest": "/usr/local/bin/python"
+    },
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794922985.618,
+     "latest": "/usr/local/bin/python"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794922985.618,
+     "latest": "/usr/local/bin/python"
+    }
+   ]
+  },
+  {
+   "start": 1794928353.8705227,
+   "identity": [
+    "k8s-worker1.local",
+    "ecd8e501-262f-423f-86c9-f8a1e030166c",
+    "minio"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794928354.118,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794928354.118,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794929406.6114554,
+   "identity": [
+    "k8s-worker4.local",
+    "5a63aea9-d2c4-40a3-b912-601f6b688cf8",
+    "app"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "too_soon",
+     "window_end": 1794929407.056,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794936536.8782942,
+   "identity": [
+    "k8s-worker4.local",
+    "8d03515a-d8f3-4e7d-9bf6-410b4ded03d4",
+    "app"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "too_soon",
+     "window_end": 1794936541.056,
+     "latest": "/usr/local/bin/python"
+    }
+   ]
+  },
+  {
+   "start": 1794937844.5410228,
+   "identity": [
+    "k8s-worker3.local",
+    "f89a62ea-558a-4219-bab7-10029929fbf3",
+    "topic-operator"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794937845.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794937845.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794939680.5628498,
+   "identity": [
+    "k8s-worker3.local",
+    "f89a62ea-558a-4219-bab7-10029929fbf3",
+    "user-operator"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794939681.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794939681.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794940493.1108115,
+   "identity": [
+    "k8s-worker3.local",
+    "f89a62ea-558a-4219-bab7-10029929fbf3",
+    "user-operator"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794940493.576,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794940493.576,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794941098.5135992,
+   "identity": [
+    "k8s-worker4.local",
+    "6a6fc611-faf3-42b2-ba7a-0b4a92dfba7c",
+    "istio-proxy"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794941099.056,
+     "latest": "/etc/istio/proxy/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794941099.056,
+     "latest": "/etc/istio/proxy/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794944068.9590049,
+   "identity": [
+    "k8s-worker3.local",
+    "23e1c7d6-5e4a-4733-8f93-de40ed03023e",
+    "aims-redis"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794944081.576,
+     "latest": "/usr/local/bin/redis-cli"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794944081.576,
+     "latest": "/usr/local/bin/redis-cli"
+    }
+   ]
+  },
+  {
+   "start": 1794946613.2005954,
+   "identity": [
+    "k8s-worker4.local",
+    "e329849d-5c98-4147-b6ca-e99fb40612f0",
+    "aims-redis-sentinel-sentinel"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794946625.556,
+     "latest": "/usr/local/bin/redis-cli"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794946625.556,
+     "latest": "/usr/local/bin/redis-cli"
+    }
+   ]
+  },
+  {
+   "start": 1794948487.5785432,
+   "identity": [
+    "k8s-worker1.local",
+    "ad00b2b5-ed80-4e81-967d-98ca55833793",
+    "rabbitmq"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794948488.118,
+     "latest": "/usr/bin/df"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794948488.118,
+     "latest": "/usr/bin/df"
+    }
+   ]
+  },
+  {
+   "start": 1794952755.1558888,
+   "identity": [
+    "k8s-worker4.local",
+    "1b31a6e3-316a-406f-a1f0-3afb142f036d",
+    "minio"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "too_soon",
+     "window_end": 1794952758.556,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "no_exec",
+     "window_end": 1794952768.556,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "no_exec_recheck",
+     "window_end": 1794952768.556,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794953277.7819498,
+   "identity": [
+    "k8s-worker3.local",
+    "f89a62ea-558a-4219-bab7-10029929fbf3",
+    "user-operator"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "cap",
+     "window_end": 1794953278.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794954880.6082652,
+   "identity": [
+    "k8s-worker3.local",
+    "f8a6d0ff-fa47-4248-9934-55f9eeeb378e",
+    "postgres"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794954881.076,
+     "latest": "/run/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794954881.076,
+     "latest": "/usr/lib/postgresql/17/bin/pg_isready"
+    }
+   ]
+  },
+  {
+   "start": 1794955892.888303,
+   "identity": [
+    "k8s-worker3.local",
+    "fdda1c5f-8c19-4504-9bed-4217c0a99955",
+    "kafka"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794955912.576,
+     "latest": "/usr/bin/curl"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794955912.576,
+     "latest": "/usr/bin/curl"
+    }
+   ]
+  },
+  {
+   "start": 1794968233.1162305,
+   "identity": [
+    "k8s-worker1.local",
+    "ecd8e501-262f-423f-86c9-f8a1e030166c",
+    "sidecar"
+   ],
+   "cls": "no_decision",
+   "stalled": false,
+   "decisions": []
+  },
+  {
+   "start": 1794968788.4023943,
+   "identity": [
+    "k8s-worker3.local",
+    "f89a62ea-558a-4219-bab7-10029929fbf3",
+    "user-operator"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794968789.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794968789.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794969732.6766858,
+   "identity": [
+    "k8s-worker4.local",
+    "1b31a6e3-316a-406f-a1f0-3afb142f036d",
+    "minio"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794969733.056,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794969733.056,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794970799.097485,
+   "identity": [
+    "k8s-worker1.local",
+    "ad00b2b5-ed80-4e81-967d-98ca55833793",
+    "rabbitmq"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794970799.618,
+     "latest": "/usr/bin/df"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794970799.618,
+     "latest": "/usr/bin/df"
+    }
+   ]
+  },
+  {
+   "start": 1794976003.511103,
+   "identity": [
+    "k8s-worker1.local",
+    "ad00b2b5-ed80-4e81-967d-98ca55833793",
+    "rabbitmq"
+   ],
+   "cls": "exec_missing",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794976004.118,
+     "latest": "/usr/bin/df"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794976004.118,
+     "latest": "/usr/bin/df"
+    }
+   ]
+  },
+  {
+   "start": 1794976159.6520174,
+   "identity": [
+    "k8s-worker3.local",
+    "f89a62ea-558a-4219-bab7-10029929fbf3",
+    "topic-operator"
+   ],
+   "cls": "no_decision",
+   "stalled": false,
+   "decisions": []
+  },
+  {
+   "start": 1794976330.541107,
+   "identity": [
+    "k8s-worker3.local",
+    "f89a62ea-558a-4219-bab7-10029929fbf3",
+    "topic-operator"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794976331.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794976331.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794979143.7532709,
+   "identity": [
+    "k8s-worker3.local",
+    "f89a62ea-558a-4219-bab7-10029929fbf3",
+    "topic-operator"
+   ],
+   "cls": "exec_known_refused",
+   "stalled": false,
+   "decisions": [
+    {
+     "verdict": "binary_not_new",
+     "window_end": 1794979144.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    },
+    {
+     "verdict": "binary_not_new_recheck",
+     "window_end": 1794979144.076,
+     "latest": "/tmp/sentinel-runtime-attack-blind"
+    }
+   ]
+  },
+  {
+   "start": 1794981150.584115,
+   "identity": [
+    "k8s-worker4.local",
+    "0e786168-249b-493c-93ed-44a8b39c4feb",
+    "kafka"
+   ],
+   "cls": "no_decision",
+   "stalled": false,
+   "decisions": []
+  },
+  {
+   "start": 1794981995.0272264,
+   "identity": [
+    "k8s-worker1.local",
+    "9a916102-e550-4f2b-8477-c0048f3271e6",
+    "app"
+   ],
+   "cls": "no_decision",
+   "stalled": false,
+   "decisions": []
+  }
+ ]
+}

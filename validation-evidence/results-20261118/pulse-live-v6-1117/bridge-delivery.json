@@ -1,0 +1,23 @@
+{
+ "schema": "bridge-delivery-v1",
+ "episodes": 3233,
+ "stalled_spans": [],
+ "outside_stall": {
+  "episodes": 3233,
+  "delivered": 3233,
+  "not_delivered": 0,
+  "decision_to_receipt_seconds": {
+   "n": 3233,
+   "p50": 0.0527496337890625,
+   "p95": 1.2141039371490479,
+   "p99": 2.162675619125366,
+   "max": 7.905629396438599
+  }
+ },
+ "inside_stall": {
+  "episodes": 0,
+  "delivered": 0,
+  "not_delivered": 0,
+  "decision_to_receipt_seconds": null
+ }
+}

@@ -1,0 +1,392 @@
+{
+ "schema": "ml-final-study-v1-rule-e-benefit",
+ "protocol": "sentinel_pulse/protocol/ml-final-study-v1.json",
+ "rules": {
+  "R1": "downgrade an alert whose window had only runtime execs of image binaries (admin on v5)",
+  "R2": "an alert whose exec is a non-image binary stays an alert, labelled drift (benign/attack on v5)"
+ },
+ "run": "/mnt/sentinel-pulse-archive/pulse-live-v6-1117",
+ "models": "/mnt/sentinel-pulse-archive/pulse-live-v6-fit-1117/token/MODELS.json",
+ "segments_read": 147,
+ "scope": "benefit side (admin) and, on runs with a living-off-the-land step (pulse-live-v6-v1 H4), the harm side: lotl_recall under ml_only vs ml_plus_rule",
+ "systems": {
+  "ml_only": "token model alone is the alert path (deployed v5)",
+  "ml_plus_rule": "token model + Part E rule layer (R1 downgrade image-tool-only windows, R2 drift label)"
+ },
+ "comparison": {
+  "all_rates": {
+   "ml_only": {
+    "attack_recall": {
+     "hit": 524,
+     "n": 525,
+     "rate": 0.9980952380952381
+    },
+    "lotl_recall": {
+     "hit": 524,
+     "n": 525,
+     "rate": 0.9980952380952381
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 460,
+      "n": 475,
+      "rate": 0.968421052631579
+     },
+     "benign": {
+      "hit": 525,
+      "n": 525,
+      "rate": 1.0
+     },
+     "control": {
+      "hit": 1,
+      "n": 525,
+      "rate": 0.0019047619047619048
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 986,
+     "n": 1525,
+     "rate": 0.6465573770491804
+    }
+   },
+   "ml_plus_rule": {
+    "attack_recall": {
+     "hit": 524,
+     "n": 525,
+     "rate": 0.9980952380952381
+    },
+    "lotl_recall": {
+     "hit": 0,
+     "n": 525,
+     "rate": 0.0
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 0,
+      "n": 475,
+      "rate": 0.0
+     },
+     "benign": {
+      "hit": 525,
+      "n": 525,
+      "rate": 1.0
+     },
+     "control": {
+      "hit": 1,
+      "n": 525,
+      "rate": 0.0019047619047619048
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 526,
+     "n": 1525,
+     "rate": 0.34491803278688526
+    }
+   }
+  },
+  "primary": {
+   "ml_only": {
+    "attack_recall": {
+     "hit": 315,
+     "n": 315,
+     "rate": 1.0
+    },
+    "lotl_recall": {
+     "hit": 314,
+     "n": 315,
+     "rate": 0.9968253968253968
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 275,
+      "n": 284,
+      "rate": 0.9683098591549296
+     },
+     "benign": {
+      "hit": 315,
+      "n": 315,
+      "rate": 1.0
+     },
+     "control": {
+      "hit": 1,
+      "n": 315,
+      "rate": 0.0031746031746031746
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 591,
+     "n": 914,
+     "rate": 0.6466083150984683
+    }
+   },
+   "ml_plus_rule": {
+    "attack_recall": {
+     "hit": 315,
+     "n": 315,
+     "rate": 1.0
+    },
+    "lotl_recall": {
+     "hit": 0,
+     "n": 315,
+     "rate": 0.0
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 0,
+      "n": 284,
+      "rate": 0.0
+     },
+     "benign": {
+      "hit": 315,
+      "n": 315,
+      "rate": 1.0
+     },
+     "control": {
+      "hit": 1,
+      "n": 315,
+      "rate": 0.0031746031746031746
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 316,
+     "n": 914,
+     "rate": 0.34573304157549234
+    }
+   }
+  }
+ },
+ "by_label": {
+  "admin": {
+   "n": 475,
+   "ml": 460,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.968421052631579,
+   "after_r1_rate": 0.0
+  },
+  "admin-pad30": {
+   "n": 92,
+   "ml": 89,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.967391304347826,
+   "after_r1_rate": 0.0
+  },
+  "admin-pad300": {
+   "n": 90,
+   "ml": 86,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.9555555555555556,
+   "after_r1_rate": 0.0
+  },
+  "admin-primary": {
+   "n": 284,
+   "ml": 275,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.9683098591549296,
+   "after_r1_rate": 0.0
+  },
+  "attack": {
+   "n": 525,
+   "ml": 524,
+   "after_r1": 524,
+   "r2_drift": 524,
+   "ml_rate": 0.9980952380952381,
+   "after_r1_rate": 0.9980952380952381
+  },
+  "attack-pad30": {
+   "n": 105,
+   "ml": 105,
+   "after_r1": 105,
+   "r2_drift": 105,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "attack-pad300": {
+   "n": 105,
+   "ml": 105,
+   "after_r1": 105,
+   "r2_drift": 105,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "attack-primary": {
+   "n": 315,
+   "ml": 315,
+   "after_r1": 315,
+   "r2_drift": 315,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "benign": {
+   "n": 525,
+   "ml": 525,
+   "after_r1": 525,
+   "r2_drift": 525,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "benign-pad30": {
+   "n": 105,
+   "ml": 105,
+   "after_r1": 105,
+   "r2_drift": 105,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "benign-pad300": {
+   "n": 105,
+   "ml": 105,
+   "after_r1": 105,
+   "r2_drift": 105,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "benign-primary": {
+   "n": 315,
+   "ml": 315,
+   "after_r1": 315,
+   "r2_drift": 315,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "control": {
+   "n": 525,
+   "ml": 1,
+   "after_r1": 1,
+   "r2_drift": 0,
+   "ml_rate": 0.0019047619047619048,
+   "after_r1_rate": 0.0019047619047619048
+  },
+  "control-pad30": {
+   "n": 105,
+   "ml": 0,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.0,
+   "after_r1_rate": 0.0
+  },
+  "control-pad300": {
+   "n": 105,
+   "ml": 0,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.0,
+   "after_r1_rate": 0.0
+  },
+  "control-primary": {
+   "n": 315,
+   "ml": 1,
+   "after_r1": 1,
+   "r2_drift": 0,
+   "ml_rate": 0.0031746031746031746,
+   "after_r1_rate": 0.0031746031746031746
+  },
+  "lotl": {
+   "n": 525,
+   "ml": 524,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.9980952380952381,
+   "after_r1_rate": 0.0
+  },
+  "lotl-pad30": {
+   "n": 105,
+   "ml": 105,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "lotl-pad300": {
+   "n": 105,
+   "ml": 105,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "lotl-primary": {
+   "n": 315,
+   "ml": 314,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.9968253968253968,
+   "after_r1_rate": 0.0
+  }
+ },
+ "admin_by_command": {
+  "find": {
+   "n": 45,
+   "ml": 45,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "grep": {
+   "n": 48,
+   "ml": 48,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "head": {
+   "n": 51,
+   "ml": 51,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "hostname": {
+   "n": 44,
+   "ml": 40,
+   "after_r1": 0,
+   "ml_rate": 0.9090909090909091,
+   "after_r1_rate": 0.0
+  },
+  "ls_tmp": {
+   "n": 48,
+   "ml": 48,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "printenv": {
+   "n": 54,
+   "ml": 48,
+   "after_r1": 0,
+   "ml_rate": 0.8888888888888888,
+   "after_r1_rate": 0.0
+  },
+  "sleep": {
+   "n": 47,
+   "ml": 42,
+   "after_r1": 0,
+   "ml_rate": 0.8936170212765957,
+   "after_r1_rate": 0.0
+  },
+  "stat": {
+   "n": 51,
+   "ml": 51,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "wc": {
+   "n": 45,
+   "ml": 45,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "whoami": {
+   "n": 42,
+   "ml": 42,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  }
+ }
+}
