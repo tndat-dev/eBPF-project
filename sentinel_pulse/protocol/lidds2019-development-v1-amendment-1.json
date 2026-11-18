@@ -1,0 +1,43 @@
+{
+ "schema": "sentinel-pulse-lidds2019-development-v1-amendment-1",
+ "amends": "sentinel_pulse/protocol/lidds2019-development-v1.json",
+ "registered_at": "2026-11-18T21:08+07:00",
+ "registered_before": "any LID-DS 2021 official recording or any 2019 holdout recording is cached or scored with the chosen system",
+ "owner_decision": "18/11: after the development study (23 single changes, 90 combinations, rate branch; only lidds-ml-v5 passed the registered must-rules), the owner chose to relax the LID-DS 2021 development rule by one detection and test the result",
+ "seen_before_registration": "every development result in validation-evidence/results-20261118/lidds2019-development (study.json, grid.json, rate.json, latency.json); the rule below is written knowing them. The holdout was scored by lidds-ml-v5 in lidds2019-confirmation-v2 (pooled and per-scenario results known)",
+ "changed_rule": {
+  "was": "LID-DS 2021 development: detected >= 530/544, false-alarm recordings <= 6, p95 <= 1.52 s (token-design-study-v1 KEEP)",
+  "now": "LID-DS 2021 development: detected >= 529/544, false-alarm recordings <= 6, p95 <= 1.60 s; CB-DS unchanged (>= 891, <= 3)"
+ },
+ "added_rule": "n = 4 only: the probe counts 4-grams in the kernel map key, so a longer gram needs a new probe; candidates with n = 5 are out",
+ "selection": "the registered order on the grid of grid.json: most 2019 development detections (1 s tolerance), then fewer 2019 development false-alarm recordings, then lower p95, under 2019 development false-alarm recordings <= 1 %",
+ "chosen": {
+  "id": "n4-top3-trim0.005-alpha0.0003",
+  "n": 4,
+  "top": 3,
+  "trim": 0.005,
+  "alpha": 0.0003,
+  "alphabet": "select1f",
+  "folds": 5,
+  "development_2019": {
+   "detected": "310/321 (1 s tolerance)",
+   "false_alarms": "9/2,311",
+   "primary_detected": "212/321"
+  },
+  "lidds2021_development": {
+   "detected": "529/544",
+   "false_alarms": 5,
+   "p95": 1.57,
+   "cb_detected": 891,
+   "cb_false_alarms": 3
+  },
+  "name": "lidds-ml-v5-t3 (candidate; lidds-ml-v5 stays the system until the steps below and a live run)"
+ },
+ "steps": [
+  "LID-DS 2021 official: the base spec must first reproduce lidds-ml-v5 official (1,238/1,271, 26/7,938, p95 1.47 s) through this code path; then the chosen system once, reported beside lidds-ml-v5",
+  "2019 holdout (841 attack, 5,395 normal): the base spec must first reproduce the registered lidds-ml-v5 decisions on the holdout recordings; then the chosen system once (output written once), primary rule and 1 s tolerance, pooled and per scenario, C1",
+  "cluster: top-k, trim and alpha are worker-side; a refit and a live run are needed before the chosen system is claimed on the cluster"
+ ],
+ "reporting": "the registered lidds2019-confirmation-v2 result stays the primary LID-DS 2019 result; this amendment, its post-hoc rule change and the holdout having been scored by lidds-ml-v5 are stated with the result",
+ "code": "scripts/analysis/lidds2019_dev.py (official, holdout)"
+}
