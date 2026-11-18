@@ -315,9 +315,6 @@ def main():
         evaluate(a)
 
 
-if __name__ == '__main__':
-    main()
-
 
 def official(scores_dir, lidds_alarms, cbds_alarms, output):
     """An adopted offline candidate on LID-DS 2021 official (scores of the amendment-1 run, spec tops 3 and 10)."""
@@ -337,3 +334,7 @@ def official(scores_dir, lidds_alarms, cbds_alarms, output):
         print(name, {k: out[name][k] for k in ('detected', 'false_alarm_recordings', 'latency_p95')}, flush=True)
     doc = dict(schema='improvement-round-v1-official2021', pooled_shape_official=shape, candidates=out)
     m.write_once(output, doc)
+
+
+if __name__ == '__main__':
+    main()
