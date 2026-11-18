@@ -15,6 +15,15 @@
     python3 lidds2019_dev.py cache --archives DIR --scenario S --split split.json --output caches/S.npz [--n 5]
     python3 lidds2019_dev.py gate  --caches caches --tokens DIR2019 --out OUT
     python3 lidds2019_dev.py study --caches caches --out OUT --receipts validation-evidence/results-20261112/token-design-study
+
+  grid     combinations (n x top-k x alpha' x trim), each scored on the 2019 development part AND on LID-DS 2021
+           development / CB-DS (fact caches of token-design-study-v1, scored here, not taken from receipts); the 2021
+           base combination must reproduce the token-design-study gate (530/6, p95 1.52 s, CB-DS 891/3).
+  latency  per development attack recording of the slow scenarios: exploit time, first alarm, highest window after the
+           exploit and when it comes, windows above the threshold, recording end (base decision).
+
+    python3 lidds2019_dev.py grid --caches caches --out OUT --caches-2021 DIR --lidds-alarms a.json.gz --cbds-alarms c.json.gz
+    python3 lidds2019_dev.py latency --caches caches --out OUT
 """
 # NGHIÊN CỨU DEVELOPMENT CỦA LID-DS 2019 (lidds2019-development-v1): tách 30 % bản ghi test làm development theo sha256, thử
 # các ứng viên (tham số, bảng chữ) trên phần đó, giữ điều kiện LID-DS 2021 development và CB-DS, rồi mới chốt.
@@ -201,6 +210,87 @@ def study(caches, out, receipts, jobs):
     return doc
 
 
+GRID_N, GRID_TOP = (4, 5), (3, 5, 10)
+GRID_ALPHA = (0.0005, 0.0003, st.ALPHA, 0.0001, 0.00005)
+GRID_TRIM = (0.005, 0.01, 0.02)
+
+
+def grid(caches, out, caches21, lidds_alarms, cbds_alarms, jobs):
+    """Combinations scored on both datasets; the protocol's must-rules and selection on the combinations."""
+    docs = inventory(caches)
+    specs = {f'g-n{n}': st.base_spec(n=n, tops=list(GRID_TOP)) for n in GRID_N}
+    st.ensure(namespace(caches, out, jobs), specs)
+    a21 = SimpleNamespace(caches=str(caches21), out=str(Path(out) / 'lidds2021'), jobs=jobs,
+                          docs=(m.load(lidds_alarms), m.load(cbds_alarms)))
+    Path(a21.out).mkdir(parents=True, exist_ok=True)
+    st.ensure(a21, specs)
+    ref = st.Scored(a21, 'g-n4', 'top10', st.TRIM).metrics(st.ALPHA)
+    gate21 = (ref['detected'], ref['false_alarm_recordings'], ref['cb_detected'], ref['cb_false_alarm_recordings']) == (530, 6, 891, 3) \
+        and round(ref['latency_p95'], 2) == 1.52
+    if not gate21:
+        raise SystemExit(f'LID-DS 2021 base combination does not reproduce the token-design-study gate: {ref}')
+    rows = {}
+    for n in GRID_N:
+        for k in GRID_TOP:
+            for trim in GRID_TRIM:
+                s21 = st.Scored(a21, f'g-n{n}', f'top{k}', trim)
+                for alpha in GRID_ALPHA:
+                    cid = f'n{n}-top{k}-trim{trim:g}-alpha{alpha:g}'
+                    r = scored(out, f'g-n{n}', f'top{k}', alpha, trim, docs)
+                    r21 = s21.metrics(alpha)
+                    r['lidds2021_development'] = {k2: r21[k2] for k2 in ('detected', 'false_alarm_recordings', 'latency_p95',
+                                                                          'cb_detected', 'cb_false_alarm_recordings')}
+                    r['must'] = dict(dev_false_alarms=r['tolerance']['false_alarm_rate'] <= DEV_FA_LIMIT, lidds2021_and_cbds=st.keeps(r21))
+                    rows[cid] = r
+    base_id = f'n4-top10-trim{st.TRIM:g}-alpha{st.ALPHA:g}'
+    base = rows[base_id]['tolerance']['recall']
+    ok = [c for c, r in rows.items() if all(r['must'].values())]
+    best = max(ok, key=lambda c: (rows[c]['tolerance']['detected'], -rows[c]['tolerance']['false_alarm_recordings'],
+                                  -(rows[c]['tolerance']['latency_p95'] or 0), c == base_id), default=None)
+    chosen = best if best and rows[best]['tolerance']['recall'] - base >= MIN_GAIN else base_id
+    doc = dict(schema='lidds2019-development-grid-v1', protocol=PROTOCOL, part='development', tolerance_seconds=TOLERANCE,
+               lidds2021_gate=dict(passed=gate21, base=ref), grid=dict(n=GRID_N, top=GRID_TOP, alpha=GRID_ALPHA, trim=GRID_TRIM),
+               candidates=rows, base=base_id, pass_must=sorted(ok), best=best, selected=chosen)
+    (Path(out) / 'grid.json').write_text(json.dumps(doc, indent=1, default=float))
+    return doc
+
+
+SLOW = ('Bruteforce_CWE-307', 'CVE-2014-0160', 'PHP_CWE-434', 'SQL_Injection_CWE-89')
+
+
+def latency(caches, out, scenarios=SLOW):
+    """Where the time goes in the slow scenarios (development part, base decision): one row per attack recording."""
+    docs = inventory(caches)
+    d = Path(out) / 'scores' / 'base'
+    spec = json.loads((d / 'SPEC.json').read_text())
+    res = {}
+    for s in scenarios:
+        scn = st.TokenScenario(d / f'{s}.npz', f'top{st.TOP}', spec['columns'], st.TRIM)
+        thr = m.threshold(scn.fit, st.ALPHA)
+        rows = []
+        for name, r in sorted(docs['scenarios'][s]['alarms'].items()):
+            if r['exploit'] is None:
+                continue
+            a = scn.a.get(name)
+            if a is None or not len(a):
+                rows.append(dict(name=name, windows=0))
+                continue
+            t, x = a[:, 0], a[:, scn.i]
+            ex = r['exploit']
+            after = t > ex - TOLERANCE
+            fire = t[(x > thr) & after]
+            i = int(x[after].argmax()) if after.any() else None
+            rows.append(dict(name=name, exploit=ex, end=float(t.max()), first_alarm_after=float(fire[0] - ex) if len(fire) else None,
+                             alarms_before=int(((x > thr) & ~after).sum()), alarms_after=int(len(fire)),
+                             max_after=float(x[after][i]) if i is not None else None,
+                             max_after_at=float(t[after][i] - ex) if i is not None else None,
+                             max_before=float(x[~after].max()) if (~after).any() else None))
+        res[s] = dict(threshold=thr, recordings=rows)
+    doc = dict(schema='lidds2019-development-latency-v1', protocol=PROTOCOL, part='development', scenarios=res)
+    (Path(out) / 'latency.json').write_text(json.dumps(doc, indent=1, default=float))
+    return doc
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest='step', required=True)
@@ -214,6 +304,16 @@ def main():
     p.add_argument('--part', choices=('development', 'holdout'), default='development')
     p.add_argument('--n', type=int, default=5)
     p.add_argument('--output', type=Path, required=True)
+    p = sub.add_parser('grid')
+    p.add_argument('--caches', required=True)
+    p.add_argument('--out', type=Path, required=True)
+    p.add_argument('--caches-2021', required=True)
+    p.add_argument('--lidds-alarms', required=True)
+    p.add_argument('--cbds-alarms', required=True)
+    p.add_argument('--jobs', type=int, default=4)
+    p = sub.add_parser('latency')
+    p.add_argument('--caches', required=True)
+    p.add_argument('--out', type=Path, required=True)
     for name in ('gate', 'study'):
         p = sub.add_parser(name)
         p.add_argument('--caches', required=True)
@@ -236,6 +336,12 @@ def main():
     elif a.step == 'gate':
         a.out.mkdir(parents=True, exist_ok=True)
         print(json.dumps(gate(a.caches, a.tokens, a.out, a.jobs), default=float)[:2000])
+    elif a.step == 'grid':
+        d = grid(a.caches, a.out, a.caches_2021, a.lidds_alarms, a.cbds_alarms, a.jobs)
+        print(json.dumps(dict(pass_must=len(d['pass_must']), best=d['best'], selected=d['selected'])))
+    elif a.step == 'latency':
+        d = latency(a.caches, a.out)
+        print(json.dumps({s: sum(r.get('first_alarm_after') is not None for r in v['recordings']) for s, v in d['scenarios'].items()}))
     else:
         d = study(a.caches, a.out, a.receipts, a.jobs)
         print(json.dumps(dict(pass_must=d['pass_must'], best=d['best'], selected=d['selected'])))
