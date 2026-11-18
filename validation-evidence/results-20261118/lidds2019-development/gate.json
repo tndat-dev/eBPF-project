@@ -1,0 +1,23 @@
+{
+ "schema": "lidds2019-development-gate-v1",
+ "protocol": "sentinel_pulse/protocol/lidds2019-development-v1.json",
+ "passed": true,
+ "base": {
+  "detected": 197,
+  "attack_recordings": 321,
+  "false_alarm_recordings": 6,
+  "normal_recordings": 2311,
+  "recall": 0.6137071651090342,
+  "false_alarm_rate": 0.0025962786672436176,
+  "latency_p50": 1.1613958599991747,
+  "latency_p95": 10.22184693219824,
+  "detected_within_3s": 133
+ },
+ "registered_matrices": {
+  "detected": 197,
+  "attack_recordings": 321,
+  "false_alarm_recordings": 6,
+  "normal_recordings": 2311,
+  "latency_p95": 10.22184693219824
+ }
+}

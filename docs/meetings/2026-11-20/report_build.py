@@ -146,7 +146,7 @@ add(
     B('**Lượt live thứ ba pulse-live-v6-1117 (26 giờ, 735 trial) đạt mọi kỳ vọng đăng ký trước:** tấn công tập chính 315/315, control 1/315, precision 99,68%, p95 0,45 s; tấn công pha loãng bằng 30 và 300 cặp syscall quen mỗi thao tác vẫn bị bắt 105/105 ở mỗi mức.'),
     B('**Thẻ dòng dõi native/session trong probe** (telemetry, không đổi đường cảnh báo): chỉ chấm phần native thì lệnh quản trị bị gắn cờ 1/475 và binary vô hại 1/525, so với 460/475 và 525/525 khi chấm cả cửa sổ. Đây là cơ chế học được đầu tiên tách process vô hại mới khỏi hành vi của workload. Giá: tấn công của campaign vào qua kubectl exec nên không nằm trong phần native (0/525).'),
     B('**Luật R1 (hạ cảnh báo khi chỉ có tool có sẵn trong image) không được nhận:** nó xoá báo nhầm lệnh quản trị (97,7% về 0) nhưng cũng xoá mọi tấn công dùng tool của image (314/315 về 0/315).'),
-    B('**LID-DS 2019, chấm đúng một lần: không đạt C1.** Phát hiện 723/1.162 (62,22%), báo nhầm 34/7.706 (0,44%, đạt), p95 10,48 s. Phân tích sau (amendment 1): mốc exploit của 2019 là số nguyên giây; tính dung sai 1 s thì 1.056/1.162 (90,88%), LID-DS 2021 không đổi. Vẫn dưới 95% vì Heartbleed (76 bản ghi không có cảnh báo nào) và độ trễ.'),
+    B('**LID-DS 2019, chấm đúng một lần: không đạt C1.** Phát hiện 723/1.162 (62,22%), báo nhầm 34/7.706 (0,44%, đạt), p95 10,48 s. Phân tích sau (amendment 1): mốc exploit của 2019 là số nguyên giây; tính dung sai 1 s thì 1.056/1.162 (90,88%), LID-DS 2021 không đổi. Vẫn dưới 95% vì Heartbleed (76 bản ghi không có cảnh báo nào) và độ trễ. Thử cải thiện trên 30% development: không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall, nên giữ lidds-ml-v5.'),
     B('**Ngoài ra:** chi phí của thẻ dòng dõi không đo được; map 4-gram dư khoảng 20 lần so với tải thật; RCA sau bản sửa có case riêng cho 711/735 tấn công; paper bản nháp 12 trang theo form USENIX Security; chú thích tiếng Việt cho toàn bộ code và hướng dẫn đọc code; dọn tài nguyên (NFS trống 595 GB).'),
 )
 
@@ -310,11 +310,18 @@ add(
     B('**Kiểm thêm:** định dạng mã lỗi của trace 2019 giống 2021 (không phải lỗi chuyển đổi). Với quy ước thời điểm của thư viện LID-DS (sớm hơn), recall 92,60% nhưng độ trễ trung vị 17 s.'),
     CODE('scripts/analysis/lidds2019_token.py (lệnh tolerance); protocol sentinel_pulse/protocol/lidds2019-confirmation-v2-amendment-1.json; biên nhận tolerance.json.'),
 )
-h2('6.3 Phần còn lại và cách cải thiện')
+h2('6.3 Phần còn lại và thử cải thiện trên phần development')
 add(
     B('**Heartbleed (CVE-2014-0160):** 76/100 bản ghi tấn công không có cảnh báo nào, kể cả với dung sai. Độ trễ của Bruteforce và Heartbleed kéo p95 lên trên 10 s.'),
-    B('**Không thể sửa mà vẫn giữ blind:** mọi thay đổi mô hình chọn sau khi đã thấy test 2019 sẽ làm kết quả 2019 không còn là blind. Cách đúng: tách một phần 2019 làm development (ví dụ 30% theo seed), chọn thay đổi trên phần đó, chạy lại LID-DS 2021 official với hệ đã đổi (giữ kết quả v5 để so), rồi chấm phần 70% còn lại một lần, ghi rõ là đã thấy trong lượt chấm thất bại.'),
-    B('**Cần thầy quyết định** có làm hướng này không, hay giữ kết quả đăng ký làm giới hạn của đồ án (mô hình học từ normal phụ thuộc vào loại thông tin mà trace ghi lại).'),
+    B('**Thử cải thiện trên phần development** (protocol lidds2019-development-v1, đăng ký 18/11 20:28, sau thất bại): 30% bản ghi test 2019 chia theo sha256 (321 tấn công, 2.311 normal) làm development. 23 ứng viên: độ dài gram, top-k, α′, trim, thêm chi tiết token cho từng syscall. Mỗi ứng viên phải giữ LID-DS 2021 development (≥ 530/544, ≤ 6 báo nhầm) và CB-DS (891, ≤ 3).'),
+    T([['Ứng viên', '2019 development (dung sai 1 s)', 'Báo nhầm', 'p95', 'LID-DS 2021 development'],
+       ['lidds-ml-v5 (giữ)', '295/321', '6/2.311', '10,08 s', '530 / 6 (giữ)'],
+       ['top 5', '310/321', '6/2.311', '11,13 s', '529 / 7 (hỏng)'],
+       ['n 5', '310/321', '8/2.311', '11,13 s', '526 / 6 (hỏng)'],
+       ['α′ 0,001', '310/321', '18/2.311', '11,13 s', '530 / 15 (hỏng)']], [2.4, 2.6, 1.6, 1.4, 2.4]),
+    B('**Kết quả theo protocol: giữ lidds-ml-v5, không chấm thêm gì** (không chạy lại official 2021, không chấm phần holdout). Không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall 2019.'),
+    B('**Đọc kết quả:** mọi ứng viên tăng recall chỉ tăng ở Heartbleed (development 7/23 → 22/23) và đều hỏng mức LID-DS 2021. Không ứng viên nào đưa p95 về gần 3 s (9,4–11,1 s), vì độ trễ của Bruteforce (p95 14,1 s) và Heartbleed không phụ thuộc các tham số này. Vì vậy C1 không đạt được bằng các thay đổi đã thử; kết quả đăng ký là giới hạn của đồ án.'),
+    CODE('scripts/analysis/lidds2019_dev.py, scripts/lidds2019_dev_run.sh; biên nhận validation-evidence/results-20261118/lidds2019-development/.'),
 )
 
 h1('7. Paper')
@@ -346,6 +353,7 @@ add(
        ['Kiểm lão hoá, fit pulse-live-v6-fit-1117', '17/11', '0,59% so với 0,26%; học lại 21 mô hình'],
        ['pulse-live-v6-1117', '17–18/11', '26 giờ, 735/735 trial; H0, H1, H3 đạt; R1 không nhận'],
        ['LID-DS 2019 (một lần) và amendment 1', '18/11', '62,22%; với dung sai 1 s 90,88%; C1 không đạt'],
+       ['LID-DS 2019 development (30%)', '18/11', '23 ứng viên; không ứng viên nào giữ 2021 mà tăng recall; giữ v5'],
        ['Paper, chú thích code, dọn tài nguyên', '17–18/11', 'Bản nháp 12 trang; 177 file; NFS trống 595 GB']], [3.6, 1.6, 4.8]),
     B('**Việc đã hẹn ở buổi 13/11:** lượt thu và live mới trên cấu hình VM mới với bản sửa RCA, thứ tự ngẫu nhiên và thêm kỹ thuật tấn công (xong); LID-DS 2019 chấm một lần khi mô hình chốt (xong); luật R1, R2 và so sánh có và không có luật (xong, R1 không nhận).'),
     B('**Chủ đồ án quyết định:** không đưa ảnh có lỗ hổng hay exploit thật lên cụm và không dùng dịch vụ thử chạy thao tác trong process; dòng native vì vậy chưa thử với tấn công chạy bên trong process của dịch vụ trên cụm (bằng chứng cho trường hợp này là LID-DS 2021).'),
@@ -355,7 +363,7 @@ add(
 h1('10. Tiến độ và việc tiếp theo')
 add(
     T([['Hạng mục', 'Hoàn thành', 'Còn lại'],
-       ['ML trên dataset (LID-DS 2021, CB-DS, LID-DS 2019)', '~95%', 'Quyết định về LID-DS 2019 (mục 6.3)'],
+       ['ML trên dataset (LID-DS 2021, CB-DS, LID-DS 2019)', '~97%', 'LID-DS 2019 không đạt C1, ghi là giới hạn (mục 6.3)'],
        ['Probe token và chi phí', '~90%', 'Chi phí trên request của ứng dụng thật'],
        ['Live blind của ML', '~95%', 'Ba lượt xong; không cần lượt mới nếu không đổi hệ thống'],
        ['Process mới vô hại', '~45%', 'Dòng native sạch; dòng session cần cách xử lý riêng'],
@@ -367,7 +375,7 @@ add(
     P('Các tỉ lệ trên là ước lượng, không phải số đo.'),
     B('**Dòng session:** quyết định cần biết cửa sổ báo đến từ dòng nào. Hướng có thể làm: đường cảnh báo theo dòng dõi (native dùng mô hình workload; session báo kèm cho người vận hành), cần một protocol mới và một lượt live.'),
     B('**Paper:** hoàn thiện bản nháp theo PaperOrchestra, vòng chỉnh và kiểm số tự động như đồ án.'),
-    B('**Cần thầy cho ý kiến:** (1) LID-DS 2019: giữ kết quả đăng ký làm giới hạn, hay làm hướng tách development ở mục 6.3; (2) dòng session: để là giới hạn của đồ án, hay làm đường cảnh báo theo dòng dõi trước khi bảo vệ; (3) paper có cần baseline tự chạy (STIDE, Isolation Forest) ngoài các số đã công bố không.'),
+    B('**Cần thầy cho ý kiến:** (1) LID-DS 2019: thử trên phần development không cải thiện được mà vẫn giữ LID-DS 2021 (mục 6.3); để kết quả đăng ký là giới hạn của đồ án; (2) dòng session: để là giới hạn của đồ án, hay làm đường cảnh báo theo dòng dõi trước khi bảo vệ; (3) paper có cần baseline tự chạy (STIDE, Isolation Forest) ngoài các số đã công bố không.'),
 )
 
 h1('11. Giải thích thuật ngữ')
@@ -386,8 +394,8 @@ add(T([['Thuật ngữ', 'Nghĩa'],
 
 h1('12. Tài liệu tham chiếu')
 add(
-    B('Protocol: sentinel_pulse/protocol/ml-final-study-v1 (amendment 1–2), token-probe-overhead-v1 (amendment 3), map-capacity-v1, pulse-live-v6-v1 (amendment 1), lidds2019-confirmation-v2 (amendment 1).'),
-    B('Biên nhận: validation-evidence/results-20261113 (lineage-probe, ml-final-study), results-20261115 (rule-e-benefit, w3b-rate-signal), results-20261116 (lineage-overhead, map-capacity), results-20261117 (model-aging, lidds2019-gate), results-20261118 (pulse-live-v6-1117, lidds2019-confirmation).'),
+    B('Protocol: sentinel_pulse/protocol/ml-final-study-v1 (amendment 1–2), token-probe-overhead-v1 (amendment 3), map-capacity-v1, pulse-live-v6-v1 (amendment 1), lidds2019-confirmation-v2 (amendment 1), lidds2019-development-v1.'),
+    B('Biên nhận: validation-evidence/results-20261113 (lineage-probe, ml-final-study), results-20261115 (rule-e-benefit, w3b-rate-signal), results-20261116 (lineage-overhead, map-capacity), results-20261117 (model-aging, lidds2019-gate), results-20261118 (pulse-live-v6-1117, lidds2019-confirmation, lidds2019-development).'),
     B('Đồ án: thesis/ (LaTeX, mục RQ1–RQ6); nhật ký notes/WORKLOG.md, trạng thái notes/STATE.md; hướng dẫn đọc code notes/CODE_READING_GUIDE.md.'),
     B('M. Grimmer, T. Kaelble, F. Nirsberger, E. Schulze, T. Rucks, J. Hoffmann, E. Rahm. Dataset Report: LID-DS 2021. Critical Information Infrastructures Security (LNCS), 2023, pp. 63–73.'),
     B('PaperOrchestra, Google Research: github.com/google-research/paper-orchestra.'),

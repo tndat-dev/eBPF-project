@@ -157,9 +157,21 @@ slide('LID-DS 2019: độ phân giải của nhãn và phần còn lại', notes
     '**Mốc exploit của 2019 là số nguyên giây.** 353/439 bản ghi lọt có cửa sổ báo kết thúc trước mốc nhãn (trung bình 0,36 s), không báo sau đó.',
     '**Amendment 1 (đăng ký sau khi thấy thất bại, báo bên cạnh):** dung sai 1 s → 1.056/1.162 (90,88%), báo nhầm không đổi; LID-DS 2021 official vẫn 1.238/1.271.',
     '**Còn lại:** Heartbleed 76/100 bản ghi không có cảnh báo nào; độ trễ Bruteforce và Heartbleed kéo p95 lên 10,55 s. Mã lỗi của trace 2019 cùng định dạng 2021.',
-    '**Cải thiện mà vẫn trung thực:** tách 30% của 2019 làm development, chọn thay đổi trên đó, chạy lại LID-DS 2021 (giữ kết quả v5), chấm 70% còn lại một lần, ghi rõ đã thấy trong lượt thất bại.',
     'Code: scripts/analysis/lidds2019_token.py (lệnh tolerance).',
 ], note_size=16)
+
+slide('LID-DS 2019: thử cải thiện trên 30% development', [
+    ['Ứng viên (23 đã thử)', '2019 dev, dung sai 1 s', 'Báo nhầm', 'p95', 'LID-DS 2021 dev'],
+    ['lidds-ml-v5 (giữ)', '295/321', '6/2.311', '10,08 s', '530 / 6 (giữ)'],
+    ['top 5', '310/321', '6/2.311', '11,13 s', '529 / 7 (hỏng)'],
+    ['n 5', '310/321', '8/2.311', '11,13 s', '526 / 6 (hỏng)'],
+    ['α′ 0,001', '310/321', '18/2.311', '11,13 s', '530 / 15 (hỏng)'],
+], [2.6, 2.4, 1.6, 1.4, 2.0], size=14, notes=[
+    '**Protocol lidds2019-development-v1** (đăng ký 18/11 20:28): ứng viên phải giữ LID-DS 2021 development (≥ 530/544, ≤ 6 báo nhầm) và CB-DS.',
+    '**Kết quả: giữ lidds-ml-v5, không chấm thêm gì.** Ứng viên tăng recall chỉ tăng ở Heartbleed (7/23 → 22/23) và đều hỏng mức 2021.',
+    '**p95 không ứng viên nào về gần 3 s** (9,4–11,1 s): độ trễ của Bruteforce và Heartbleed không phụ thuộc tham số. C1 là giới hạn của đồ án.',
+    'Code: scripts/analysis/lidds2019_dev.py, scripts/lidds2019_dev_run.sh.',
+])
 
 slide('Paper, mã nguồn và tài nguyên', notes=[
     '**Paper** theo phương pháp PaperOrchestra, form USENIX Security \'27 (hạn cycle 2: 26/01/2027): bản nháp 12 trang; 53 tài liệu, 47 đã kiểm; bib sinh từ metadata đã kiểm; còn 14 chỗ chờ số. Code: paper/latex/, paper/tools/.',
@@ -176,6 +188,7 @@ slide('Tuần này: các lượt chạy và job', [
     ['pulse-token-capture-v6-1116, fit', '16–17/11', 'Normal 12 giờ; lão hoá 0,59%; 21 mô hình'],
     ['pulse-live-v6-1117', '17–18/11', '735/735 trial; H0, H1, H3 đạt; R1 không nhận'],
     ['LID-DS 2019 và amendment 1', '18/11', '62,22%; dung sai 1 s 90,88%'],
+    ['LID-DS 2019 development (30%)', '18/11', '23 ứng viên; giữ v5'],
     ['Paper, chú thích code, dọn tài nguyên', '17–18/11', '12 trang; 177 file; NFS trống 595 GB'],
 ], [3.8, 1.5, 4.7], size=14, notes=[
     '**Việc đã hẹn 13/11:** lượt mới trên cấu hình VM mới (xong), LID-DS 2019 (xong), so sánh có và không có luật (xong). Không sự cố hạ tầng.',
@@ -183,7 +196,7 @@ slide('Tuần này: các lượt chạy và job', [
 
 slide('Tiến độ', [
     ['Hạng mục', 'Hoàn thành', 'Còn lại'],
-    ['ML trên dataset', '~95%', 'Quyết định về LID-DS 2019'],
+    ['ML trên dataset', '~97%', 'LID-DS 2019: ghi là giới hạn'],
     ['Probe token và chi phí', '~90%', 'Chi phí trên request thật'],
     ['Live blind của ML', '~95%', 'Ba lượt xong'],
     ['Process mới vô hại', '~45%', 'Dòng session cần cách xử lý riêng'],
@@ -197,7 +210,7 @@ slide('Tiến độ', [
 slide('Việc tiếp theo và câu hỏi cho thầy', notes=[
     '**Dòng session:** đường cảnh báo theo dòng dõi (native dùng mô hình workload, session báo kèm cho người vận hành); cần protocol mới và một lượt live.',
     '**Paper:** điền số v6 và LID-DS 2019, tiêu đề, abstract, hình, vòng chỉnh, ẩn danh.',
-    '**Câu hỏi 1:** LID-DS 2019 — giữ kết quả đăng ký làm giới hạn, hay tách development 2019 để cải thiện?',
+    '**Câu hỏi 1:** LID-DS 2019 — thử trên development không cải thiện được mà vẫn giữ LID-DS 2021; đồng ý để kết quả đăng ký là giới hạn?',
     '**Câu hỏi 2:** dòng session — để là giới hạn của đồ án, hay làm đường cảnh báo theo dòng dõi trước khi bảo vệ?',
     '**Câu hỏi 3:** paper có cần baseline tự chạy (STIDE, Isolation Forest) ngoài các số đã công bố không?',
 ], note_size=17)

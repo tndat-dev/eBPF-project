@@ -1,0 +1,14 @@
+2026-11-18T13:31:15+00:00 k8s-master.local bash[2108132]: cache done CVE-2017-7529 2026-11-18T13:31:15
+2026-11-18T13:31:24+00:00 k8s-master.local bash[2108135]: cache done CVE-2014-0160 2026-11-18T13:31:24
+2026-11-18T13:31:26+00:00 k8s-master.local bash[2108133]: cache done CVE-2012-2122 2026-11-18T13:31:26
+2026-11-18T13:31:35+00:00 k8s-master.local bash[2108194]: cache done Bruteforce_CWE-307 2026-11-18T13:31:35
+2026-11-18T13:32:11+00:00 k8s-master.local bash[2108222]: cache done CVE-2019-5418 2026-11-18T13:32:11
+2026-11-18T13:32:15+00:00 k8s-master.local bash[2108242]: cache done CVE-2018-3760 2026-11-18T13:32:15
+2026-11-18T13:32:42+00:00 k8s-master.local bash[2108276]: cache done PHP_CWE-434 2026-11-18T13:32:42
+2026-11-18T13:33:19+00:00 k8s-master.local bash[2108665]: cache done SQL_Injection_CWE-89 2026-11-18T13:33:19
+2026-11-18T13:39:45+00:00 k8s-master.local bash[2108699]: cache done EPS_CWE-434 2026-11-18T13:39:45
+2026-11-18T13:45:06+00:00 k8s-master.local bash[2108819]: cache done ZipSlip 2026-11-18T13:45:06
+2026-11-18T13:45:06+00:00 k8s-master.local bash[2108099]: gate 2026-11-18T13:45:06
+2026-11-18T13:45:27+00:00 k8s-master.local bash[2113203]: {"schema": "lidds2019-development-gate-v1", "protocol": "sentinel_pulse/protocol/lidds2019-development-v1.json", "passed": true, "base": {"detected": 197, "attack_recordings": 321, "false_alarm_recordings": 6, "normal_recordings": 2311, "recall": 0.6137071651090342, "false_alarm_rate": 0.0025962786672436176, "latency_p50": 1.1613958599991747, "latency_p95": 10.22184693219824, "detected_within_3s": 133}, "registered_matrices": {"detected": 197, "attack_recordings": 321, "false_alarm_recordings": 6, "normal_recordings": 2311, "latency_p95": 10.22184693219824}}
+2026-11-18T13:45:27+00:00 k8s-master.local bash[2108099]: study 2026-11-18T13:45:27
+2026-11-18T13:47:56+00:00 k8s-master.local bash[2108099]: done 2026-11-18T13:47:56

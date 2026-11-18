@@ -505,6 +505,14 @@ def claims():
     add('l19-tolerance', thesis, f"phát hiện {thousands(t19['detected'])}/{thousands(t19['attack_recordings'])} ({num(100 * t19['recall'], 2)}\\%), báo nhầm "
         f"không đổi, p95 {num(t19['latency_p95'], 2)} s; cùng quy tắc trên LID-DS 2021 official vẫn cho {thousands(t21['detected'])}/"
         f"{thousands(t21['attack_recordings'])}", [], TOL)
+    DEV = 'results-20261118/lidds2019-development/study.json'
+    sd = receipt(DEV)
+    c = sd['candidates']
+    assert sd['selected'] == 'base'
+    add('l19-dev', thesis, f"30\\% bản ghi test 2019 ({c['base']['tolerance']['attack_recordings']} tấn công, "
+        f"{thousands(c['base']['tolerance']['normal_recordings'])} normal, chia theo sha256) làm development; {len(c)} ứng viên", [], DEV)
+    add('l19-dev-top5', thesis, f"top 5: {c['top5']['tolerance']['detected']}/{c['top5']['tolerance']['attack_recordings']} so với "
+        f"{c['base']['tolerance']['detected']}/{c['base']['tolerance']['attack_recordings']}, dung sai 1 s", [], DEV)
     # the four status reports were removed on 07/11 (owner); their claims are retired, the LaTeX and TODO claims stay
     return [c for c in out if c['doc'] not in RETIRED]
 
