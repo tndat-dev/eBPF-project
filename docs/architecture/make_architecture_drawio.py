@@ -253,7 +253,7 @@ def overview():
     p = Page('1. Tổng quan hệ thống', 1720, 1260)
     p.title('Sentinel Pulse: kiến trúc tổng thể (19/11/2026, lượt live cuối)',
             'Phát hiện runtime trên Kubernetes bằng mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel (lidds-ml-v5-t3), '
-            'cảnh báo qua Alertmanager. Khung tím đứt nét chỉ dùng khi đánh giá. Phần RCA tạm chưa vẽ, sẽ cập nhật sau.')
+            'cảnh báo qua Alertmanager. Khung tím đứt nét chỉ dùng khi đánh giá.')
     p.group(20, 75, 1235, 945, 'Cụm Kubernetes của lab: 6 VM trên ESXi · Ubuntu 24.04 · kernel 6.8.0 · '
                                'Kubernetes v1.34 · Cilium · Istio ambient', kind='k8s', size=13)
     p.group(40, 110, 800, 700, 'Mỗi worker (×3): k8s-worker1 .237 · k8s-worker4 .238 · k8s-worker3 .239',
@@ -494,7 +494,7 @@ def worker():
 def alerting():
     p = Page('4. Đường cảnh báo', 1720, 520)
     p.title('Đường cảnh báo: từ decision của worker tới người vận hành',
-            'Bridge chạy trên .234 và chỉ đọc decision. Phần truy nguyên nguyên nhân (RCA) tạm chưa vẽ, sẽ cập nhật sau.')
+            'Bridge chạy trên .234 và chỉ đọc decision.')
     w = p.box(20, 90, 250, 120, 'Worker ×3', 'decisions.jsonl local; chỉ dòng token có "candidate_alert_preview":true '
               'rời worker', kind='ml', small=9)
     br = p.box(310, 70, 520, 230, 'Alert bridge (ops/alert_bridge.py)', '• bám log decision của từng worker qua SSH<br>'
