@@ -1,7 +1,10 @@
 # Kiến trúc Sentinel Pulse (draw.io)
 
-`sentinel-pulse-architecture.drawio`: 5 trang, trạng thái 11/11/2026 (hệ thống `lidds-ml-v5`: chỉ mô hình token;
-bản LaTeX của đồ án có cùng nội dung dưới dạng sơ đồ TikZ trong `thesis/figures/tikz-*.tex`).
+`sentinel-pulse-architecture.drawio`: 5 trang, trạng thái 19/11/2026: hệ thống của lượt live cuối `pulse-live-final-1119`
+(`lidds-ml-v5-t3`: chỉ mô hình token, top 3, trim 0,5%, α′ 0,0003; thẻ dòng dõi từ `sched_process_fork`; cảnh báo khi map
+gram đầy (D1); hàng đợi bền của bridge (D3); nhãn `stream` của cảnh báo; bộ ghi sự kiện Kubernetes). Bản LaTeX của đồ án
+có cùng nội dung dưới dạng sơ đồ TikZ trong `thesis/figures/tikz-*.tex`; paper có hình tổng quan tiếng Anh
+`paper/latex/figures/overview.tex`.
 
 1. Tổng quan hệ thống: cụm, node, NFS, đường dữ liệu từ kernel tới cảnh báo, thành phần chỉ dùng khi đánh giá.
 2. Probe eBPF: các hook (`sys_enter`, `sys_exit`, `fexit/__seccomp_filter`), map, bố cục token 32 bit, loader, đầu ra JSON.
@@ -20,4 +23,6 @@ drawio -x -f pdf -a --crop -b 20 -o export/sentinel-pulse-architecture.pdf senti
 ```
 
 Nội dung lấy từ `thesis/chapters/design.tex`, `implementation.tex`, `sentinel_pulse/ebpf/`, `pipeline/matched_worker.py`,
-protocol `lidds-ml-v5` và `pulse-live-v3-v1`; số liệu chỉ từ biên nhận đã ghi trong `notes/STATE.md`.
+`ops/alert_bridge.py`, protocol `lidds-ml-v5`, `lidds2019-development-v1`, `improvement-round-v1`, `pulse-live-final-v1`; số liệu chỉ từ biên nhận đã ghi trong `notes/STATE.md`.
+
+Mô tả từng thành phần trong hình và code tương ứng (file, hàm): `KIEN_TRUC.md` trong thư mục này.

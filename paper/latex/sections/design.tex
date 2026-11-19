@@ -7,12 +7,13 @@ the cluster's Alertmanager; and a root-cause analysis (RCA) that builds a proces
 alert. The kernel only builds tokens and counts grams; all probabilities are computed in user space. A model is learnt
 offline, locked by its SHA-256 and unchanged during a run.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\fbox{\parbox{0.95\columnwidth}{\centering\small \pending{figure: system overview (translated from the thesis)}}}
-\caption{\sys on one worker and on the master; the fit runs offline on normal traffic.}
+\resizebox{\textwidth}{!}{\input{figures/overview}}
+\caption{\sys on one worker and on the master; the fit runs offline on normal traffic. Dashed arrows carry control data
+(allow-list, workload identity, models and thresholds).}
 \label{fig:overview}
-\end{figure}
+\end{figure*}
 
 \subsection{Tokens that carry return values}\label{sec:tokens}
 

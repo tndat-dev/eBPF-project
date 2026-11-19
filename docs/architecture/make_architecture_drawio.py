@@ -3,8 +3,10 @@
 
 Sources: thesis/chapters/design.tex and implementation.tex (system, RCA, alert path, cluster), README.md (nodes),
 sentinel_pulse/ebpf/* (probe, token layout), sentinel_pulse/pipeline/matched_worker.py (worker),
-sentinel_pulse/protocol/lidds-ml-v5.json (+ amendments 1, 2) and pulse-live-v3-v1.json (the ML and its live runs), notes/STATE.md.
-State of 11/11/2026: the system is lidds-ml-v5, the token model alone (no tree, support, tripwire, replica discount).
+sentinel_pulse/protocol/lidds-ml-v5.json (+ amendments), lidds2019-development-v1 (+ amendment 1: lidds-ml-v5-t3),
+improvement-round-v1 (D1-D18) and pulse-live-final-v1 (the final live run), validation-evidence/, notes/STATE.md.
+State of 19/11/2026: the system of the final live run pulse-live-final-1119: lidds-ml-v5-t3 token model alone (top 3,
+trim 0.5 %, alpha' 0.0003), lineage tag, gram-map overflow alert (D1), durable bridge queue (D3), alert label stream.
 
     python3 docs/architecture/make_architecture_drawio.py   # then export with drawio -x (see README.md here)
 """
@@ -113,7 +115,7 @@ class Page:
 def legend(p, x, y):
     p.group(x, y, 330, 232, 'Chú giải', kind='store', size=12)
     rows = [('kernel', 'Kernel: probe eBPF của Pulse'), ('user', 'User space của Pulse (C, Python)'),
-            ('ml', 'Mô hình token lidds-ml-v5'), ('alert', 'Đường cảnh báo và RCA'),
+            ('ml', 'Mô hình token lidds-ml-v5-t3'), ('alert', 'Đường cảnh báo và RCA'),
             ('ext', 'Thành phần có sẵn của cụm (Tetragon, K8s)'), ('eval', 'Chỉ dùng khi đánh giá (đứt nét)'),
             ('retired', 'Giữ lại, không dùng để báo (xám)')]
     for k, (kind, t) in enumerate(rows):
@@ -124,8 +126,8 @@ def legend(p, x, y):
 # ---------------------------------------------------------------- page 1: overview
 def overview():
     p = Page('1. Tổng quan hệ thống', 1720, 1150)
-    p.title('Sentinel Pulse: kiến trúc tổng thể (11/11/2026)',
-            'Phát hiện runtime trên Kubernetes bằng mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel (lidds-ml-v5), '
+    p.title('Sentinel Pulse: kiến trúc tổng thể (19/11/2026, lượt live cuối)',
+            'Phát hiện runtime trên Kubernetes bằng mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel (lidds-ml-v5-t3), '
             'cảnh báo qua Alertmanager, RCA từ sự kiện Tetragon. Khung tím đứt nét chỉ dùng khi đánh giá.')
     p.group(20, 75, 1235, 945, 'Cụm Kubernetes của lab: 6 VM trên ESXi · Ubuntu 24.04 · kernel 6.8.0 · '
                                'Kubernetes v1.34 · Cilium · Istio ambient', kind='k8s', size=13)
@@ -140,7 +142,8 @@ def overview():
     p.band(55, 280, 770, 160, 'Kernel Linux 6.8 (eBPF, BTF)', 'kernel')
     probe = p.box(70, 305, 300, 120, 'Probe eBPF của Pulse',
                   'raw_tp/sys_enter: allow-list, trạng thái thread, token lúc vào<br>raw_tp/sys_exit: token lúc trả về (39 syscall)<br>'
-                  'fexit/__seccomp_filter: syscall bị seccomp bỏ qua<br>map: trạng thái thread, 4-gram theo (cgroup, cửa sổ)',
+                  'fexit/__seccomp_filter: syscall bị seccomp bỏ qua<br>raw_tp/sched_process_fork: thẻ dòng dõi native/session<br>'
+                  'map: trạng thái thread, 4-gram theo (cgroup, cửa sổ, dòng dõi)',
                   kind='kernel', small=9)
     allow = p.box(400, 305, 200, 120, 'Allow-list cgroup', 'map pulse_cgroups: chỉ cgroup production được theo dõi; cgroup '
                   'khác thoát sau một lần tra map', kind='kernel', small=9)
@@ -156,14 +159,16 @@ def overview():
     worker = p.box(70, 605, 530, 175, 'Worker chấm điểm (pipeline/matched_worker.py, 3 core, 3 GB)',
                    '• kiểm hợp đồng của cửa sổ token; gắn workload, Pod, container<br>'
                    '• mô hình ngôn ngữ 4-gram Witten-Bell của workload (khoá SHA-256)<br>'
-                   '• điểm = trung bình 10 giá trị −ln p lớn nhất<br>'
+                   '• điểm = trung bình 3 giá trị −ln p lớn nhất (top của MODELS.json)<br>'
                    '• ngưỡng Gumbel trên điểm giữ ra (khối 60 s, cross-fit 5 fold); một cửa sổ vượt ngưỡng là báo<br>'
+                   '• map gram đầy (insert_fail tăng) → báo cửa sổ nặng nhất của frame (D1)<br>'
                    '• ghi NFS bằng thread nền (AsyncSink), ngoài vòng chấm', kind='ml', align='left', small=10)
     local = p.store(630, 615, 180, 160, 'Luồng decision local', '/var/lib/sentinel-pulse-live (đĩa của worker)')
     p.group(875, 110, 360, 700, 'Master (×3): .234 k8s-master · .235 · .236', kind='alert', size=12)
     p.icon(1190, 116, 40, 39, 'master')
     bridge = p.box(890, 150, 330, 105, 'Alert bridge (trên .234)', 'đọc decision local của 3 worker qua SSH; gom đợt '
-                   'theo container; push API v2, thử lại 3 lần; phục vụ trang case', kind='alert', small=9)
+                   'theo container; push API v2; đợt chưa giao giữ trong hàng đợi bền, thử lại tới 1 giờ (D3); nhãn stream '
+                   'native/session; phục vụ trang case', kind='alert', small=9)
     am = p.box(890, 285, 330, 70, 'Alertmanager', 'kube-prometheus-stack; route theo nhãn notify', kind='alert', small=9)
     rca = p.box(890, 385, 330, 125, 'RCA (trên .234)', 'sự kiện Tetragon → ring SQLite 180 s; case cho mỗi cảnh báo '
                 'Alertmanager đã nhận (30 s trước); xếp hạng nghi phạm; triage: thao tác bảo mật / chỉ probe / '
@@ -171,14 +176,14 @@ def overview():
     viewer = p.box(890, 540, 160, 75, 'RCA viewer', '/cases, bảng Grafana Infinity', kind='alert', small=9)
     graf = p.box(1060, 540, 160, 75, 'Prometheus / Grafana', 'NodePort 32090 / 32300', kind='ext', small=9)
     planner = p.box(890, 645, 160, 150, 'Planner + launcher', 'CONFIG.json bất biến: hash mô hình, probe, fixture, '
-                    'lịch tải, lịch trial', kind='eval', small=9)
+                    'lịch tải, lịch trial; diễn tập trước lượt; ghi sự kiện K8s', kind='eval', small=9)
     p.box(1060, 645, 160, 150, 'Job phân tích (.234)', 'systemd-run có MemoryMax; học mô hình (token_branch_fit.py), chấm LID-DS; '
           'đọc NFS, repo, dữ liệu công khai; không chạy cùng lượt live', kind='eval', small=9)
     p.box(40, 845, 400, 110, 'Tải normal (đánh giá)', '4 generator trong namespace production gửi HTTP tới AIMS; chế độ '
           'steady, toolmix, peak, burst, recovery theo lịch đăng ký', kind='eval')
-    campaign = p.box(460, 845, 380, 110, 'Chiến dịch tấn công (đánh giá)', 'kubectl exec fixture vào container: 21 '
-                     'workload × 5 kịch bản × tốc độ 1–24/s, 525 trial; mỗi trial: control 15 s → binary vô hại 15 s → '
-                     'tấn công 15 s; từ lượt v5 thêm một lệnh admin thật', kind='eval')
+    campaign = p.box(460, 845, 380, 110, 'Chiến dịch tấn công (đánh giá)', 'lượt cuối 945 trial: 21 workload × 5 kịch '
+                     'bản × tốc độ 0,1–24/s, pha loãng PAD 300, bật-tắt 10 s; mỗi trial: control 15 s rồi theo thứ tự có '
+                     'seed: lệnh admin, binary vô hại, tấn công, lotl, event-generator', kind='eval', small=9)
     nfs = p.store(1280, 110, 410, 160, 'NFS .233: /sentinel-pulse', '/mnt/sentinel-pulse-archive; segment 30 phút mỗi '
                   'worker: decisions, tokens, issues, TERMINAL.json (seal SHA-256); CONFIG.json, mô hình token')
     people = p.box(1280, 290, 410, 80, 'Người vận hành', 'nhận cảnh báo (notify=immediate) hoặc xem dashboard; mở case '
@@ -187,7 +192,7 @@ def overview():
           '(validation-evidence/) · audit số liệu · đồ án LaTeX (thesis/) · notes/<br>checkout trên .234/.237/.238/.239 '
           'đồng bộ bằng git pull --ff-only', kind='store', small=10)
     p.box(1280, 560, 410, 110, 'Dữ liệu công khai (offline)', 'LID-DS 2021 (15 kịch bản, development → official), '
-          'CB-DS, LID-DS 2019 (cuối cùng)', kind='eval', small=10)
+          'CB-DS, LID-DS 2019 (development 30% / holdout 70%)', kind='eval', small=10)
     legend(p, 1280, 700)
     p.edge(pods[0], probe, 'syscall', kind='kernel', exit=(0.5, 1), entry=(0.137, 0))
     p.edge(probe, loader, 'đọc map theo lô', kind='kernel', exit=(0.5, 1), entry=(0.5, 0))
@@ -211,7 +216,9 @@ def overview():
            'mỗi 0,5 s → worker chấm mô hình token của workload → decision ghi local và NFS → bridge gom đợt, đẩy vào '
            'Alertmanager → RCA dựng case cho đúng cảnh báo đó từ sự kiện Tetragon.<br><b>Mục tiêu:</b> recall ≥ 95%, '
            'precision ≥ 95%, p95 kernel → cảnh báo ≤ 3 s; gánh cảnh báo và binary vô hại bị gắn cờ càng thấp càng tốt. '
-           'Kết quả: LID-DS 2021 official 97,40% / 0,33% báo nhầm, p95 1,47 s; live 1109 tốc độ chính 315/315, p95 0,49 s.', size=12)
+           'Kết quả (lidds-ml-v5-t3): LID-DS 2021 official 97,25% / 0,19% báo nhầm, p95 1,54 s; LID-DS 2019 holdout 97,15% (dung sai '
+           'nhãn 1 s), p95 10,95 s. Live v6 (lidds-ml-v5): tốc độ chính 315/315, precision 99,68%, p95 0,45 s. Lượt cuối '
+           'pulse-live-final-1119 chạy 19/11–21/11.', size=12)
     return p
 
 
@@ -219,8 +226,9 @@ def overview():
 def kernel():
     p = Page('2. Probe eBPF trong kernel', 1720, 1010)
     p.title('Probe eBPF: pulse_counter_tokens (make tokens)',
-            'Token select1f cho mô hình lidds-ml-v5. Không có ftrace_ops nào (amendment 1–2 của token-probe-overhead-v1): '
-            'chỉ raw tracepoint và fexit/__seccomp_filter. Bộ đếm syscall theo cgroup còn trong build, không dùng để báo.')
+            'Token select1f cho mô hình lidds-ml-v5-t3; build pulse-tokens-final-f8ccbb2. Không có ftrace_ops nào ngoài '
+            'fexit/__seccomp_filter: ba raw tracepoint (sys_enter, sys_exit, sched_process_fork). Bộ đếm syscall theo cgroup '
+            'còn trong build, không dùng để báo.')
     p.band(20, 75, 1680, 85, 'Một syscall của process trong container được giám sát', 'ext')
     sysc = p.box(40, 95, 280, 50, 'syscall(nr, args)', 'x86_64; mọi thread', kind='ext')
     sk = p.box(370, 95, 280, 50, 'seccomp của container', 'SECCOMP_RET_ERRNO → syscall không chạy', kind='ext')
@@ -248,11 +256,13 @@ def kernel():
                   '<b>Thư mục đầu:</b> fd trả về → struct file → đi ngược d_parent, vượt mount (bpf_loop ≤ 64 bước) tới '
                   'gốc của task (gốc container) → FNV-1a của thành phần đầu, giữ 20 bit', kind='kernel', align='left',
                   small=10)
-    cfg = p.box(1380, 200, 300, 190, '.rodata.tokcfg', 'loader đặt trước khi nạp; verifier cắt nhánh tắt:<br>'
-                '• futex_at_exit: futex là syscall có hook<br>• count_grams: cập nhật map 4-gram<br>'
-                'B = exit-nofutex, C = exit, D = grams (điều kiện đo overhead; lượt live dùng D)<br><br>'
-                'Biến thể 39 trampoline fexit đã bỏ (va chạm kprobe Tetragon, open + close chậm thêm 2,3–2,7 µs)', kind='kernel', align='left',
+    cfg = p.box(1380, 200, 300, 150, '.rodata.tokcfg', 'loader đặt trước khi nạp; verifier cắt nhánh tắt:<br>'
+                '• futex_at_exit · • count_grams<br>B = exit-nofutex, C = exit, D = grams (lượt live dùng D)<br>'
+                'Biến thể 39 trampoline fexit đã bỏ (va chạm kprobe Tetragon)', kind='kernel', align='left',
                 small=10)
+    fork = p.box(1380, 365, 300, 140, 'raw_tp/sched_process_fork', 'chạy trong process cha: con nhận thẻ dòng dõi của cha '
+                 '(native = cây process của workload, session = vào qua runtime exec) và lịch sử token rỗng, trước khi chạy; '
+                 'thẻ là telemetry, không dùng để báo', kind='kernel', align='left', small=10)
     emit = p.box(40, 420, 1310, 85, 'pulse_tok_emit (gọi từ cả ba hook)',
                  'gram = (tok[0], tok[1], tok[2], token mới); khoá = (cgroup, cửa sổ = ktime / 0,5 s, gram); có trong map '
                  'thì cộng nguyên tử, chưa có thì chèn BPF_NOEXIST (thua tranh chấp: tra lại); rồi dịch lịch sử của thread',
@@ -263,14 +273,15 @@ def kernel():
     p.edge(enter, emit, 'token lúc vào', kind='kernel', exit=(0.5, 1), entry=(0.111, 0))
     p.edge(skip, emit, 'token lúc vào', kind='kernel', exit=(0.5, 1), entry=(0.37, 0))
     p.edge(exitp, emit, 'token lúc ra', kind='kernel', exit=(0.5, 1), entry=(0.787, 0))
-    p.edge(cfg, emit, '', kind='ctrl', exit=(0.5, 1), entry=(1, 0.5), points=[(1530, 462)])
+    p.edge(cfg, emit, '', kind='ctrl', exit=(0, 0.9), entry=(1, 0.2), points=[(1365, 335), (1365, 437)])
+    p.edge(fork, emit, '', kind='kernel', exit=(0, 0.75), entry=(1, 0.6))
     m1 = p.store(40, 540, 300, 100, 'pulse_cgroups', 'PERCPU_HASH, 1024 cgroup: allow-list; full_counts, 64 bin cặp, '
                  'seccomp_skipped (giữ lại, không dùng để báo)')
     m2 = p.store(370, 540, 330, 100, 'pulse_last_syscall', 'LRU_HASH 131.072 thread: cgroup, seen_ns, syscall_id, '
-                 'tok[3], tok_pending')
-    m3 = p.store(730, 540, 330, 100, 'pulse_grams', 'HASH 262.144 entry; khoá 32 byte (cgroup, cửa sổ, 4 token); '
+                 'tok[3], tok_pending, thẻ dòng dõi')
+    m3 = p.store(730, 540, 330, 100, 'pulse_grams', 'HASH 262.144 entry; khoá 32 byte (cgroup, cửa sổ, 4 token, dòng dõi); '
                  'giá trị: số lần')
-    p.store(1090, 540, 260, 100, 'pulse_stats, pulse_tok_stats', 'lỗi chèn trạng thái/gram, walk quá sâu, tổng gram')
+    p.store(1090, 540, 260, 100, 'pulse_stats, pulse_tok_stats', 'lỗi chèn trạng thái/gram (insert_fail tăng → cảnh báo map đầy, D1), walk quá sâu, tổng gram')
     p.edge(emit, m2, 'lịch sử', kind='store', exit=(0.4, 1), entry=(0.5, 0))
     p.edge(emit, m3, 'đếm gram', kind='store', exit=(0.682, 1), entry=(0.5, 0))
     p.text(1380, 540, 300, 110, 'pulse_cgroups do loader nạp từ allow-list của resolver; process ngoài allow-list thoát '
@@ -285,18 +296,21 @@ def kernel():
     # loader
     p.group(860, 680, 840, 310, 'Loader (pulse_counter_loader.c, -DPULSE_TOKENS) và đầu ra', kind='user', size=12)
     l1 = p.box(880, 712, 380, 100, 'Khởi động', 'kiểm layout map; đặt .rodata.tokcfg; nạp object; gắn sys_enter, '
-               'fexit seccomp, sys_exit; nạp allow-list từ resolver; lỗi thì dừng (fail closed)', kind='user',
+               'fexit seccomp, sys_exit, sched_process_fork; nạp allow-list từ resolver; lỗi thì dừng (fail closed)', kind='user',
                align='left', small=10)
     l2 = p.box(1300, 712, 380, 100, 'Mỗi 0,5 s (MONOTONIC + 20 ms)', 'cộng bộ đếm per-CPU mọi cgroup → '
-               'cgroup_snapshot_extended; đọc pulse_grams theo lô, lấy cửa sổ đã đóng, xoá theo lô → token_grams',
+               'cgroup_snapshot_extended; đọc pulse_grams theo lô, lấy cửa sổ đã đóng, xoá theo lô → token_grams; window_end = '
+               '(W + 1) × 0,5 s + lệch đồng hồ (D2)',
                kind='user', align='left', small=10)
     p.box(880, 828, 800, 150, 'Dòng JSON ra stdout (một frame)',
           '{"type":"cgroup_snapshot_extended","cgroup_id":…,"total":…,"counts":{29 syscall},"syscall_bins":[64],'
           '"transition_bins":[64],"full_counts":{…},"seccomp_skipped_or_emulated":…}<br>'
           '{"type":"token_grams","contract":"pulse-token-select1f-v1","cgroup_id":…,"window":W,"window_end":t,'
-          '"events":n,"grams":[[t0,t1,t2,t3,count],…]}<br>{"type":"token_drain",…} · {"type":"stat",…} · '
+          '"events":n,"grams":[[t0,t1,t2,t3,count],…],"session_events":m,"session":[…]}<br>'
+          '{"type":"token_drain",…,"insert_fail_cumulative":0} · {"type":"stat",…} · '
           '{"type":"snapshot_end","targets":…,"snapshots":…}<br><b>Proof</b> (scripts/token_probe_proof.py): tổng sự '
-          'kiện token = tổng full_counts trong cgroup cô lập (422.316 = 422.316), token mẫu đúng, seccomp như proof matched.',
+          'kiện token = tổng full_counts trong cgroup cô lập (bản final: 361.900 / 442.796 / 393.644 trên 3 worker), token mẫu '
+          'đúng, seccomp như proof matched.',
           kind='store', align='left', small=10)
     p.edge(l1, l2, '', kind='data')
     return p
@@ -305,7 +319,7 @@ def kernel():
 # ---------------------------------------------------------------- page 3: worker and the token model
 def worker():
     p = Page('3. Worker và mô hình token', 1720, 1090)
-    p.title('Worker chấm điểm và mô hình token lidds-ml-v5 trên cụm',
+    p.title('Worker chấm điểm và mô hình token lidds-ml-v5-t3 trên cụm',
             'pipeline/matched_worker.py, một unit systemd mỗi worker (3 core, 3 GB). Một mô hình ngôn ngữ mỗi workload; '
             'một cửa sổ vượt ngưỡng của workload là báo động.')
     fr = p.box(20, 90, 300, 120, 'Dòng token_grams từ loader', 'mỗi 0,5 s, mỗi (cgroup, cửa sổ đã đóng): số sự kiện, '
@@ -321,24 +335,27 @@ def worker():
                'mức nền: P(tên) × P(token | tên), cộng ½ (token lạ của tên quen vẫn có xác suất)<br>'
                'Witten-Bell nội suy: P_k = (c(h_k, w) + T(h_k) P_{k−1}) / (c(h_k) + T(h_k)), k = 1, 2, 3<br>'
                '= TokenLM offline trên dataset tới sai số 1e-12 (có test)', kind='ml', align='left', small=11)
-    sc = p.box(600, 280, 520, 220, 'Điểm cửa sổ', 'mỗi sự kiện: độ bất ngờ −ln P_3<br>s(W) = trung bình 10 giá trị lớn nhất '
-               '(gram tính theo số lần); ít hơn 10 sự kiện: trung bình tất cả; cửa sổ rỗng: 0<br>ví dụ: binary đối chứng '
-               'trong RabbitMQ (6 × 34,0 + 4 × 7,0) / 10 = 23,2 &gt; 13,4', kind='ml', align='left', small=11)
+    sc = p.box(600, 280, 520, 220, 'Điểm cửa sổ', 'mỗi sự kiện: độ bất ngờ −ln P_3<br>s(W) = trung bình top giá trị lớn nhất '
+               '(gram tính theo số lần); top = 3 (lidds-ml-v5-t3, MODELS.json), v5: 10; ít sự kiện hơn: trung bình tất cả; '
+               'cửa sổ rỗng: 0<br>ví dụ lượt cuối: tấn công child_ptrace_handshake trong catalog-service, s(W) = 40,50 '
+               '&gt; τ = 19,30', kind='ml', align='left', small=11)
     tb = p.box(1160, 280, 520, 220, 'TokenBranch (cfg tokens.models)', 'mỗi workload: đường dẫn mô hình, SHA-256, ngưỡng τ; '
                'hash lệch → không nạp<br>s(W) &gt; τ → báo (candidate_alert_preview), một cửa sổ là đủ<br>ghi decision '
-               'branch=token: token_score, token_threshold, token_scored_at<br>chấm p50 0,15 s, p95 0,18 s sau khi cửa sổ đóng '
-               '(10,9 triệu cửa sổ, lượt 1109)', kind='ml', align='left', small=11)
+               'branch=token: token_score, token_threshold, session_events<br>map gram đầy → token_alert_reason = gram_map_overflow '
+               'trên cửa sổ nặng nhất, cả frame token_incomplete (D1)<br>chấm p50 0,17 s, p95 0,23 s sau khi cửa sổ đóng '
+               '(12,1 triệu cửa sổ, lượt v6)', kind='ml', align='left', small=11)
     p.box(40, 530, 1080, 110, 'Bảng chữ select1f', 'errno của 27 syscall (stat, lstat, fstat, newfstatat, access, faccessat, '
           'open, openat, creat, read, write, writev, ioctl, connect, execve, fcntl, close, rename, renameat, sendfile, unlink, '
           'unlinkat, mkdir, kill, recvfrom, shutdown, futex) · mở thành công: chế độ r|w + thư mục đầu · đọc/ghi thành công: '
-          'min(15, ⌊log2 n⌋) · còn lại: tên. LID-DS 2021 official: recall 97,40%, báo nhầm 0,33%, p95 1,47 s',
+          'min(15, ⌊log2 n⌋) · còn lại: tên. LID-DS 2021 official (t3): recall 97,25%, báo nhầm 0,19%, p95 1,54 s',
           kind='note', align='left', small=11)
     p.edge(chk, lm, 'cửa sổ token', kind='data', exit=(0.5, 1), entry=(0.5, 0), points=[(550, 250), (300, 250)])
     p.edge(lm, sc, '', kind='data')
     p.edge(sc, tb, '', kind='data')
     dec = p.box(20, 690, 1680, 80, 'Decision = mô hình token của workload báo (một cửa sổ là đủ)',
                 'mỗi decision mang workload_key, pod_uid, container, window_start/end, token_score, token_threshold, run_id, '
-                'capture_segment; độ trễ kernel → cảnh báo = cuối cửa sổ + thời gian chấm', kind='alert')
+                'capture_segment, session_events (nhãn stream của cảnh báo); độ trễ kernel → cảnh báo = cuối cửa sổ + thời gian chấm',
+                kind='alert')
     p.edge(tb, dec, '', kind='alert', exit=(0.5, 1), entry=(0.83, 0))
     s1 = p.store(20, 800, 400, 110, 'NFS: segment 30 phút', 'decisions.jsonl · tokens.jsonl · issues.jsonl · loader.log · '
                  'TERMINAL.json (seal)')
@@ -349,10 +366,11 @@ def worker():
           'và ngưỡng trong CONFIG.json', kind='user', small=10)
     p.edge(dec, s1, '', kind='store', exit=(0.12, 1), entry=(0.5, 0))
     p.edge(dec, s2, '', kind='store', exit=(0.35, 1), entry=(0.5, 0))
-    p.text(20, 940, 1680, 120, '<b>Học mô hình (token_branch_fit.py, trước mỗi lượt):</b> normal của lượt thu 12 h (+ normal của lượt '
-           'live trước, bỏ −5 s … +25 s quanh mỗi trial) → tách theo workload → đoạn 30 phút chia vào 5 fold → chấm phần giữ ra → '
-           'điểm lớn nhất mỗi khối 60 s mỗi container → bỏ 1% cao nhất → Gumbel theo moment → τ ở α′ = 0,00018 → mô hình cuối học '
-           'trên toàn bộ → MODELS.json (SHA-256). Không đổi trong lượt chạy.', size=12)
+    p.text(20, 940, 1680, 120, '<b>Học mô hình (token_branch_fit.py, trước mỗi lượt; lượt cuối: pulse-live-v7-fit-1118):</b> normal của lượt thu '
+           'pulse-token-capture-v6-1116 (+ normal của lượt live v5, bỏ −5 s … +25 s quanh mỗi trial) → tách theo workload → đoạn '
+           '30 phút chia vào 5 fold → chấm phần giữ ra (top 3) → điểm lớn nhất mỗi khối 60 s mỗi container → bỏ 0,5% cao nhất → '
+           'Gumbel theo moment → τ ở α′ = 0,0003 → mô hình cuối học trên toàn bộ → MODELS.json (SHA-256, có top). Không đổi '
+           'trong lượt chạy. Cụm đổi thì thu normal và fit lại (D9).', size=12)
     return p
 
 
@@ -363,9 +381,11 @@ def alerting():
             'Bridge và RCA chạy trên .234 và chỉ đọc decision. Mã đợt cảnh báo = mã case RCA.')
     w = p.box(20, 90, 250, 110, 'Worker ×3', 'decisions.jsonl local; chỉ dòng token có "candidate_alert_preview":true '
               'rời worker', kind='ml', small=9)
-    br = p.box(310, 80, 430, 165, 'Alert bridge (ops/alert_bridge.py)', '• bám log decision của từng worker qua SSH<br>'
+    br = p.box(310, 70, 430, 210, 'Alert bridge (ops/alert_bridge.py)', '• bám log decision của từng worker qua SSH<br>'
                '• gom đợt theo (pod_uid, container); hết đợt khi im lặng quá resolve_after<br>'
-               '• push POST /api/v2/alerts lúc mở đợt, làm mới khi còn kéo dài; lỗi → thử lại 3 lần, cách 0,5 s<br>'
+               '• push POST /api/v2/alerts lúc mở đợt, làm mới khi còn kéo dài; lỗi → hàng đợi bền push-queue.jsonl, '
+               'backoff tới 30 s, giữ tới 1 giờ, tiếp tục sau khi khởi động lại (D3)<br>'
+               '• nhãn stream: session nếu ≥ 50% sự kiện của cửa sổ chạy trên thread session, ngược lại native<br>'
                '• đo độ trễ từ preview_emitted_at và window_end<br>• đường pull (gauge /metrics, scrape 5 s / 30 s) chỉ để '
                'so độ trễ: chậm hơn nhiều<br>• triggers.jsonl: dòng đầu của mỗi đợt đã giao', kind='alert', align='left',
                small=10)
@@ -395,7 +415,7 @@ def alerting():
                  'baseline +4 · thao tác credential / namespace / mount / ptrace +3 mỗi lần (tối đa 9) · binary chưa từng '
                  'ghi nhận +2 · exec trong cửa sổ cảnh báo +2 · syscall thất bại +1 (tối đa 3) · cha của nghi phạm khác +1'
                  '<br>ngoại lệ: hạ quyền setuid/setgid lúc khởi động; containerd-shim, runc không xếp hạng<br>phá hoà theo '
-                 'thời điểm khởi chạy: top-1 100% trên các trial blind', kind='alert', align='left', small=10)
+                 'thời điểm khởi chạy', kind='alert', align='left', small=10)
     tri = p.box(40, 560, 660, 120, 'Triage (ops/rca_view.py)', 'security_operation → notify ngay '
                 '· probe_only (mọi exec là probe Kubernetes của pod spec) → dashboard · new_binary → dashboard · other → '
                 'dashboard<br>chỉ là quyết định giao tin: decision và mọi chỉ số đánh giá không đổi', kind='alert',
@@ -410,8 +430,8 @@ def alerting():
     p.edge(am, case, 'cảnh báo đã nhận', kind='alert', exit=(0, 0.8), entry=(0.106, 0), points=[(775, 168)])
     p.edge(case, tri, '', kind='alert', exit=(0.2, 1), entry=(0.9, 0), points=[(806, 540), (634, 540)])
     p.edge(rank, out, '', kind='alert', exit=(0.5, 1), entry=(0.75, 0))
-    p.text(20, 725, 1680, 40, 'Độ trễ tới Alertmanager và RCA của mô hình token đo ở lượt pulse-live-v5-1110 (lượt 1109: bridge '
-           'bỏ dòng token, lỗi đã sửa).', size=11)
+    p.text(20, 725, 1680, 40, 'Lượt v6: bridge giao 3.233/3.233 đợt, decision → Alertmanager p95 1,21 s; kernel → Alertmanager '
+           '(push) p95 1,53 s. Lượt cuối, ví dụ trial tấn công 5: Alertmanager nhận 0,14 s sau cuối cửa sổ báo.', size=11)
     return p
 
 
@@ -419,19 +439,21 @@ def alerting():
 def evaluation():
     p = Page('5. Học và đánh giá', 1720, 1000)
     p.title('Quy trình chọn, xác nhận và đánh giá',
-            'Chọn trên dữ liệu development, xác nhận một lần trên dữ liệu khoá; mỗi bước có protocol đăng ký trước và '
-            'biên nhận JSON trong repo.')
+            'Chọn trên dữ liệu development, xác nhận trên dữ liệu khoá; mỗi bước có protocol đăng ký trước (sửa đổi là amendment '
+            'có giờ và lý do) và biên nhận JSON trong repo.')
     steps = [
         ('LID-DS 2021 development + CB-DS', 'chọn bảng chữ token, độ dài gram, top-k, ngưỡng; lidds-ml-v5: development '
          '530/544, 6 báo nhầm; CB-DS 891/891, 3/1.410', 'eval'),
-        ('LID-DS 2021 official', 'lidds-ml-v5: 97,40% recall (1.238/1.271), 0,33% báo nhầm (26/7.938), precision 97,9%, '
-         'p95 1,47 s; trong 3 s 1.234', 'ml'),
-        ('Thu normal trên cụm (12 h)', 'pulse-token-capture-1107: chỉ normal, tải theo lịch; dữ liệu học mô hình token', 'eval'),
-        ('Lượt live blind (24 h)', 'pulse-live-v4-1109: 525 trial; tập chính 315/315, precision 99,06%, control 3/315, '
-         'p95 0,49 s, binary vô hại 313/315, gánh 0,41', 'eval'),
-        ('Học lại + live v5', 'normal 1109 ngoài trial (amendment 2); pulse-live-v5-1110: thêm lệnh admin, đo Alertmanager '
-         'và RCA', 'eval'),
-        ('LID-DS 2019 (cuối cùng)', 'chấm một lần, không chỉnh gì', 'eval'),
+        ('LID-DS 2021 official', 'lidds-ml-v5: 1.238/1.271, 26/7.938 báo nhầm, p95 1,47 s; lidds-ml-v5-t3: 1.236/1.271 '
+         '(97,25%), 15/7.938 (0,19%), p95 1,54 s', 'ml'),
+        ('LID-DS 2019', 'v5 theo protocol 723/1.162; dung sai nhãn 1 s (amendment, sau lượt chấm) 1.056/1.162; chia '
+         '30/70: chọn t3 trên development, holdout 817/841 (97,15%), p95 10,95 s', 'eval'),
+        ('Thu normal + fit trên cụm', 'pulse-token-capture-v6-1116 (chỉ normal, tải theo lịch) + normal lượt v5 → '
+         'pulse-live-v7-fit-1118 (t3, 21 mô hình)', 'eval'),
+        ('Lượt live v4–v6', 'v6: tập chính 315/315, precision 99,68%, control 1/315, p95 0,45 s; PAD 300: 105/105; lotl '
+         '524/525; vòng cải thiện D1–D18 sau đó', 'eval'),
+        ('Lượt live cuối (45 h)', 'pulse-live-final-1119: diễn tập trước; 945 trial gồm tốc độ chậm 0,1–0,5/s, PAD 300, '
+         'bật-tắt, lotl, event-generator; 6 h normal cuối đo gánh', 'eval'),
     ]
     ids = []
     for k, (t, s, kind) in enumerate(steps):
@@ -441,10 +463,12 @@ def evaluation():
     p.group(20, 290, 830, 420, 'Offline (máy phân tích .234, systemd-run có giới hạn bộ nhớ)', kind='eval', size=12)
     p.box(40, 330, 380, 170, 'Chuyển đổi và chấm', 'sentinel_pulse/lidds: convert.py<br>'
           'lidds_ml_token_alphabets.py (token), lidds_ml_token_crossfit.py (cross-fit)<br>'
-          'lidds_ml_v5.py (chọn trên development + CB-DS, chấm official một ứng viên)', kind='user',
+          'lidds_ml_v5.py (chọn trên development + CB-DS, chấm official một ứng viên)<br>lidds2019_dev.py (2019: split, '
+          'development, holdout)', kind='user',
           align='left', small=10)
     p.box(440, 330, 390, 170, 'Ngưỡng', 'Gumbel theo moment trên điểm lớn nhất giữ ra của cross-fit 5 fold, bỏ 1% cao nhất; '
-          'α′ = 0,0002 × 0,9 = 0,00018; moment được chọn trên development sau khi so với Gumbel MLE, GEV, chuẩn, đuôi mũ<br>'
+          'v5: α′ = 0,00018, bỏ 1%; t3: α′ = 0,0003, bỏ 0,5%, top 3; moment được chọn trên development sau khi so với Gumbel '
+          'MLE, GEV, chuẩn, đuôi mũ<br>'
           'trên cụm: khối 60 s mỗi container thay cho bản ghi, fold theo đoạn 30 phút', kind='ml', align='left', small=10)
     p.box(40, 520, 380, 170, 'Kiểm thêm (development)', 'chỉ tên syscall 487/544, bỏ cỡ đọc ghi 490/544<br>'
           'LSTM lớn không hơn 4-gram<br>thứ tự phát token như probe (probe1f): 530/544<br>luật đếm 4-gram chưa thấy có ngưỡng: ngang mô hình',
@@ -453,26 +477,27 @@ def evaluation():
           'worker, xoay điều kiện: off / A / B / C / D / D không giám sát<br>lần 1 fexit → va chạm kprobe Tetragon; '
           'lần 2 sys_exit; lần 3 đi ngược dentry; báo cáo, không đạt/trượt', kind='eval', align='left', small=10)
     p.group(870, 290, 830, 420, 'Trên cụm (lượt live)', kind='eval', size=12)
-    p.box(890, 330, 380, 170, 'Planner', 'plan_matched_run.py --token-build --token-models --admin-control → CONFIG.json '
-          'bất biến; launcher cài worker, RCA, bridge, traffic, campaign', kind='eval', align='left', small=10)
+    p.box(890, 330, 380, 170, 'Planner', 'plan_matched_run.py --token-build --token-models --admin-control --on-off --eventgen [--rehearsal] → '
+          'CONFIG.json bất biến; launch_run.sh cài worker, RCA, bridge, traffic, campaign, bộ ghi sự kiện K8s (system unit)', kind='eval', align='left', small=10)
     p.box(1290, 330, 390, 170, 'Fit trước lượt live', 'token_branch_fit.py → MODELS.json (mô hình token + ngưỡng mỗi workload)<br>'
           '--extra-run: thêm normal của lượt trước, bỏ −5 s … +25 s quanh mỗi trial<br>khoá sha256 trước lượt live', kind='ml', align='left', small=10)
     p.box(890, 520, 380, 170, 'Chấm lượt live', 'trial phát hiện khi có báo động trong [start, start + 15 s]; đợt = '
           'báo động cùng container cách nhau < 15 s; gánh = đợt / replica-giờ ngoài khoảng campaign; Wilson, bootstrap '
-          'theo workload', kind='eval', align='left', small=10)
+          'theo workload; pulse_live_v4.py, native_stream.py, live_attribution.py', kind='eval', align='left', small=10)
     p.box(1290, 520, 390, 170, 'Gate cho binary vô hại (đã loại)', 'mô hình gộp mọi workload, giữ 1–2 s sau execve, '
           'ngưỡng theo pha: không giữ được kết quả LID-DS (development 315–509/544) → hệ thống không có gate',
           kind='retired', align='left', small=10)
     p.group(20, 740, 1680, 230, 'Bằng chứng và tài liệu', kind='store', size=12)
     docs = [('Protocol', 'sentinel_pulse/protocol/*.json, đăng ký trước khi có dữ liệu; amendment ghi rõ lý do'),
             ('Biên nhận', 'validation-evidence/results-YYYYMMDD/*: JSON, bảng, log; seal SHA-256 của segment'),
-            ('Audit số liệu', 'scripts/audit/headline_numbers.py: mọi số trong bản LaTeX khớp biên nhận (53/53)'),
+            ('Audit số liệu', 'scripts/audit/headline_numbers.py: mọi số trong bản LaTeX khớp biên nhận'),
             ('Đồ án', 'thesis/ (LaTeX, tectonic); báo cáo và slide họp trong docs/'),
-            ('Ghi chép', 'notes/STATE.md (trạng thái), notes/WORKLOG.md (nhật ký từng bước)')]
+            ('Ghi chép', 'notes/STATE.md (trạng thái), notes/WORKLOG.md (nhật ký từng bước), docs/LUONG_CODE.md (luồng code, lệnh)')]
     for k, (t, s) in enumerate(docs):
         p.box(40 + 330 * k, 775, 310, 100, t, s, kind='store', small=10)
     p.text(40, 890, 1640, 60, 'Nguyên tắc: chọn trên development, official và lượt live chỉ để xác nhận; mỗi lần chấm '
-           'lại official phải khai báo; không job nặng nào chạy cùng lượt live; số liệu chỉ lấy từ biên nhận.', size=12)
+           'lại official phải khai báo; holdout LID-DS 2019 đã được v5 chấm trước khi chia (công bố trong mọi tài liệu); '
+           'không job nặng nào chạy cùng lượt live; số liệu chỉ lấy từ biên nhận.', size=12)
     return p
 
 

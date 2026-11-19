@@ -7,6 +7,21 @@
 \usepackage{xspace}
 \usepackage{url}
 \usepackage[capitalize]{cleveref}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc}
+\tikzset{
+  pbox/.style={draw, rounded corners=2pt, align=left, inner sep=3pt, font=\scriptsize},
+  kern/.style={pbox, fill=yellow!14, draw=yellow!45!black},
+  usr/.style={pbox, fill=blue!6, draw=blue!55!black},
+  mlb/.style={pbox, fill=green!9, draw=green!40!black},
+  alr/.style={pbox, fill=red!6, draw=red!55!black},
+  ext/.style={pbox, fill=orange!9, draw=orange!65!black},
+  sto/.style={pbox, fill=gray!9, draw=gray!60!black},
+  grp/.style={draw, dashed, rounded corners=4pt, inner sep=4pt},
+  grplabel/.style={font=\scriptsize\bfseries, anchor=south west, inner sep=1pt},
+  arr/.style={-{Stealth[length=1.6mm]}, semithick},
+  arrd/.style={arr, dashed},
+  elab/.style={font=\tiny\itshape, fill=white, inner sep=1pt}}
 \newcommand{\sys}{Sentinel Pulse\xspace}
 \newcommand{\pending}[1]{\textbf{[PENDING: #1]}}
 

@@ -1,7 +1,7 @@
 % Hình đường cảnh báo và RCA. Style ở main.tex.
 \begin{tikzpicture}
   \node[mlb, text width=3.3cm, minimum height=2.2cm] (w) at (0,0) {\textbf{Worker} ($\times$3)\\decision trên đĩa local; chỉ dòng cửa sổ báo rời worker};
-  \node[alr, text width=6.2cm, minimum height=2.2cm] (br) at ($(w.north east)+(0.55,0)$) {\textbf{Bridge cảnh báo} (master)\\bám luồng decision của từng worker qua SSH\\gom đợt theo (Pod, container): cửa sổ báo cách nhau dưới 15 s\\push \texttt{POST /api/v2/alerts} lúc mở đợt; lỗi thì thử lại 3 lần\\ghi \texttt{triggers.jsonl}: dòng đầu của mỗi đợt đã giao};
+  \node[alr, text width=6.2cm, minimum height=2.2cm] (br) at ($(w.north east)+(0.55,0)$) {\textbf{Bridge cảnh báo} (master)\\bám luồng decision của từng worker qua SSH\\gom đợt theo (Pod, container): cửa sổ báo cách nhau dưới 15 s\\push \texttt{POST /api/v2/alerts} lúc mở đợt; lỗi thì giữ trong hàng đợi bền, thử lại tới 1 giờ\\nhãn \texttt{stream}: session nếu $\geq$ 50\% sự kiện chạy trên thread session\\ghi \texttt{triggers.jsonl}: dòng đầu của mỗi đợt đã giao};
   \node[alr, text width=3.6cm, minimum height=2.2cm] (am) at ($(br.north east)+(0.55,0)$) {\textbf{Alertmanager}\\route theo nhãn \texttt{notify}: báo ngay hoặc chỉ lên dashboard};
   \draw[arr] (w) -- node[elab, above] {SSH} (br);
   \draw[arr] (br) -- node[elab, above] {push} (am);

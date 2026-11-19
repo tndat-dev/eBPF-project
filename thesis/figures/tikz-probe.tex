@@ -33,6 +33,6 @@
   \node[grplabel] at (kgrp.north west) {Chương trình BPF trong kernel (CO-RE, BTF)};
   % ---- token 32 bit và loader
   \node[usr, text width=7.0cm] (lay) at ($(m1.south west)+(0,-0.75)$) {\textbf{Token 32 bit}\\bit 23--31: số syscall \quad bit 21--22: loại\\loại 0 tên, 1 errno, 2 nhóm cỡ, 3 open (bit 20 = ghi, bit 0--19 = thư mục)\\\texttt{0xFFFFFFFF}: ô lịch sử trống ở đầu thread};
-  \node[usr, text width=7.25cm] (load) at ($(lay.north east)+(0.35,0)$) {\textbf{Loader} (user space, mỗi 0,5 s)\\đọc \texttt{pulse\_grams} theo lô, lấy các cửa sổ đã đóng rồi xoá; in dòng \texttt{token\_grams}: cgroup, cửa sổ, số sự kiện, danh sách (4 token, số lần), cộng hai dòng dõi và in thêm phần session\\kiểm khi khởi động: SHA-256 của loader và object, proof theo kernel};
+  \node[usr, text width=7.25cm] (load) at ($(lay.north east)+(0.35,0)$) {\textbf{Loader} (user space, mỗi 0,5 s)\\đọc \texttt{pulse\_grams} theo lô, lấy các cửa sổ đã đóng rồi xoá; in dòng \texttt{token\_grams}: cgroup, cửa sổ, số sự kiện, danh sách (4 token, số lần), cộng hai dòng dõi và in thêm phần session; dòng \texttt{token\_drain} mang số lần chèn gram thất bại (map đầy thì worker báo)\\kiểm khi khởi động: SHA-256 của loader và object, proof theo kernel};
   \draw[arr] (m3.south -| load.north) -- (load.north);
 \end{tikzpicture}
