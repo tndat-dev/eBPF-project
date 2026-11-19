@@ -124,9 +124,31 @@ def legend(p, x, y):
         p.text(x + 46, y + 30 + 28 * k, 280, 22, t, size=11)
 
 
+EDGE_VI = [('kernel', 'Dữ liệu trong kernel (syscall, map)'), ('data', 'Dữ liệu sự kiện (cửa sổ, decision, Tetragon)'),
+           ('alert', 'Đường cảnh báo'), ('store', 'Ghi lưu trữ (NFS)'),
+           ('ctrl', 'Điều khiển, cấu hình (đổi chậm, không mang sự kiện)'),
+           ('eval', 'Chỉ khi đánh giá (lịch trial)')]
+EDGE_EN = [('kernel', 'kernel data'), ('data', 'event data'), ('alert', 'alert path'),
+           ('ctrl', 'control and configuration (slow-changing, no events)')]
+
+
+def edge_legend(p, x, y, rows, columns=1, width=330, title='Kiểu mũi tên'):
+    """Line samples for the edge kinds used on a page (an invisible pair of points per sample)."""
+    per = -(-len(rows) // columns)
+    col_w = (width - 24) // columns
+    p.group(x, y, width, 34 + 26 * per, title, kind='store', size=12)
+    dot = 'text;html=1;strokeColor=none;fillColor=none;'
+    for k, (kind, label) in enumerate(rows):
+        cx, cy = x + 12 + col_w * (k // per), y + 38 + 26 * (k % per)
+        a = p._vertex(cx, cy + 8, 1, 1, '', dot, '1')
+        b = p._vertex(cx + 44, cy + 8, 1, 1, '', dot, '1')
+        p.edge(a, b, '', kind=kind)
+        p.text(cx + 52, cy - 2, col_w - 56, 22, label, size=11)
+
+
 # ---------------------------------------------------------------- page 1: overview
 def overview():
-    p = Page('1. Tổng quan hệ thống', 1720, 1150)
+    p = Page('1. Tổng quan hệ thống', 1720, 1260)
     p.title('Sentinel Pulse: kiến trúc tổng thể (19/11/2026, lượt live cuối)',
             'Phát hiện runtime trên Kubernetes bằng mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel (lidds-ml-v5-t3), '
             'cảnh báo qua Alertmanager, RCA từ sự kiện Tetragon. Khung tím đứt nét chỉ dùng khi đánh giá.')
@@ -195,9 +217,10 @@ def overview():
     p.box(1280, 560, 410, 110, 'Dữ liệu công khai (offline)', 'LID-DS 2021 (15 kịch bản, development → official), '
           'CB-DS, LID-DS 2019 (development 30% / holdout 70%)', kind='eval', small=10)
     legend(p, 1280, 700)
+    edge_legend(p, 1280, 945, EDGE_VI[:5], width=410)
     p.edge(pods[0], probe, 'syscall', kind='kernel', exit=(0.5, 1), entry=(0.137, 0))
     p.edge(probe, loader, 'đọc map theo lô', kind='kernel', exit=(0.5, 1), entry=(0.5, 0))
-    p.edge(resolver, allow, 'allowed-cgroups', kind='ctrl', exit=(0.5, 0), entry=(0.5, 1))
+    p.edge(resolver, allow, 'allowed-cgroups (loader nạp vào map)', kind='ctrl', exit=(0.5, 0), entry=(0.5, 1))
     p.edge(tetra_k, tetra_u, 'sự kiện', kind='data', exit=(0.5, 1), entry=(0.5, 0))
     p.edge(loader, worker, 'cửa sổ token', kind='data', exit=(0.5, 1), entry=(0.283, 0))
     p.edge(resolver, worker, 'cgroups.json', kind='ctrl', exit=(0.5, 1), entry=(0.811, 0))
@@ -314,12 +337,13 @@ def kernel():
           'đúng, seccomp như proof matched.',
           kind='store', align='left', small=10)
     p.edge(l1, l2, '', kind='data')
+    edge_legend(p, 20, 845, [EDGE_VI[0], EDGE_VI[1], EDGE_VI[3], EDGE_VI[4]], columns=2, width=820)
     return p
 
 
 # ---------------------------------------------------------------- page 3: worker and the token model
 def worker():
-    p = Page('3. Worker và mô hình token', 1720, 1090)
+    p = Page('3. Worker và mô hình token', 1720, 1210)
     p.title('Worker chấm điểm và mô hình token lidds-ml-v5-t3 trên cụm',
             'pipeline/matched_worker.py, một unit systemd mỗi worker (3 core, 3 GB). Một mô hình ngôn ngữ mỗi workload; '
             'một cửa sổ vượt ngưỡng của workload là báo động.')
@@ -372,12 +396,13 @@ def worker():
            '30 phút chia vào 5 fold → chấm phần giữ ra (top 3) → điểm lớn nhất mỗi khối 60 s mỗi container → bỏ 0,5% cao nhất → '
            'Gumbel theo moment → τ ở α′ = 0,0003 → mô hình cuối học trên toàn bộ → MODELS.json (SHA-256, có top). Không đổi '
            'trong lượt chạy. Cụm đổi thì thu normal và fit lại (D9).', size=12)
+    edge_legend(p, 20, 1075, [EDGE_VI[1], EDGE_VI[2], EDGE_VI[3], EDGE_VI[4]], columns=2, width=1100)
     return p
 
 
 # ---------------------------------------------------------------- page 4: alerting and RCA
 def alerting():
-    p = Page('4. Cảnh báo và RCA', 1720, 790)
+    p = Page('4. Cảnh báo và RCA', 1720, 880)
     p.title('Đường cảnh báo và truy nguyên nguyên nhân (RCA)',
             'Bridge và RCA chạy trên .234 và chỉ đọc decision. Mã đợt cảnh báo = mã case RCA.')
     w = p.box(20, 90, 250, 110, 'Worker ×3', 'decisions.jsonl local; chỉ dòng token có "candidate_alert_preview":true '
@@ -433,12 +458,13 @@ def alerting():
     p.edge(rank, out, '', kind='alert', exit=(0.5, 1), entry=(0.75, 0))
     p.text(20, 725, 1680, 40, 'Lượt v6: bridge giao 3.233/3.233 đợt, decision → Alertmanager p95 1,21 s; kernel → Alertmanager '
            '(push) p95 1,53 s. Lượt cuối, ví dụ trial tấn công 5: Alertmanager nhận 0,14 s sau cuối cửa sổ báo.', size=11)
+    edge_legend(p, 20, 770, [EDGE_VI[1], EDGE_VI[2]], columns=2, width=820)
     return p
 
 
 # ---------------------------------------------------------------- page 5: learning and evaluation
 def evaluation():
-    p = Page('5. Học và đánh giá', 1720, 1000)
+    p = Page('5. Học và đánh giá', 1720, 1100)
     p.title('Quy trình chọn, xác nhận và đánh giá',
             'Chọn trên dữ liệu development, xác nhận trên dữ liệu khoá; mỗi bước có protocol đăng ký trước (sửa đổi là amendment '
             'có giờ và lý do) và biên nhận JSON trong repo.')
@@ -499,12 +525,14 @@ def evaluation():
     p.text(40, 890, 1640, 60, 'Nguyên tắc: chọn trên development, official và lượt live chỉ để xác nhận; mỗi lần chấm '
            'lại official phải khai báo; holdout LID-DS 2019 đã được v5 chấm trước khi chia (công bố trong mọi tài liệu); '
            'không job nặng nào chạy cùng lượt live; số liệu chỉ lấy từ biên nhận.', size=12)
+    edge_legend(p, 20, 990, [('data', 'Bước tiếp theo, chấm trên dữ liệu khoá'), ('eval', 'Bước tiếp theo, development hoặc cụm')],
+                columns=2, width=1100, title='Kiểu mũi tên')
     return p
 
 
 # ---------------------------------------------------------------- English overview for the paper (Figure 1)
 def paper_overview():
-    p = Page('Overview (paper)', 1500, 560)
+    p = Page('Overview (paper)', 1500, 620)
     p.group(20, 30, 1460, 330, 'Each worker node (×3)', kind='user', size=15)
     app = p.box(40, 70, 200, 170, 'Application containers', 'namespace production; one cgroup each; unmodified',
                 kind='ext', small=13)
@@ -536,6 +564,7 @@ def paper_overview():
     p.edge(am, rca, 'delivered', kind='alert')
     p.edge(tet, rca, '', kind='data')
     p.edge(fit, worker, 'MODELS.json (SHA-256)', kind='ctrl', exit=(0.5, 0), entry=(0.3, 1), points=[(140, 375), (994, 375)])
+    edge_legend(p, 20, 555, EDGE_EN, columns=4, width=1460, title='Arrows')
     return p
 
 

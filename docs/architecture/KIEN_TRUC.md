@@ -24,6 +24,17 @@ trên máy bạn, `/home/dat/eBPF-project/` trên `.234`). Máy: `.234` k8s-mast
 Sinh lại hình: sửa `docs/architecture/make_architecture_drawio.py`, chạy nó, rồi xuất bằng `drawio -x` (lệnh trong
 `docs/architecture/README.md`; `-p` đánh số trang từ 1).
 
+## Kiểu mũi tên (có chú giải ở mỗi trang)
+
+| Nét | Nghĩa | Ví dụ |
+|---|---|---|
+| liền, vàng đậm | dữ liệu trong kernel | syscall → probe → loader |
+| liền, đen | dữ liệu sự kiện | cửa sổ token, decision, sự kiện Tetragon |
+| liền, đỏ đậm | đường cảnh báo | decision → bridge → Alertmanager → RCA |
+| liền, xám | ghi lưu trữ | worker → NFS |
+| chấm, xanh | điều khiển, cấu hình: đổi chậm, không mang sự kiện | resolver → allow-list (resolver ghi `/run/sentinel-pulse/allowed-cgroups`, loader nạp vào map `pulse_cgroups`), resolver → worker (`cgroups.json`), `MODELS.json` → worker |
+| đứt, tím | chỉ khi đánh giá | planner → campaign (lịch trial), các bước của trang 5 |
+
 ---
 
 ## Trang 1. Tổng quan hệ thống
