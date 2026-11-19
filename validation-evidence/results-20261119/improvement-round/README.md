@@ -83,3 +83,34 @@ the threshold against 0.26 % held out). Operating rule: refit after every cluste
 ## D12, D18
 Campaign options for the final run: fractional rates down to 0.05/s and on-off trials (D12); the Falco event-generator
 step with 14 registered actions (D18, binary sha256 6009e345… on NFS `tools/event-generator-0.13.0`).
+
+## D7 request latency with the token probe (`app-overhead-d7/`, protocol app-overhead-v1 run as D7)
+`scripts/app_overhead_ab.py` on k8s-master, 19/11 03:12–05:15 (+07), open loop at 8 requests/s through the Istio ingress,
+12 rounds × (300 s off, 300 s probe) on all three workers, probe = `pulse-tokens-final-f8ccbb2` in grams mode (every
+production container watched); 25,920 / 25,921 requests, 0 errors.
+
+| All requests | Off | Probe | Added | Overhead [95 % CI over rounds] |
+|---|---|---|---|---|
+| p50 | 94.6 ms | 105.1 ms | +10.5 ms | +11.3 % [0.6, 21.2] |
+| p95 | 279.8 ms | 295.5 ms | +15.9 ms | +5.7 % [3.6, 7.4] |
+| p99 | 354.6 ms | 397.0 ms | +34.2 ms | +9.5 % [6.5, 14.2] |
+
+Per endpoint at p50: `/` and `/api/health/` within noise; `/api/products/` +9.1 ms (+5.2 %), `/api/products/?page=1` +6.3 ms
+(+3.7 %): the cost follows the number of system calls a request makes (database round trips).
+
+## D8, D17 (`rich.json`, caches rebuilt from the archives, t3 decision)
+
+| Variant | LID-DS 2021 dev | CB-DS | 2019 dev (1 s) | Seen-only (2021 / 2019) | Must |
+|---|---|---|---|---|---|
+| select1f (reference, reproduces t3) | 529 / 5 | 891 / 3 | 310 / 9 | 0 / 0 | yes |
+| path2 (two directory levels) | 526 / 5 | 891 / 3 | 310 / 9 | 0 / 0 | no |
+| path2 + connect detail | 526 / 5 | 891 / 3 | 310 / 9 | 0 / 0 | no |
+| exec (history reset at execve, program name token) | 529 / 5 | 891 / **2** | 310 / 9 | 0 / 0 | yes, but no 2019 gain |
+
+Neither variant meets the criterion (more 2019 detections, or the same with fewer 2019 false alarms); the seen-only
+simulation stays at 0 for all. **Not adopted: the probe and the tokens stay as they are, no dataset rerun is needed.**
+
+## Summary of the round
+Adopted: D1, D2, D3, the alert stream label, the Kubernetes event recorder; D12 and D18 (with the static event-generator,
+amendment 4) are campaign options of the final run. Not adopted, measured: D4, D5b, D6, D8, D10, D11, D14, D15, D16, D17.
+Closed by the runtime: D13. Rule: D9. Measured: D7.
