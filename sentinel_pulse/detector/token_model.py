@@ -16,9 +16,9 @@ leading slots are TOK_NONE (thread start) are the shorter grams of the offline m
 # ------------------------------------------------------------------------------------------------------------
 # Mô hình ngôn ngữ ĐẾM: học = đếm số lần mỗi token theo sau mỗi ngữ cảnh 1, 2, 3
 # token trước nó trong CÙNG thread, trên dữ liệu normal. Chấm = tính xác suất của mỗi sự kiện, lấy "độ bất ngờ"
-# -ln p, điểm cửa sổ = trung bình 10 độ bất ngờ lớn nhất. Ngưỡng (đặt ở token_branch_fit.py) so với điểm này.
+# -ln p, điểm cửa sổ = trung bình `top` độ bất ngờ lớn nhất (top lấy từ MODELS.json: 10 ở v5, 3 ở v5-t3). Ngưỡng (đặt ở token_branch_fit.py) so với điểm này.
 # Ký hiệu dùng trong code: gram g = (t0, t1, t2, w) — w là token đang xét, (t0,t1,t2) là lịch sử; h = ngữ cảnh;
-# "name" = số syscall của token (tok >> 23). Công thức đầy đủ: thesis/chapters/design.tex mục "Từ chuỗi thành xác suất".
+# "name" = số syscall của token (tok >> 23).
 # Cùng số học với bản offline scripts/analysis/lidds_ml_tokens.py (TokenLM) — test kiểm sai lệch < 1e-12, nên
 # mô hình chấm LID-DS và mô hình chạy trên cụm là MỘT.
 # ==============================================================================================================
@@ -78,7 +78,7 @@ class CountTokenLM:
             raise ValueError('gram count must be positive')
         g = tuple(gram[-self.n:])
         w = g[-1]
-        for k in range(1, min(self.n, len(g))):
+        for k in range(1, min(self.n, len(g))): 
             self.count[k][g[-1 - k:-1]][w] += weight
         name = call_of(w)
         self.names[name] += weight
@@ -88,7 +88,7 @@ class CountTokenLM:
     # Học cả một cửa sổ đúng định dạng loader in ra: [[t0,t1,t2,t3,count], ...].
     def learn_window(self, grams):
         """grams: [[t0, t1, t2, t3, count], ...] as the probe sends them."""
-        for *gram, c in grams:
+        for *gram, c in grams:  # extended iterable unpacking (*gram, c) để tách phần tử cuối cùng thành c
             self.learn(strip(gram), int(c))
 
     # Gọi một lần sau khi học xong: tính sẵn (tổng c(h), số loại T(h)) cho mọi ngữ cảnh — hai đại lượng của
@@ -108,7 +108,7 @@ class CountTokenLM:
     #   P(biến thể | tên) = (c(ν,w) + ½) / (c(ν) + ½(V_ν + 1))   — V_ν = số biến thể đã thấy của tên ν
     # Tên chưa thấy → thừa số thứ hai = xác suất biến-thể-chưa-thấy trung bình. Nhờ cấu trúc này, openat!13 chưa
     # thấy vẫn có xác suất cao hơn nhiều so với ptrace chưa từng gọi.
-    def base(self, w: int) -> float:
+    def base(self, w: int) -> float: 
         name = call_of(w)
         p_name = (self.names.get(name, 0) + 0.5) / (self.total + 0.5 * (len(self.names) + 1))
         given = self.given.get(name)
@@ -157,6 +157,7 @@ class CountTokenLM:
 
     # Lưu/nạp: chỉ lưu bảng đếm (JSON nén gzip, ~1,5 MB cho 21 workload); finalize() dựng lại phần còn lại.
     # persistence: counts only; finalize() rebuilds the rest
+    # Chuyển mô hình thành dict sẵn sàng serialize JSON
     def to_json(self) -> dict:
         return dict(schema='sentinel-pulse-token-lm-v1', n=self.n, total=self.total,
                     names=[[k, v] for k, v in self.names.items()],
@@ -164,6 +165,7 @@ class CountTokenLM:
                     count=[[[list(h), [[w, c] for w, c in ws.items()]] for h, ws in level.items()] for level in self.count])
 
     @classmethod
+    # Dựng lại đối tượng CountTokenLM từ dict
     def from_json(cls, doc: dict) -> 'CountTokenLM':
         if doc.get('schema') != 'sentinel-pulse-token-lm-v1':
             raise ValueError('not a token LM document')

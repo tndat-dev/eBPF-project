@@ -23,8 +23,9 @@ block maxima without their top 1 % (rule R4 of lidds_ml_v4.py), at alpha x --sha
 #   1) split(): đọc mọi tokens.jsonl, tách dòng theo workload_key ra file riêng (bỏ cửa sổ nằm trong khoảng trial).
 #   2) crossfit_one() cho từng workload: cắt thời gian thành đoạn 30 phút liền nhau, chia lần lượt vào 5 fold; mỗi fold được
 #      chấm bằng mô hình học 4 fold kia → điểm "giữ ra"; lấy điểm lớn nhất của mỗi (container, khối 60 s) → cực đại.
-#   3) fit_crossfit(): Gumbel theo moment trên các cực đại sau khi bỏ 1% lớn nhất (trimmed_gumbel), ngưỡng tại
-#      α′ = α × share = 0,0002 × 0,9; mô hình cuối học TOÀN BỘ dữ liệu; lưu <hash>.lm.json.gz.
+#   3) fit_crossfit(): Gumbel theo moment trên các cực đại sau khi bỏ --trim phần lớn nhất (trimmed_gumbel), ngưỡng tại
+#      α′ = α × share (lidds-ml-v4/v5: bỏ 1%, 0,0002 × 0,9; lidds-ml-v5-t3, fit pulse-live-v7-fit-1118: bỏ 0,5%,
+#      α′ 0,0003, --top 3); mô hình cuối học TOÀN BỘ dữ liệu; lưu <hash>.lm.json.gz.
 #   4) MODELS.json = {workload: {lm, lm_sha256, threshold}}; FIT.json ghi mọi tham số và số khối vượt ngưỡng.
 # Workload có ít hơn --minimum-blocks khối thì không có mô hình (không bị chấm).
 # ==============================================================================================================

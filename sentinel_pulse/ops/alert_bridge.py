@@ -40,8 +40,9 @@ RCA integration (``rca_cases_dir`` in the config, 30/10; ``sentinel_pulse/ops/rc
 #   4) Webhook của Alertmanager gọi ngược lại → ghi thời điểm Alertmanager thực sự nhận (deliveries.jsonl) để đo độ trễ;
 #      lần giao đầu của mỗi đợt ghi dòng decision đầu tiên vào triggers.jsonl — RCA đọc file này để mở case.
 #   5) Khi case RCA xuất hiện, đẩy lại cùng alert kèm chú thích RCA, và một alert phân loại SentinelPulseTriage.
-# Bridge chỉ ĐỌC decision, không ảnh hưởng việc chấm. Giới hạn đã biết: thử lại 3 lần rồi bỏ, không có hàng đợi bền
-# (lượt v5 mất 113/190 đợt trong 3,5 phút host nghẽn).
+# Bridge chỉ ĐỌC decision, không ảnh hưởng việc chấm. Lượt v5 mất 113/190 đợt trong 3,5 phút host nghẽn (thử lại 3 lần
+# rồi bỏ); từ vòng cải thiện D3 (19/11) alert chưa giao được ghi vào hàng đợi bền push-queue.jsonl (PushQueue) và thử lại
+# với backoff tới 1 giờ.
 # ==============================================================================================================
 from __future__ import annotations
 
