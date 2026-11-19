@@ -7,4 +7,5 @@
   của mục lục và ghi `out.docx`.
 - Slide `docs/Slide-runtime_security(20_11).pptx`: `make_deck_2011.py "docs/Slide-runtime_security(13_11).pptx" OUT
   deck_2011_content.py FIG` dựng trên deck 13/11 của chủ đồ án (layout TIEU_DE, kiểu bảng và bullet).
-- Số liệu lấy từ `notes/WORKLOG.md` và biên nhận `validation-evidence/results-20261113` tới `-20261118`; không CI, không biểu đồ.
+- Số liệu lấy từ `notes/WORKLOG.md` và biên nhận `validation-evidence/results-20261113` tới `-20261119`; không CI, không biểu đồ.
+- Cập nhật 19/11 22:4x: thêm cấu hình t3 (amendment 1), vòng cải thiện D1–D18, lượt live cuối, hình kiến trúc mới (báo cáo 22 trang, slide 24).

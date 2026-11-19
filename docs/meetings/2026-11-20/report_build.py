@@ -3,7 +3,7 @@
 Usage (from an empty work dir): unzip docs/Bao_cao_tien_do_06_11-13_11.docx into x/, then
     python3 report_build.py FIGDIR        # FIGDIR holds overview.png and probe.png (rendered from overview.tex, probe.tex)
     python3 ../2026-11-13/report_toc.py <skill>/scripts/office/soffice.py   # fills the TOC page numbers, writes out.docx
-Every number comes from notes/WORKLOG.md and validation-evidence/results-20261113..20261118 (the thesis audit checks the
+Every number comes from notes/WORKLOG.md and validation-evidence/results-20261113..20261119 (the thesis audit checks the
 same numbers against the receipts).
 """
 import re
@@ -142,19 +142,22 @@ def add(*xs):
 
 h1('1. Tóm tắt nhanh')
 add(
-    B('**Mô hình ML giữ nguyên là lidds-ml-v5** (mô hình ngôn ngữ 4-gram trên token syscall, chỉ học từ normal). Trên cụm, mô hình được học lại từ normal mới sau khi đổi cấu hình VM (bộ mô hình pulse-live-v6-fit-1117); thuật toán và tham số không đổi.'),
+    B('**Mô hình ML: lidds-ml-v5-t3** (mô hình ngôn ngữ 4-gram trên token syscall, chỉ học từ normal; điểm cửa sổ là trung bình 3 thay vì 10 độ bất ngờ lớn nhất, bỏ 0,5% cực đại, α′ 0,0003). Chủ đồ án chọn cấu hình này sau thử nghiệm trên phần development của LID-DS 2019 (amendment 1). Lượt live v6 bên dưới vẫn chạy lidds-ml-v5.'),
+    B('**Cấu hình t3:** LID-DS 2021 official 1.236/1.271 (97,25%), báo nhầm 15/7.938 (0,19%), p95 1,54 s (v5: 1.238, 26, 1,47 s); LID-DS 2019 holdout 70% với dung sai nhãn 1 s 817/841 (97,15%), báo nhầm 25/5.395 (0,46%), p95 10,95 s (v5: 761/841). Holdout đã được v5 chấm trước khi chia, và quy tắc dung sai đặt sau lượt chấm.'),
+    B('**Vòng cải thiện improvement-round-v1 (D1–D18), trước lượt live cuối:** nhận cảnh báo khi map 4-gram đầy, sửa mốc cửa sổ của loader, hàng đợi bền cho bridge, nhãn native/session trên cảnh báo, ghi sự kiện Kubernetes, tấn công chậm và bật-tắt, Falco event-generator; 10 hướng khác đo xong và không nhận. Chi phí probe trên request thật: p95 +15,9 ms (+5,7%).'),
+    B('**Lượt live cuối pulse-live-final-1119 đang chạy** (từ 19/11 09:50, 45 giờ, 945 trial, kết thúc khoảng 21/11 06:50) sau một lượt diễn tập đạt; hình kiến trúc cập nhật theo hệ thống của lượt này.'),
     B('**Lượt live thứ ba pulse-live-v6-1117 (26 giờ, 735 trial) đạt mọi kỳ vọng đăng ký trước:** tấn công tập chính 315/315, control 1/315, precision 99,68%, p95 0,45 s; tấn công pha loãng bằng 30 và 300 cặp syscall quen mỗi thao tác vẫn bị bắt 105/105 ở mỗi mức.'),
     B('**Thẻ dòng dõi native/session trong probe** (telemetry, không đổi đường cảnh báo): chỉ chấm phần native thì lệnh quản trị bị gắn cờ 1/475 và binary vô hại 1/525, so với 460/475 và 525/525 khi chấm cả cửa sổ. Đây là cơ chế học được đầu tiên tách process vô hại mới khỏi hành vi của workload. Giá: tấn công của campaign vào qua kubectl exec nên không nằm trong phần native (0/525).'),
     B('**Luật R1 (hạ cảnh báo khi chỉ có tool có sẵn trong image) không được nhận:** nó xoá báo nhầm lệnh quản trị (97,7% về 0) nhưng cũng xoá mọi tấn công dùng tool của image (314/315 về 0/315).'),
-    B('**LID-DS 2019, chấm một lần (dung sai nhãn 1 s):** phát hiện 1.056/1.162 (90,88%), báo nhầm 34/7.706 (0,44%), p95 10,55 s; không đạt mức đăng ký C1 vì Heartbleed (24/100) và độ trễ. Thử cải thiện trên 30% development: không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall, nên giữ lidds-ml-v5.'),
+    B('**LID-DS 2019 với lidds-ml-v5 (lượt chấm theo protocol, dung sai nhãn 1 s):** phát hiện 1.056/1.162 (90,88%), báo nhầm 34/7.706 (0,44%), p95 10,55 s; không đạt C1 vì Heartbleed (24/100) và độ trễ. Trên 30% development không ứng viên nào giữ đúng mức LID-DS 2021 cũ mà tăng recall; nới mức đó một phát hiện (amendment 1) thì t3 qua và được chọn (mục 6.4).'),
     B('**Ngoài ra:** chi phí của thẻ dòng dõi không đo được; map 4-gram dư khoảng 20 lần so với tải thật; RCA sau bản sửa có case riêng cho 711/735 tấn công; paper bản nháp 12 trang theo form USENIX Security; chú thích tiếng Việt cho toàn bộ code và hướng dẫn đọc code; dọn tài nguyên (NFS trống 595 GB).'),
 )
 
 h1('2. Hệ thống sau tuần này')
 h2('2.1 Kiến trúc')
 add(
-    P('Kiến trúc không đổi so với 13/11 (Hình 1). Thay đổi duy nhất trong kernel là thẻ dòng dõi: một chương trình BPF thứ tư gắn vào sched_process_fork, và mỗi 4-gram được đếm riêng theo dòng dõi của thread. Loader cộng hai dòng lại thành cửa sổ như cũ, nên worker chấm điểm đúng như lượt v5, và in thêm phần session để phân tích.', 'FirstParagraph'),
-    IMG('overview', 'Hình 1. Kiến trúc hệ thống (lidds-ml-v5, probe có thẻ dòng dõi).'),
+    P('Hình 1 là hệ thống của lượt live cuối. So với 13/11: (1) thẻ dòng dõi trong kernel, một chương trình BPF thứ tư gắn vào sched_process_fork, mỗi 4-gram được đếm riêng theo dòng dõi của thread, loader cộng hai dòng lại thành cửa sổ như cũ và in thêm phần session; (2) mô hình t3; (3) map 4-gram đầy thì worker báo cửa sổ nặng nhất (D1); (4) bridge giữ đợt chưa giao trong hàng đợi bền trên đĩa và gắn nhãn stream native/session cho cảnh báo (D3). Hình vẽ đầy đủ 5 trang (tổng quan, probe, worker và mô hình, cảnh báo và RCA, học và đánh giá) và bảng ánh xạ từng thành phần sang code nằm trong docs/architecture/.', 'FirstParagraph'),
+    IMG('overview', 'Hình 1. Kiến trúc hệ thống của lượt live cuối (lidds-ml-v5-t3, probe có thẻ dòng dõi).'),
     T([['Thành phần', 'Code'],
        ['Probe eBPF (token, 4-gram, thẻ dòng dõi)', 'sentinel_pulse/ebpf/pulse_counter.bpf.c, pulse_tokens.bpf.h (pulse_tok_lineage, pulse_tok_fork), pulse_token_ids.h'],
        ['Loader', 'sentinel_pulse/ebpf/pulse_counter_loader.c'],
@@ -162,7 +165,9 @@ add(
        ['Học mô hình trên cụm', 'scripts/analysis/token_branch_fit.py'],
        ['Bridge cảnh báo, RCA', 'sentinel_pulse/ops/alert_bridge.py, sentinel_pulse/rca/service.py'],
        ['Campaign tấn công và đối chứng', 'sentinel_pulse/attack/preview_campaign.py'],
-       ['Dựng và chạy một lượt', 'sentinel_pulse/pipeline/plan_matched_run.py, scripts/launch_run.sh']], [3.2, 6.8]),
+       ['Cảnh báo map đầy (D1), hàng đợi bền (D3)', 'sentinel_pulse/collector/token_capture.py (MapOverflow), sentinel_pulse/ops/alert_bridge.py (PushQueue, stream_of)'],
+       ['Dựng và chạy một lượt', 'sentinel_pulse/pipeline/plan_matched_run.py, scripts/launch_run.sh, scripts/k8s_events_record.py'],
+       ['Hình kiến trúc và mô tả code', 'docs/architecture/ (make_architecture_drawio.py, KIEN_TRUC.md), docs/LUONG_CODE.md']], [3.2, 6.8]),
 )
 h2('2.2 Probe và thẻ dòng dõi')
 add(
@@ -170,6 +175,7 @@ add(
     IMG('probe', 'Hình 2. Probe eBPF: ba chương trình dựng token, một chương trình gắn thẻ dòng dõi lúc fork, ba map.'),
     B('**Proof trên pod thật đạt 8/8:** vòng lặp của container và process con mà pid 1 fork là native; lệnh vào qua exec và con của nó là session; process con chạy nền sống lâu hơn phiên đã thoát vẫn giữ thẻ session. Proof token cũ vẫn đạt trên cả ba worker (mỗi syscall đúng một token).'),
     B('LID-DS 2021 không có runtime exec, nên mọi sự kiện là native và kết quả dataset không đổi.'),
+    B('**Bản build của lượt cuối pulse-tokens-final-f8ccbb2** thêm cảnh báo khi map đầy và sửa mốc cửa sổ của loader; proof token đạt trên cả ba worker (361.900 / 442.796 / 393.644 lời gọi, mỗi lời gọi đúng một token).'),
     CODE('sentinel_pulse/ebpf/pulse_tokens.bpf.h, sentinel_pulse/ebpf/pulse_counter_loader.c; proof scripts/lineage_probe_proof.py; biên nhận validation-evidence/results-20261113/lineage-probe/.'),
 )
 
@@ -280,7 +286,8 @@ add(
 )
 h2('5.6 Chốt mô hình')
 add(
-    B('**Mô hình: lidds-ml-v5** (thuật toán, bảng chữ select1f, tham số, quy tắc ngưỡng). **Bộ mô hình trên cụm: pulse-live-v6-fit-1117** (học lại từ normal mới). Không có "v6" của thuật toán; "v6" chỉ là tên lượt chạy.'),
+    B('**Lượt v6 chạy lidds-ml-v5** (thuật toán, bảng chữ select1f, tham số, quy tắc ngưỡng) với bộ mô hình pulse-live-v6-fit-1117 (học lại từ normal mới). Không có "v6" của thuật toán; "v6" chỉ là tên lượt chạy.'),
+    B('**Sau đó chủ đồ án chọn lidds-ml-v5-t3** (mục 6.4); bộ mô hình trên cụm học lại với cấu hình này: pulse-live-v7-fit-1118, cùng dữ liệu normal, 21 mô hình. Khối 60 s giữ ra vượt ngưỡng 1.057/132.971 (0,795%), so với 443 (0,333%) của bộ v6: gánh cảnh báo trên cụm có thể cao hơn, đo ở lượt cuối.'),
     B('Đường cảnh báo chỉ dùng nhánh token; nhánh đếm, cây, support và nhánh tần suất giữ ở chế độ shadow.'),
 )
 
@@ -324,25 +331,80 @@ add(
     B('**Cận dưới của độ trễ (phát hiện mới):** cửa sổ đầu tiên sau mốc exploit có gram hay token chưa từng thấy đến ở p95 9,39 s (Bruteforce 13,11 s, Heartbleed 10,69 s, PHP 4,55 s, SQL 3,52 s; sáu kịch bản còn lại ≤ 1,34 s). Không bộ phát hiện nào dựa trên chuỗi chưa thấy đạt p95 ≤ 3 s trên LID-DS 2019: giới hạn nằm ở dữ liệu, không ở mô hình.'),
     CODE('scripts/analysis/lidds2019_dev.py, scripts/lidds2019_dev_run.sh; biên nhận validation-evidence/results-20261118/lidds2019-development/.'),
 )
+h2('6.4 Cấu hình t3 (amendment 1)')
+add(
+    P('Amendment 1 của lidds2019-development-v1 (đăng ký 18/11 21:08, trước hai lượt chấm dưới đây) nới mức LID-DS 2021 development thêm một phát hiện theo quyết định của chủ đồ án, khi đã biết kết quả development, và chọn tổ hợp n 4, top 3, trim 0,5%, α′ 0,0003 (2021 development 529/544 với 5 báo nhầm; 2019 development 310/321 với 9 báo nhầm). Hai lượt chấm: LID-DS 2021 official, rồi 70% holdout của 2019. Trước mỗi lượt, cấu hình gốc tái lập đúng kết quả đã đăng ký của lidds-ml-v5.', 'FirstParagraph'),
+    T([['Tập', 'Cấu hình', 'Phát hiện', 'Báo nhầm', 'p95'],
+       ['LID-DS 2021 official', 'lidds-ml-v5', '1.238/1.271 (97,40%)', '26/7.938 (0,33%)', '1,47 s'],
+       ['LID-DS 2021 official', 't3', '1.236/1.271 (97,25%)', '15/7.938 (0,19%)', '1,54 s'],
+       ['LID-DS 2019 holdout, dung sai nhãn 1 s', 'lidds-ml-v5', '761/841 (90,49%)', '28/5.395 (0,52%)', '10,57 s'],
+       ['LID-DS 2019 holdout, dung sai nhãn 1 s', 't3', '817/841 (97,15%)', '25/5.395 (0,46%)', '10,95 s']], [3.2, 1.6, 2.2, 1.9, 1.1]),
+    B('**LID-DS 2021:** ít hơn 2 phát hiện (ZipSlip 83 → 81), ít hơn 11 bản ghi báo nhầm; mức đăng ký cho 2021 vẫn đạt.'),
+    B('**LID-DS 2019:** C1 đạt recall và báo nhầm, không đạt p95 (cận dưới 9,39 s ở mục 6.3). Phần tăng nằm ở Heartbleed (17 → 73/77); các kịch bản khác không đổi số phát hiện.'),
+    B('**Công bố trong mọi tài liệu:** các bản ghi holdout đã được lidds-ml-v5 chấm trong lượt chấm theo protocol trước khi chia; quy tắc dung sai nhãn 1 s đặt sau lượt chấm đó; mức 2021 development được nới khi đã biết kết quả development.'),
+    CODE('scripts/analysis/lidds2019_dev.py (official, holdout), scripts/lidds2019_amendment1_run.sh; protocol sentinel_pulse/protocol/lidds2019-development-v1-amendment-1.json; biên nhận official2021.json, holdout.json trong validation-evidence/results-20261118/lidds2019-development/.'),
+)
 
-h1('7. Paper')
+h1('7. Vòng cải thiện trước lượt live cuối (improvement-round-v1)')
+add(
+    P('Chủ đồ án dừng lượt live v7 (18/11 19:28 UTC, trước mọi tấn công) để thử hết các hướng cải thiện trước, sau khi đọc lại toàn bộ research_notes/ và reports/. Protocol improvement-round-v1 (+ amendment 1–4) đăng ký trước mọi phép tính; mỗi hướng có tiêu chí nhận riêng.', 'FirstParagraph'),
+    T([['Hướng', 'Kết quả', 'Quyết định'],
+       ['D1 map 4-gram đầy thành cảnh báo', 'Thử trên worker1: báo đúng cgroup gây đầy, trễ 0 s', 'Nhận'],
+       ['D2 mốc cuối cửa sổ của loader', 'Tính từ hằng số cửa sổ thay vì số cứng', 'Nhận'],
+       ['D3 hàng đợi bền cho bridge', 'Đợt chưa giao giữ trên đĩa, thử lại tới 1 giờ', 'Nhận'],
+       ['D4 ghép top 3 và top 10', 'LID-DS 2021 development 7 báo nhầm', 'Không nhận'],
+       ['D5 mô hình riêng cho dòng session', 'Gắn cờ lệnh quản trị 470/475, binary vô hại 525/525', 'Không nhận'],
+       ['D6 probe chỉ hook 5 họ syscall', 'Không nhanh hơn ở mọi thao tác', 'Không nhận'],
+       ['D7 chi phí trên request thật', 'p50 +10,5 ms (+11%), p95 +15,9 ms (+5,7%), p99 +34,2 ms (+9,5%), 0 lỗi', 'Đo xong'],
+       ['D8 token chi tiết hơn (đường dẫn 2 cấp, đích connect)', 'Mất 3 phát hiện LID-DS 2021 development', 'Không nhận'],
+       ['D9 học lại sau mỗi lần đổi cụm', 'Quy tắc vận hành', 'Nhận'],
+       ['D10, D11 gom sự cố, đồng thuận replica', 'Lượt v6 chỉ có 4 đợt normal, đều một replica', 'Không có lợi'],
+       ['D12 tấn công chậm 0,1–0,5/s, bật-tắt', 'Thêm vào lượt cuối', 'Dùng ở lượt cuối'],
+       ['D13 né bằng io_uring', 'Seccomp RuntimeDefault trả EPERM trong pod', 'Đã đóng'],
+       ['D14 làm mượt Kneser-Ney', 'LID-DS 2019 development 288/321', 'Không nhận'],
+       ['D15 CUSUM', 'LID-DS 2021 development 9–46 báo nhầm', 'Không nhận'],
+       ['D16 ngưỡng GEV gộp hình dạng', 'Trên 2021 official mất 3 phát hiện, báo nhầm không giảm', 'Không nhận'],
+       ['D17 ngữ cảnh process (reset khi execve)', 'CB-DS 3 → 2 báo nhầm, LID-DS 2019 không đổi', 'Không nhận'],
+       ['D18 Falco event-generator (14 hành động)', 'Bản tĩnh dựng từ mã nguồn v0.13.0 để chạy cả trong image musl', 'Dùng ở lượt cuối']], [3.6, 4.6, 1.8]),
+    B('**Thêm cho người vận hành:** nhãn stream (native/session) trên mỗi cảnh báo, chỉ để phân loại, không hạ cảnh báo; ghi sự kiện Kubernetes suốt lượt để gắn nhãn đợt cảnh báo do vận hành sau lượt.'),
+    B('**Không cần chạy lại dataset:** không hướng nào được nhận làm đổi cách chấm trên dataset; t3 đã có số trên LID-DS 2021, 2019 và CB-DS.'),
+    CODE('scripts/analysis/improvement_offline.py, rich_token_cache.py, session_channel.py, burden_context.py, scripts/map_overflow_test.py, scripts/app_overhead_ab.py; protocol sentinel_pulse/protocol/improvement-round-v1*.json; biên nhận validation-evidence/results-20261119/improvement-round/.'),
+)
+
+h1('8. Lượt live cuối: pulse-live-final-1119')
+add(
+    P('Protocol pulse-live-final-v1 đăng ký 19/11 09:39, trước lượt chạy: H0 (tập chính: recall ≥ 95%, control ≤ 5%, precision ≥ 95%, p95 ≤ 3 s), H3 (pha loãng PAD 300), H7 (tấn công chậm 0,5 và 0,1 lần/s), H8 (bật-tắt chu kỳ 10 s), cùng các tập báo cáo kèm (lotl, event-generator theo hành động, lệnh quản trị, binary vô hại, dòng native, gánh trên khoảng normal cuối, RCA).', 'FirstParagraph'),
+    T([['Hạng mục', 'Nội dung'],
+       ['Hệ thống', 'lidds-ml-v5-t3, bộ mô hình pulse-live-v7-fit-1118, probe pulse-tokens-final-f8ccbb2, bridge có hàng đợi bền và nhãn stream'],
+       ['Campaign', '945 trial: 525 cơ bản (21 workload × 5 kịch bản × 1, 3, 6, 12, 24 lần/s), 210 chậm (0,5 và 0,1/s), 105 PAD 300, 105 bật-tắt 10 s'],
+       ['Mỗi trial', 'control 15 s, rồi theo thứ tự có seed: lệnh quản trị, binary vô hại, tấn công, lotl, một hành động event-generator'],
+       ['Thời lượng', '162.000 s (45 giờ): 90 phút chọn mẫu, khoảng 36 giờ campaign, khoảng 6 giờ normal cuối; từ 19/11 09:50 tới khoảng 21/11 06:50'],
+       ['Diễn tập', '6 trial trên các workload khó nhất: mọi bước chạy, phân tích chạy được, bridge 37/37, 138 s mỗi trial'],
+       ['Tình trạng 19/11 22:41', '309/945 cặp xong; campaign, bridge, RCA, bộ ghi sự kiện K8s và 3 worker đang chạy']], [2.4, 7.6]),
+    B('**Sự cố nhỏ:** bộ ghi sự kiện Kubernetes chạy dưới dạng user unit nên dừng khi phiên SSH khởi chạy đóng (09:49); chạy lại lúc 10:59 dưới dạng system unit. API giữ sự kiện khoảng 1 giờ nên phần mất thật chỉ khoảng 10 phút, trước khi có tấn công. Script khởi chạy đã sửa cho các lượt sau.'),
+    B('**Không làm gì nặng trên cụm** và không pull code lên worker tới khi lượt chạy xong; lượt chạy hết chu kỳ.'),
+    CODE('sentinel_pulse/protocol/pulse-live-final-v1.json; sentinel_pulse/pipeline/plan_matched_run.py (--rehearsal, --on-off, --eventgen), sentinel_pulse/attack/preview_campaign.py, scripts/launch_run.sh, scripts/k8s_events_record.py; biên nhận diễn tập validation-evidence/results-20261119/final-rehearsal/.'),
+)
+
+h1('9. Paper')
 add(
     B('**Phương pháp PaperOrchestra** (Google Research): outline → tài liệu → viết từng mục → vòng chỉnh → định dạng; Claude đóng vai các agent, không dùng API trả phí. **Form USENIX Security \'27** (cycle 2, hạn 26/01/2027).'),
-    B('**Trạng thái:** bản nháp 12 trang; phần mở đầu và related work viết từ tóm tắt đã kiểm; 53 tài liệu, 47 đã kiểm trên Semantic Scholar hoặc Crossref, file bib sinh tự động chỉ từ metadata đã kiểm; còn 14 chỗ chờ số (chủ yếu kết quả v6 và LID-DS 2019).'),
-    B('**Việc còn lại:** điền số v6 và LID-DS 2019, tiêu đề và abstract, hình, vòng chỉnh, ẩn danh.'),
+    B('**Trạng thái:** bản nháp 13 trang; 53 tài liệu, 47 đã kiểm trên Semantic Scholar hoặc Crossref, file bib sinh tự động chỉ từ metadata đã kiểm; mọi chỗ chờ số của v6 và LID-DS 2019 đã điền; hình tổng quan (Figure 1) đã vẽ.'),
+    B('**Việc còn lại:** cập nhật sang t3 và lượt live cuối, tiêu đề và abstract, vòng chỉnh, ẩn danh, link artifact.'),
     CODE('paper/README.md (các bước), paper/latex/paper.tex, paper/tools/s2_verify.py, paper/tools/make_bib.py.'),
 )
 
-h1('8. Mã nguồn, tài liệu đọc code, dọn tài nguyên')
+h1('10. Mã nguồn, tài liệu đọc code, dọn tài nguyên')
 add(
     B('**Chú thích tiếng Việt cho toàn bộ code** (177 file: eBPF, collector, detector, pipeline, attack, testbed, ops, RCA, LID-DS, scripts). Bộ kiểm chỉ ra mỗi thay đổi chỉ là comment (AST cho Python, bỏ comment rồi so cho C, so dòng không phải comment cho shell); test đầy đủ đạt.'),
     B('**Hướng dẫn đọc code** notes/CODE_READING_GUIDE.md: lộ trình 8 chặng, bản đồ thư mục, đường đi của dữ liệu, offline, cụm, thuật ngữ, protocol và kiểm toán, cách chạy lại, bản đọc 30 phút.'),
+    B('**Tài liệu mới (19/11):** docs/LUONG_CODE.md (luồng code từ syscall tới cảnh báo, ví dụ thật của lượt cuối, quy trình chuẩn và các lệnh cần chạy); docs/architecture/KIEN_TRUC.md (từng thành phần của hình kiến trúc và file, hàm tương ứng); hình kiến trúc 5 trang và các hình TikZ của đồ án cập nhật theo hệ thống của lượt cuối.'),
     B('**Kiểm toán số liệu của đồ án:** 130/130 câu số liệu khớp biên nhận (scripts/audit/headline_numbers.py).'),
     B('**Dọn tài nguyên:** xoá script không còn chạy được (chủ đồ án đồng ý 16/11); nén không mất dữ liệu các segment của 5 lượt đã xong (2.360 file, 0 lỗi, xoá bản gốc chỉ khi SHA-256 khớp), NFS trống 595 GB; xoá unit, config và file tạm của các lượt đã xong trên master và worker.'),
     CODE('scripts/compress_raw_frames.py; notes/CODE_AUDIT.md.'),
 )
 
-h1('9. Tuần này: các lượt chạy và job')
+h1('11. Tuần này: các lượt chạy và job')
 add(
     T([['Lượt / job', 'Thời gian', 'Kết quả'],
        ['ml-final-study-v1 B2, B3', '13/11', 'Học thêm quản trị không đạt; proxy dòng native sạch; mô hình phiên không bắt tấn công'],
@@ -355,31 +417,37 @@ add(
        ['pulse-live-v6-1117', '17–18/11', '26 giờ, 735/735 trial; H0, H1, H3 đạt; R1 không nhận'],
        ['LID-DS 2019 (một lần, dung sai nhãn 1 s)', '18/11', '90,88%, báo nhầm 0,44%, p95 10,55 s; C1 không đạt'],
        ['LID-DS 2019 development (30%)', '18/11', '23 ứng viên; không ứng viên nào giữ 2021 mà tăng recall; giữ v5'],
-       ['Paper, chú thích code, dọn tài nguyên', '17–18/11', 'Bản nháp 12 trang; 177 file; NFS trống 595 GB']], [3.6, 1.6, 4.8]),
+       ['LID-DS 2019 amendment 1 (t3)', '18/11', 'Holdout 817/841 (dung sai 1 s); 2021 official 1.236/1.271, 15 báo nhầm'],
+       ['Fit pulse-live-v7-fit-1118 (t3); lượt v7', '18–19/11', '21 mô hình; lượt v7 dừng trước tấn công để làm vòng cải thiện'],
+       ['improvement-round-v1 (D1–D18)', '19/11', 'Nhận D1, D2, D3; D12, D18 vào lượt cuối; 10 hướng không nhận'],
+       ['Diễn tập; pulse-live-final-1119', '19–21/11', 'Diễn tập đạt; lượt cuối 945 trial đang chạy'],
+       ['Paper, chú thích code, dọn tài nguyên', '17–18/11', 'Bản nháp 12 trang; 177 file; NFS trống 595 GB'],
+       ['Hình kiến trúc, tài liệu luồng code', '19/11', 'Hình 5 trang, TikZ đồ án, hình paper; LUONG_CODE.md, KIEN_TRUC.md']], [3.6, 1.6, 4.8]),
     B('**Việc đã hẹn ở buổi 13/11:** lượt thu và live mới trên cấu hình VM mới với bản sửa RCA, thứ tự ngẫu nhiên và thêm kỹ thuật tấn công (xong); LID-DS 2019 chấm một lần khi mô hình chốt (xong); luật R1, R2 và so sánh có và không có luật (xong, R1 không nhận).'),
     B('**Chủ đồ án quyết định:** không đưa ảnh có lỗ hổng hay exploit thật lên cụm và không dùng dịch vụ thử chạy thao tác trong process; dòng native vì vậy chưa thử với tấn công chạy bên trong process của dịch vụ trên cụm (bằng chứng cho trường hợp này là LID-DS 2021).'),
     B('**Sự cố:** không có sự cố hạ tầng; vài khoảng trống nhịp ngắn trên worker trong lượt v6, không mất gram.'),
 )
 
-h1('10. Tiến độ và việc tiếp theo')
+h1('12. Tiến độ và việc tiếp theo')
 add(
     T([['Hạng mục', 'Hoàn thành', 'Còn lại'],
-       ['ML trên dataset (LID-DS 2021, CB-DS, LID-DS 2019)', '~97%', 'LID-DS 2019 không đạt C1, ghi là giới hạn (mục 6.3)'],
-       ['Probe token và chi phí', '~90%', 'Chi phí trên request của ứng dụng thật'],
-       ['Live blind của ML', '~95%', 'Ba lượt xong; không cần lượt mới nếu không đổi hệ thống'],
-       ['Process mới vô hại', '~45%', 'Dòng native sạch; dòng session cần cách xử lý riêng'],
-       ['RCA và đường cảnh báo', '~92%', 'Hàng đợi bền cho bridge'],
-       ['So sánh có và không có luật', '~70%', 'R1 đã đo cả lợi và hại; luật theo dòng dõi nếu làm tiếp'],
-       ['Viết đồ án (LaTeX)', '~90%', 'Chỉnh văn, phụ lục'],
-       ['Paper (USENIX Security \'27)', '~45%', 'Điền số, hình, vòng chỉnh, ẩn danh'],
-       ['Đồ án tổng thể', '~90%', 'Tăng từ ~85% ở buổi 13/11']], [3.8, 1.6, 4.6]),
+       ['ML trên dataset (LID-DS 2021, CB-DS, LID-DS 2019)', '~98%', 'LID-DS 2019: p95 không đạt (giới hạn của dữ liệu)'],
+       ['Probe token và chi phí', '~95%', 'Xong; chi phí trên request thật đã đo'],
+       ['Lượt live của ML', '~90%', 'Lượt cuối đang chạy, phân tích sau 21/11'],
+       ['Process mới vô hại', '~50%', 'Nhãn stream trên cảnh báo; dòng session vẫn cần cách xử lý riêng'],
+       ['RCA và đường cảnh báo', '~95%', 'Hàng đợi bền đã có; đo lại ở lượt cuối'],
+       ['So sánh có và không có luật', '~70%', 'Luật danh mục ý đồ trên lotl và event-generator sau lượt cuối'],
+       ['Viết đồ án (LaTeX)', '~88%', 'Cập nhật sang t3 và kết quả lượt cuối, chỉnh văn'],
+       ['Paper (USENIX Security \'27)', '~50%', 'Cập nhật t3, lượt cuối, abstract, vòng chỉnh'],
+       ['Đồ án tổng thể', '~92%', 'Tăng từ ~85% ở buổi 13/11']], [3.8, 1.6, 4.6]),
     P('Các tỉ lệ trên là ước lượng, không phải số đo.'),
-    B('**Dòng session:** quyết định cần biết cửa sổ báo đến từ dòng nào. Hướng có thể làm: đường cảnh báo theo dòng dõi (native dùng mô hình workload; session báo kèm cho người vận hành), cần một protocol mới và một lượt live.'),
+    B('**Sau lượt cuối (21/11):** phân tích theo protocol (H0, H3, H7, H8, event-generator, dòng native, gánh trên khoảng normal cuối kèm sự kiện Kubernetes, RCA, so với v6); rồi so sánh có và không có luật danh mục ý đồ; cập nhật đồ án, paper, báo cáo, slide sang t3 và kết quả lượt cuối.'),
+    B('**Dòng session:** cảnh báo đã mang nhãn stream; mô hình riêng cho session (D5) không tách được tấn công khỏi lệnh quản trị, nên dòng session vẫn là giới hạn nếu không có hướng mới.'),
     B('**Paper:** hoàn thiện bản nháp theo PaperOrchestra, vòng chỉnh và kiểm số tự động như đồ án.'),
-    B('**Cần thầy cho ý kiến:** (1) LID-DS 2019: thử trên phần development không cải thiện được mà vẫn giữ LID-DS 2021 (mục 6.3); để kết quả này là giới hạn của đồ án; (2) dòng session: để là giới hạn của đồ án, hay làm đường cảnh báo theo dòng dõi trước khi bảo vệ; (3) paper có cần baseline tự chạy (STIDE, Isolation Forest) ngoài các số đã công bố không.'),
+    B('**Cần thầy cho ý kiến:** (1) LID-DS 2019: t3 đạt recall và báo nhầm với dung sai nhãn 1 s, nhưng p95 không xuống 3 s vì cận dưới của dữ liệu (9,39 s); để độ trễ 2019 là giới hạn của đồ án; (2) dòng session: để là giới hạn, hay làm đường cảnh báo theo dòng dõi trước khi bảo vệ; (3) paper có cần baseline tự chạy (STIDE, Isolation Forest) ngoài các số đã công bố không.'),
 )
 
-h1('11. Giải thích thuật ngữ')
+h1('13. Giải thích thuật ngữ')
 add(T([['Thuật ngữ', 'Nghĩa'],
        ['Thẻ dòng dõi (lineage)', 'Thẻ của mỗi thread: native nếu thuộc cây process của chính workload, session nếu vào qua runtime exec (kubectl exec, crictl exec) hoặc là con của process như vậy'],
        ['Dòng native / session', 'Phần của cửa sổ token do thread native / session sinh ra; loader in riêng phần session'],
@@ -391,12 +459,18 @@ add(T([['Thuật ngữ', 'Nghĩa'],
        ['Amendment', 'Phần sửa của một protocol, đăng ký có thời điểm; phần đăng ký sau khi thấy dữ liệu được ghi là phân tích sau'],
        ['C1', 'Mức đăng ký cho LID-DS 2019: recall ≥ 95%, bản ghi normal bị báo nhầm ≤ 1%, p95 ≤ 3 s'],
        ['Dung sai nhãn 1 s', 'Tính cả cửa sổ báo kết thúc trong 1 s trước mốc exploit, vì mốc của LID-DS 2019 làm tròn tới giây'],
-       ['Shadow', 'Nhánh vẫn chạy và ghi kết quả nhưng không đi vào đường cảnh báo']], [3.0, 7.0]))
+       ['Shadow', 'Nhánh vẫn chạy và ghi kết quả nhưng không đi vào đường cảnh báo'],
+       ['t3 (lidds-ml-v5-t3)', 'Cùng mô hình lidds-ml-v5 nhưng điểm cửa sổ là trung bình 3 độ bất ngờ lớn nhất, bỏ 0,5% cực đại khi khớp Gumbel, α′ 0,0003'],
+       ['Holdout', 'Phần dữ liệu giữ lại, chỉ chấm sau khi đã chọn cấu hình trên phần development'],
+       ['Tấn công chậm / bật-tắt', 'Thao tác tấn công 0,1–0,5 lần/s; hoặc chạy 10 s, nghỉ 10 s, để thử né ngưỡng theo cửa sổ'],
+       ['Event-generator', 'Công cụ của Falco tạo hành vi đáng ngờ (đọc file nhạy cảm, xoá log, chạy từ /dev/shm...) để thử bộ phát hiện'],
+       ['Diễn tập (rehearsal)', 'Lượt chạy ngắn, mỗi loại trial một lần, chỉ để kiểm mọi bước chạy được trước lượt chính']], [3.0, 7.0]))
 
-h1('12. Tài liệu tham chiếu')
+h1('14. Tài liệu tham chiếu')
 add(
-    B('Protocol: sentinel_pulse/protocol/ml-final-study-v1 (amendment 1–2), token-probe-overhead-v1 (amendment 3), map-capacity-v1, pulse-live-v6-v1 (amendment 1), lidds2019-confirmation-v2 (amendment 1), lidds2019-development-v1.'),
-    B('Biên nhận: validation-evidence/results-20261113 (lineage-probe, ml-final-study), results-20261115 (rule-e-benefit, w3b-rate-signal), results-20261116 (lineage-overhead, map-capacity), results-20261117 (model-aging, lidds2019-gate), results-20261118 (pulse-live-v6-1117, lidds2019-confirmation, lidds2019-development).'),
+    B('Protocol: sentinel_pulse/protocol/ml-final-study-v1 (amendment 1–2), token-probe-overhead-v1 (amendment 3), map-capacity-v1, pulse-live-v6-v1 (amendment 1), lidds2019-confirmation-v2 (amendment 1), lidds2019-development-v1 (amendment 1), pulse-live-v7-v1, improvement-round-v1 (amendment 1–4), pulse-live-final-v1.'),
+    B('Biên nhận: validation-evidence/results-20261113 (lineage-probe, ml-final-study), results-20261115 (rule-e-benefit, w3b-rate-signal), results-20261116 (lineage-overhead, map-capacity), results-20261117 (model-aging, lidds2019-gate), results-20261118 (pulse-live-v6-1117, lidds2019-confirmation, lidds2019-development), results-20261119 (improvement-round, final-rehearsal).'),
+    B('Kiến trúc và code: docs/architecture/ (hình 5 trang, KIEN_TRUC.md), docs/LUONG_CODE.md.'),
     B('Đồ án: thesis/ (LaTeX, mục RQ1–RQ6); nhật ký notes/WORKLOG.md, trạng thái notes/STATE.md; hướng dẫn đọc code notes/CODE_READING_GUIDE.md.'),
     B('M. Grimmer, T. Kaelble, F. Nirsberger, E. Schulze, T. Rucks, J. Hoffmann, E. Rahm. Dataset Report: LID-DS 2021. Critical Information Infrastructures Security (LNCS), 2023, pp. 63–73.'),
     B('PaperOrchestra, Google Research: github.com/google-research/paper-orchestra.'),
@@ -411,8 +485,8 @@ sect = d.index('<w:sectPr', body_start + blocks[-1].end())
 head = d[:body_start + blocks[toc_head].end()]
 head = head.replace('Báo cáo tiến độ từ 06/11 đến 13/11/2026', 'Báo cáo tiến độ từ 13/11 đến 20/11/2026', 1)
 head = head.replace('(Giải thích chi tiết mô hình ML hiện tại lidds-ml-v5, ví dụ thật, kiểm từng lựa chọn, kết quả, việc còn lại)',
-                    '(Thẻ dòng dõi, luật sau mô hình, lượt live thứ ba 26 giờ, LID-DS 2019, paper, việc còn lại)', 1)
-assert 'từ 13/11 đến 20/11/2026' in head and 'Thẻ dòng dõi, luật sau mô hình' in head
+                    '(Thẻ dòng dõi, lượt live thứ ba, LID-DS 2019 và cấu hình t3, vòng cải thiện D1–D18, lượt live cuối, kiến trúc, paper)', 1)
+assert 'từ 13/11 đến 20/11/2026' in head and 'vòng cải thiện D1–D18' in head
 toc = ''.join(TOC(t, lv) for lv, t in S)
 brk = '<w:p><w:pPr><w:pStyle w:val="Normal"/><w:spacing w:before="0" w:after="200"/><w:rPr></w:rPr></w:pPr><w:r><w:br w:type="page"/></w:r></w:p>'
 d = head + toc + brk + ''.join(BODY) + d[sect:]
