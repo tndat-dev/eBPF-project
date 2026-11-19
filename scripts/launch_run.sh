@@ -191,10 +191,11 @@ master() {
     --config "$ROOT/CONFIG.json" --role campaign --credential "$CREDENTIAL"
   # improvement-round-v1 D10: Kubernetes events for the whole run (operational labels of alert episodes after the run)
   if [ "${K8S_EVENTS:-0}" = 1 ]; then
-    systemd-run --user --unit="pulse-k8s-events-$RUN" --collect python3 -u "$SNAP/scripts/k8s_events_record.py" \
-      --output "$ROOT/k8s-events.jsonl" --seconds "${SECONDS_TOTAL:-86400}" 2>/dev/null \
-      || nohup python3 -u "$SNAP/scripts/k8s_events_record.py" --output "$ROOT/k8s-events.jsonl" \
-           --seconds "${SECONDS_TOTAL:-86400}" > "$ROOT/k8s-events.log" 2>&1 &
+    # a system unit run as dat: a --user unit stops when the launching ssh session closes (dat has no linger;
+    # pulse-live-final-1119 lost its recorder this way at 02:49 UTC, restarted 03:59)
+    as_root systemd-run --unit="pulse-k8s-events-$RUN" --uid=dat --gid=dat -p Environment=HOME=/home/dat \
+      -p MemoryMax=300M -p OOMPolicy=continue --collect /usr/bin/python3 -u "$SNAP/scripts/k8s_events_record.py" \
+      --output "$ROOT/k8s-events.jsonl" --seconds "${SECONDS_TOTAL:-86400}"
   fi
 }
 
