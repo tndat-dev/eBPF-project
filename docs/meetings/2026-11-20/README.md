@@ -1,7 +1,8 @@
 # Tài liệu buổi họp 20/11/2026 (tiến độ 13/11 – 20/11): cách dựng
 
-- Hình: `overview.tex`, `probe.tex` bọc thẳng hình TikZ của đồ án (`thesis/figures/tikz-overview.tex`, `tikz-probe.tex`, đã có
-  thẻ dòng dõi); `tectonic -o FIG overview.tex` rồi `pdftoppm -png -r 220 -singlefile`. Hình không ghi đường dẫn code.
+- Hình: chỉ dùng hình draw.io (chủ đồ án 19/11): `docs/architecture/export/1-tong-quan.png` làm `overview.png`,
+  `docs/architecture/export/2-probe-ebpf.png` làm `probe.png` trong thư mục FIG; sinh lại hình bằng
+  `docs/architecture/make_architecture_drawio.py` rồi `drawio -x` (xem `docs/architecture/README.md`).
 - Báo cáo `docs/Bao_cao_tien_do_13_11-20_11.docx`: giải nén bản 13/11 chủ đồ án đã chỉnh vào `x/`, `report_build.py FIG` giữ
   trang bìa, style, footer, numbering và thay mục lục cùng nội dung; `../2026-11-13/report_toc.py <soffice.py>` điền số trang
   của mục lục và ghi `out.docx`.

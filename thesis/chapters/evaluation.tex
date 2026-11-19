@@ -4,12 +4,12 @@ Mô hình token đạt cả ba tiêu chí trên LID-DS 2021 official: recall 97,
 
 \section{Phương pháp}
 
-\begin{figure}[htbp]
+\begin{sidewaysfigure}
   \centering
-  \adjustbox{max width=\linewidth}{\input{figures/tikz-eval}}
-  \caption{Quy trình học và đánh giá: chọn trên development của dataset, xác nhận trên official, rồi chạy live trên cụm với mô hình khoá trước lượt.}
+  \includegraphics[width=\textheight,height=0.9\textwidth,keepaspectratio,page=5]{../docs/architecture/export/sentinel-pulse-architecture.pdf}
+  \caption{Quy trình học và đánh giá: chọn trên development của dataset, xác nhận trên official, rồi chạy live trên cụm với mô hình khoá trước lượt (hình draw.io, trang 5).}
   \label{fig:eval-flow}
-\end{figure}
+\end{sidewaysfigure}
 
 \textbf{Đăng ký trước.} Mỗi phân tích chính và mỗi lượt live có một protocol JSON được commit vào git trước khi đọc dữ liệu liên quan: \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} (cùng ba amendment) cho dataset và lượt live gần nhất, \texttt{pulse-\allowbreak{}live-\allowbreak{}v3-\allowbreak{}v1} (cùng hai amendment) cho lượt live, \texttt{token-\allowbreak{}design-\allowbreak{}study-\allowbreak{}v1} cho các lựa chọn thiết kế, \texttt{token-\allowbreak{}probe-\allowbreak{}overhead-\allowbreak{}v1} cho chi phí. Protocol ghi kỳ vọng, định nghĩa chỉ số, luật chọn và code phân tích. Mọi sửa đổi sau đó là một amendment có giờ và lý do. Hình~\ref{fig:eval-flow} cho thấy thứ tự các bước.
 

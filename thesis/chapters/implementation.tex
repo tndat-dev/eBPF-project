@@ -24,12 +24,12 @@ Lưu trữ & NFS riêng cho dữ liệu các lượt chạy \\
 
 Probe là một object eBPF (\texttt{make tokens}) và một loader C, cả hai được khoá bằng SHA-256 cùng một \emph{proof} gắn với phiên bản kernel; worker từ chối chạy trên kernel khác. Hình~\ref{fig:probe} cho thấy đường đi của một syscall qua ba chương trình BPF, cùng chương trình thứ tư gắn thẻ dòng dõi lúc fork.
 
-\begin{figure}[htbp]
+\begin{sidewaysfigure}
   \centering
-  \adjustbox{max width=\linewidth}{\input{figures/tikz-probe}}
-  \caption{Probe eBPF: ba chương trình BPF dựng token cho mỗi syscall, một chương trình gắn thẻ dòng dõi lúc fork, 4-gram đếm theo thread trong map, và loader đọc các cửa sổ đã đóng.}
+  \includegraphics[width=\textheight,height=0.9\textwidth,keepaspectratio,page=2]{../docs/architecture/export/sentinel-pulse-architecture.pdf}
+  \caption{Probe eBPF: bốn chương trình BPF (sys\_enter, sys\_exit, \_\_seccomp\_filter, sched\_process\_fork), các map, bố cục token 32 bit và loader (hình draw.io, trang 2).}
   \label{fig:probe}
-\end{figure}
+\end{sidewaysfigure}
 
 \begin{itemize}
 \tightlist

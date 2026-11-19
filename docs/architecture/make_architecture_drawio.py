@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Build docs/architecture/sentinel-pulse-architecture.drawio (5 pages) from the facts in the repository.
+"""Build docs/architecture/sentinel-pulse-architecture.drawio (5 pages, Vietnamese) and
+sentinel-pulse-overview-en.drawio (one page, English, the paper's Figure 1) from the facts in the repository.
 
 Sources: thesis/chapters/design.tex and implementation.tex (system, RCA, alert path, cluster), README.md (nodes),
 sentinel_pulse/ebpf/* (probe, token layout), sentinel_pulse/pipeline/matched_worker.py (worker),
@@ -501,12 +502,53 @@ def evaluation():
     return p
 
 
-def main():
-    pages = [overview(), kernel(), worker(), alerting(), evaluation()]
+# ---------------------------------------------------------------- English overview for the paper (Figure 1)
+def paper_overview():
+    p = Page('Overview (paper)', 1500, 560)
+    p.group(20, 30, 1460, 330, 'Each worker node (×3)', kind='user', size=15)
+    app = p.box(40, 70, 200, 170, 'Application containers', 'namespace production; one cgroup each; unmodified',
+                kind='ext', small=13)
+    probe = p.box(275, 70, 330, 170, 'eBPF probe (kernel)', 'sys_enter, sys_exit, __seccomp_filter, sched_process_fork<br>'
+                  '32-bit token per call; per-thread 4-grams counted per (cgroup, 0.5 s window); lineage tag',
+                  kind='kernel', small=13)
+    loader = p.box(640, 70, 220, 170, 'Loader', 'every 0.5 s drains the closed windows; SHA-256 and kernel proof checked '
+                   'at start', kind='user', small=13)
+    worker = p.box(895, 70, 330, 170, 'Scoring worker', 'per-workload 4-gram count LM (Witten-Bell); s(W) = mean of the top '
+                   'surprisals; alarm if s(W) > τ of the workload; one window fires', kind='ml', small=13)
+    dec = p.store(1260, 70, 200, 170, 'Decisions', 'local disk; segments on NFS')
+    res = p.box(40, 265, 200, 80, 'Resolver', 'pod UID → cgroup → workload', kind='user', small=13)
+    p.group(260, 395, 1220, 150, 'Master node', kind='alert', size=15)
+    fit = p.box(40, 425, 200, 105, 'Offline fit', 'normal capture → counts → 5-fold cross-fit → Gumbel τ', kind='ml',
+                small=13)
+    tet = p.box(280, 425, 200, 105, 'Tetragon', 'exec, fork and connect events', kind='ext', small=13)
+    rca = p.box(515, 425, 300, 105, 'RCA', 'one case per delivered alert: process tree, ranked suspects', kind='alert',
+                small=13)
+    am = p.box(850, 425, 200, 105, 'Alertmanager', 'of the cluster', kind='alert', small=13)
+    bridge = p.box(1085, 425, 375, 105, 'Alert bridge', 'follows alarm rows over SSH; one episode per container (gaps < 15 s); '
+                   'push to Alertmanager', kind='alert', small=13)
+    p.edge(app, probe, 'syscalls', kind='kernel')
+    p.edge(probe, loader, 'map', kind='kernel')
+    p.edge(loader, worker, 'windows', kind='data')
+    p.edge(worker, dec, '', kind='data')
+    p.edge(res, loader, 'allow-list, identity', kind='ctrl', exit=(1, 0.5), entry=(0.5, 1), points=[(750, 305)])
+    p.edge(dec, bridge, 'alarms', kind='alert', exit=(0.5, 1), entry=(1, 0.5), points=[(1360, 380), (1475, 380), (1475, 477)])
+    p.edge(bridge, am, '', kind='alert')
+    p.edge(am, rca, 'delivered', kind='alert')
+    p.edge(tet, rca, '', kind='data')
+    p.edge(fit, worker, 'MODELS.json (SHA-256)', kind='ctrl', exit=(0.5, 0), entry=(0.3, 1), points=[(140, 375), (994, 375)])
+    return p
+
+
+def write(path, pages):
     xml = ('<mxfile host="drawio" agent="make_architecture_drawio.py" version="32.6.10">'
            + ''.join(pg.xml(k + 1) for k, pg in enumerate(pages)) + '</mxfile>\n')
-    OUT.write_text(xml, encoding='utf-8')
-    print(OUT, len(pages), 'pages')
+    path.write_text(xml, encoding='utf-8')
+    print(path, len(pages), 'pages')
+
+
+def main():
+    write(OUT, [overview(), kernel(), worker(), alerting(), evaluation()])
+    write(OUT.with_name('sentinel-pulse-overview-en.drawio'), [paper_overview()])
 
 
 if __name__ == '__main__':

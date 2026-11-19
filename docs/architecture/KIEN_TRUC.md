@@ -8,12 +8,13 @@ Mỗi hộp trong hình có một mục: nó làm gì, code nằm ở file và h
 Trạng thái: hệ thống của lượt live cuối `pulse-live-final-1119` (19/11/2026): mô hình `lidds-ml-v5-t3` (top 3, trim 0,5%,
 α′ 0,0003), probe `pulse-tokens-final-f8ccbb2`, snapshot code `/mnt/sentinel-pulse-archive/runtime-0c385d9-20261119/source/`.
 
-Cùng nội dung ở dạng khác:
+Mọi tài liệu chỉ dùng hình draw.io này (chủ đồ án, 19/11):
 
-- đồ án (`thesis/main.pdf`): Hình 4.1 tổng quan `thesis/figures/tikz-overview.tex`, Hình 4.2 mô hình token
-  `thesis/figures/tikz-model.tex`, Hình 4.3 cảnh báo và RCA `thesis/figures/tikz-alert.tex`, Hình 5.1 probe eBPF
-  `thesis/figures/tikz-probe.tex`, Hình 6.1 học và đánh giá `thesis/figures/tikz-eval.tex`;
-- paper: `paper/latex/figures/overview.tex` (Figure 1);
+- đồ án (`thesis/main.pdf`): Hình 4.1 = trang 1, Hình 4.2 = trang 3, Hình 4.3 = trang 4, Hình 5.1 = trang 2, Hình 6.1 =
+  trang 5, chèn từ `docs/architecture/export/sentinel-pulse-architecture.pdf`;
+- báo cáo và slide tiến độ 20/11: `docs/architecture/export/1-tong-quan.png`, `2-probe-ebpf.png`;
+- paper: Figure 1 = `docs/architecture/sentinel-pulse-overview-en.drawio` (bản tiếng Anh, xuất
+  `docs/architecture/export/overview-en.pdf`);
 - luồng dữ liệu kèm ví dụ thật và lệnh chạy: `docs/LUONG_CODE.md`.
 
 Đường dẫn bắt đầu bằng `sentinel_pulse/`, `scripts/`, `testbed/` là file trong repo (`/home/tndat/Downloads/eBPF-project/`

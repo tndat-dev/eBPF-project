@@ -1,7 +1,7 @@
 """Progress report 13/11 -> 20/11/2026, built inside the owner's edited 13/11 report (cover page, styles, footers, numbering).
 
 Usage (from an empty work dir): unzip docs/Bao_cao_tien_do_06_11-13_11.docx into x/, then
-    python3 report_build.py FIGDIR        # FIGDIR holds overview.png and probe.png (rendered from overview.tex, probe.tex)
+    python3 report_build.py FIGDIR        # FIGDIR holds overview.png and probe.png: docs/architecture/export/1-tong-quan.png, 2-probe-ebpf.png
     python3 ../2026-11-13/report_toc.py <skill>/scripts/office/soffice.py   # fills the TOC page numbers, writes out.docx
 Every number comes from notes/WORKLOG.md and validation-evidence/results-20261113..20261119 (the thesis audit checks the
 same numbers against the receipts).
@@ -157,7 +157,7 @@ h1('2. Hệ thống sau tuần này')
 h2('2.1 Kiến trúc')
 add(
     P('Hình 1 là hệ thống của lượt live cuối. So với 13/11: (1) thẻ dòng dõi trong kernel, một chương trình BPF thứ tư gắn vào sched_process_fork, mỗi 4-gram được đếm riêng theo dòng dõi của thread, loader cộng hai dòng lại thành cửa sổ như cũ và in thêm phần session; (2) mô hình t3; (3) map 4-gram đầy thì worker báo cửa sổ nặng nhất (D1); (4) bridge giữ đợt chưa giao trong hàng đợi bền trên đĩa và gắn nhãn stream native/session cho cảnh báo (D3). Hình vẽ đầy đủ 5 trang (tổng quan, probe, worker và mô hình, cảnh báo và RCA, học và đánh giá) và bảng ánh xạ từng thành phần sang code nằm trong docs/architecture/.', 'FirstParagraph'),
-    IMG('overview', 'Hình 1. Kiến trúc hệ thống của lượt live cuối (lidds-ml-v5-t3, probe có thẻ dòng dõi).'),
+    IMG('overview', 'Hình 1. Kiến trúc hệ thống của lượt live cuối (hình draw.io, trang 1: tổng quan).'),
     T([['Thành phần', 'Code'],
        ['Probe eBPF (token, 4-gram, thẻ dòng dõi)', 'sentinel_pulse/ebpf/pulse_counter.bpf.c, pulse_tokens.bpf.h (pulse_tok_lineage, pulse_tok_fork), pulse_token_ids.h'],
        ['Loader', 'sentinel_pulse/ebpf/pulse_counter_loader.c'],
@@ -172,7 +172,7 @@ add(
 h2('2.2 Probe và thẻ dòng dõi')
 add(
     P('Mỗi thread mang một thẻ: native (cây process của chính workload) hoặc session (vào qua runtime exec, và mọi process con của nó). Lúc fork, thread con nhận thẻ của cha trước khi chạy. Thread lần đầu gặp mà chưa có trạng thái thì lấy thẻ của thread-group leader; không có thì lấy của cha nếu cha cùng cgroup; không có nữa thì là native khi pid của nó trong pid namespace là 1 (entrypoint của container), còn lại là session.', 'FirstParagraph'),
-    IMG('probe', 'Hình 2. Probe eBPF: ba chương trình dựng token, một chương trình gắn thẻ dòng dõi lúc fork, ba map.'),
+    IMG('probe', 'Hình 2. Probe eBPF (hình draw.io, trang 2): bốn chương trình BPF, các map, bố cục token 32 bit, loader.'),
     B('**Proof trên pod thật đạt 8/8:** vòng lặp của container và process con mà pid 1 fork là native; lệnh vào qua exec và con của nó là session; process con chạy nền sống lâu hơn phiên đã thoát vẫn giữ thẻ session. Proof token cũ vẫn đạt trên cả ba worker (mỗi syscall đúng một token).'),
     B('LID-DS 2021 không có runtime exec, nên mọi sự kiện là native và kết quả dataset không đổi.'),
     B('**Bản build của lượt cuối pulse-tokens-final-f8ccbb2** thêm cảnh báo khi map đầy và sửa mốc cửa sổ của loader; proof token đạt trên cả ba worker (361.900 / 442.796 / 393.644 lời gọi, mỗi lời gọi đúng một token).'),

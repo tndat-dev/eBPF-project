@@ -16,12 +16,12 @@ Sentinel Pulse có bốn phần nối tiếp nhau:
 
 Hình~\ref{fig:architecture} cho thấy toàn bộ hệ thống. Trên mỗi worker, kernel chỉ dựng token và đếm 4-gram; mọi phép tính xác suất nằm ở user space. Master chỉ đọc decision đã ghi, không can thiệp vào việc chấm điểm. Mô hình được học offline từ normal của chính cụm, khoá bằng SHA-256 và không đổi trong một lượt chạy. Các mục sau đi lần lượt qua mô hình đe dọa, mô hình ML (Hình~\ref{fig:token-model}), RCA và đường cảnh báo (Hình~\ref{fig:alert-rca}); probe trong kernel ở Hình~\ref{fig:probe}.
 
-\begin{figure}[htbp]
+\begin{sidewaysfigure}
   \centering
-  \adjustbox{max width=\linewidth}{\input{figures/tikz-overview}}
-  \caption{Kiến trúc Sentinel Pulse: thành phần trên mỗi worker, trên master, lưu trữ và bước học mô hình. Nét đứt là dữ liệu điều khiển (danh sách cgroup, metadata workload, mô hình).}
+  \includegraphics[width=\textheight,height=0.9\textwidth,keepaspectratio,page=1]{../docs/architecture/export/sentinel-pulse-architecture.pdf}
+  \caption{Kiến trúc Sentinel Pulse của lượt live cuối: thành phần trên mỗi worker và trên master, lưu trữ, học mô hình; khung tím đứt nét chỉ dùng khi đánh giá (hình draw.io, trang 1).}
   \label{fig:architecture}
-\end{figure}
+\end{sidewaysfigure}
 
 \section{Mô hình đe dọa}
 
@@ -98,12 +98,12 @@ Trọng tâm của đồ án là một mô hình học từ normal, không dùng
 
 Vì vậy hệ thống chỉ còn mô hình token; cây và support không nằm trong đường cảnh báo.
 
-\begin{figure}[htbp]
+\begin{sidewaysfigure}
   \centering
-  \adjustbox{max width=\linewidth}{\input{figures/tikz-model}}
-  \caption{Mô hình ngôn ngữ trên token: chấm một cửa sổ (trái, bước 1--6) và học cùng đặt ngưỡng chỉ từ normal (phải, bước a--f).}
+  \includegraphics[width=\textheight,height=0.9\textwidth,keepaspectratio,page=3]{../docs/architecture/export/sentinel-pulse-architecture.pdf}
+  \caption{Worker chấm điểm và mô hình token: cửa sổ token, mô hình ngôn ngữ của workload, điểm, ngưỡng, decision và bước học mô hình (hình draw.io, trang 3).}
   \label{fig:token-model}
-\end{figure}
+\end{sidewaysfigure}
 
 Hình~\ref{fig:token-model} tóm tắt mô hình. Phần còn lại của mục mô tả mô hình theo đúng thứ tự dữ liệu đi qua: từ một lần gọi syscall thành token, từ token thành chuỗi theo thread, từ chuỗi thành xác suất, từ xác suất thành điểm của cửa sổ 0,5 s, và từ điểm thành quyết định báo. Công thức dưới đây là công thức của code đang chạy (\texttt{sentinel\_\allowbreak{}pulse/\allowbreak{}detector/\allowbreak{}token\_\allowbreak{}model.py} trên cụm, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds\_\allowbreak{}ml\_\allowbreak{}tokens.py} trên dataset; hai bản cho cùng xác suất tới sai số $10^{-12}$, có test kiểm).
 
@@ -286,12 +286,12 @@ Cây bằng chứng cho thấy liên quan theo định danh và thời gian, kh�
 
 \section{Đường cảnh báo}
 
-\begin{figure}[htbp]
+\begin{sidewaysfigure}
   \centering
-  \adjustbox{max width=\linewidth}{\input{figures/tikz-alert}}
-  \caption{Đường cảnh báo và RCA: từ decision của worker tới Alertmanager, rồi từ cảnh báo đã nhận tới case và nghi phạm.}
+  \includegraphics[width=\textheight,height=0.9\textwidth,keepaspectratio,page=4]{../docs/architecture/export/sentinel-pulse-architecture.pdf}
+  \caption{Đường cảnh báo và RCA: từ decision của worker tới Alertmanager, rồi từ cảnh báo đã nhận tới case và nghi phạm (hình draw.io, trang 4).}
   \label{fig:alert-rca}
-\end{figure}
+\end{sidewaysfigure}
 
 \begin{itemize}
 \tightlist
