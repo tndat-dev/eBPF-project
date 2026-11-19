@@ -2,8 +2,11 @@
 
 Tài liệu đi theo đúng 5 trang của hình kiến trúc
 `docs/architecture/sentinel-pulse-architecture.drawio` (ảnh xuất trong `docs/architecture/export/`:
-`1-tong-quan.png`, `2-probe-ebpf.png`, `3-worker-mo-hinh-token.png`, `4-canh-bao-rca.png`, `5-hoc-va-danh-gia.png`).
-Mỗi hộp trong hình có một mục: nó làm gì, code nằm ở file và hàm nào, chạy ở đâu, đọc và ghi file nào.
+`1-tong-quan.png`, `2-probe-ebpf.png`, `3-worker-mo-hinh-token.png`, `4-duong-canh-bao.png`, `5-hoc-va-danh-gia.png`).
+Mỗi hộp trong hình có một mục: nó làm gì, code nằm ở file và hàm nào, chạy ở đâu, đọc và ghi file nào. Mỗi hộp trong hình
+cũng ghi dòng `code:` với đường dẫn đầy đủ trong repo (chủ đồ án, 19/11).
+
+**Phần RCA tạm bỏ khỏi hình và khỏi tài liệu này** (chủ đồ án, 19/11), sẽ cập nhật sau; code RCA vẫn ở `sentinel_pulse/rca/`.
 
 Trạng thái: hệ thống của lượt live cuối `pulse-live-final-1119` (19/11/2026): mô hình `lidds-ml-v5-t3` (top 3, trim 0,5%,
 α′ 0,0003), probe `pulse-tokens-final-f8ccbb2`, snapshot code `/mnt/sentinel-pulse-archive/runtime-0c385d9-20261119/source/`.
@@ -29,8 +32,8 @@ Sinh lại hình: sửa `docs/architecture/make_architecture_drawio.py`, chạy 
 | Nét | Nghĩa | Ví dụ |
 |---|---|---|
 | liền, vàng đậm | dữ liệu trong kernel | syscall → probe → loader |
-| liền, đen | dữ liệu sự kiện | cửa sổ token, decision, sự kiện Tetragon |
-| liền, đỏ đậm | đường cảnh báo | decision → bridge → Alertmanager → RCA |
+| liền, đen | dữ liệu sự kiện | cửa sổ token, decision |
+| liền, đỏ đậm | đường cảnh báo | decision → bridge → Alertmanager → người vận hành |
 | liền, xám | ghi lưu trữ | worker → NFS |
 | chấm, xanh | điều khiển, cấu hình: đổi chậm, không mang sự kiện | resolver → allow-list (resolver ghi `/run/sentinel-pulse/allowed-cgroups`, loader nạp vào map `pulse_cgroups`), resolver → worker (`cgroups.json`), `MODELS.json` → worker |
 | đứt, tím | chỉ khi đánh giá | planner → campaign (lịch trial), các bước của trang 5 |
@@ -76,15 +79,6 @@ mọi task khác thoát sau một lần tra map (bước 1 của `pulse_record_c
   `sentinel_pulse/ebpf/pulse_counter_loader.c` `refresh_targets_bounded` / `refresh_targets`. Allow-list rỗng thì loader
   dừng (fail closed).
 
-### Tetragon (kprobe) và Agent Tetragon
-
-Thành phần có sẵn của cụm (DaemonSet), dùng cho RCA, không dùng để phát hiện.
-
-- Policy: `sentinel_pulse/k8s/tetragon-rca-runtime-policy.yaml`, `sentinel_pulse/k8s/tetragon-rca-flow-policy.yaml`,
-  `testbed/k8s/tetragon-sentinel-pulse-exec-provenance.yaml` (exec của campaign, để biết thời điểm kernel chạy binary
-  tấn công).
-- RCA đọc sự kiện bằng `kubectl exec ... tetra getevents` (`sentinel_pulse/rca/service.py` `Service.start_stream`).
-
 ### Loader C (`pulse_counter_tokens_loader`)
 
 User space, chạy làm process con của worker. Mỗi 0,5 s (ngay sau ranh giới cửa sổ của đồng hồ monotonic + 20 ms) đọc
@@ -118,14 +112,14 @@ hình token của workload, ghi decision. Chi tiết: trang 3.
 
 ### Luồng decision local
 
-`/var/lib/sentinel-pulse-live/<run>/segments/sNNNNN/decisions.jsonl` trên đĩa từng worker: bản sao decision mà bridge,
-RCA và campaign đọc (đọc qua NFS chậm khoảng 5 s). Worker ghi cùng lúc với bản NFS (biến `local` trong
+`/var/lib/sentinel-pulse-live/<run>/segments/sNNNNN/decisions.jsonl` trên đĩa từng worker: bản sao decision mà bridge
+và campaign đọc (đọc qua NFS chậm khoảng 5 s). Worker ghi cùng lúc với bản NFS (biến `local` trong
 `matched_worker.py` `run`).
 
 ### Alert bridge (trên .234)
 
 Unit `pulse-alert-bridge-<run>`. Bám decision local của 3 worker qua SSH, gom đợt theo container, push vào
-Alertmanager, hàng đợi bền, nhãn `stream`, phục vụ trang case. Chi tiết: trang 4.
+Alertmanager, hàng đợi bền, nhãn `stream`. Chi tiết: trang 4.
 
 - Code: `sentinel_pulse/ops/alert_bridge.py` (`Streams`, `Bridge.ingest`, `Bridge.tick`, `push_worker`, `PushQueue`,
   `stream_of`, `serve`, `main`); dựng unit bằng `scripts/alert_bridge.sh`.
@@ -133,22 +127,14 @@ Alertmanager, hàng đợi bền, nhãn `stream`, phục vụ trang case. Chi ti
 
 ### Alertmanager
 
-Của kube-prometheus-stack trong cụm, nhận `POST /api/v2/alerts`; route theo nhãn `notify`.
+Của kube-prometheus-stack trong cụm, nhận `POST /api/v2/alerts`, gửi thông báo cho người vận hành.
 
 - Cấu hình route và rule: `testbed/k8s/monitoring/sentinel-pulse-alerting.yaml`.
 
-### RCA (trên .234)
+### Prometheus / Grafana
 
-Unit `rca-<run>`. Một case cho mỗi cảnh báo Alertmanager đã nhận, từ sự kiện Tetragon. Chi tiết: trang 4.
-
-- Code: `sentinel_pulse/rca/service.py` `Service` (cấu hình `/etc/sentinel-pulse-rca/rca-<run>.json`).
-
-### RCA viewer, Prometheus / Grafana
-
-- Trang `/cases`, `/cases/<id>`, `/cases.json`: bridge phục vụ (`sentinel_pulse/ops/alert_bridge.py` `serve`, dựng nội
-  dung bằng `sentinel_pulse/ops/rca_view.py` `CaseIndex`, `render_html`, `render_index`, `case_svg`).
-- Dashboard: `testbed/k8s/monitoring/sentinel-pulse-dashboard.json`; nguồn dữ liệu bảng case:
-  `testbed/k8s/monitoring/sentinel-pulse-infinity-datasource.yaml`.
+Scrape gauge `sentinel_pulse_preview_active` trên `/metrics` của bridge (đường pull, chỉ để so độ trễ với đường push);
+dashboard `testbed/k8s/monitoring/sentinel-pulse-dashboard.json`.
 
 ### Planner + launcher (đánh giá)
 
@@ -192,7 +178,7 @@ event-generator.
 
 ### Người vận hành
 
-Nhận cảnh báo route `notify=immediate` hoặc xem dashboard; mở case RCA.
+Nhận thông báo từ Alertmanager hoặc xem dashboard.
 
 ### Repo git và dữ liệu công khai
 
@@ -350,7 +336,7 @@ Dòng `status: token-score` do `matched_worker.py` `run` ghi (trường `candida
 
 ---
 
-## Trang 4. Cảnh báo và RCA
+## Trang 4. Đường cảnh báo
 
 ### Worker ×3
 
@@ -364,51 +350,18 @@ Chỉ dòng `"candidate_alert_preview":true` rời worker: bridge chạy một c
 | Việc trong hình | Code |
 |---|---|
 | bám log decision qua SSH | `Streams` (xoay kết nối mỗi `rotate_seconds`), `FOLLOWER`, `newest` |
-| gom đợt theo (pod_uid, container) | `Bridge.ingest` (khoá `identity` và mã `case_id` từ `sentinel_pulse/rca/tree.py`) |
+| gom đợt theo (pod_uid, container) | `Bridge.ingest` |
 | hết đợt khi im lặng, làm mới alert | `Bridge.tick` |
 | push `POST /api/v2/alerts` | `push_worker`, `Bridge.alert`, `Bridge.labels` |
 | hàng đợi bền (D3) | `PushQueue` (`push-queue.jsonl`), `backoff`; `PUSH_BACKOFF_MAX` 30 s, `PUSH_MAX_AGE` 1 giờ |
 | nhãn `stream` | `stream_of` |
 | đường pull để so độ trễ | `Bridge.metrics` (gauge `sentinel_pulse_preview_active`) |
-| webhook, `deliveries.jsonl`, `triggers.jsonl` | `Bridge.webhook`, `serve` |
-| gắn chú thích RCA, alert triage | `Bridge.attach_cases`, `Bridge.triage_alert` |
+| webhook của Alertmanager, `deliveries.jsonl` (độ trễ) | `Bridge.webhook`, `serve` |
 
-### Alertmanager, route theo `notify`, người vận hành, Grafana
+### Alertmanager, người vận hành, Prometheus / Grafana
 
-`testbed/k8s/monitoring/sentinel-pulse-alerting.yaml` (route `immediate` → webhook `/alertmanager/notify` của bridge,
-`Bridge.notification`; `dashboard` → chỉ dashboard), `testbed/k8s/monitoring/sentinel-pulse-dashboard.json`.
-
-### 3 policy Tetragon
-
-`sentinel_pulse/k8s/tetragon-rca-runtime-policy.yaml` (runtime + fork), `sentinel_pulse/k8s/tetragon-rca-flow-policy.yaml`
-(flow), `testbed/k8s/tetragon-sentinel-pulse-exec-provenance.yaml`.
-
-### Subscriber
-
-`sentinel_pulse/rca/service.py` `Service.start_stream`, `drain_streams`, `ingest_event`, `stop_stream`; chuẩn hoá sự
-kiện: `sentinel_pulse/rca/runtime_events.py` `normalize_runtime_event`, `sentinel_pulse/rca/connect.py`; ring SQLite:
-`database`.
-
-### Dựng case
-
-`sentinel_pulse/rca/service.py` `Service.tail_alert_triggers` (đọc `triggers.jsonl`), `observe_trigger`,
-`follow_up_allowed`, `recheck_follow_ups`, `emit_cases`, `maintenance`; cây: `sentinel_pulse/rca/runtime_tree.py`
-`build_runtime_tree`, `sentinel_pulse/rca/tree.py` `build_tree`.
-
-### Xếp hạng nghi phạm
-
-`sentinel_pulse/rca/ranking.py` `rank_suspects` (điểm +4, +3, +2, +2, +1, +1 như hình), `is_privilege_drop_at_start`,
-`is_container_runtime`, `started` (phá hoà theo thời điểm khởi chạy); mốc baseline: `sentinel_pulse/rca/baseline_seed.py`.
-
-### Triage
-
-`sentinel_pulse/rca/triage.py` `triage`, `probe_entries`; phân loại hiển thị: `sentinel_pulse/ops/rca_view.py`
-`classify`, `summarize`, `alert_annotations`.
-
-### Đầu ra của case
-
-`<case_id>.json`, `.md` (`sentinel_pulse/rca/runtime_tree.py` `render_runtime_markdown`), `.svg`
-(`sentinel_pulse/ops/rca_view.py` `case_svg`); trang `/cases` (`render_index`, `render_html`).
+`testbed/k8s/monitoring/sentinel-pulse-alerting.yaml` (rule và route của Alertmanager),
+`testbed/k8s/monitoring/sentinel-pulse-dashboard.json` (dashboard).
 
 ---
 
@@ -439,7 +392,7 @@ kiện: `sentinel_pulse/rca/runtime_events.py` `normalize_runtime_event`, `senti
 - Fit trước lượt live: `scripts/analysis/token_branch_fit.py` (`--extra-run`, `--top`, `--trim`).
 - Chấm lượt live: `scripts/analysis/pulse_live_v4.py` (`load_trials`, `read_decisions`, `trial_table`, `trial_metrics`,
   `burden`), `scripts/analysis/native_stream.py`, `scripts/analysis/live_attribution.py`,
-  `scripts/analysis/burden_context.py`, `scripts/analysis/rca_coverage.py`.
+  `scripts/analysis/burden_context.py`.
 - Gate cho binary vô hại (đã loại): `TokenBranch` nhánh `gate`, `token_branch_fit.py` `merge_models`,
   `fit_pool_threshold`.
 

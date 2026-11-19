@@ -23,10 +23,112 @@ C = dict(  # fill, stroke
     note=('#FFFDE7', '#BDB76B'))
 
 
-def label(title, sub=None, small=10):
+# Code of each box (owner 19/11: the architecture figures name the code). Keyed by the box title; full repo paths.
+SP = 'sentinel_pulse/'
+CODE = {
+    # page 1
+    'Probe eBPF của Pulse': SP + 'ebpf/pulse_counter.bpf.c, pulse_tokens.bpf.h, pulse_token_ids.h',
+    'Allow-list cgroup': SP + 'ebpf/pulse_counter.bpf.c (map pulse_cgroups); nạp: pulse_counter_loader.c (refresh_targets)',
+    'Loader C (pulse_counter_tokens_loader)': SP + 'ebpf/pulse_counter_loader.c',
+    'sentinel-pulse-resolver': SP + 'collector/cgroup_resolver.py; unit: ' + SP + 'systemd/sentinel-pulse-resolver.service',
+    'Worker chấm điểm (pipeline/matched_worker.py, 3 core, 3 GB)': SP + 'pipeline/matched_worker.py, ' + SP + 'detector/token_model.py, '
+        + SP + 'collector/token_capture.py, ' + SP + 'pipeline/async_sink.py',
+    'Luồng decision local': SP + 'pipeline/matched_worker.py (stream_root)',
+    'Alert bridge (trên .234)': SP + 'ops/alert_bridge.py; scripts/alert_bridge.sh',
+    'Alertmanager': 'testbed/k8s/monitoring/sentinel-pulse-alerting.yaml',
+    'Prometheus / Grafana': 'testbed/k8s/monitoring/sentinel-pulse-dashboard.json',
+    'Planner + launcher': SP + 'pipeline/plan_matched_run.py, scripts/launch_run.sh, scripts/k8s_events_record.py',
+    'Job phân tích (.234)': 'scripts/analysis/',
+    'Tải normal (đánh giá)': SP + 'pipeline/matched_traffic.py, testbed/traffic/set_aims_traffic_regime.sh',
+    'Chiến dịch tấn công (đánh giá)': SP + 'attack/preview_campaign.py, testbed/attack/runtime_attack_with_benign_control.c',
+    'NFS .233: /sentinel-pulse': 'ghi bởi ' + SP + 'pipeline/matched_worker.py; nén: scripts/compress_raw_frames.py',
+    'Repo git (GitHub, main)': 'scripts/sync_cluster_checkouts.sh',
+    'Dữ liệu công khai (offline)': SP + 'lidds/, scripts/analysis/lidds_*.py',
+    # page 2
+    'raw_tp/sys_enter → pulse_record_call': SP + 'ebpf/pulse_counter.bpf.c',
+    'fexit/__seccomp_filter': SP + 'ebpf/pulse_counter.bpf.c (pulse_seccomp_skip)',
+    'raw_tp/sys_exit → pulse_tok_sys_exit': SP + 'ebpf/pulse_tokens.bpf.h (pulse_tok_return, pulse_tok_dir_of_fd); bảng: pulse_token_ids.h',
+    '.rodata.tokcfg': SP + 'ebpf/pulse_tokens.bpf.h (pulse_tok_config)',
+    'raw_tp/sched_process_fork': SP + 'ebpf/pulse_tokens.bpf.h (pulse_tok_fork, pulse_tok_lineage)',
+    'pulse_tok_emit (gọi từ cả ba hook)': SP + 'ebpf/pulse_tokens.bpf.h',
+    'pulse_cgroups': SP + 'ebpf/pulse_counter.bpf.c',
+    'pulse_last_syscall': SP + 'ebpf/pulse_counter.bpf.c',
+    'pulse_grams': SP + 'ebpf/pulse_tokens.bpf.h',
+    'pulse_stats, pulse_tok_stats': SP + 'ebpf/pulse_counter.bpf.c, pulse_tokens.bpf.h',
+    'Khởi động': SP + 'ebpf/pulse_counter_loader.c (main)',
+    'Mỗi 0,5 s (MONOTONIC + 20 ms)': SP + 'ebpf/pulse_counter_loader.c (drain_grams, print_snapshots)',
+    'Dòng JSON ra stdout (một frame)': 'proof: scripts/token_probe_proof.py, scripts/lineage_probe_proof.py',
+    # page 3
+    'Dòng token_grams từ loader': SP + 'pipeline/matched_worker.py (run)',
+    'token_window (collector/token_capture.py)': SP + 'collector/token_capture.py (token_window, check_grams)',
+    'Metadata resolver': SP + 'collector/cgroup_resolver.py; workload_key: ' + SP + 'collector/capture.py',
+    'CountTokenLM của workload': SP + 'detector/token_model.py (CountTokenLM); offline: scripts/analysis/lidds_ml_tokens.py',
+    'Điểm cửa sổ': SP + 'detector/token_model.py (CountTokenLM.window_score)',
+    'TokenBranch (cfg tokens.models)': SP + 'detector/token_model.py (TokenBranch); ' + SP + 'collector/token_capture.py (MapOverflow)',
+    'Bảng chữ select1f': SP + 'ebpf/pulse_token_ids.h, pulse_tokens.bpf.h; offline: scripts/analysis/lidds_token_cache.py',
+    'Decision = mô hình token của workload báo (một cửa sổ là đủ)': SP + 'pipeline/matched_worker.py (run)',
+    'NFS: segment 30 phút': SP + 'pipeline/matched_worker.py (run, TERMINAL.json)',
+    'Đĩa local của worker': SP + 'pipeline/matched_worker.py (stream_root)',
+    'Ghi ngoài vòng chấm (async_sink)': SP + 'pipeline/async_sink.py (AsyncSink, AsyncState)',
+    'Khoá trước khi chấm': SP + 'pipeline/matched_worker.py (run), ' + SP + 'detector/token_model.py (TokenBranch)',
+    # page 4
+    'Worker ×3': SP + 'pipeline/matched_worker.py',
+    'Alert bridge (ops/alert_bridge.py)': SP + 'ops/alert_bridge.py (Streams, Bridge, push_worker, PushQueue, stream_of)',
+    'Alertmanager (API v2)': 'testbed/k8s/monitoring/sentinel-pulse-alerting.yaml',
+    'Route theo notify': 'testbed/k8s/monitoring/sentinel-pulse-alerting.yaml',
+    # page 5
+    'LID-DS 2021 development + CB-DS': 'scripts/analysis/lidds_ml_v5.py, lidds_ml_token_crossfit.py',
+    'LID-DS 2021 official': 'scripts/analysis/lidds_ml_v5.py; t3: lidds2019_dev.py (official)',
+    'LID-DS 2019': 'scripts/analysis/lidds2019_dev.py, scripts/lidds2019_amendment1_run.sh',
+    'Thu normal + fit trên cụm': 'scripts/launch_run.sh, scripts/analysis/token_branch_fit.py',
+    'Lượt live v4–v6': 'scripts/analysis/pulse_live_v4.py, native_stream.py',
+    'Lượt live cuối (45 h)': 'scripts/launch_run.sh (REHEARSAL=1), ' + SP + 'protocol/pulse-live-final-v1.json',
+    'Ngưỡng': 'scripts/analysis/lidds_ml_v4.py (trimmed_gumbel), lidds_ml_v2.py (gumbel, threshold)',
+    'Overhead probe token (token-probe-overhead-v1)': 'scripts/overhead_ab.sh, testbed/bench/syscall_bench.c, scripts/app_overhead_ab.py',
+    'Gate cho binary vô hại (đã loại)': SP + 'detector/token_model.py (TokenBranch gate), scripts/analysis/token_branch_fit.py',
+    # English page (paper)
+    'eBPF probe (kernel)': SP + 'ebpf/',
+    'Loader': SP + 'ebpf/pulse_counter_loader.c',
+    'Scoring worker': SP + 'pipeline/matched_worker.py, detector/token_model.py',
+    'Decisions': SP + 'pipeline/matched_worker.py',
+    'Resolver': SP + 'collector/cgroup_resolver.py',
+    'Offline fit': 'scripts/analysis/token_branch_fit.py',
+    'Alert bridge': SP + 'ops/alert_bridge.py',
+}
+
+
+def wrap_code(text, width, size):
+    """Lines of 'code: a, b, c' that fit the box: paths kept whole when they fit, else broken after a '/'."""
+    fit = max(12, int((width - 14) / (size * 0.56)))
+    pieces = []
+    for path in text.split(', '):
+        while len(path) > fit:
+            cut = path.rfind('/', 0, fit)
+            if cut <= 0:
+                break
+            pieces.append(path[:cut + 1])
+            path = path[cut + 1:]
+        pieces.append(path)
+    lines, cur = [], 'code:'
+    for piece in pieces:
+        glue = '' if cur.endswith('/') else (' ' if cur == 'code:' else ', ')
+        if len(cur) + len(glue) + len(piece) <= fit:
+            cur += glue + piece
+        else:
+            lines.append(cur + ('' if cur.endswith('/') or cur == 'code:' else ','))
+            cur = piece
+    lines.append(cur)
+    return '<br>'.join(escape(l) for l in lines)
+
+
+def label(title, sub=None, small=10, width=None):
     t = f'<b>{title}</b>'
     if sub:
         t += f'<br><font style="font-size:{small}px">{sub}</font>'
+    if title in CODE:
+        size = max(8, small - 1)
+        t += (f'<br><font style="font-size:{size}px" color="#1F4E79"><i>'
+              f'{wrap_code(CODE[title], width or 400, size)}</i></font>')
     return t
 
 
@@ -47,13 +149,13 @@ class Page:
         valign = 'verticalAlign=top;spacingTop=6;spacingLeft=6;' if align == 'left' else ''
         style = (f'{shape};whiteSpace=wrap;html=1;fillColor={fill};strokeColor={stroke};{dashed}{font}'
                  f'arcSize=8;fontSize=12;align={align};spacing=4;{valign}{extra}')
-        return self._vertex(x, y, w, h, label(title, sub, small), style, parent)
+        return self._vertex(x, y, w, h, label(title, sub, small, w), style, parent)
 
     def store(self, x, y, w, h, title, sub=None, parent='1'):
         fill, stroke = C['store']
         style = (f'shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor={fill};'
                  f'strokeColor={stroke};fontSize=12;')
-        return self._vertex(x, y, w, h, label(title, sub), style, parent)
+        return self._vertex(x, y, w, h, label(title, sub, 10, w), style, parent)
 
     def group(self, x, y, w, h, title, kind='store', extra='', parent='1', size=13):
         fill, stroke = C[kind]
@@ -116,15 +218,15 @@ class Page:
 def legend(p, x, y):
     p.group(x, y, 330, 232, 'Chú giải', kind='store', size=12)
     rows = [('kernel', 'Kernel: probe eBPF của Pulse'), ('user', 'User space của Pulse (C, Python)'),
-            ('ml', 'Mô hình token lidds-ml-v5-t3'), ('alert', 'Đường cảnh báo và RCA'),
-            ('ext', 'Thành phần có sẵn của cụm (Tetragon, K8s)'), ('eval', 'Chỉ dùng khi đánh giá (đứt nét)'),
+            ('ml', 'Mô hình token lidds-ml-v5-t3'), ('alert', 'Đường cảnh báo'),
+            ('ext', 'Thành phần có sẵn của cụm'), ('eval', 'Chỉ dùng khi đánh giá (đứt nét)'),
             ('retired', 'Giữ lại, không dùng để báo (xám)')]
     for k, (kind, t) in enumerate(rows):
         p.box(x + 12, y + 32 + 28 * k, 26, 18, '', kind=kind)
         p.text(x + 46, y + 30 + 28 * k, 280, 22, t, size=11)
 
 
-EDGE_VI = [('kernel', 'Dữ liệu trong kernel (syscall, map)'), ('data', 'Dữ liệu sự kiện (cửa sổ, decision, Tetragon)'),
+EDGE_VI = [('kernel', 'Dữ liệu trong kernel (syscall, map)'), ('data', 'Dữ liệu sự kiện (cửa sổ token, decision)'),
            ('alert', 'Đường cảnh báo'), ('store', 'Ghi lưu trữ (NFS)'),
            ('ctrl', 'Điều khiển, cấu hình (đổi chậm, không mang sự kiện)'),
            ('eval', 'Chỉ khi đánh giá (lịch trial)')]
@@ -151,7 +253,7 @@ def overview():
     p = Page('1. Tổng quan hệ thống', 1720, 1260)
     p.title('Sentinel Pulse: kiến trúc tổng thể (19/11/2026, lượt live cuối)',
             'Phát hiện runtime trên Kubernetes bằng mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel (lidds-ml-v5-t3), '
-            'cảnh báo qua Alertmanager, RCA từ sự kiện Tetragon. Khung tím đứt nét chỉ dùng khi đánh giá.')
+            'cảnh báo qua Alertmanager. Khung tím đứt nét chỉ dùng khi đánh giá. Phần RCA tạm chưa vẽ, sẽ cập nhật sau.')
     p.group(20, 75, 1235, 945, 'Cụm Kubernetes của lab: 6 VM trên ESXi · Ubuntu 24.04 · kernel 6.8.0 · '
                                'Kubernetes v1.34 · Cilium · Istio ambient', kind='k8s', size=13)
     p.group(40, 110, 800, 700, 'Mỗi worker (×3): k8s-worker1 .237 · k8s-worker4 .238 · k8s-worker3 .239',
@@ -168,17 +270,13 @@ def overview():
                   'fexit/__seccomp_filter: syscall bị seccomp bỏ qua<br>raw_tp/sched_process_fork: thẻ dòng dõi native/session<br>'
                   'map: trạng thái thread, 4-gram theo (cgroup, cửa sổ, dòng dõi)',
                   kind='kernel', small=9)
-    allow = p.box(400, 305, 200, 120, 'Allow-list cgroup', 'map pulse_cgroups: chỉ cgroup production được theo dõi; cgroup '
+    allow = p.box(400, 305, 410, 120, 'Allow-list cgroup', 'map pulse_cgroups: chỉ cgroup production được theo dõi; cgroup '
                   'khác thoát sau một lần tra map', kind='kernel', small=9)
-    tetra_k = p.box(630, 305, 180, 120, 'Tetragon (kprobe)', 'exec, fork, file nhạy cảm, credential, namespace, kết nối, '
-                    'ptrace; 3 policy, chỉ production', kind='ext', small=9)
     p.band(55, 455, 770, 340, 'User space của worker (unit systemd)', 'user')
     loader = p.box(70, 480, 300, 100, 'Loader C (pulse_counter_tokens_loader)', 'khoá SHA-256 + proof theo kernel; mỗi '
                    '0,5 s: dòng token_grams cho mỗi (cgroup, cửa sổ đã đóng)', kind='user', small=9)
-    resolver = p.box(400, 480, 200, 100, 'sentinel-pulse-resolver', 'pod UID → container → cgroup → phiên bản workload',
+    resolver = p.box(400, 480, 410, 100, 'sentinel-pulse-resolver', 'pod UID → container → cgroup → phiên bản workload',
                      kind='user', small=9)
-    tetra_u = p.box(630, 480, 180, 100, 'Agent Tetragon', 'DaemonSet, shareProcessNamespace; tetra getevents',
-                    kind='ext', small=9)
     worker = p.box(70, 605, 530, 175, 'Worker chấm điểm (pipeline/matched_worker.py, 3 core, 3 GB)',
                    '• kiểm hợp đồng của cửa sổ token; gắn workload, Pod, container<br>'
                    '• mô hình ngôn ngữ 4-gram Witten-Bell của workload (khoá SHA-256)<br>'
@@ -191,13 +289,10 @@ def overview():
     p.icon(1190, 116, 40, 39, 'master')
     bridge = p.box(890, 150, 330, 105, 'Alert bridge (trên .234)', 'đọc decision local của 3 worker qua SSH; gom đợt '
                    'theo container; push API v2; đợt chưa giao giữ trong hàng đợi bền, thử lại tới 1 giờ (D3); nhãn stream '
-                   'native/session; phục vụ trang case', kind='alert', small=9)
-    am = p.box(890, 285, 330, 70, 'Alertmanager', 'kube-prometheus-stack; route theo nhãn notify', kind='alert', small=9)
-    rca = p.box(890, 385, 330, 125, 'RCA (trên .234)', 'sự kiện Tetragon → ring SQLite 180 s; case cho mỗi cảnh báo '
-                'Alertmanager đã nhận (30 s trước); xếp hạng nghi phạm; triage: thao tác bảo mật / chỉ probe / '
-                'binary mới / khác', kind='alert', small=9)
-    viewer = p.box(890, 540, 160, 75, 'RCA viewer', '/cases, bảng Grafana Infinity', kind='alert', small=9)
-    graf = p.box(1060, 540, 160, 75, 'Prometheus / Grafana', 'NodePort 32090 / 32300', kind='ext', small=9)
+                   'native/session', kind='alert', small=9)
+    am = p.box(890, 285, 330, 70, 'Alertmanager', 'kube-prometheus-stack; gửi thông báo cho người vận hành', kind='alert', small=9)
+    graf = p.box(890, 385, 330, 90, 'Prometheus / Grafana', 'scrape gauge /metrics của bridge (đường pull, để so độ trễ); '
+                 'dashboard; NodePort 32090 / 32300', kind='ext', small=9)
     planner = p.box(890, 645, 160, 150, 'Planner + launcher', 'CONFIG.json bất biến: hash mô hình, probe, fixture, '
                     'lịch tải, lịch trial; diễn tập trước lượt; ghi sự kiện K8s', kind='eval', small=9)
     p.box(1060, 645, 160, 150, 'Job phân tích (.234)', 'systemd-run có MemoryMax; học mô hình (token_branch_fit.py), chấm LID-DS; '
@@ -209,8 +304,8 @@ def overview():
                      'seed: lệnh admin, binary vô hại, tấn công, lotl, event-generator', kind='eval', small=9)
     nfs = p.store(1280, 110, 410, 160, 'NFS .233: /sentinel-pulse', '/mnt/sentinel-pulse-archive; segment 30 phút mỗi '
                   'worker: decisions, tokens, issues, TERMINAL.json (seal SHA-256); CONFIG.json, mô hình token')
-    people = p.box(1280, 290, 410, 80, 'Người vận hành', 'nhận cảnh báo (notify=immediate) hoặc xem dashboard; mở case '
-                   'RCA: nghi phạm, lý do, cây bằng chứng', kind='alert', small=10)
+    people = p.box(1280, 290, 410, 80, 'Người vận hành', 'nhận thông báo từ Alertmanager hoặc xem dashboard', kind='alert',
+                   small=10)
     p.box(1280, 400, 410, 130, 'Repo git (GitHub, main)', 'code Pulse · protocol đăng ký trước · biên nhận JSON '
           '(validation-evidence/) · audit số liệu · đồ án LaTeX (thesis/) · notes/<br>checkout trên .234/.237/.238/.239 '
           'đồng bộ bằng git pull --ff-only', kind='store', small=10)
@@ -221,24 +316,19 @@ def overview():
     p.edge(pods[0], probe, 'syscall', kind='kernel', exit=(0.5, 1), entry=(0.137, 0))
     p.edge(probe, loader, 'đọc map theo lô', kind='kernel', exit=(0.5, 1), entry=(0.5, 0))
     p.edge(resolver, allow, 'allowed-cgroups (loader nạp vào map)', kind='ctrl', exit=(0.5, 0), entry=(0.5, 1))
-    p.edge(tetra_k, tetra_u, 'sự kiện', kind='data', exit=(0.5, 1), entry=(0.5, 0))
     p.edge(loader, worker, 'cửa sổ token', kind='data', exit=(0.5, 1), entry=(0.283, 0))
     p.edge(resolver, worker, 'cgroups.json', kind='ctrl', exit=(0.5, 1), entry=(0.811, 0))
     p.edge(worker, local, 'decision', kind='data', exit=(1, 0.5), entry=(0, 0.47))
     p.edge(local, bridge, 'SSH, chỉ dòng báo', kind='alert', exit=(1, 0.25), entry=(0, 0.5), points=[(850, 655), (850, 202)])
-    p.edge(tetra_u, rca, 'tetra getevents', kind='data', exit=(1, 0.5), entry=(0, 0.5), points=[(865, 530), (865, 447)])
     p.edge(bridge, am, 'POST /api/v2/alerts', kind='alert', exit=(0.5, 1), entry=(0.5, 0))
-    p.edge(am, rca, 'cảnh báo đã nhận → case', kind='alert', exit=(0.5, 1), entry=(0.5, 0))
     p.edge(am, people, '', kind='alert', exit=(1, 0.5), entry=(0, 0.375))
-    p.edge(rca, viewer, '', kind='alert', exit=(0.242, 1), entry=(0.5, 0))
-    p.edge(viewer, graf, '', kind='alert', exit=(1, 0.5), entry=(0, 0.5))
     p.edge(worker, nfs, 'decisions / tokens (NFS)', kind='store', exit=(0.5, 1), entry=(0, 0.47),
            points=[(335, 822), (1266, 822), (1266, 185)])
     p.edge(planner, campaign, 'lịch trial', kind='eval', exit=(0.5, 1), entry=(1, 0.5), points=[(970, 900)])
     p.text(20, 1035, 1235, 100,
            '<b>Đường dữ liệu chính:</b> syscall của container → probe eBPF dựng token, đếm 4-gram theo thread → loader đọc map '
            'mỗi 0,5 s → worker chấm mô hình token của workload → decision ghi local và NFS → bridge gom đợt, đẩy vào '
-           'Alertmanager → RCA dựng case cho đúng cảnh báo đó từ sự kiện Tetragon.<br><b>Mục tiêu:</b> recall ≥ 95%, '
+           'Alertmanager → người vận hành.<br><b>Mục tiêu:</b> recall ≥ 95%, '
            'precision ≥ 95%, p95 kernel → cảnh báo ≤ 3 s; gánh cảnh báo và binary vô hại bị gắn cờ càng thấp càng tốt. '
            'Kết quả (lidds-ml-v5-t3): LID-DS 2021 official 97,25% / 0,19% báo nhầm, p95 1,54 s; LID-DS 2019 holdout 97,15% (dung sai '
            'nhãn 1 s), p95 10,95 s. Live v6 (lidds-ml-v5): tốc độ chính 315/315, precision 99,68%, p95 0,45 s. Lượt cuối '
@@ -319,14 +409,14 @@ def kernel():
            'ngắn hơn, như TokenLM offline)', size=11)
     # loader
     p.group(860, 680, 840, 310, 'Loader (pulse_counter_loader.c, -DPULSE_TOKENS) và đầu ra', kind='user', size=12)
-    l1 = p.box(880, 712, 380, 100, 'Khởi động', 'kiểm layout map; đặt .rodata.tokcfg; nạp object; gắn sys_enter, '
+    l1 = p.box(880, 712, 380, 116, 'Khởi động', 'kiểm layout map; đặt .rodata.tokcfg; nạp object; gắn sys_enter, '
                'fexit seccomp, sys_exit, sched_process_fork; nạp allow-list từ resolver; lỗi thì dừng (fail closed)', kind='user',
                align='left', small=10)
-    l2 = p.box(1300, 712, 380, 100, 'Mỗi 0,5 s (MONOTONIC + 20 ms)', 'cộng bộ đếm per-CPU mọi cgroup → '
+    l2 = p.box(1300, 712, 380, 116, 'Mỗi 0,5 s (MONOTONIC + 20 ms)', 'cộng bộ đếm per-CPU mọi cgroup → '
                'cgroup_snapshot_extended; đọc pulse_grams theo lô, lấy cửa sổ đã đóng, xoá theo lô → token_grams; window_end = '
                '(W + 1) × 0,5 s + lệch đồng hồ (D2)',
                kind='user', align='left', small=10)
-    p.box(880, 828, 800, 150, 'Dòng JSON ra stdout (một frame)',
+    p.box(880, 840, 800, 140, 'Dòng JSON ra stdout (một frame)',
           '{"type":"cgroup_snapshot_extended","cgroup_id":…,"total":…,"counts":{29 syscall},"syscall_bins":[64],'
           '"transition_bins":[64],"full_counts":{…},"seccomp_skipped_or_emulated":…}<br>'
           '{"type":"token_grams","contract":"pulse-token-select1f-v1","cgroup_id":…,"window":W,"window_end":t,'
@@ -384,7 +474,7 @@ def worker():
     p.edge(tb, dec, '', kind='alert', exit=(0.5, 1), entry=(0.83, 0))
     s1 = p.store(20, 800, 400, 110, 'NFS: segment 30 phút', 'decisions.jsonl · tokens.jsonl · issues.jsonl · loader.log · '
                  'TERMINAL.json (seal)')
-    s2 = p.store(450, 800, 300, 110, 'Đĩa local của worker', 'decisions.jsonl cho bridge, RCA, campaign')
+    s2 = p.store(450, 800, 300, 110, 'Đĩa local của worker', 'decisions.jsonl cho bridge, campaign')
     p.box(780, 800, 450, 110, 'Ghi ngoài vòng chấm (async_sink)', 'thread nền, fdatasync + FADV_DONTNEED mỗi 30 s; '
           'STATUS.json bất đồng bộ; dừng khi hết chỗ trống', kind='user', small=10)
     p.box(1260, 800, 440, 110, 'Khoá trước khi chấm', 'kernel = proof; SHA-256 của loader và object; SHA-256 từng mô hình token '
@@ -400,65 +490,33 @@ def worker():
     return p
 
 
-# ---------------------------------------------------------------- page 4: alerting and RCA
+# ---------------------------------------------------------------- page 4: alert path (RCA left out for now, owner 19/11)
 def alerting():
-    p = Page('4. Cảnh báo và RCA', 1720, 880)
-    p.title('Đường cảnh báo và truy nguyên nguyên nhân (RCA)',
-            'Bridge và RCA chạy trên .234 và chỉ đọc decision. Mã đợt cảnh báo = mã case RCA.')
-    w = p.box(20, 90, 250, 110, 'Worker ×3', 'decisions.jsonl local; chỉ dòng token có "candidate_alert_preview":true '
+    p = Page('4. Đường cảnh báo', 1720, 520)
+    p.title('Đường cảnh báo: từ decision của worker tới người vận hành',
+            'Bridge chạy trên .234 và chỉ đọc decision. Phần truy nguyên nguyên nhân (RCA) tạm chưa vẽ, sẽ cập nhật sau.')
+    w = p.box(20, 90, 250, 120, 'Worker ×3', 'decisions.jsonl local; chỉ dòng token có "candidate_alert_preview":true '
               'rời worker', kind='ml', small=9)
-    br = p.box(310, 70, 430, 210, 'Alert bridge (ops/alert_bridge.py)', '• bám log decision của từng worker qua SSH<br>'
+    br = p.box(310, 70, 520, 230, 'Alert bridge (ops/alert_bridge.py)', '• bám log decision của từng worker qua SSH<br>'
                '• gom đợt theo (pod_uid, container); hết đợt khi im lặng quá resolve_after<br>'
                '• push POST /api/v2/alerts lúc mở đợt, làm mới khi còn kéo dài; lỗi → hàng đợi bền push-queue.jsonl, '
                'backoff tới 30 s, giữ tới 1 giờ, tiếp tục sau khi khởi động lại (D3)<br>'
                '• nhãn stream: session nếu ≥ 50% sự kiện của cửa sổ chạy trên thread session, ngược lại native<br>'
-               '• đo độ trễ từ preview_emitted_at và window_end<br>• đường pull (gauge /metrics, scrape 5 s / 30 s) chỉ để '
-               'so độ trễ: chậm hơn nhiều<br>• triggers.jsonl: dòng đầu của mỗi đợt đã giao', kind='alert', align='left',
-               small=10)
-    am = p.box(800, 80, 300, 110, 'Alertmanager (API v2)', 'SentinelPulseAnomaly (kèm chú thích RCA khi case xong, cùng '
-               'nhãn); SentinelPulseTriage với nhãn rca_class, notify', kind='alert', small=9)
-    route = p.box(800, 220, 300, 90, 'Route theo notify', 'immediate: thao tác bảo mật → /alertmanager/notify'
-                  '<br>dashboard: chỉ probe, binary mới, khác', kind='alert', small=9)
-    ppl = p.box(1160, 80, 260, 110, 'Người vận hành', 'thông báo ngay, hoặc xem dashboard', kind='alert')
-    graf = p.box(1160, 220, 260, 90, 'Grafana', 'dashboard sentinel-pulse-alerts; bảng case qua Infinity (/cases.json)',
-                 kind='ext', small=9)
-    p.edge(w, br, 'SSH tail', kind='alert', exit=(1, 0.4), entry=(0, 0.23))
-    p.edge(br, am, 'push', kind='alert', exit=(1, 0.29), entry=(0, 0.5))
-    p.edge(am, route, '', kind='alert')
-    p.edge(route, ppl, 'immediate', kind='alert', exit=(1, 0.3), entry=(0, 0.75), points=[(1130, 247), (1130, 162)])
-    p.edge(route, graf, 'dashboard', kind='alert', exit=(1, 0.7), entry=(0, 0.7))
-    p.group(20, 340, 1680, 370, 'RCA (sentinel_pulse/rca)', kind='alert', size=12)
-    tp = p.box(40, 380, 300, 135, '3 policy Tetragon (chỉ production)', '<b>runtime:</b> file nhạy cảm, credential, '
-               'kết nối, namespace, ptrace<br><b>fork</b><br><b>flow:</b> lần gửi trên socket đã mở, lấy mẫu 1 lần mỗi '
-               'process mỗi 10 s<br>+ exec provenance', kind='ext', align='left', small=10)
-    sub = p.box(380, 380, 320, 135, 'Subscriber', 'tetra getevents của 3 worker, xoay vòng có giới hạn<br>ghép theo node, '
-                'Pod UID, container, thời gian; process = exec_id (PID bị tái dùng)<br>ring SQLite 180 s; nhật ký exec 15 '
-                'phút', kind='alert', align='left', small=10)
-    case = p.box(740, 380, 330, 135, 'Dựng case (nhịp 0,25 s)', 'từ cảnh báo Alertmanager đã nhận (triggers.jsonl); '
-                 'lấy 30 s trước cảnh báo<br>cùng container trong 300 s → cùng case; binary mới trong khoảng đó → case tiếp '
-                 'nối; giữ tối đa 20.000 case', kind='alert', align='left', small=10)
-    rank = p.box(1110, 380, 570, 135, 'Xếp hạng nghi phạm (heuristic có lý do)', 'binary mới trong workload sau mốc '
-                 'baseline +4 · thao tác credential / namespace / mount / ptrace +3 mỗi lần (tối đa 9) · binary chưa từng '
-                 'ghi nhận +2 · exec trong cửa sổ cảnh báo +2 · syscall thất bại +1 (tối đa 3) · cha của nghi phạm khác +1'
-                 '<br>ngoại lệ: hạ quyền setuid/setgid lúc khởi động; containerd-shim, runc không xếp hạng<br>phá hoà theo '
-                 'thời điểm khởi chạy', kind='alert', align='left', small=10)
-    tri = p.box(40, 560, 660, 120, 'Triage (ops/rca_view.py)', 'security_operation → notify ngay '
-                '· probe_only (mọi exec là probe Kubernetes của pod spec) → dashboard · new_binary → dashboard · other → '
-                'dashboard<br>chỉ là quyết định giao tin: decision và mọi chỉ số đánh giá không đổi', kind='alert',
-                align='left', small=10)
-    out = p.box(740, 560, 940, 120, 'Đầu ra của case', '&lt;case_id&gt;.json (cây bằng chứng) · .md · .svg; trang /cases, '
-                '/cases/&lt;id&gt; (nghi phạm, lý do, binary, đích mạng, cây)<br>bridge push lại SentinelPulseAnomaly kèm chú '
-                'thích RCA (khoảng 2,7 s sau cảnh báo)<br>cây cho thấy liên quan theo định danh và thời gian, không chứng minh '
-                'nhân quả; RCA không tự xử lý pod', kind='alert', align='left', small=10)
-    p.edge(tp, sub, 'sự kiện', kind='data')
-    p.edge(sub, case, '', kind='data')
-    p.edge(case, rank, '', kind='data')
-    p.edge(am, case, 'cảnh báo đã nhận', kind='alert', exit=(0, 0.8), entry=(0.106, 0), points=[(775, 168)])
-    p.edge(case, tri, '', kind='alert', exit=(0.2, 1), entry=(0.9, 0), points=[(806, 540), (634, 540)])
-    p.edge(rank, out, '', kind='alert', exit=(0.5, 1), entry=(0.75, 0))
-    p.text(20, 725, 1680, 40, 'Lượt v6: bridge giao 3.233/3.233 đợt, decision → Alertmanager p95 1,21 s; kernel → Alertmanager '
+               '• đo độ trễ từ preview_emitted_at và window_end (webhook của Alertmanager → deliveries.jsonl)<br>'
+               '• đường pull (gauge /metrics, scrape 5 s / 30 s) chỉ để so độ trễ: chậm hơn nhiều', kind='alert',
+               align='left', small=10)
+    am = p.box(880, 90, 330, 120, 'Alertmanager (API v2)', 'alert SentinelPulseAnomaly với nhãn node, workload, pod_uid, '
+               'container, episode, stream', kind='alert', small=10)
+    ppl = p.box(1260, 90, 300, 120, 'Người vận hành', 'nhận thông báo hoặc xem dashboard', kind='alert')
+    graf = p.box(880, 250, 330, 90, 'Prometheus / Grafana', 'scrape gauge /metrics của bridge; dashboard '
+                 'sentinel-pulse-alerts', kind='ext', small=10)
+    p.edge(w, br, 'SSH tail', kind='alert', exit=(1, 0.4), entry=(0, 0.25))
+    p.edge(br, am, 'push', kind='alert', exit=(1, 0.25), entry=(0, 0.5))
+    p.edge(am, ppl, '', kind='alert')
+    p.edge(br, graf, 'pull (so sánh)', kind='data', exit=(1, 0.8), entry=(0, 0.5))
+    p.text(20, 330, 840, 60, 'Lượt v6: bridge giao 3.233/3.233 đợt, decision → Alertmanager p95 1,21 s; kernel → Alertmanager '
            '(push) p95 1,53 s. Lượt cuối, ví dụ trial tấn công 5: Alertmanager nhận 0,14 s sau cuối cửa sổ báo.', size=11)
-    edge_legend(p, 20, 770, [EDGE_VI[1], EDGE_VI[2]], columns=2, width=820)
+    edge_legend(p, 20, 400, [EDGE_VI[1], EDGE_VI[2]], columns=2, width=820)
     return p
 
 
@@ -505,7 +563,7 @@ def evaluation():
           'lần 2 sys_exit; lần 3 đi ngược dentry; báo cáo, không đạt/trượt', kind='eval', align='left', small=10)
     p.group(870, 290, 830, 420, 'Trên cụm (lượt live)', kind='eval', size=12)
     p.box(890, 330, 380, 170, 'Planner', 'plan_matched_run.py --token-build --token-models --admin-control --on-off --eventgen [--rehearsal] → '
-          'CONFIG.json bất biến; launch_run.sh cài worker, RCA, bridge, traffic, campaign, bộ ghi sự kiện K8s (system unit)', kind='eval', align='left', small=10)
+          'CONFIG.json bất biến; launch_run.sh cài worker, bridge, traffic, campaign, bộ ghi sự kiện K8s (system unit)', kind='eval', align='left', small=10)
     p.box(1290, 330, 390, 170, 'Fit trước lượt live', 'token_branch_fit.py → MODELS.json (mô hình token + ngưỡng mỗi workload)<br>'
           '--extra-run: thêm normal của lượt trước, bỏ −5 s … +25 s quanh mỗi trial<br>khoá sha256 trước lượt live', kind='ml', align='left', small=10)
     p.box(890, 520, 380, 170, 'Chấm lượt live', 'trial phát hiện khi có báo động trong [start, start + 15 s]; đợt = '
@@ -544,14 +602,11 @@ def paper_overview():
     worker = p.box(895, 70, 330, 170, 'Scoring worker', 'per-workload 4-gram count LM (Witten-Bell); s(W) = mean of the top '
                    'surprisals; alarm if s(W) > τ of the workload; one window fires', kind='ml', small=13)
     dec = p.store(1260, 70, 200, 170, 'Decisions', 'local disk; segments on NFS')
-    res = p.box(40, 265, 200, 80, 'Resolver', 'pod UID → cgroup → workload', kind='user', small=13)
-    p.group(260, 395, 1220, 150, 'Master node', kind='alert', size=15)
+    res = p.box(40, 260, 200, 95, 'Resolver', 'pod UID → cgroup → workload', kind='user', small=13)
+    p.group(830, 395, 650, 150, 'Master node', kind='alert', size=15)
     fit = p.box(40, 425, 200, 105, 'Offline fit', 'normal capture → counts → 5-fold cross-fit → Gumbel τ', kind='ml',
                 small=13)
-    tet = p.box(280, 425, 200, 105, 'Tetragon', 'exec, fork and connect events', kind='ext', small=13)
-    rca = p.box(515, 425, 300, 105, 'RCA', 'one case per delivered alert: process tree, ranked suspects', kind='alert',
-                small=13)
-    am = p.box(850, 425, 200, 105, 'Alertmanager', 'of the cluster', kind='alert', small=13)
+    am = p.box(850, 425, 200, 105, 'Alertmanager', 'of the cluster; to the operators', kind='alert', small=13)
     bridge = p.box(1085, 425, 375, 105, 'Alert bridge', 'follows alarm rows over SSH; one episode per container (gaps < 15 s); '
                    'push to Alertmanager', kind='alert', small=13)
     p.edge(app, probe, 'syscalls', kind='kernel')
@@ -561,8 +616,6 @@ def paper_overview():
     p.edge(res, loader, 'allow-list, identity', kind='ctrl', exit=(1, 0.5), entry=(0.5, 1), points=[(750, 305)])
     p.edge(dec, bridge, 'alarms', kind='alert', exit=(0.5, 1), entry=(1, 0.5), points=[(1360, 380), (1475, 380), (1475, 477)])
     p.edge(bridge, am, '', kind='alert')
-    p.edge(am, rca, 'delivered', kind='alert')
-    p.edge(tet, rca, '', kind='data')
     p.edge(fit, worker, 'MODELS.json (SHA-256)', kind='ctrl', exit=(0.5, 0), entry=(0.3, 1), points=[(140, 375), (994, 375)])
     edge_legend(p, 20, 555, EDGE_EN, columns=4, width=1460, title='Arrows')
     return p
