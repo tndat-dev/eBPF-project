@@ -1,0 +1,57 @@
+{
+ "schema": "sentinel-pulse-pulse-live-final-v1",
+ "registered_at": "2026-11-19T09:39+07:00",
+ "registered_before": "the final live run (pulse-live-final-<MMDD>); its rehearsal (pulse-final-rehearsal-1119, 6 trials) only checked that every step runs and set the duration (138 s per trial)",
+ "supersedes": "pulse-live-v7-v1 (run stopped before any attack on the owner's order for improvement-round-v1)",
+ "owner_decisions": [
+  "19/11: try every direction first (improvement-round-v1), then one final live run of reasonable length, not limited to 26 h",
+  "19/11: D18 behaviour simulators (Falco event-generator) agreed"
+ ],
+ "seen_before_registration": "all results of pulse-live-v5-1110, pulse-live-v6-1117, improvement-round-v1 and the rehearsal (6 trials: every step ran; event-generator outcomes executed/error/skipped as expected)",
+ "system": {
+  "model": "lidds-ml-v5-t3 (select1f, n 4, Witten-Bell, top 3, trim 0.005, alpha prime 0.0003, 5-fold cross-fit, one window fires)",
+  "models": "pulse-live-v7-fit-1118/token/MODELS.json (sha256 0aa4f620...), count branch in shadow",
+  "probe": "/home/dat/pulse-tokens-final-f8ccbb2 (D1 overflow alert, D2 loader window end; token proof valid on the three workers)",
+  "bridge": "durable push queue (D3), alert label stream (native/session from the lineage tag)",
+  "snapshot": "runtime-0c385d9-20261119",
+  "datasets": "no rerun needed: lidds-ml-v5-t3 is measured on LID-DS 2021 official (1,236/1,271, 15/7,938), LID-DS 2019 holdout (817/841 with the 1 s tolerance) and CB-DS (891/891, 3); no adopted change of improvement-round-v1 touches dataset scoring"
+ },
+ "campaign": {
+  "trials": 945,
+  "base": "21 workloads x 5 scenarios x rates 1, 3, 6, 12, 24 per s (525)",
+  "slow": "rates 0.5 and 0.1 per s (210, D12)",
+  "dilution": "PAD 300 at 12 per s (105)",
+  "on_off": "period 10 s at 12 per s (105, D12)",
+  "steps": "control, operator command (v6 set), harmless binary, living off the land, event-generator action (D18, amendment 3/4, 14 actions), seeded random order",
+  "seconds_total": 162000,
+  "timing": "rehearsal 138 s per trial: campaign about 36.2 h after a 1.5 h selection span, then about 6 h of normal without campaign",
+  "k8s_events": "recorded for the whole run (D10 operational labels)"
+ },
+ "hypotheses": {
+  "H0": "primary set (6, 12, 24 per s): recall >= 95 %, idle control positives <= 5 %, precision (1:1) >= 95 %, p95 kernel -> end of alarm window <= 3 s",
+  "H3": "PAD 300: recall >= 95 %",
+  "H7": "slow rates 0.5 and 0.1 per s: recall >= 95 % each",
+  "H8": "on-off 10 s: recall >= 95 %"
+ },
+ "reported": [
+  "event-generator per action and pooled (model alone)",
+  "living off the land, operator commands, harmless binaries (model alone)",
+  "native-stream flags (pulse-live-v6-v1 H1 method)",
+  "burden on the normal tail after the campaign (episodes per replica-hour, clustered bootstrap), episodes labelled by Kubernetes events (D10) and by stream",
+  "gram-map overflow alerts (expected 0) and insert failures",
+  "bridge delivery, durable queue use, kernel -> Alertmanager latency",
+  "RCA own case and rank",
+  "side by side with pulse-live-v6-1117 (lidds-ml-v5 on the shared base design)",
+  "afterwards, as the rule track: an intent-catalogue rule on the living-off-the-land and event-generator steps, with and without"
+ ],
+ "analysis": [
+  "scripts/analysis/pulse_live_v4.py",
+  "scripts/analysis/native_stream.py",
+  "scripts/analysis/rule_e_benefit.py",
+  "scripts/analysis/rca_coverage.py",
+  "scripts/analysis/burden_context.py"
+ ],
+ "rules": [
+  "run the full cycle; no heavy job on any node during the run; infrastructure faults are excluded spans, not a reason to stop"
+ ]
+}
