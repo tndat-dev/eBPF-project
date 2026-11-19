@@ -29,7 +29,7 @@ slide('Kết quả chính', [
 ])
 
 slide('Kiến trúc hệ thống', notes=[
-    '**Hệ thống của lượt live cuối:** thẻ dòng dõi (chương trình BPF thứ tư gắn vào sched_process_fork); mô hình t3; map 4-gram đầy thì báo cửa sổ nặng nhất (D1); bridge có hàng đợi bền và nhãn stream native/session (D3). Hình 5 trang và bảng ánh xạ code: docs/architecture/.',
+    '**Hệ thống của lượt live cuối, tới decision của worker:** thẻ dòng dõi (chương trình BPF thứ tư gắn vào sched_process_fork); mô hình t3; map 4-gram đầy thì báo cửa sổ nặng nhất (D1). Hình 4 trang, mỗi hộp ghi đường dẫn code; bảng ánh xạ: docs/architecture/.',
 ], note_size=13, img=f'{FIG}/overview.png')
 
 slide('Probe eBPF và thẻ dòng dõi', notes=[

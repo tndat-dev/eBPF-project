@@ -14,7 +14,7 @@ Sentinel Pulse có bốn phần nối tiếp nhau:
   \textbf{RCA} dựng cây bằng chứng process quanh mỗi cảnh báo đã gửi đi.
 \end{enumerate}
 
-Hình~\ref{fig:architecture} cho thấy toàn bộ hệ thống. Trên mỗi worker, kernel chỉ dựng token và đếm 4-gram; mọi phép tính xác suất nằm ở user space. Master chỉ đọc decision đã ghi, không can thiệp vào việc chấm điểm. Mô hình được học offline từ normal của chính cụm, khoá bằng SHA-256 và không đổi trong một lượt chạy. Các mục sau đi lần lượt qua mô hình đe dọa, mô hình ML (Hình~\ref{fig:token-model}), RCA và đường cảnh báo (Hình~\ref{fig:alert-rca}); probe trong kernel ở Hình~\ref{fig:probe}.
+Hình~\ref{fig:architecture} cho thấy toàn bộ hệ thống. Trên mỗi worker, kernel chỉ dựng token và đếm 4-gram; mọi phép tính xác suất nằm ở user space. Master chỉ đọc decision đã ghi, không can thiệp vào việc chấm điểm. Mô hình được học offline từ normal của chính cụm, khoá bằng SHA-256 và không đổi trong một lượt chạy. Các mục sau đi lần lượt qua mô hình đe dọa, mô hình ML (Hình~\ref{fig:token-model}), RCA và đường cảnh báo; probe trong kernel ở Hình~\ref{fig:probe}.
 
 \begin{sidewaysfigure}
   \centering
@@ -285,13 +285,6 @@ Bảng điểm có thêm ba quy tắc:
 Cây bằng chứng cho thấy liên quan theo định danh và thời gian, không chứng minh nhân quả. RCA cũng không tự xử lý pod.
 
 \section{Đường cảnh báo}
-
-\begin{sidewaysfigure}
-  \centering
-  \includegraphics[width=\textheight,height=0.9\textwidth,keepaspectratio,page=4]{../docs/architecture/export/sentinel-pulse-architecture.pdf}
-  \caption{Đường cảnh báo: từ decision của worker qua bridge tới Alertmanager và người vận hành (hình draw.io, trang 4; phần RCA sẽ vẽ sau).}
-  \label{fig:alert-rca}
-\end{sidewaysfigure}
 
 \begin{itemize}
 \tightlist

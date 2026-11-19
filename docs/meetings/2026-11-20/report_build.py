@@ -156,7 +156,7 @@ add(
 h1('2. Hệ thống sau tuần này')
 h2('2.1 Kiến trúc')
 add(
-    P('Hình 1 là hệ thống của lượt live cuối. So với 13/11: (1) thẻ dòng dõi trong kernel, một chương trình BPF thứ tư gắn vào sched_process_fork, mỗi 4-gram được đếm riêng theo dòng dõi của thread, loader cộng hai dòng lại thành cửa sổ như cũ và in thêm phần session; (2) mô hình t3; (3) map 4-gram đầy thì worker báo cửa sổ nặng nhất (D1); (4) bridge giữ đợt chưa giao trong hàng đợi bền trên đĩa và gắn nhãn stream native/session cho cảnh báo (D3). Hình vẽ đầy đủ 5 trang (tổng quan, probe, worker và mô hình, đường cảnh báo, học và đánh giá; mỗi hộp ghi đường dẫn code) và bảng ánh xạ từng thành phần sang code nằm trong docs/architecture/. Phần RCA tạm bỏ khỏi hình, sẽ cập nhật sau.', 'FirstParagraph'),
+    P('Hình 1 là hệ thống của lượt live cuối. So với 13/11: (1) thẻ dòng dõi trong kernel, một chương trình BPF thứ tư gắn vào sched_process_fork, mỗi 4-gram được đếm riêng theo dòng dõi của thread, loader cộng hai dòng lại thành cửa sổ như cũ và in thêm phần session; (2) mô hình t3; (3) map 4-gram đầy thì worker báo cửa sổ nặng nhất (D1). Hình chỉ vẽ tới hết phần chạy live (tới decision của worker), chưa vẽ đường cảnh báo và RCA. Hình vẽ đầy đủ 4 trang (tổng quan, probe, worker và mô hình, học và đánh giá; mỗi hộp ghi đường dẫn code) và bảng ánh xạ từng thành phần sang code nằm trong docs/architecture/.', 'FirstParagraph'),
     IMG('overview', 'Hình 1. Kiến trúc hệ thống của lượt live cuối (hình draw.io, trang 1: tổng quan).'),
     T([['Thành phần', 'Code'],
        ['Probe eBPF (token, 4-gram, thẻ dòng dõi)', 'sentinel_pulse/ebpf/pulse_counter.bpf.c, pulse_tokens.bpf.h (pulse_tok_lineage, pulse_tok_fork), pulse_token_ids.h'],

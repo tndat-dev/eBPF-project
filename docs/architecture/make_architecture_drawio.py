@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build docs/architecture/sentinel-pulse-architecture.drawio (5 pages, Vietnamese) and
+"""Build docs/architecture/sentinel-pulse-architecture.drawio (4 pages, Vietnamese; up to the live run, no alert path or RCA) and
 sentinel-pulse-overview-en.drawio (one page, English, the paper's Figure 1) from the facts in the repository.
 
 Sources: thesis/chapters/design.tex and implementation.tex (system, RCA, alert path, cluster), README.md (nodes),
@@ -7,7 +7,7 @@ sentinel_pulse/ebpf/* (probe, token layout), sentinel_pulse/pipeline/matched_wor
 sentinel_pulse/protocol/lidds-ml-v5.json (+ amendments), lidds2019-development-v1 (+ amendment 1: lidds-ml-v5-t3),
 improvement-round-v1 (D1-D18) and pulse-live-final-v1 (the final live run), validation-evidence/, notes/STATE.md.
 State of 19/11/2026: the system of the final live run pulse-live-final-1119: lidds-ml-v5-t3 token model alone (top 3,
-trim 0.5 %, alpha' 0.0003), lineage tag, gram-map overflow alert (D1), durable bridge queue (D3), alert label stream.
+trim 0.5 %, alpha' 0.0003), lineage tag, gram-map overflow alert (D1). The figures stop at the live run (owner 19/11): no alert path, no RCA.
 
     python3 docs/architecture/make_architecture_drawio.py   # then export with drawio -x (see README.md here)
 """
@@ -34,9 +34,6 @@ CODE = {
     'Worker chấm điểm (pipeline/matched_worker.py, 3 core, 3 GB)': SP + 'pipeline/matched_worker.py, ' + SP + 'detector/token_model.py, '
         + SP + 'collector/token_capture.py, ' + SP + 'pipeline/async_sink.py',
     'Luồng decision local': SP + 'pipeline/matched_worker.py (stream_root)',
-    'Alert bridge (trên .234)': SP + 'ops/alert_bridge.py; scripts/alert_bridge.sh',
-    'Alertmanager': 'testbed/k8s/monitoring/sentinel-pulse-alerting.yaml',
-    'Prometheus / Grafana': 'testbed/k8s/monitoring/sentinel-pulse-dashboard.json',
     'Planner + launcher': SP + 'pipeline/plan_matched_run.py, scripts/launch_run.sh, scripts/k8s_events_record.py',
     'Job phân tích (.234)': 'scripts/analysis/',
     'Tải normal (đánh giá)': SP + 'pipeline/matched_traffic.py, testbed/traffic/set_aims_traffic_regime.sh',
@@ -72,10 +69,6 @@ CODE = {
     'Ghi ngoài vòng chấm (async_sink)': SP + 'pipeline/async_sink.py (AsyncSink, AsyncState)',
     'Khoá trước khi chấm': SP + 'pipeline/matched_worker.py (run), ' + SP + 'detector/token_model.py (TokenBranch)',
     # page 4
-    'Worker ×3': SP + 'pipeline/matched_worker.py',
-    'Alert bridge (ops/alert_bridge.py)': SP + 'ops/alert_bridge.py (Streams, Bridge, push_worker, PushQueue, stream_of)',
-    'Alertmanager (API v2)': 'testbed/k8s/monitoring/sentinel-pulse-alerting.yaml',
-    'Route theo notify': 'testbed/k8s/monitoring/sentinel-pulse-alerting.yaml',
     # page 5
     'LID-DS 2021 development + CB-DS': 'scripts/analysis/lidds_ml_v5.py, lidds_ml_token_crossfit.py',
     'LID-DS 2021 official': 'scripts/analysis/lidds_ml_v5.py; t3: lidds2019_dev.py (official)',
@@ -93,7 +86,6 @@ CODE = {
     'Decisions': SP + 'pipeline/matched_worker.py',
     'Resolver': SP + 'collector/cgroup_resolver.py',
     'Offline fit': 'scripts/analysis/token_branch_fit.py',
-    'Alert bridge': SP + 'ops/alert_bridge.py',
 }
 
 
@@ -216,9 +208,9 @@ class Page:
 
 
 def legend(p, x, y):
-    p.group(x, y, 330, 232, 'Chú giải', kind='store', size=12)
+    p.group(x, y, 330, 204, 'Chú giải', kind='store', size=12)
     rows = [('kernel', 'Kernel: probe eBPF của Pulse'), ('user', 'User space của Pulse (C, Python)'),
-            ('ml', 'Mô hình token lidds-ml-v5-t3'), ('alert', 'Đường cảnh báo'),
+            ('ml', 'Mô hình token lidds-ml-v5-t3'),
             ('ext', 'Thành phần có sẵn của cụm'), ('eval', 'Chỉ dùng khi đánh giá (đứt nét)'),
             ('retired', 'Giữ lại, không dùng để báo (xám)')]
     for k, (kind, t) in enumerate(rows):
@@ -253,7 +245,7 @@ def overview():
     p = Page('1. Tổng quan hệ thống', 1720, 1260)
     p.title('Sentinel Pulse: kiến trúc tổng thể (19/11/2026, lượt live cuối)',
             'Phát hiện runtime trên Kubernetes bằng mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel (lidds-ml-v5-t3), '
-            'cảnh báo qua Alertmanager. Khung tím đứt nét chỉ dùng khi đánh giá.')
+            'chạy live và đánh giá trên cụm. Khung tím đứt nét chỉ dùng khi đánh giá.')
     p.group(20, 75, 1235, 945, 'Cụm Kubernetes của lab: 6 VM trên ESXi · Ubuntu 24.04 · kernel 6.8.0 · '
                                'Kubernetes v1.34 · Cilium · Istio ambient', kind='k8s', size=13)
     p.group(40, 110, 800, 700, 'Mỗi worker (×3): k8s-worker1 .237 · k8s-worker4 .238 · k8s-worker3 .239',
@@ -284,18 +276,12 @@ def overview():
                    '• ngưỡng Gumbel trên điểm giữ ra (khối 60 s, cross-fit 5 fold); một cửa sổ vượt ngưỡng là báo<br>'
                    '• map gram đầy (insert_fail tăng) → báo cửa sổ nặng nhất của frame (D1)<br>'
                    '• ghi NFS bằng thread nền (AsyncSink), ngoài vòng chấm', kind='ml', align='left', small=10)
-    local = p.store(630, 615, 180, 160, 'Luồng decision local', '/var/lib/sentinel-pulse-live (đĩa của worker)')
-    p.group(875, 110, 360, 700, 'Master (×3): .234 k8s-master · .235 · .236', kind='alert', size=12)
+    local = p.store(630, 615, 180, 160, 'Luồng decision local', '/var/lib/sentinel-pulse-live (đĩa của worker), campaign đọc')
+    p.group(875, 110, 360, 420, 'Master (×3): .234 k8s-master · .235 · .236', kind='eval', size=12)
     p.icon(1190, 116, 40, 39, 'master')
-    bridge = p.box(890, 150, 330, 105, 'Alert bridge (trên .234)', 'đọc decision local của 3 worker qua SSH; gom đợt '
-                   'theo container; push API v2; đợt chưa giao giữ trong hàng đợi bền, thử lại tới 1 giờ (D3); nhãn stream '
-                   'native/session', kind='alert', small=9)
-    am = p.box(890, 285, 330, 70, 'Alertmanager', 'kube-prometheus-stack; gửi thông báo cho người vận hành', kind='alert', small=9)
-    graf = p.box(890, 385, 330, 90, 'Prometheus / Grafana', 'scrape gauge /metrics của bridge (đường pull, để so độ trễ); '
-                 'dashboard; NodePort 32090 / 32300', kind='ext', small=9)
-    planner = p.box(890, 645, 160, 150, 'Planner + launcher', 'CONFIG.json bất biến: hash mô hình, probe, fixture, '
+    planner = p.box(890, 150, 330, 170, 'Planner + launcher', 'CONFIG.json bất biến: hash mô hình, probe, fixture, '
                     'lịch tải, lịch trial; diễn tập trước lượt; ghi sự kiện K8s', kind='eval', small=9)
-    p.box(1060, 645, 160, 150, 'Job phân tích (.234)', 'systemd-run có MemoryMax; học mô hình (token_branch_fit.py), chấm LID-DS; '
+    p.box(890, 345, 330, 165, 'Job phân tích (.234)', 'systemd-run có MemoryMax; học mô hình (token_branch_fit.py), chấm LID-DS; '
           'đọc NFS, repo, dữ liệu công khai; không chạy cùng lượt live', kind='eval', small=9)
     p.box(40, 845, 400, 110, 'Tải normal (đánh giá)', '4 generator trong namespace production gửi HTTP tới AIMS; chế độ '
           'steady, toolmix, peak, burst, recovery theo lịch đăng ký', kind='eval')
@@ -304,31 +290,25 @@ def overview():
                      'seed: lệnh admin, binary vô hại, tấn công, lotl, event-generator', kind='eval', small=9)
     nfs = p.store(1280, 110, 410, 160, 'NFS .233: /sentinel-pulse', '/mnt/sentinel-pulse-archive; segment 30 phút mỗi '
                   'worker: decisions, tokens, issues, TERMINAL.json (seal SHA-256); CONFIG.json, mô hình token')
-    people = p.box(1280, 290, 410, 80, 'Người vận hành', 'nhận thông báo từ Alertmanager hoặc xem dashboard', kind='alert',
-                   small=10)
     p.box(1280, 400, 410, 130, 'Repo git (GitHub, main)', 'code Pulse · protocol đăng ký trước · biên nhận JSON '
           '(validation-evidence/) · audit số liệu · đồ án LaTeX (thesis/) · notes/<br>checkout trên .234/.237/.238/.239 '
           'đồng bộ bằng git pull --ff-only', kind='store', small=10)
     p.box(1280, 560, 410, 110, 'Dữ liệu công khai (offline)', 'LID-DS 2021 (15 kịch bản, development → official), '
           'CB-DS, LID-DS 2019 (development 30% / holdout 70%)', kind='eval', small=10)
-    legend(p, 1280, 700)
-    edge_legend(p, 1280, 945, EDGE_VI[:5], width=410)
+    legend(p, 1280, 728)
+    edge_legend(p, 1280, 945, [EDGE_VI[0], EDGE_VI[1], EDGE_VI[3], EDGE_VI[4], EDGE_VI[5]], width=410)
     p.edge(pods[0], probe, 'syscall', kind='kernel', exit=(0.5, 1), entry=(0.137, 0))
     p.edge(probe, loader, 'đọc map theo lô', kind='kernel', exit=(0.5, 1), entry=(0.5, 0))
     p.edge(resolver, allow, 'allowed-cgroups (loader nạp vào map)', kind='ctrl', exit=(0.5, 0), entry=(0.5, 1))
     p.edge(loader, worker, 'cửa sổ token', kind='data', exit=(0.5, 1), entry=(0.283, 0))
     p.edge(resolver, worker, 'cgroups.json', kind='ctrl', exit=(0.5, 1), entry=(0.811, 0))
     p.edge(worker, local, 'decision', kind='data', exit=(1, 0.5), entry=(0, 0.47))
-    p.edge(local, bridge, 'SSH, chỉ dòng báo', kind='alert', exit=(1, 0.25), entry=(0, 0.5), points=[(850, 655), (850, 202)])
-    p.edge(bridge, am, 'POST /api/v2/alerts', kind='alert', exit=(0.5, 1), entry=(0.5, 0))
-    p.edge(am, people, '', kind='alert', exit=(1, 0.5), entry=(0, 0.375))
     p.edge(worker, nfs, 'decisions / tokens (NFS)', kind='store', exit=(0.5, 1), entry=(0, 0.47),
            points=[(335, 822), (1266, 822), (1266, 185)])
-    p.edge(planner, campaign, 'lịch trial', kind='eval', exit=(0.5, 1), entry=(1, 0.5), points=[(970, 900)])
+    p.edge(planner, campaign, 'lịch trial', kind='eval', exit=(0, 0.8), entry=(1, 0.5), points=[(858, 286), (858, 900)])
     p.text(20, 1035, 1235, 100,
            '<b>Đường dữ liệu chính:</b> syscall của container → probe eBPF dựng token, đếm 4-gram theo thread → loader đọc map '
-           'mỗi 0,5 s → worker chấm mô hình token của workload → decision ghi local và NFS → bridge gom đợt, đẩy vào '
-           'Alertmanager → người vận hành.<br><b>Mục tiêu:</b> recall ≥ 95%, '
+           'mỗi 0,5 s → worker chấm mô hình token của workload → decision ghi local và NFS → phân tích sau lượt.<br><b>Mục tiêu:</b> recall ≥ 95%, '
            'precision ≥ 95%, p95 kernel → cảnh báo ≤ 3 s; gánh cảnh báo và binary vô hại bị gắn cờ càng thấp càng tốt. '
            'Kết quả (lidds-ml-v5-t3): LID-DS 2021 official 97,25% / 0,19% báo nhầm, p95 1,54 s; LID-DS 2019 holdout 97,15% (dung sai '
            'nhãn 1 s), p95 10,95 s. Live v6 (lidds-ml-v5): tốc độ chính 315/315, precision 99,68%, p95 0,45 s. Lượt cuối '
@@ -470,11 +450,11 @@ def worker():
     dec = p.box(20, 690, 1680, 80, 'Decision = mô hình token của workload báo (một cửa sổ là đủ)',
                 'mỗi decision mang workload_key, pod_uid, container, window_start/end, token_score, token_threshold, run_id, '
                 'capture_segment, session_events (nhãn stream của cảnh báo); độ trễ kernel → cảnh báo = cuối cửa sổ + thời gian chấm',
-                kind='alert')
-    p.edge(tb, dec, '', kind='alert', exit=(0.5, 1), entry=(0.83, 0))
+                kind='ml')
+    p.edge(tb, dec, '', kind='data', exit=(0.5, 1), entry=(0.83, 0))
     s1 = p.store(20, 800, 400, 110, 'NFS: segment 30 phút', 'decisions.jsonl · tokens.jsonl · issues.jsonl · loader.log · '
                  'TERMINAL.json (seal)')
-    s2 = p.store(450, 800, 300, 110, 'Đĩa local của worker', 'decisions.jsonl cho bridge, campaign')
+    s2 = p.store(450, 800, 300, 110, 'Đĩa local của worker', 'decisions.jsonl cho campaign')
     p.box(780, 800, 450, 110, 'Ghi ngoài vòng chấm (async_sink)', 'thread nền, fdatasync + FADV_DONTNEED mỗi 30 s; '
           'STATUS.json bất đồng bộ; dừng khi hết chỗ trống', kind='user', small=10)
     p.box(1260, 800, 440, 110, 'Khoá trước khi chấm', 'kernel = proof; SHA-256 của loader và object; SHA-256 từng mô hình token '
@@ -486,43 +466,13 @@ def worker():
            '30 phút chia vào 5 fold → chấm phần giữ ra (top 3) → điểm lớn nhất mỗi khối 60 s mỗi container → bỏ 0,5% cao nhất → '
            'Gumbel theo moment → τ ở α′ = 0,0003 → mô hình cuối học trên toàn bộ → MODELS.json (SHA-256, có top). Không đổi '
            'trong lượt chạy. Cụm đổi thì thu normal và fit lại (D9).', size=12)
-    edge_legend(p, 20, 1075, [EDGE_VI[1], EDGE_VI[2], EDGE_VI[3], EDGE_VI[4]], columns=2, width=1100)
-    return p
-
-
-# ---------------------------------------------------------------- page 4: alert path (RCA left out for now, owner 19/11)
-def alerting():
-    p = Page('4. Đường cảnh báo', 1720, 520)
-    p.title('Đường cảnh báo: từ decision của worker tới người vận hành',
-            'Bridge chạy trên .234 và chỉ đọc decision.')
-    w = p.box(20, 90, 250, 120, 'Worker ×3', 'decisions.jsonl local; chỉ dòng token có "candidate_alert_preview":true '
-              'rời worker', kind='ml', small=9)
-    br = p.box(310, 70, 520, 230, 'Alert bridge (ops/alert_bridge.py)', '• bám log decision của từng worker qua SSH<br>'
-               '• gom đợt theo (pod_uid, container); hết đợt khi im lặng quá resolve_after<br>'
-               '• push POST /api/v2/alerts lúc mở đợt, làm mới khi còn kéo dài; lỗi → hàng đợi bền push-queue.jsonl, '
-               'backoff tới 30 s, giữ tới 1 giờ, tiếp tục sau khi khởi động lại (D3)<br>'
-               '• nhãn stream: session nếu ≥ 50% sự kiện của cửa sổ chạy trên thread session, ngược lại native<br>'
-               '• đo độ trễ từ preview_emitted_at và window_end (webhook của Alertmanager → deliveries.jsonl)<br>'
-               '• đường pull (gauge /metrics, scrape 5 s / 30 s) chỉ để so độ trễ: chậm hơn nhiều', kind='alert',
-               align='left', small=10)
-    am = p.box(880, 90, 330, 120, 'Alertmanager (API v2)', 'alert SentinelPulseAnomaly với nhãn node, workload, pod_uid, '
-               'container, episode, stream', kind='alert', small=10)
-    ppl = p.box(1260, 90, 300, 120, 'Người vận hành', 'nhận thông báo hoặc xem dashboard', kind='alert')
-    graf = p.box(880, 250, 330, 90, 'Prometheus / Grafana', 'scrape gauge /metrics của bridge; dashboard '
-                 'sentinel-pulse-alerts', kind='ext', small=10)
-    p.edge(w, br, 'SSH tail', kind='alert', exit=(1, 0.4), entry=(0, 0.25))
-    p.edge(br, am, 'push', kind='alert', exit=(1, 0.25), entry=(0, 0.5))
-    p.edge(am, ppl, '', kind='alert')
-    p.edge(br, graf, 'pull (so sánh)', kind='data', exit=(1, 0.8), entry=(0, 0.5))
-    p.text(20, 330, 840, 60, 'Lượt v6: bridge giao 3.233/3.233 đợt, decision → Alertmanager p95 1,21 s; kernel → Alertmanager '
-           '(push) p95 1,53 s. Lượt cuối, ví dụ trial tấn công 5: Alertmanager nhận 0,14 s sau cuối cửa sổ báo.', size=11)
-    edge_legend(p, 20, 400, [EDGE_VI[1], EDGE_VI[2]], columns=2, width=820)
+    edge_legend(p, 20, 1075, [EDGE_VI[1], EDGE_VI[3], EDGE_VI[4]], columns=2, width=1100)
     return p
 
 
 # ---------------------------------------------------------------- page 5: learning and evaluation
 def evaluation():
-    p = Page('5. Học và đánh giá', 1720, 1100)
+    p = Page('4. Học và đánh giá', 1720, 1100)
     p.title('Quy trình chọn, xác nhận và đánh giá',
             'Chọn trên dữ liệu development, xác nhận trên dữ liệu khoá; mỗi bước có protocol đăng ký trước (sửa đổi là amendment '
             'có giờ và lý do) và biên nhận JSON trong repo.')
@@ -563,7 +513,7 @@ def evaluation():
           'lần 2 sys_exit; lần 3 đi ngược dentry; báo cáo, không đạt/trượt', kind='eval', align='left', small=10)
     p.group(870, 290, 830, 420, 'Trên cụm (lượt live)', kind='eval', size=12)
     p.box(890, 330, 380, 170, 'Planner', 'plan_matched_run.py --token-build --token-models --admin-control --on-off --eventgen [--rehearsal] → '
-          'CONFIG.json bất biến; launch_run.sh cài worker, bridge, traffic, campaign, bộ ghi sự kiện K8s (system unit)', kind='eval', align='left', small=10)
+          'CONFIG.json bất biến; launch_run.sh cài worker, traffic, campaign, bộ ghi sự kiện K8s (system unit)', kind='eval', align='left', small=10)
     p.box(1290, 330, 390, 170, 'Fit trước lượt live', 'token_branch_fit.py → MODELS.json (mô hình token + ngưỡng mỗi workload)<br>'
           '--extra-run: thêm normal của lượt trước, bỏ −5 s … +25 s quanh mỗi trial<br>khoá sha256 trước lượt live', kind='ml', align='left', small=10)
     p.box(890, 520, 380, 170, 'Chấm lượt live', 'trial phát hiện khi có báo động trong [start, start + 15 s]; đợt = '
@@ -590,7 +540,7 @@ def evaluation():
 
 # ---------------------------------------------------------------- English overview for the paper (Figure 1)
 def paper_overview():
-    p = Page('Overview (paper)', 1500, 620)
+    p = Page('Overview (paper)', 1500, 560)
     p.group(20, 30, 1460, 330, 'Each worker node (×3)', kind='user', size=15)
     app = p.box(40, 70, 200, 170, 'Application containers', 'namespace production; one cgroup each; unmodified',
                 kind='ext', small=13)
@@ -603,21 +553,15 @@ def paper_overview():
                    'surprisals; alarm if s(W) > τ of the workload; one window fires', kind='ml', small=13)
     dec = p.store(1260, 70, 200, 170, 'Decisions', 'local disk; segments on NFS')
     res = p.box(40, 260, 200, 95, 'Resolver', 'pod UID → cgroup → workload', kind='user', small=13)
-    p.group(830, 395, 650, 150, 'Master node', kind='alert', size=15)
     fit = p.box(40, 425, 200, 105, 'Offline fit', 'normal capture → counts → 5-fold cross-fit → Gumbel τ', kind='ml',
                 small=13)
-    am = p.box(850, 425, 200, 105, 'Alertmanager', 'of the cluster; to the operators', kind='alert', small=13)
-    bridge = p.box(1085, 425, 375, 105, 'Alert bridge', 'follows alarm rows over SSH; one episode per container (gaps < 15 s); '
-                   'push to Alertmanager', kind='alert', small=13)
     p.edge(app, probe, 'syscalls', kind='kernel')
     p.edge(probe, loader, 'map', kind='kernel')
     p.edge(loader, worker, 'windows', kind='data')
     p.edge(worker, dec, '', kind='data')
     p.edge(res, loader, 'allow-list, identity', kind='ctrl', exit=(1, 0.5), entry=(0.5, 1), points=[(750, 305)])
-    p.edge(dec, bridge, 'alarms', kind='alert', exit=(0.5, 1), entry=(1, 0.5), points=[(1360, 380), (1475, 380), (1475, 477)])
-    p.edge(bridge, am, '', kind='alert')
     p.edge(fit, worker, 'MODELS.json (SHA-256)', kind='ctrl', exit=(0.5, 0), entry=(0.3, 1), points=[(140, 375), (994, 375)])
-    edge_legend(p, 20, 555, EDGE_EN, columns=4, width=1460, title='Arrows')
+    edge_legend(p, 270, 425, [EDGE_EN[0], EDGE_EN[1], EDGE_EN[3]], columns=3, width=1210, title='Arrows')
     return p
 
 
@@ -629,7 +573,7 @@ def write(path, pages):
 
 
 def main():
-    write(OUT, [overview(), kernel(), worker(), alerting(), evaluation()])
+    write(OUT, [overview(), kernel(), worker(), evaluation()])
     write(OUT.with_name('sentinel-pulse-overview-en.drawio'), [paper_overview()])
 
 

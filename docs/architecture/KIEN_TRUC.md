@@ -1,20 +1,20 @@
 # Kiến trúc Sentinel Pulse: từng thành phần trong hình và code tương ứng
 
-Tài liệu đi theo đúng 5 trang của hình kiến trúc
+Tài liệu đi theo đúng 4 trang của hình kiến trúc
 `docs/architecture/sentinel-pulse-architecture.drawio` (ảnh xuất trong `docs/architecture/export/`:
-`1-tong-quan.png`, `2-probe-ebpf.png`, `3-worker-mo-hinh-token.png`, `4-duong-canh-bao.png`, `5-hoc-va-danh-gia.png`).
+`1-tong-quan.png`, `2-probe-ebpf.png`, `3-worker-mo-hinh-token.png`, `4-hoc-va-danh-gia.png`).
 Mỗi hộp trong hình có một mục: nó làm gì, code nằm ở file và hàm nào, chạy ở đâu, đọc và ghi file nào. Mỗi hộp trong hình
 cũng ghi dòng `code:` với đường dẫn đầy đủ trong repo (chủ đồ án, 19/11).
 
-**Phần RCA tạm bỏ khỏi hình và khỏi tài liệu này** (chủ đồ án, 19/11), sẽ cập nhật sau; code RCA vẫn ở `sentinel_pulse/rca/`.
+**Hình chỉ vẽ tới hết phần chạy live** (chủ đồ án, 19/11): tới decision của worker. Đường cảnh báo (bridge, Alertmanager,
+Grafana) và RCA chưa vẽ, sẽ cập nhật sau; code của chúng ở `sentinel_pulse/ops/` và `sentinel_pulse/rca/`.
 
 Trạng thái: hệ thống của lượt live cuối `pulse-live-final-1119` (19/11/2026): mô hình `lidds-ml-v5-t3` (top 3, trim 0,5%,
 α′ 0,0003), probe `pulse-tokens-final-f8ccbb2`, snapshot code `/mnt/sentinel-pulse-archive/runtime-0c385d9-20261119/source/`.
 
 Mọi tài liệu chỉ dùng hình draw.io này (chủ đồ án, 19/11):
 
-- đồ án (`thesis/main.pdf`): Hình 4.1 = trang 1, Hình 4.2 = trang 3, Hình 4.3 = trang 4, Hình 5.1 = trang 2, Hình 6.1 =
-  trang 5, chèn từ `docs/architecture/export/sentinel-pulse-architecture.pdf`;
+- đồ án (`thesis/main.pdf`): Hình 4.1 = trang 1, Hình 4.2 = trang 3, Hình 5.1 = trang 2, Hình 6.1 = trang 4, chèn từ `docs/architecture/export/sentinel-pulse-architecture.pdf`;
 - báo cáo và slide tiến độ 20/11: `docs/architecture/export/1-tong-quan.png`, `2-probe-ebpf.png`;
 - paper: Figure 1 = `docs/architecture/sentinel-pulse-overview-en.drawio` (bản tiếng Anh, xuất
   `docs/architecture/export/overview-en.pdf`);
@@ -33,7 +33,6 @@ Sinh lại hình: sửa `docs/architecture/make_architecture_drawio.py`, chạy 
 |---|---|---|
 | liền, vàng đậm | dữ liệu trong kernel | syscall → probe → loader |
 | liền, đen | dữ liệu sự kiện | cửa sổ token, decision |
-| liền, đỏ đậm | đường cảnh báo | decision → bridge → Alertmanager → người vận hành |
 | liền, xám | ghi lưu trữ | worker → NFS |
 | chấm, xanh | điều khiển, cấu hình: đổi chậm, không mang sự kiện | resolver → allow-list (resolver ghi `/run/sentinel-pulse/allowed-cgroups`, loader nạp vào map `pulse_cgroups`), resolver → worker (`cgroups.json`), `MODELS.json` → worker |
 | đứt, tím | chỉ khi đánh giá | planner → campaign (lịch trial), các bước của trang 5 |
@@ -112,29 +111,8 @@ hình token của workload, ghi decision. Chi tiết: trang 3.
 
 ### Luồng decision local
 
-`/var/lib/sentinel-pulse-live/<run>/segments/sNNNNN/decisions.jsonl` trên đĩa từng worker: bản sao decision mà bridge
-và campaign đọc (đọc qua NFS chậm khoảng 5 s). Worker ghi cùng lúc với bản NFS (biến `local` trong
+`/var/lib/sentinel-pulse-live/<run>/segments/sNNNNN/decisions.jsonl` trên đĩa từng worker: bản sao decision mà campaign đọc (đọc qua NFS chậm khoảng 5 s). Worker ghi cùng lúc với bản NFS (biến `local` trong
 `matched_worker.py` `run`).
-
-### Alert bridge (trên .234)
-
-Unit `pulse-alert-bridge-<run>`. Bám decision local của 3 worker qua SSH, gom đợt theo container, push vào
-Alertmanager, hàng đợi bền, nhãn `stream`. Chi tiết: trang 4.
-
-- Code: `sentinel_pulse/ops/alert_bridge.py` (`Streams`, `Bridge.ingest`, `Bridge.tick`, `push_worker`, `PushQueue`,
-  `stream_of`, `serve`, `main`); dựng unit bằng `scripts/alert_bridge.sh`.
-- Cấu hình và đầu ra: `/var/lib/sentinel-pulse-alert-bridge/<run>/` trên `.234`.
-
-### Alertmanager
-
-Của kube-prometheus-stack trong cụm, nhận `POST /api/v2/alerts`, gửi thông báo cho người vận hành.
-
-- Cấu hình route và rule: `testbed/k8s/monitoring/sentinel-pulse-alerting.yaml`.
-
-### Prometheus / Grafana
-
-Scrape gauge `sentinel_pulse_preview_active` trên `/metrics` của bridge (đường pull, chỉ để so độ trễ với đường push);
-dashboard `testbed/k8s/monitoring/sentinel-pulse-dashboard.json`.
 
 ### Planner + launcher (đánh giá)
 
@@ -175,10 +153,6 @@ event-generator.
 (`/mnt/sentinel-pulse-archive/<run>/workers/<worker>/segments/sNNNNN/`: `decisions.jsonl`, `tokens.jsonl`,
 `features.jsonl`, `issues.jsonl`, `TERMINAL.json` có SHA-256), `CONFIG.json`, mô hình
 (`/mnt/sentinel-pulse-archive/pulse-live-v7-fit-1118/token/`), snapshot code.
-
-### Người vận hành
-
-Nhận thông báo từ Alertmanager hoặc xem dashboard.
 
 ### Repo git và dữ liệu công khai
 
@@ -336,36 +310,7 @@ Dòng `status: token-score` do `matched_worker.py` `run` ghi (trường `candida
 
 ---
 
-## Trang 4. Đường cảnh báo
-
-### Worker ×3
-
-Chỉ dòng `"candidate_alert_preview":true` rời worker: bridge chạy một chương trình Python nhỏ (`FOLLOWER` trong
-`sentinel_pulse/ops/alert_bridge.py`) qua `sshpass ssh` trên từng worker, bám file decision local mới nhất.
-
-### Alert bridge
-
-`sentinel_pulse/ops/alert_bridge.py`:
-
-| Việc trong hình | Code |
-|---|---|
-| bám log decision qua SSH | `Streams` (xoay kết nối mỗi `rotate_seconds`), `FOLLOWER`, `newest` |
-| gom đợt theo (pod_uid, container) | `Bridge.ingest` |
-| hết đợt khi im lặng, làm mới alert | `Bridge.tick` |
-| push `POST /api/v2/alerts` | `push_worker`, `Bridge.alert`, `Bridge.labels` |
-| hàng đợi bền (D3) | `PushQueue` (`push-queue.jsonl`), `backoff`; `PUSH_BACKOFF_MAX` 30 s, `PUSH_MAX_AGE` 1 giờ |
-| nhãn `stream` | `stream_of` |
-| đường pull để so độ trễ | `Bridge.metrics` (gauge `sentinel_pulse_preview_active`) |
-| webhook của Alertmanager, `deliveries.jsonl` (độ trễ) | `Bridge.webhook`, `serve` |
-
-### Alertmanager, người vận hành, Prometheus / Grafana
-
-`testbed/k8s/monitoring/sentinel-pulse-alerting.yaml` (rule và route của Alertmanager),
-`testbed/k8s/monitoring/sentinel-pulse-dashboard.json` (dashboard).
-
----
-
-## Trang 5. Học và đánh giá
+## Trang 4. Học và đánh giá
 
 ### Hàng trên: sáu bước
 

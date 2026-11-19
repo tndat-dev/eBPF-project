@@ -1,21 +1,24 @@
 # Kiến trúc Sentinel Pulse (draw.io)
 
-`sentinel-pulse-architecture.drawio`: 5 trang, trạng thái 19/11/2026: hệ thống của lượt live cuối `pulse-live-final-1119`
+`sentinel-pulse-architecture.drawio`: 4 trang, trạng thái 19/11/2026: hệ thống của lượt live cuối `pulse-live-final-1119`
 (`lidds-ml-v5-t3`: chỉ mô hình token, top 3, trim 0,5%, α′ 0,0003; thẻ dòng dõi từ `sched_process_fork`; cảnh báo khi map
 gram đầy (D1); hàng đợi bền của bridge (D3); nhãn `stream` của cảnh báo; bộ ghi sự kiện Kubernetes).
 
 `sentinel-pulse-overview-en.drawio`: một trang tiếng Anh, Figure 1 của paper (`export/overview-en.pdf`, `overview-en.png`).
 
 **Mọi tài liệu chỉ dùng các hình draw.io này** (chủ đồ án, 19/11): đồ án chèn từng trang của
-`export/sentinel-pulse-architecture.pdf` (Hình 4.1 = trang 1, 4.2 = trang 3, 4.3 = trang 4, 5.1 = trang 2, 6.1 = trang 5);
+`export/sentinel-pulse-architecture.pdf` (Hình 4.1 = trang 1, 4.2 = trang 3, 5.1 = trang 2, 6.1 = trang 4);
 báo cáo và slide dùng `export/1-tong-quan.png`, `export/2-probe-ebpf.png`; paper dùng `export/overview-en.pdf`. Không còn
 hình TikZ. Sửa hình thì sửa `make_architecture_drawio.py`, chạy lại, xuất lại, rồi dựng lại tài liệu.
 
-1. Tổng quan hệ thống: cụm, node, NFS, đường dữ liệu từ kernel tới cảnh báo, thành phần chỉ dùng khi đánh giá.
-2. Probe eBPF: các hook (`sys_enter`, `sys_exit`, `fexit/__seccomp_filter`), map, bố cục token 32 bit, loader, đầu ra JSON.
+1. Tổng quan hệ thống: cụm, node, NFS, đường dữ liệu từ kernel tới decision của worker, thành phần chỉ dùng khi đánh giá.
+2. Probe eBPF: các hook (`sys_enter`, `sys_exit`, `fexit/__seccomp_filter`, `sched_process_fork`), map, bố cục token 32 bit,
+   loader, đầu ra JSON.
 3. Worker và mô hình token: cửa sổ token, mô hình ngôn ngữ theo workload, điểm, ngưỡng, decision, khoá SHA, học mô hình.
-4. Cảnh báo và RCA: bridge, Alertmanager, route, Tetragon, dựng case, xếp hạng nghi phạm, triage.
-5. Học và đánh giá: LID-DS, CB-DS, lượt thu và lượt live, protocol, biên nhận.
+4. Học và đánh giá: LID-DS, CB-DS, lượt thu và lượt live, protocol, biên nhận.
+
+Hình chỉ vẽ tới hết phần chạy live (chủ đồ án, 19/11): đường cảnh báo (bridge, Alertmanager, Grafana) và RCA chưa vẽ,
+sẽ cập nhật sau. Mỗi hộp ghi dòng `code:` (đường dẫn đầy đủ trong repo); mỗi trang có chú giải kiểu mũi tên.
 
 File được sinh bởi `make_architecture_drawio.py` (sửa script rồi chạy lại, hoặc mở file bằng draw.io và sửa tay; sinh lại
 sẽ ghi đè sửa tay). Xuất bằng draw.io desktop (`snap install drawio`):
