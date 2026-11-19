@@ -3,7 +3,7 @@
 Tài liệu đi theo đúng đường dữ liệu: từ một syscall trong container tới cảnh báo trong Alertmanager, rồi tới phần
 học mô hình (fit), campaign tấn công và phân tích. Mỗi bước ghi file code, file dữ liệu (đường dẫn đầy đủ, kèm máy chứa)
 và một ví dụ lấy từ dữ liệu thật của lượt `pulse-live-final-1119` (chạy từ 19/11/2026 09:50 +07) hoặc của fit
-`pulse-live-v7-fit-1118`.
+`pulse-live-v7-fit-1118`. Mục 12 là quy trình chuẩn từ đầu tới cuối, kèm các lệnh cần chạy.
 
 Quy ước máy trong lab:
 
@@ -520,3 +520,153 @@ Mỗi lần đổi mô hình (top, trim, α′, token) phải chạy lại nhán
 | Phân tích | `scripts/analysis/pulse_live_v4.py` và `scripts/analysis/` |
 | Protocol lượt cuối | `sentinel_pulse/protocol/pulse-live-final-v1.json` |
 | Nén sau lượt | `scripts/compress_raw_frames.py` |
+
+---
+
+## 12. Quy trình chuẩn và các lệnh cần chạy
+
+Thứ tự đã dùng cho lượt cuối `pulse-live-final-1119`; lệnh là lệnh đã thực sự chạy. Mọi lệnh chạy trên lab
+(`ssh 10.1.16.234` hoặc worker); `R=/mnt/sentinel-pulse-archive` (NFS). Job nặng trên `.234` luôn chạy trong
+`systemd-run` có `MemoryMax` và `OOMPolicy=continue`.
+
+### Bước 0. Đổi mô hình thì chấm lại dataset trước (offline, `.234`)
+
+Chỉ khi đổi cấu hình mô hình (top, trim, α′, token). Chạy lại LID-DS 2021, LID-DS 2019 và CB-DS:
+
+- `scripts/lidds2019_dev_run.sh`: split, gate, study trên phần development;
+- `scripts/lidds2019_amendment1_run.sh`: LID-DS 2021 official rồi holdout 2019.
+
+Biên nhận: `validation-evidence/results-<ngày>/...`, ví dụ `validation-evidence/results-20261118/lidds2019-development/`.
+
+### Bước 1. Đăng ký protocol (máy bạn, trong repo)
+
+Ghi giả thuyết, tiêu chí và cách tính vào `sentinel_pulse/protocol/<tên>.json` **trước** khi tính, commit và push.
+Ví dụ: `sentinel_pulse/protocol/pulse-live-final-v1.json`.
+
+### Bước 2. Build probe và proof (cả 3 worker)
+
+```bash
+for h in 237 238 239; do ssh 10.1.16.$h 'cd /home/dat/eBPF-project; git pull -q --ff-only;
+  SHA=$(git log -1 --format=%h); B=/home/dat/pulse-tokens-final-$SHA
+  cd sentinel_pulse/ebpf && make -s tokens TOKENS_BUILD_DIR=$B/build; cd ../..
+  echo 1 | sudo -S -p "" env PYTHONPATH=$PWD /opt/sentinel-pulse/runtime-venv/bin/python \
+    scripts/token_probe_proof.py --build $B/build --proof $B/proof --source-commit $SHA
+  python3 -c "import json;d=json.load(open(\"$B/proof/RESULTS.json\"));print(d[\"valid\"])"'; done
+```
+
+- Code: `sentinel_pulse/ebpf/Makefile`, `scripts/token_probe_proof.py`.
+- Kết quả trên từng worker: `/home/dat/pulse-tokens-final-<SHA>/build/` và `/home/dat/pulse-tokens-final-<SHA>/proof/RESULTS.json`.
+- Phải đạt `valid: true` trên cả 3 worker (mỗi syscall đúng một token, không chèn thất bại). Bản final
+  `pulse-tokens-final-f8ccbb2`: 361.900 / 442.796 / 393.644 lời gọi = số token.
+
+### Bước 3. Đóng băng code (`.234`)
+
+```bash
+SNAP=$R/runtime-<sha>-<YYYYMMDD>
+git clone -q ~/eBPF-project $SNAP/source && cd $SNAP/source && git checkout -q <sha>
+```
+
+Lượt chạy chạy từ `$SNAP/source`; sửa repo sau đó không ảnh hưởng.
+
+### Bước 4. Thu normal (chỉ khi cụm đổi; `.234`, khoảng 12 giờ)
+
+Không truyền `TOKEN_MODELS`, nên worker chỉ ghi `tokens.jsonl`, không chấm.
+
+```bash
+cd /home/dat/eBPF-project && export LAB_SSH_PASSWORD=$(cat /home/dat/.pulse-recovery-credential-20261005) \
+  RUN=pulse-token-capture-<ver>-<MMDD> SNAP=$SNAP/source \
+  CANDIDATE=$R/pulse-next-run-model/model-bundle MODEL_HASH=4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc \
+  POLICY=sentinel_pulse/protocol/policy-2of2-a10-refreshed.json POLICY_HASH=9c41ebc06243461a8abce9ceec3becdb17869db42f51a85b3137b87d030d1540 \
+  SECONDS_TOTAL=43200 TOKEN_BUILD=/home/dat/pulse-tokens-<...> LOCAL_DECISIONS=1
+bash $SNAP/scripts/launch_run.sh plan
+bash $SNAP/scripts/launch_run.sh workers
+bash $SNAP/scripts/launch_run.sh traffic
+```
+
+Kết quả: `$R/pulse-token-capture-<ver>-<MMDD>/workers/*/segments/*/tokens.jsonl`; lần gần nhất
+`/mnt/sentinel-pulse-archive/pulse-token-capture-v6-1116/`.
+
+### Bước 5. Fit (`.234`, chạy ngầm có trần bộ nhớ)
+
+```bash
+F=$R/pulse-live-<ver>-fit-<MMDD>; mkdir -p $F /var/tmp/pulse-<ver>
+cp $R/pulse-live-v6-fit-1117/count-thresholds.json $F/        # nhánh đếm (shadow) giữ ngưỡng cũ
+echo 1 | sudo -S -p "" systemd-run --unit=pulse-<ver>-token-fit --uid=dat --gid=dat \
+  -p MemoryMax=22G -p OOMPolicy=continue -E PYTHONPATH=$SNAP/source -E PYTHONDONTWRITEBYTECODE=1 \
+  -E HOME=/home/dat --working-directory=/tmp \
+  /home/dat/ml-venv/bin/python -u $SNAP/source/scripts/analysis/token_branch_fit.py \
+  --run-root $R/pulse-token-capture-v6-1116 \
+  --train 1794813247.7573142 1794842047.7573142 --validation 1794842047.7573142 1794856447.7573142 \
+  --extra-run $R/pulse-live-v5-1110 --extra-span 1794339632.1040783 1794420632.1040783 \
+  --folds 5 --alpha 0.0003 --share 1.0 --top 3 --trim 0.005 --jobs 2 \
+  --work /var/tmp/pulse-<ver>/fit-split --dump-maxima $F/maxima --output $F/token
+```
+
+- Code: `scripts/analysis/token_branch_fit.py`.
+- Kết quả: `$F/token/MODELS.json`, `$F/token/*.lm.json.gz`, `$F/token/FIT.json`.
+- Khoảng 2–3 giờ, đỉnh 14,4 GB (fit v7). Kiểm `FIT.json` có đủ workload và `validation_blocks_above` không bất thường.
+
+### Bước 6. Diễn tập (`.234`, khoảng 20–30 phút)
+
+Lệnh như bước 7, thêm `REHEARSAL=1` và `RUN=pulse-final-rehearsal-<MMDD>`: 6 trial, mỗi loại một, trên các workload
+khó nhất; kiểm mọi bước chạy và kiểm script phân tích. Biên nhận lần gần nhất:
+`validation-evidence/results-20261119/final-rehearsal/`. Đạt thì xoá thư mục diễn tập rồi chạy lượt chính.
+
+### Bước 7. Chạy live (`.234`, từ `$SNAP`)
+
+```bash
+env LAB_SSH_PASSWORD=$(cat /home/dat/.pulse-recovery-credential-20261005) RUN=pulse-live-final-<MMDD> SNAP=$SNAP \
+  CANDIDATE=$R/pulse-next-run-model/model-bundle MODEL_HASH=4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc \
+  POLICY=sentinel_pulse/protocol/policy-2of2-a10-refreshed.json POLICY_HASH=9c41ebc06243461a8abce9ceec3becdb17869db42f51a85b3137b87d030d1540 \
+  SECONDS_TOTAL=162000 TOKEN_BUILD=/home/dat/pulse-tokens-final-f8ccbb2 \
+  TOKEN_MODELS=$R/pulse-live-v7-fit-1118/token/MODELS.json V3_COUNTS=$R/pulse-live-v7-fit-1118/count-thresholds.json \
+  ADMIN_CONTROL=1 ADMIN_COMMANDS=v6 RANDOM_ORDER=1 LOTL_ATTACK=1 DILUTION_PADS=300 ON_OFF=10 \
+  EVENTGEN=$R/tools/event-generator-0.13.0-static K8S_EVENTS=1 LOCAL_DECISIONS=1 \
+  ATTACK_RATES=0.1,0.5,1,3,6,12,24 bash scripts/launch_run.sh all
+```
+
+`all` = `plan → workers → rca → bridge → master` (`scripts/launch_run.sh`). Kiểm ngay sau khi khởi chạy:
+
+```bash
+systemctl list-units --no-legend "pulse*" "rca*"                    # trên .234: campaign, bridge, rca, k8s-events
+ssh 10.1.16.237 'systemctl is-active pulse-matched-worker-<RUN>'     # lặp cho .238, .239
+cat $R/<RUN>/pulse-development-matrix/STATUS.json                    # trạng thái campaign
+```
+
+Trong lúc chạy: không job nặng trên node nào, không pull code lên worker, để lượt chạy hết chu kỳ. Chỉ đọc file bằng
+`head`, không `cat`/`grep`/`tail` cả file lớn trên NFS.
+
+### Bước 8. Phân tích (`.234`, sau khi lượt xong)
+
+Mỗi lệnh chạy trong `systemd-run ... -p MemoryMax=... -p OOMPolicy=continue` với `PYTHONPATH=$SNAP/source`;
+`RUN=$R/<run>`, `M=$R/pulse-live-v7-fit-1118/token/MODELS.json`.
+
+```bash
+python3 scripts/analysis/pulse_live_v4.py    --run-root $RUN --output h0.json          # H0: recall, precision, control, độ trễ, gánh
+python3 scripts/analysis/live_attribution.py --run-root $RUN --models $M --output attribution.json
+python3 scripts/analysis/native_stream.py    --run-root $RUN --models $M --output native.json
+python3 scripts/analysis/rule_e_benefit.py   --run-root $RUN --models $M --output rule.json
+python3 scripts/analysis/burden_context.py   --run-root $RUN --output burden-context.json
+python3 scripts/analysis/rca_coverage.py     --cases <thư mục case RCA> --campaign $RUN/pulse-development-matrix --output rca.json
+```
+
+Biên nhận chép về repo `validation-evidence/results-<ngày>/<run>/` kèm `README.md`; cập nhật `notes/WORKLOG.md`,
+`notes/STATE.md`, đồ án `thesis/`, paper `paper/`, báo cáo và slide trong `docs/`.
+
+### Bước 9. Nén và dọn (sau phân tích)
+
+```bash
+python3 scripts/compress_raw_frames.py --run-root $RUN --files tokens.jsonl features.jsonl decisions.jsonl issues.jsonl
+```
+
+Ra `*.jsonl.gz` + `COMPRESSION.json` trong từng segment; file gốc chỉ bị xoá khi SHA-256 khớp `TERMINAL.json`. Sau đó
+xoá thư mục tạm `/var/tmp/...` của fit và phân tích.
+
+### Khi nào làm lại bước nào
+
+| Thay đổi | Làm lại từ |
+|---|---|
+| Cụm đổi (image, phiên bản, workload) | Bước 4 → 5 → 6 → 7 |
+| Đổi cấu hình mô hình (top, trim, α′) | Bước 0 → 1 → 5 (fit trên capture cũ) → 6 → 7 |
+| Đổi code probe | Bước 0 nếu token đổi → 2 → 3 → 6 → 7 |
+| Chỉ đổi campaign hoặc bridge | Bước 1 → 3 → 6 → 7 |
