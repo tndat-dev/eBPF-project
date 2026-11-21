@@ -17,7 +17,19 @@
 \maketitle
 
 \begin{abstract}
-\pending{abstract, written last}
+Runtime security for Kubernetes rests on rules that only see what their authors anticipated, while system-call anomaly
+detection is rarely evaluated live, where alert latency, alert burden and harmless new processes decide whether it is
+usable. We present \sys, an eBPF detector that turns every system call into a 32-bit token carrying its error code,
+returned size or opened directory, counts per-thread 4-grams in the kernel, and scores 0.5\,s windows with a per-workload
+Witten--Bell language model whose threshold is fitted on held-out normal data only. Under pre-registered protocols, the
+final model detects 97.25\,\% of LID-DS~2021 official attack recordings with 0.19\,\% false-alarm recordings (p95
+1.54\,s) and every CB-DS breakout. In four blind live runs on a 21-workload application it detects every primary-rate
+attack; in the final 45-hour run 296/296 with no idle false alarm and p95 0.46\,s, including attacks at 0.1 actions/s,
+on-off and diluted with 300 seen calls per operation, for 0.4--0.5\,\textmu s per watched system call. It also flags
+almost every harmless process started through \texttt{kubectl exec}, its burden (0.36 episodes per replica-hour) sits
+mostly in windows of Kubernetes exec probes, and it is blind to attacks built only from seen sequences. A kernel lineage
+tag that separates a workload's own processes from exec sessions removes nearly all operator false alarms on the native
+stream, but exec-launched attacks leave it too. A rule run in parallel on a frozen catalogue of intent system calls adds six event-generator detections but fires on 461/694 idle controls (6.4 episodes per replica-hour), because the runtime makes the same calls for every exec, including Kubernetes exec probes.
 \end{abstract}
 
 \input{sections/introduction}

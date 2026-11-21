@@ -149,13 +149,13 @@ và $P_k = P_{k-1}$ nếu $h_k$ chưa từng thấy. Xác suất dùng để ch�
 
 \subsection{Từ xác suất thành điểm của cửa sổ}
 
-Mỗi sự kiện có độ bất ngờ $-\ln P_3$. Điểm của cửa sổ $W$ là trung bình 10 giá trị lớn nhất, mỗi gram tính theo số lần nó xuất hiện:
+Mỗi sự kiện có độ bất ngờ $-\ln P_3$. Điểm của cửa sổ $W$ là trung bình $K$ giá trị lớn nhất, mỗi gram tính theo số lần nó xuất hiện:
 \[
-s(W) = \frac{1}{10} \sum_{\text{10 sự kiện bất ngờ nhất của } W} -\ln P_3(e),
+s(W) = \frac{1}{K} \sum_{\text{$K$ sự kiện bất ngờ nhất của } W} -\ln P_3(e),
 \]
-lấy trung bình mọi sự kiện nếu cửa sổ có ít hơn 10, và $s = 0$ cho cửa sổ rỗng. Lấy các giá trị lớn nhất thay vì trung bình cả cửa sổ để vài sự kiện lạ không bị loãng giữa hàng nghìn sự kiện quen; lấy 10 thay vì 1 để một sự kiện hiếm đơn lẻ trong normal không đủ làm báo. Trên development, trung bình của 1 hoặc 20 giá trị lớn nhất cho kết quả kém hơn, 3 hoặc 5 chỉ nhanh hơn một chút.
+lấy trung bình mọi sự kiện nếu cửa sổ có ít hơn $K$, và $s = 0$ cho cửa sổ rỗng. Hệ thống cuối t3 dùng $K = 3$; cấu hình v5 trước đó dùng $K = 10$. Lấy các giá trị lớn nhất thay vì trung bình cả cửa sổ để vài sự kiện lạ không bị loãng giữa hàng nghìn sự kiện quen; lấy nhiều hơn 1 để một sự kiện hiếm đơn lẻ trong normal không đủ làm báo. Trên LID-DS 2021 development, trung bình của 1 hoặc 20 giá trị lớn nhất cho kết quả kém hơn, 3 tới 10 gần như nhau; $K = 3$ được chọn vì nó bắt được Heartbleed của LID-DS 2019 (mục~\ref{sec:lidds2019}).
 
-\textbf{Ví dụ thật} (lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}, binary đối chứng trong container RabbitMQ, 5,2 s sau khi chạy). Cửa sổ có 89 sự kiện. Gram (\texttt{getpid}, \texttt{clock\_\allowbreak{}nanosleep}, \texttt{getpid}, \texttt{clock\_\allowbreak{}nanosleep}) xuất hiện 6 lần với $-\ln P_3 = 34{,}0$, vì chuỗi này chưa từng có trong normal của RabbitMQ; gram tiếp theo xuất hiện 6 lần với $7{,}0$. Mười sự kiện bất ngờ nhất là 6 lần $34{,}0$ và 4 lần $7{,}0$, nên $s = (6 \times 34{,}0 + 4 \times 7{,}0)/10 = 23{,}2$, trên ngưỡng $13{,}4$ của workload: cửa sổ bị báo. Cùng binary trong \texttt{order-\allowbreak{}service} chỉ có 3 lần gram đó trong cửa sổ (với $-\ln P_3 = 26{,}7$), nên các gram quen chiếm phần còn lại của top 10 và $s = 11{,}3$, dưới ngưỡng $13{,}3$. Ví dụ này cũng cho thấy giới hạn: mô hình đo độ lạ và mật độ của độ lạ, không đo ý đồ.
+\textbf{Ví dụ thật, với cấu hình v5 ($K = 10$)} (lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}, binary đối chứng trong container RabbitMQ, 5,2 s sau khi chạy). Cửa sổ có 89 sự kiện. Gram (\texttt{getpid}, \texttt{clock\_\allowbreak{}nanosleep}, \texttt{getpid}, \texttt{clock\_\allowbreak{}nanosleep}) xuất hiện 6 lần với $-\ln P_3 = 34{,}0$, vì chuỗi này chưa từng có trong normal của RabbitMQ; gram tiếp theo xuất hiện 6 lần với $7{,}0$. Mười sự kiện bất ngờ nhất là 6 lần $34{,}0$ và 4 lần $7{,}0$, nên $s = (6 \times 34{,}0 + 4 \times 7{,}0)/10 = 23{,}2$, trên ngưỡng $13{,}4$ của workload: cửa sổ bị báo. Cùng binary trong \texttt{order-\allowbreak{}service} chỉ có 3 lần gram đó trong cửa sổ (với $-\ln P_3 = 26{,}7$), nên các gram quen chiếm phần còn lại của top 10 và $s = 11{,}3$, dưới ngưỡng $13{,}3$. Ví dụ này cũng cho thấy giới hạn: mô hình đo độ lạ và mật độ của độ lạ, không đo ý đồ.
 
 \subsection{Từ điểm thành ngưỡng}
 
@@ -166,24 +166,24 @@ Ngưỡng được đặt chỉ bằng normal. Ý tưởng: trong mỗi đơn v�
 \item
   \textbf{Điểm giữ ra bằng cross-fit 5 fold.} Nếu chấm normal bằng chính mô hình đã học nó, điểm sẽ thấp hơn điểm của dữ liệu mới, và ngưỡng sẽ quá thấp. Vì vậy dữ liệu học được chia 5 phần; mỗi phần được chấm bằng mô hình học từ 4 phần còn lại. Trên dataset, mỗi bản ghi training hoặc validation vào fold $\text{sha256}(\text{tên}) \bmod 5$ (khoảng 270 bản ghi mỗi kịch bản). Trên cụm, thời gian được cắt thành các đoạn 30 phút liền nhau, chia lần lượt vào 5 fold, để một cửa sổ giữ ra không nằm sát các cửa sổ đã học. Mô hình dùng để chấm thật học trên toàn bộ dữ liệu.
 \item
-  \textbf{Bỏ 1\% cực đại cao nhất} (ít nhất một), vì vài đơn vị giữ ra có sự kiện hiếm thật và làm phình phân bố.
+  \textbf{Bỏ 0,5\% cực đại cao nhất} (ít nhất một; v5 bỏ 1\%), vì vài đơn vị giữ ra có sự kiện hiếm thật và làm phình phân bố.
 \item
   \textbf{Khớp Gumbel theo moment} trên các cực đại còn lại, với trung bình $\bar M$ và độ lệch chuẩn $\sigma_M$:
   \[
   \beta = \frac{\sqrt 6}{\pi}\, \sigma_M, \qquad \mu = \bar M - 0{,}5772\, \beta.
   \]
 \item
-  \textbf{Ngưỡng} ở mức $\alpha' = 0{,}0002 \times 0{,}9 = 0{,}00018$:
+  \textbf{Ngưỡng} ở mức $\alpha' = 0{,}0003$ (v5: $0{,}0002 \times 0{,}9 = 0{,}00018$):
   \[
   \tau = \mu - \beta \ln\!\bigl(-\ln(1 - \alpha')\bigr).
   \]
 \end{enumerate}
 
-Cùng ngưỡng đó viết cách khác là $\tau = \bar M + k\,\sigma_M$ với $k = 6{,}27$ ở $\alpha' = 0{,}00018$: trung bình cộng 6,27 độ lệch chuẩn của các cực đại đã bỏ 1\%. Cách viết này là cách hiểu đúng hơn, vì giả thiết Gumbel không giữ: kiểm định bác nó ở cả 15 kịch bản của dataset, tỉ lệ bản ghi normal vượt ngưỡng cao hơn $\alpha'$ khoảng 10 lần trên development, và tỉ lệ khối 60 s vượt ngưỡng trên cụm cao hơn 14--17 lần (mục~\ref{sec:token-ablation} và~\ref{sec:token-live}). $\alpha'$ vì vậy là một núm chỉnh, không phải tỉ lệ báo nhầm được bảo đảm, và nó được chọn theo báo nhầm đo được trên development. Dù vậy, trong các quy tắc chỉ dùng normal đã thử (Gumbel ước lượng hợp lý cực đại, GEV, phân bố chuẩn, cực đại giữ ra lớn nhất), quy tắc này cho nhiều phát hiện nhất ở mọi ngân sách báo nhầm đã xét.
+Cùng ngưỡng đó viết cách khác là $\tau = \bar M + k\,\sigma_M$ với $k = 5{,}87$ ở $\alpha' = 0{,}0003$: trung bình cộng 5,87 độ lệch chuẩn của các cực đại đã bỏ 0,5\% (v5: $k = 6{,}27$ ở $\alpha' = 0{,}00018$). Cách viết này là cách hiểu đúng hơn, vì giả thiết Gumbel không giữ: kiểm định bác nó ở cả 15 kịch bản của dataset, tỉ lệ bản ghi normal vượt ngưỡng cao hơn $\alpha'$ khoảng 10 lần trên development, và tỉ lệ khối 60 s vượt ngưỡng trên cụm cao hơn 14--17 lần (mục~\ref{sec:token-ablation} và~\ref{sec:token-live}). $\alpha'$ vì vậy là một núm chỉnh, không phải tỉ lệ báo nhầm được bảo đảm, và nó được chọn theo báo nhầm đo được trên development. Dù vậy, trong các quy tắc chỉ dùng normal đã thử (Gumbel ước lượng hợp lý cực đại, GEV, phân bố chuẩn, cực đại giữ ra lớn nhất), quy tắc này cho nhiều phát hiện nhất ở mọi ngân sách báo nhầm đã xét.
 
 \subsection{Quyết định và thời điểm báo}
 
-Một cửa sổ có $s(W) > \tau$ là báo; thời điểm báo là cuối cửa sổ đó. Không cần hai cửa sổ liền nhau, vì nhiều exploit chỉ lộ trong một cửa sổ. Trên cụm, worker chấm mỗi cửa sổ khoảng 0,15 s sau khi cửa sổ đóng (p95 0,18 s, đo trên 10,9 triệu cửa sổ của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}).
+Một cửa sổ có $s(W) > \tau$ là báo; thời điểm báo là cuối cửa sổ đó. Không cần hai cửa sổ liền nhau, vì nhiều exploit chỉ lộ trong một cửa sổ. Trên cụm, worker chấm mỗi cửa sổ khoảng 0,17 s sau khi cửa sổ đóng (p95 0,23 s, đo trên 20,96 triệu cửa sổ của lượt cuối \texttt{pulse-\allowbreak{}live-\allowbreak{}final-\allowbreak{}1119}).
 
 \subsection{Tham số và nguồn gốc của chúng}
 
@@ -197,11 +197,11 @@ Tham số & Giá trị & Chọn thế nào \\
 \endlastfoot
 Độ dài gram & 4 & Development; LSTM lớn không hơn \\
 Cửa sổ & 0,5 s & Cố định từ đầu, theo mục tiêu độ trễ \\
-Số giá trị lấy trung bình & 10 & Development (so với 1, 3, 5, 20) \\
+Số giá trị lấy trung bình $K$ & 3 (v5: 10) & LID-DS 2021 development (so với 1, 3, 5, 10, 20), rồi LID-DS 2019 development (amendment 1 của \texttt{lidds2019-\allowbreak{}development-\allowbreak{}v1}) \\
 Bảng chữ token & \texttt{select1f} & Development, có nhãn tấn công \\
 Số nhóm cỡ đọc ghi & 16 ($\log_2$, không chia đôi) & Development \\
-Mức $\alpha$ & 0,0002 & Development, theo báo nhầm đo được \\
-Số fold, phần bỏ đi & 5; 1\% & Development và CB-DS \\
+Mức $\alpha'$ & 0,0003 (v5: 0,00018) & Development, theo báo nhầm đo được; t3 như dòng trên \\
+Số fold, phần bỏ đi & 5; 0,5\% (v5: 1\%) & Development và CB-DS; t3 như dòng trên \\
 Khối cực đại trên cụm & 60 s & Cố định trước khi có dữ liệu cụm (protocol \texttt{pulse-\allowbreak{}live-\allowbreak{}v3-\allowbreak{}v1}) \\
 Đoạn cross-fit trên cụm & 30 phút & Cố định trước khi tính ngưỡng trên cụm, sau khi đã có dữ liệu capture \\
 \end{longtable}
@@ -224,7 +224,7 @@ Thuật toán, bảng chữ và quy tắc ngưỡng giống nhau ở hai nơi. K
 
 Mô hình của 21 workload trên cụm chiếm khoảng 1,5 MB (bảng đếm nén gzip, bản fit hiện tại).
 
-Mô hình này là một tổ hợp, không có bài nào đề xuất nguyên khối. Các phần có nguồn là những phần đã trích ở trên. Các lựa chọn sau là của đồ án, được chọn bằng thực nghiệm trên development và CB-DS, không lấy từ nguồn nào: bảng chữ token theo đúng thông tin probe thu được, điểm là trung bình 10 giá trị lớn nhất, chọn ước lượng moment và bỏ 1\% cao nhất, mức $\alpha$, và quy tắc một cửa sổ. Các bài trích dẫn không chứng minh những lựa chọn này là tối ưu.
+Mô hình này là một tổ hợp, không có bài nào đề xuất nguyên khối. Các phần có nguồn là những phần đã trích ở trên. Các lựa chọn sau là của đồ án, được chọn bằng thực nghiệm trên development và CB-DS, không lấy từ nguồn nào: bảng chữ token theo đúng thông tin probe thu được, điểm là trung bình $K$ giá trị lớn nhất, chọn ước lượng moment và bỏ phần cực đại cao nhất, mức $\alpha'$, và quy tắc một cửa sổ. Các bài trích dẫn không chứng minh những lựa chọn này là tối ưu.
 
 Giới hạn cần nói rõ: mô hình phát hiện điều mới lạ, không phân biệt ý đồ. Ở cùng mức báo nhầm thấp, nó phát hiện nhiều hơn hẳn một luật đếm 4-gram chưa thấy trên cùng token, nhưng khi tấn công chỉ gồm các chuỗi đã thấy thì cả hai đều không phát hiện gì (mục~\ref{sec:model-vs-rule}). Trên cụm, nó gắn cờ gần như mọi process mới, kể cả vô hại (mục~\ref{sec:benign}).
 

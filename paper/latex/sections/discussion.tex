@@ -7,9 +7,10 @@ longer body, no new process, path, error or size, and the traces keep only the f
 No detector that reads system calls alone can see them; an application-layer monitor (a web application firewall,
 runtime application self-protection, or query monitoring in the database driver) is the right complement. We did not
 add a signal for this exploit after seeing it missed, which would be tuning on the test data. Second, a harmless new
-process looks new too. The kernel lineage tag separates the workload's own process tree from operator sessions; whether
-the native stream alone stays quiet on operator activity on a live cluster is the question of our latest run:
-it does (1/475 operator commands), but the campaign's exec-launched attacks fall outside it.
+process looks new too. The kernel lineage tag separates the workload's own process tree from operator sessions; the
+native stream alone stays quiet on operator activity on a live cluster (1/475 operator commands in the third run,
+0/606 in the final run), but the campaign's exec-launched attacks fall outside it, and so do the Kubernetes exec
+probes that dominate the final run's alert burden.
 
 \paragraph{Adaptive attackers.} Every detection on LID-DS~2021 rests on sequences the workload never produced: an
 attacker who removes all of them is caught 0/544 times in our semi-synthetic test, by the model and by the simpler
@@ -17,10 +18,11 @@ count rule alike. This matches the classic mimicry results against sequence-base
 and the more recent ones against provenance-based detectors~\cite{goyal2023}. Return values raise the cost of mimicry,
 because the attacker must also reproduce sizes, paths and error codes, but they do not remove it. A rate signal over seen
 sequences did not add detections on the datasets; its value against an attacker who pads an exploit with frequent seen
-calls is what the dilution trials of the latest run measure, and they are all detected (105/105 at 30 and 300 padding pairs). Two further evasion paths are structural: a
+calls is what the dilution trials measure, and they are all detected (105/105 at 30 and 300 padding pairs in the third run,
+95/95 at 300 with t3, and 96/96 on-off). Two further evasion paths are structural: a
 load above about 400{,}000 new grams per second per cgroup fills the gram map, and the worker cannot tell an incomplete
 window from a complete one; and a living-off-the-land attack with tools shipped in the image is exactly what the R1
-rule downgrades (314/315 $\to$ 0/315 in the latest run).
+rule downgrades (314/315 $\to$ 0/315 in the third run, 286/286 $\to$ 0/286 in the final run).
 
 \paragraph{Thresholds and changing normal behaviour.} The Gumbel assumption fails on both the datasets and the
 cluster; held-out exceedances are 10 to 17 times the design level, so $\alpha'$ is a knob whose false-alarm rate must be
@@ -32,7 +34,7 @@ we know the campaign schedule; an operational system would have to exclude alarm
 \paragraph{Scope of the evidence.} The live evidence comes from one cluster running one application, with self-written
 attack fixtures and labels given by the trial design rather than by independent review. All campaign attacks enter
 through \texttt{kubectl exec}; we did not run exploits of vulnerable software inside services on the cluster, so the
-native stream is tested against attacks only offline, on LID-DS, where every event is native. The bridge has no durable
-queue, and lost 113 of 190 alert episodes during a 3.5-minute host stall. RCA quality is measured by coverage and the
+native stream is tested against attacks only offline, on LID-DS, where every event is native. The bridge of the second run had no durable
+queue and lost 113 of 190 alert episodes during a 3.5-minute host stall; the final run's bridge has one. RCA quality is measured by coverage and the
 rank of the attack binary on one attack type, not by investigators. The overhead was measured with microbenchmarks, not
 per request of a real application.

@@ -17,8 +17,8 @@ call. Tetragon on the same nodes attaches a kprobe to \texttt{\_\_x64\_sys\_open
 all ftrace trampolines, and open plus close became 2.3--2.7\,\textmu s slower. A single generic \texttt{sys\_exit}
 program for the 39 calls avoids this.
 
-\paragraph{Worker, models and storage.} A Python worker on each node scores every closed window about 0.15\,s after it
-closes (p95 0.18\,s). The 21 workload models take about 1.5\,MB as gzip count tables and are locked by SHA-256 with
+\paragraph{Worker, models and storage.} A Python worker on each node scores every closed window about 0.17\,s after it
+closes (p95 0.23\,s over 20.96 million windows of the final run). The 21 workload models take about 1.5\,MB as gzip count tables and are locked by SHA-256 with
 their thresholds. Decisions, features and tokens are written to shared storage outside the scoring loop and to the
 node's local disk, because the shared NFS store sometimes stalls for seconds; the bridge and the RCA read the local
 copy. The same model code scores dataset recordings and cluster windows; the two implementations agree to $10^{-12}$

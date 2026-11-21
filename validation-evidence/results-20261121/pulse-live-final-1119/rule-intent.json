@@ -1,0 +1,2272 @@
+{
+ "schema": "rule-intent-v1",
+ "protocol": "sentinel_pulse/protocol/rule-intent-v1.json",
+ "run": "/mnt/sentinel-pulse-archive/pulse-live-final-1119",
+ "models": "/mnt/sentinel-pulse-archive/pulse-live-v7-fit-1118/token/MODELS.json",
+ "segments_read": 270,
+ "catalogue": {
+  "101": "ptrace",
+  "308": "setns",
+  "272": "unshare",
+  "165": "mount",
+  "155": "pivot_root",
+  "126": "capset",
+  "105": "setuid",
+  "106": "setgid",
+  "317": "seccomp",
+  "322": "execveat",
+  "90": "chmod"
+ },
+ "family": {
+  "91": "fchmod",
+  "268": "fchmodat",
+  "452": "fchmodat2",
+  "113": "setreuid",
+  "114": "setregid",
+  "117": "setresuid",
+  "119": "setresgid",
+  "122": "setfsuid",
+  "123": "setfsgid"
+ },
+ "intervals": {
+  "admin": {
+   "ml_only": {
+    "k": 585,
+    "n": 606,
+    "rate": 0.9653465346534653,
+    "ci95": [
+     0.9476056239240842,
+     0.9772246926696018
+    ]
+   },
+   "rule_only": {
+    "k": 605,
+    "n": 606,
+    "rate": 0.9983498349834984,
+    "ci95": [
+     0.9907124657535692,
+     0.9997086534354137
+    ]
+   },
+   "ml_or_rule": {
+    "k": 605,
+    "n": 606,
+    "rate": 0.9983498349834984,
+    "ci95": [
+     0.9907124657535692,
+     0.9997086534354137
+    ]
+   },
+   "family_only": {
+    "k": 605,
+    "n": 606,
+    "rate": 0.9983498349834984,
+    "ci95": [
+     0.9907124657535692,
+     0.9997086534354137
+    ]
+   },
+   "ml_or_family": {
+    "k": 605,
+    "n": 606,
+    "rate": 0.9983498349834984,
+    "ci95": [
+     0.9907124657535692,
+     0.9997086534354137
+    ]
+   }
+  },
+  "admin-pad-10": {
+   "ml_only": {
+    "k": 82,
+    "n": 84,
+    "rate": 0.9761904761904762,
+    "ci95": [
+     0.9172839887867145,
+     0.9934462347064822
+    ]
+   },
+   "rule_only": {
+    "k": 84,
+    "n": 84,
+    "rate": 1.0,
+    "ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_rule": {
+    "k": 84,
+    "n": 84,
+    "rate": 1.0,
+    "ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ]
+   },
+   "family_only": {
+    "k": 84,
+    "n": 84,
+    "rate": 1.0,
+    "ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_family": {
+    "k": 84,
+    "n": 84,
+    "rate": 1.0,
+    "ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ]
+   }
+  },
+  "admin-pad300": {
+   "ml_only": {
+    "k": 80,
+    "n": 80,
+    "rate": 1.0,
+    "ci95": [
+     0.954180263735425,
+     1.0
+    ]
+   },
+   "rule_only": {
+    "k": 80,
+    "n": 80,
+    "rate": 1.0,
+    "ci95": [
+     0.954180263735425,
+     1.0
+    ]
+   },
+   "ml_or_rule": {
+    "k": 80,
+    "n": 80,
+    "rate": 1.0,
+    "ci95": [
+     0.954180263735425,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 80,
+    "n": 80,
+    "rate": 1.0,
+    "ci95": [
+     0.954180263735425,
+     1.0
+    ]
+   },
+   "ml_or_family": {
+    "k": 80,
+    "n": 80,
+    "rate": 1.0,
+    "ci95": [
+     0.954180263735425,
+     1.0
+    ]
+   }
+  },
+  "admin-primary": {
+   "ml_only": {
+    "k": 254,
+    "n": 260,
+    "rate": 0.9769230769230769,
+    "ci95": [
+     0.950576054715705,
+     0.9893818594267197
+    ]
+   },
+   "rule_only": {
+    "k": 259,
+    "n": 260,
+    "rate": 0.9961538461538462,
+    "ci95": [
+     0.978538689004996,
+     0.9993207539334944
+    ]
+   },
+   "ml_or_rule": {
+    "k": 259,
+    "n": 260,
+    "rate": 0.9961538461538462,
+    "ci95": [
+     0.978538689004996,
+     0.9993207539334944
+    ]
+   },
+   "family_only": {
+    "k": 259,
+    "n": 260,
+    "rate": 0.9961538461538462,
+    "ci95": [
+     0.978538689004996,
+     0.9993207539334944
+    ]
+   },
+   "ml_or_family": {
+    "k": 259,
+    "n": 260,
+    "rate": 0.9961538461538462,
+    "ci95": [
+     0.978538689004996,
+     0.9993207539334944
+    ]
+   }
+  },
+  "attack": {
+   "ml_only": {
+    "k": 694,
+    "n": 694,
+    "rate": 1.0,
+    "ci95": [
+     0.9944950258052829,
+     1.0
+    ]
+   },
+   "rule_only": {
+    "k": 694,
+    "n": 694,
+    "rate": 1.0,
+    "ci95": [
+     0.9944950258052829,
+     1.0
+    ]
+   },
+   "ml_or_rule": {
+    "k": 694,
+    "n": 694,
+    "rate": 1.0,
+    "ci95": [
+     0.9944950258052829,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 694,
+    "n": 694,
+    "rate": 1.0,
+    "ci95": [
+     0.9944950258052829,
+     1.0
+    ]
+   },
+   "ml_or_family": {
+    "k": 694,
+    "n": 694,
+    "rate": 1.0,
+    "ci95": [
+     0.9944950258052829,
+     1.0
+    ]
+   }
+  },
+  "attack-pad-10": {
+   "ml_only": {
+    "k": 96,
+    "n": 96,
+    "rate": 1.0,
+    "ci95": [
+     0.9615230525151842,
+     1.0000000000000002
+    ]
+   },
+   "rule_only": {
+    "k": 96,
+    "n": 96,
+    "rate": 1.0,
+    "ci95": [
+     0.9615230525151842,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_rule": {
+    "k": 96,
+    "n": 96,
+    "rate": 1.0,
+    "ci95": [
+     0.9615230525151842,
+     1.0000000000000002
+    ]
+   },
+   "family_only": {
+    "k": 96,
+    "n": 96,
+    "rate": 1.0,
+    "ci95": [
+     0.9615230525151842,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_family": {
+    "k": 96,
+    "n": 96,
+    "rate": 1.0,
+    "ci95": [
+     0.9615230525151842,
+     1.0000000000000002
+    ]
+   }
+  },
+  "attack-pad300": {
+   "ml_only": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "rule_only": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_rule": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "family_only": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_family": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   }
+  },
+  "attack-primary": {
+   "ml_only": {
+    "k": 296,
+    "n": 296,
+    "rate": 1.0,
+    "ci95": [
+     0.9871879018788587,
+     1.0
+    ]
+   },
+   "rule_only": {
+    "k": 296,
+    "n": 296,
+    "rate": 1.0,
+    "ci95": [
+     0.9871879018788587,
+     1.0
+    ]
+   },
+   "ml_or_rule": {
+    "k": 296,
+    "n": 296,
+    "rate": 1.0,
+    "ci95": [
+     0.9871879018788587,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 296,
+    "n": 296,
+    "rate": 1.0,
+    "ci95": [
+     0.9871879018788587,
+     1.0
+    ]
+   },
+   "ml_or_family": {
+    "k": 296,
+    "n": 296,
+    "rate": 1.0,
+    "ci95": [
+     0.9871879018788587,
+     1.0
+    ]
+   }
+  },
+  "benign": {
+   "ml_only": {
+    "k": 672,
+    "n": 672,
+    "rate": 1.0,
+    "ci95": [
+     0.9943158278507865,
+     1.0000000000000002
+    ]
+   },
+   "rule_only": {
+    "k": 670,
+    "n": 672,
+    "rate": 0.9970238095238095,
+    "ci95": [
+     0.9892138227221094,
+     0.9991834585343271
+    ]
+   },
+   "ml_or_rule": {
+    "k": 672,
+    "n": 672,
+    "rate": 1.0,
+    "ci95": [
+     0.9943158278507865,
+     1.0000000000000002
+    ]
+   },
+   "family_only": {
+    "k": 670,
+    "n": 672,
+    "rate": 0.9970238095238095,
+    "ci95": [
+     0.9892138227221094,
+     0.9991834585343271
+    ]
+   },
+   "ml_or_family": {
+    "k": 672,
+    "n": 672,
+    "rate": 1.0,
+    "ci95": [
+     0.9943158278507865,
+     1.0000000000000002
+    ]
+   }
+  },
+  "benign-pad-10": {
+   "ml_only": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "rule_only": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_rule": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "family_only": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_family": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   }
+  },
+  "benign-pad300": {
+   "ml_only": {
+    "k": 94,
+    "n": 94,
+    "rate": 1.0,
+    "ci95": [
+     0.9607365374237544,
+     1.0
+    ]
+   },
+   "rule_only": {
+    "k": 94,
+    "n": 94,
+    "rate": 1.0,
+    "ci95": [
+     0.9607365374237544,
+     1.0
+    ]
+   },
+   "ml_or_rule": {
+    "k": 94,
+    "n": 94,
+    "rate": 1.0,
+    "ci95": [
+     0.9607365374237544,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 94,
+    "n": 94,
+    "rate": 1.0,
+    "ci95": [
+     0.9607365374237544,
+     1.0
+    ]
+   },
+   "ml_or_family": {
+    "k": 94,
+    "n": 94,
+    "rate": 1.0,
+    "ci95": [
+     0.9607365374237544,
+     1.0
+    ]
+   }
+  },
+  "benign-primary": {
+   "ml_only": {
+    "k": 288,
+    "n": 288,
+    "rate": 1.0,
+    "ci95": [
+     0.9868366949742601,
+     1.0
+    ]
+   },
+   "rule_only": {
+    "k": 286,
+    "n": 288,
+    "rate": 0.9930555555555556,
+    "ci95": [
+     0.9750370773771414,
+     0.9980935523891429
+    ]
+   },
+   "ml_or_rule": {
+    "k": 288,
+    "n": 288,
+    "rate": 1.0,
+    "ci95": [
+     0.9868366949742601,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 286,
+    "n": 288,
+    "rate": 0.9930555555555556,
+    "ci95": [
+     0.9750370773771414,
+     0.9980935523891429
+    ]
+   },
+   "ml_or_family": {
+    "k": 288,
+    "n": 288,
+    "rate": 1.0,
+    "ci95": [
+     0.9868366949742601,
+     1.0
+    ]
+   }
+  },
+  "control": {
+   "ml_only": {
+    "k": 0,
+    "n": 694,
+    "rate": 0.0,
+    "ci95": [
+     4.336808689942018e-19,
+     0.005504974194716966
+    ]
+   },
+   "rule_only": {
+    "k": 461,
+    "n": 694,
+    "rate": 0.6642651296829971,
+    "ci95": [
+     0.6283105995611831,
+     0.6984111092048177
+    ]
+   },
+   "ml_or_rule": {
+    "k": 461,
+    "n": 694,
+    "rate": 0.6642651296829971,
+    "ci95": [
+     0.6283105995611831,
+     0.6984111092048177
+    ]
+   },
+   "family_only": {
+    "k": 461,
+    "n": 694,
+    "rate": 0.6642651296829971,
+    "ci95": [
+     0.6283105995611831,
+     0.6984111092048177
+    ]
+   },
+   "ml_or_family": {
+    "k": 461,
+    "n": 694,
+    "rate": 0.6642651296829971,
+    "ci95": [
+     0.6283105995611831,
+     0.6984111092048177
+    ]
+   }
+  },
+  "control-pad-10": {
+   "ml_only": {
+    "k": 0,
+    "n": 96,
+    "rate": 0.0,
+    "ci95": [
+     0.0,
+     0.03847694748481595
+    ]
+   },
+   "rule_only": {
+    "k": 64,
+    "n": 96,
+    "rate": 0.6666666666666666,
+    "ci95": [
+     0.567563189409838,
+     0.7529444947618901
+    ]
+   },
+   "ml_or_rule": {
+    "k": 64,
+    "n": 96,
+    "rate": 0.6666666666666666,
+    "ci95": [
+     0.567563189409838,
+     0.7529444947618901
+    ]
+   },
+   "family_only": {
+    "k": 64,
+    "n": 96,
+    "rate": 0.6666666666666666,
+    "ci95": [
+     0.567563189409838,
+     0.7529444947618901
+    ]
+   },
+   "ml_or_family": {
+    "k": 64,
+    "n": 96,
+    "rate": 0.6666666666666666,
+    "ci95": [
+     0.567563189409838,
+     0.7529444947618901
+    ]
+   }
+  },
+  "control-pad300": {
+   "ml_only": {
+    "k": 0,
+    "n": 95,
+    "rate": 0.0,
+    "ci95": [
+     0.0,
+     0.038866226366226365
+    ]
+   },
+   "rule_only": {
+    "k": 64,
+    "n": 95,
+    "rate": 0.6736842105263158,
+    "ci95": [
+     0.5742532416248356,
+     0.7596142797426857
+    ]
+   },
+   "ml_or_rule": {
+    "k": 64,
+    "n": 95,
+    "rate": 0.6736842105263158,
+    "ci95": [
+     0.5742532416248356,
+     0.7596142797426857
+    ]
+   },
+   "family_only": {
+    "k": 64,
+    "n": 95,
+    "rate": 0.6736842105263158,
+    "ci95": [
+     0.5742532416248356,
+     0.7596142797426857
+    ]
+   },
+   "ml_or_family": {
+    "k": 64,
+    "n": 95,
+    "rate": 0.6736842105263158,
+    "ci95": [
+     0.5742532416248356,
+     0.7596142797426857
+    ]
+   }
+  },
+  "control-primary": {
+   "ml_only": {
+    "k": 0,
+    "n": 296,
+    "rate": 0.0,
+    "ci95": [
+     0.0,
+     0.012812098121141296
+    ]
+   },
+   "rule_only": {
+    "k": 199,
+    "n": 296,
+    "rate": 0.6722972972972973,
+    "ci95": [
+     0.6169150671566883,
+     0.7232645476799453
+    ]
+   },
+   "ml_or_rule": {
+    "k": 199,
+    "n": 296,
+    "rate": 0.6722972972972973,
+    "ci95": [
+     0.6169150671566883,
+     0.7232645476799453
+    ]
+   },
+   "family_only": {
+    "k": 199,
+    "n": 296,
+    "rate": 0.6722972972972973,
+    "ci95": [
+     0.6169150671566883,
+     0.7232645476799453
+    ]
+   },
+   "ml_or_family": {
+    "k": 199,
+    "n": 296,
+    "rate": 0.6722972972972973,
+    "ci95": [
+     0.6169150671566883,
+     0.7232645476799453
+    ]
+   }
+  },
+  "eventgen": {
+   "ml_only": {
+    "k": 549,
+    "n": 556,
+    "rate": 0.987410071942446,
+    "ci95": [
+     0.9742425659731024,
+     0.9938884196485449
+    ]
+   },
+   "rule_only": {
+    "k": 555,
+    "n": 556,
+    "rate": 0.9982014388489209,
+    "ci95": [
+     0.9898831726108039,
+     0.9996824473788506
+    ]
+   },
+   "ml_or_rule": {
+    "k": 555,
+    "n": 556,
+    "rate": 0.9982014388489209,
+    "ci95": [
+     0.9898831726108039,
+     0.9996824473788506
+    ]
+   },
+   "family_only": {
+    "k": 555,
+    "n": 556,
+    "rate": 0.9982014388489209,
+    "ci95": [
+     0.9898831726108039,
+     0.9996824473788506
+    ]
+   },
+   "ml_or_family": {
+    "k": 555,
+    "n": 556,
+    "rate": 0.9982014388489209,
+    "ci95": [
+     0.9898831726108039,
+     0.9996824473788506
+    ]
+   }
+  },
+  "eventgen-pad-10": {
+   "ml_only": {
+    "k": 82,
+    "n": 83,
+    "rate": 0.9879518072289156,
+    "ci95": [
+     0.9348626221234112,
+     0.9978700774122952
+    ]
+   },
+   "rule_only": {
+    "k": 82,
+    "n": 83,
+    "rate": 0.9879518072289156,
+    "ci95": [
+     0.9348626221234112,
+     0.9978700774122952
+    ]
+   },
+   "ml_or_rule": {
+    "k": 82,
+    "n": 83,
+    "rate": 0.9879518072289156,
+    "ci95": [
+     0.9348626221234112,
+     0.9978700774122952
+    ]
+   },
+   "family_only": {
+    "k": 82,
+    "n": 83,
+    "rate": 0.9879518072289156,
+    "ci95": [
+     0.9348626221234112,
+     0.9978700774122952
+    ]
+   },
+   "ml_or_family": {
+    "k": 82,
+    "n": 83,
+    "rate": 0.9879518072289156,
+    "ci95": [
+     0.9348626221234112,
+     0.9978700774122952
+    ]
+   }
+  },
+  "eventgen-pad300": {
+   "ml_only": {
+    "k": 81,
+    "n": 81,
+    "rate": 1.0,
+    "ci95": [
+     0.954720325877871,
+     0.9999999999999999
+    ]
+   },
+   "rule_only": {
+    "k": 81,
+    "n": 81,
+    "rate": 1.0,
+    "ci95": [
+     0.954720325877871,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_rule": {
+    "k": 81,
+    "n": 81,
+    "rate": 1.0,
+    "ci95": [
+     0.954720325877871,
+     0.9999999999999999
+    ]
+   },
+   "family_only": {
+    "k": 81,
+    "n": 81,
+    "rate": 1.0,
+    "ci95": [
+     0.954720325877871,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_family": {
+    "k": 81,
+    "n": 81,
+    "rate": 1.0,
+    "ci95": [
+     0.954720325877871,
+     0.9999999999999999
+    ]
+   }
+  },
+  "eventgen-primary": {
+   "ml_only": {
+    "k": 238,
+    "n": 241,
+    "rate": 0.9875518672199171,
+    "ci95": [
+     0.9640464930543242,
+     0.9957577232226484
+    ]
+   },
+   "rule_only": {
+    "k": 241,
+    "n": 241,
+    "rate": 1.0,
+    "ci95": [
+     0.9843098558414908,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_rule": {
+    "k": 241,
+    "n": 241,
+    "rate": 1.0,
+    "ci95": [
+     0.9843098558414908,
+     0.9999999999999999
+    ]
+   },
+   "family_only": {
+    "k": 241,
+    "n": 241,
+    "rate": 1.0,
+    "ci95": [
+     0.9843098558414908,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_family": {
+    "k": 241,
+    "n": 241,
+    "rate": 1.0,
+    "ci95": [
+     0.9843098558414908,
+     0.9999999999999999
+    ]
+   }
+  },
+  "lotl": {
+   "ml_only": {
+    "k": 666,
+    "n": 666,
+    "rate": 1.0,
+    "ci95": [
+     0.9942649127793793,
+     0.9999999999999999
+    ]
+   },
+   "rule_only": {
+    "k": 663,
+    "n": 666,
+    "rate": 0.9954954954954955,
+    "ci95": [
+     0.9868406390324652,
+     0.9984669321903433
+    ]
+   },
+   "ml_or_rule": {
+    "k": 666,
+    "n": 666,
+    "rate": 1.0,
+    "ci95": [
+     0.9942649127793793,
+     0.9999999999999999
+    ]
+   },
+   "family_only": {
+    "k": 663,
+    "n": 666,
+    "rate": 0.9954954954954955,
+    "ci95": [
+     0.9868406390324652,
+     0.9984669321903433
+    ]
+   },
+   "ml_or_family": {
+    "k": 666,
+    "n": 666,
+    "rate": 1.0,
+    "ci95": [
+     0.9942649127793793,
+     0.9999999999999999
+    ]
+   }
+  },
+  "lotl-pad-10": {
+   "ml_only": {
+    "k": 93,
+    "n": 93,
+    "rate": 1.0,
+    "ci95": [
+     0.9603310973796383,
+     0.9999999999999999
+    ]
+   },
+   "rule_only": {
+    "k": 92,
+    "n": 93,
+    "rate": 0.989247311827957,
+    "ci95": [
+     0.9415794088135158,
+     0.9980994069020442
+    ]
+   },
+   "ml_or_rule": {
+    "k": 93,
+    "n": 93,
+    "rate": 1.0,
+    "ci95": [
+     0.9603310973796383,
+     0.9999999999999999
+    ]
+   },
+   "family_only": {
+    "k": 92,
+    "n": 93,
+    "rate": 0.989247311827957,
+    "ci95": [
+     0.9415794088135158,
+     0.9980994069020442
+    ]
+   },
+   "ml_or_family": {
+    "k": 93,
+    "n": 93,
+    "rate": 1.0,
+    "ci95": [
+     0.9603310973796383,
+     0.9999999999999999
+    ]
+   }
+  },
+  "lotl-pad300": {
+   "ml_only": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "rule_only": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_rule": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "family_only": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_family": {
+    "k": 95,
+    "n": 95,
+    "rate": 1.0,
+    "ci95": [
+     0.9611337736337738,
+     1.0000000000000002
+    ]
+   }
+  },
+  "lotl-primary": {
+   "ml_only": {
+    "k": 286,
+    "n": 286,
+    "rate": 1.0,
+    "ci95": [
+     0.9867458639477563,
+     1.0
+    ]
+   },
+   "rule_only": {
+    "k": 285,
+    "n": 286,
+    "rate": 0.9965034965034965,
+    "ci95": [
+     0.9804630129326699,
+     0.9993825302881791
+    ]
+   },
+   "ml_or_rule": {
+    "k": 286,
+    "n": 286,
+    "rate": 1.0,
+    "ci95": [
+     0.9867458639477563,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 285,
+    "n": 286,
+    "rate": 0.9965034965034965,
+    "ci95": [
+     0.9804630129326699,
+     0.9993825302881791
+    ]
+   },
+   "ml_or_family": {
+    "k": 286,
+    "n": 286,
+    "rate": 1.0,
+    "ci95": [
+     0.9867458639477563,
+     1.0
+    ]
+   }
+  }
+ },
+ "eventgen_by_action": {
+  "ClearLogActivities": {
+   "ml_only": {
+    "k": 39,
+    "n": 40,
+    "rate": 0.975,
+    "ci95": [
+     0.8711834051199223,
+     0.9955732825922052
+    ]
+   },
+   "rule_only": {
+    "k": 40,
+    "n": 40,
+    "rate": 1.0,
+    "ci95": [
+     0.9123754607496077,
+     1.0
+    ]
+   },
+   "ml_or_rule": {
+    "k": 40,
+    "n": 40,
+    "rate": 1.0,
+    "ci95": [
+     0.9123754607496077,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 40,
+    "n": 40,
+    "rate": 1.0,
+    "ci95": [
+     0.9123754607496077,
+     1.0
+    ]
+   },
+   "ml_or_family": {
+    "k": 40,
+    "n": 40,
+    "rate": 1.0,
+    "ci95": [
+     0.9123754607496077,
+     1.0
+    ]
+   }
+  },
+  "CreateFilesBelowDev": {
+   "ml_only": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   },
+   "rule_only": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_rule": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   },
+   "family_only": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_family": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   }
+  },
+  "CreateHardlinkOverSensitiveFiles": {
+   "ml_only": {
+    "k": 48,
+    "n": 48,
+    "rate": 1.0,
+    "ci95": [
+     0.9258973488472576,
+     0.9999999999999999
+    ]
+   },
+   "rule_only": {
+    "k": 48,
+    "n": 48,
+    "rate": 1.0,
+    "ci95": [
+     0.9258973488472576,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_rule": {
+    "k": 48,
+    "n": 48,
+    "rate": 1.0,
+    "ci95": [
+     0.9258973488472576,
+     0.9999999999999999
+    ]
+   },
+   "family_only": {
+    "k": 48,
+    "n": 48,
+    "rate": 1.0,
+    "ci95": [
+     0.9258973488472576,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_family": {
+    "k": 48,
+    "n": 48,
+    "rate": 1.0,
+    "ci95": [
+     0.9258973488472576,
+     0.9999999999999999
+    ]
+   }
+  },
+  "CreateHiddenFilesOrDirectories": {
+   "ml_only": {
+    "k": 40,
+    "n": 40,
+    "rate": 1.0,
+    "ci95": [
+     0.9123754607496077,
+     1.0
+    ]
+   },
+   "rule_only": {
+    "k": 40,
+    "n": 40,
+    "rate": 1.0,
+    "ci95": [
+     0.9123754607496077,
+     1.0
+    ]
+   },
+   "ml_or_rule": {
+    "k": 40,
+    "n": 40,
+    "rate": 1.0,
+    "ci95": [
+     0.9123754607496077,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 40,
+    "n": 40,
+    "rate": 1.0,
+    "ci95": [
+     0.9123754607496077,
+     1.0
+    ]
+   },
+   "ml_or_family": {
+    "k": 40,
+    "n": 40,
+    "rate": 1.0,
+    "ci95": [
+     0.9123754607496077,
+     1.0
+    ]
+   }
+  },
+  "CreateSymlinkOverSensitiveFiles": {
+   "ml_only": {
+    "k": 45,
+    "n": 45,
+    "rate": 1.0,
+    "ci95": [
+     0.9213457380593594,
+     1.0000000000000002
+    ]
+   },
+   "rule_only": {
+    "k": 45,
+    "n": 45,
+    "rate": 1.0,
+    "ci95": [
+     0.9213457380593594,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_rule": {
+    "k": 45,
+    "n": 45,
+    "rate": 1.0,
+    "ci95": [
+     0.9213457380593594,
+     1.0000000000000002
+    ]
+   },
+   "family_only": {
+    "k": 45,
+    "n": 45,
+    "rate": 1.0,
+    "ci95": [
+     0.9213457380593594,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_family": {
+    "k": 45,
+    "n": 45,
+    "rate": 1.0,
+    "ci95": [
+     0.9213457380593594,
+     1.0000000000000002
+    ]
+   }
+  },
+  "DirectoryTraversalMonitoredFileRead": {
+   "ml_only": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   },
+   "rule_only": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_rule": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   },
+   "family_only": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_family": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   }
+  },
+  "ExecutionFromDevShm": {
+   "ml_only": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   },
+   "rule_only": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_rule": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   },
+   "family_only": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   },
+   "ml_or_family": {
+    "k": 42,
+    "n": 42,
+    "rate": 1.0,
+    "ci95": [
+     0.9161983874908382,
+     1.0000000000000002
+    ]
+   }
+  },
+  "FilelessExecutionViaMemfdCreate": {
+   "ml_only": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   },
+   "rule_only": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_rule": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   },
+   "family_only": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_family": {
+    "k": 44,
+    "n": 44,
+    "rate": 1.0,
+    "ci95": [
+     0.9197016822179859,
+     0.9999999999999999
+    ]
+   }
+  },
+  "FindAwsCredentials": {
+   "ml_only": {
+    "k": 38,
+    "n": 39,
+    "rate": 0.9743589743589743,
+    "ci95": [
+     0.8681871352137286,
+     0.9954594139347627
+    ]
+   },
+   "rule_only": {
+    "k": 39,
+    "n": 39,
+    "rate": 1.0,
+    "ci95": [
+     0.9103301463997611,
+     1.0
+    ]
+   },
+   "ml_or_rule": {
+    "k": 39,
+    "n": 39,
+    "rate": 1.0,
+    "ci95": [
+     0.9103301463997611,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 39,
+    "n": 39,
+    "rate": 1.0,
+    "ci95": [
+     0.9103301463997611,
+     1.0
+    ]
+   },
+   "ml_or_family": {
+    "k": 39,
+    "n": 39,
+    "rate": 1.0,
+    "ci95": [
+     0.9103301463997611,
+     1.0
+    ]
+   }
+  },
+  "PtraceAntiDebugAttempt": {
+   "ml_only": {
+    "k": 51,
+    "n": 51,
+    "rate": 1.0,
+    "ci95": [
+     0.9299509861127319,
+     0.9999999999999999
+    ]
+   },
+   "rule_only": {
+    "k": 51,
+    "n": 51,
+    "rate": 1.0,
+    "ci95": [
+     0.9299509861127319,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_rule": {
+    "k": 51,
+    "n": 51,
+    "rate": 1.0,
+    "ci95": [
+     0.9299509861127319,
+     0.9999999999999999
+    ]
+   },
+   "family_only": {
+    "k": 51,
+    "n": 51,
+    "rate": 1.0,
+    "ci95": [
+     0.9299509861127319,
+     0.9999999999999999
+    ]
+   },
+   "ml_or_family": {
+    "k": 51,
+    "n": 51,
+    "rate": 1.0,
+    "ci95": [
+     0.9299509861127319,
+     0.9999999999999999
+    ]
+   }
+  },
+  "ReadSensitiveFileUntrusted": {
+   "ml_only": {
+    "k": 40,
+    "n": 41,
+    "rate": 0.975609756097561,
+    "ci95": [
+     0.8740465298832192,
+     0.9956815797292835
+    ]
+   },
+   "rule_only": {
+    "k": 41,
+    "n": 41,
+    "rate": 1.0,
+    "ci95": [
+     0.9143295511310926,
+     1.0
+    ]
+   },
+   "ml_or_rule": {
+    "k": 41,
+    "n": 41,
+    "rate": 1.0,
+    "ci95": [
+     0.9143295511310926,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 41,
+    "n": 41,
+    "rate": 1.0,
+    "ci95": [
+     0.9143295511310926,
+     1.0
+    ]
+   },
+   "ml_or_family": {
+    "k": 41,
+    "n": 41,
+    "rate": 1.0,
+    "ci95": [
+     0.9143295511310926,
+     1.0
+    ]
+   }
+  },
+  "RemoveBulkDataFromDisk": {
+   "ml_only": {
+    "k": 37,
+    "n": 39,
+    "rate": 0.9487179487179487,
+    "ci95": [
+     0.8311406095436208,
+     0.9858223423536004
+    ]
+   },
+   "rule_only": {
+    "k": 38,
+    "n": 39,
+    "rate": 0.9743589743589743,
+    "ci95": [
+     0.8681871352137286,
+     0.9954594139347627
+    ]
+   },
+   "ml_or_rule": {
+    "k": 38,
+    "n": 39,
+    "rate": 0.9743589743589743,
+    "ci95": [
+     0.8681871352137286,
+     0.9954594139347627
+    ]
+   },
+   "family_only": {
+    "k": 38,
+    "n": 39,
+    "rate": 0.9743589743589743,
+    "ci95": [
+     0.8681871352137286,
+     0.9954594139347627
+    ]
+   },
+   "ml_or_family": {
+    "k": 38,
+    "n": 39,
+    "rate": 0.9743589743589743,
+    "ci95": [
+     0.8681871352137286,
+     0.9954594139347627
+    ]
+   }
+  },
+  "SearchPrivateKeysOrPasswords": {
+   "ml_only": {
+    "k": 39,
+    "n": 41,
+    "rate": 0.9512195121951219,
+    "ci95": [
+     0.8386073303764864,
+     0.9865193377174265
+    ]
+   },
+   "rule_only": {
+    "k": 41,
+    "n": 41,
+    "rate": 1.0,
+    "ci95": [
+     0.9143295511310926,
+     1.0
+    ]
+   },
+   "ml_or_rule": {
+    "k": 41,
+    "n": 41,
+    "rate": 1.0,
+    "ci95": [
+     0.9143295511310926,
+     1.0
+    ]
+   },
+   "family_only": {
+    "k": 41,
+    "n": 41,
+    "rate": 1.0,
+    "ci95": [
+     0.9143295511310926,
+     1.0
+    ]
+   },
+   "ml_or_family": {
+    "k": 41,
+    "n": 41,
+    "rate": 1.0,
+    "ci95": [
+     0.9143295511310926,
+     1.0
+    ]
+   }
+  }
+ },
+ "latency_primary_attack": {
+  "ml_only": {
+   "n": 296,
+   "p50": 0.266476035118103,
+   "p95": 0.48387396335601807
+  },
+  "ml_or_rule": {
+   "n": 296,
+   "p50": 0.24416863918304443,
+   "p95": 0.4661096930503845
+  }
+ },
+ "eventgen_ml_misses": [
+  {
+   "pair": 39,
+   "action": "RemoveBulkDataFromDisk",
+   "workload": "production/inventory-service:app",
+   "rule": true,
+   "family": true,
+   "reasons": {
+    "mprotect": 1,
+    "setuid": 3,
+    "setgid": 3,
+    "capset": 3,
+    "seccomp": 3
+   }
+  },
+  {
+   "pair": 67,
+   "action": "RemoveBulkDataFromDisk",
+   "workload": "production/aims-frontend:web",
+   "rule": false,
+   "family": false,
+   "reasons": {}
+  },
+  {
+   "pair": 370,
+   "action": "SearchPrivateKeysOrPasswords",
+   "workload": "production/catalog-service:app",
+   "rule": true,
+   "family": true,
+   "reasons": {
+    "mprotect": 3,
+    "setuid": 1,
+    "setgid": 1,
+    "capset": 1,
+    "seccomp": 1
+   }
+  },
+  {
+   "pair": 397,
+   "action": "FindAwsCredentials",
+   "workload": "production/cart-service:app",
+   "rule": true,
+   "family": true,
+   "reasons": {
+    "seccomp": 1,
+    "mprotect": 3
+   }
+  },
+  {
+   "pair": 438,
+   "action": "ClearLogActivities",
+   "workload": "production/api-gateway:app",
+   "rule": true,
+   "family": true,
+   "reasons": {
+    "setuid": 1,
+    "setgid": 1,
+    "capset": 1,
+    "seccomp": 1
+   }
+  },
+  {
+   "pair": 524,
+   "action": "SearchPrivateKeysOrPasswords",
+   "workload": "production/api-gateway:app",
+   "rule": true,
+   "family": true,
+   "reasons": {
+    "mprotect": 1,
+    "setuid": 2,
+    "setgid": 2,
+    "capset": 2,
+    "seccomp": 1
+   }
+  },
+  {
+   "pair": 896,
+   "action": "ReadSensitiveFileUntrusted",
+   "workload": "production/security-telemetry-service:app",
+   "rule": true,
+   "family": true,
+   "reasons": {
+    "mprotect": 2,
+    "setuid": 1,
+    "setgid": 1,
+    "capset": 1,
+    "seccomp": 1
+   }
+  }
+ ],
+ "rule_calls_in_intervals": {
+  "control": {
+   "setgid": 1682,
+   "seccomp": 1681,
+   "setuid": 1680,
+   "capset": 1657,
+   "mprotect": 218,
+   "chmod": 1
+  },
+  "eventgen": {
+   "setuid": 1980,
+   "setgid": 1980,
+   "seccomp": 1973,
+   "capset": 1943,
+   "mprotect": 207,
+   "ptrace": 49
+  },
+  "benign": {
+   "seccomp": 2281,
+   "setuid": 2276,
+   "setgid": 2274,
+   "capset": 2252,
+   "mprotect": 216,
+   "chmod": 1
+  },
+  "attack": {
+   "seccomp": 4778,
+   "ptrace": 2876,
+   "execveat": 2749,
+   "setns": 2742,
+   "mprotect": 2354,
+   "setgid": 2346,
+   "setuid": 2344,
+   "capset": 2318
+  },
+  "lotl": {
+   "setuid": 3691,
+   "setgid": 3689,
+   "capset": 2239,
+   "seccomp": 2239,
+   "mprotect": 13
+  },
+  "admin": {
+   "setuid": 2203,
+   "setgid": 2202,
+   "seccomp": 2198,
+   "capset": 2170,
+   "mprotect": 208
+  },
+  "control-pad-10": {
+   "setuid": 238,
+   "setgid": 238,
+   "seccomp": 237,
+   "capset": 236,
+   "mprotect": 29
+  },
+  "lotl-pad-10": {
+   "setgid": 523,
+   "setuid": 522,
+   "capset": 313,
+   "seccomp": 310,
+   "mprotect": 1
+  },
+  "eventgen-pad-10": {
+   "setuid": 306,
+   "setgid": 304,
+   "seccomp": 304,
+   "capset": 300,
+   "mprotect": 26,
+   "ptrace": 6
+  },
+  "attack-pad-10": {
+   "seccomp": 393,
+   "setgid": 325,
+   "setuid": 323,
+   "capset": 321,
+   "setns": 88,
+   "execveat": 81,
+   "ptrace": 79,
+   "mprotect": 66
+  },
+  "benign-pad-10": {
+   "seccomp": 329,
+   "setuid": 326,
+   "setgid": 324,
+   "capset": 322,
+   "mprotect": 28
+  },
+  "admin-pad-10": {
+   "setuid": 309,
+   "setgid": 308,
+   "capset": 304,
+   "seccomp": 304,
+   "mprotect": 29
+  },
+  "control-pad300": {
+   "setuid": 244,
+   "seccomp": 244,
+   "setgid": 243,
+   "capset": 240,
+   "mprotect": 39
+  },
+  "eventgen-pad300": {
+   "setuid": 297,
+   "setgid": 297,
+   "seccomp": 296,
+   "capset": 292,
+   "mprotect": 24,
+   "ptrace": 6
+  },
+  "attack-pad300": {
+   "seccomp": 817,
+   "ptrace": 585,
+   "setns": 536,
+   "execveat": 526,
+   "mprotect": 449,
+   "setuid": 318,
+   "setgid": 318,
+   "capset": 315
+  },
+  "lotl-pad300": {
+   "setuid": 520,
+   "setgid": 520,
+   "capset": 323,
+   "seccomp": 321,
+   "mprotect": 5
+  },
+  "benign-pad300": {
+   "setuid": 329,
+   "setgid": 329,
+   "seccomp": 329,
+   "capset": 325,
+   "mprotect": 32
+  },
+  "admin-pad300": {
+   "setuid": 303,
+   "setgid": 302,
+   "seccomp": 301,
+   "capset": 298,
+   "mprotect": 34
+  }
+ },
+ "burden": {
+  "span": [
+   1795184498.5691864,
+   1795218639.152689
+  ],
+  "replica_hours": 615.6166666666667,
+  "systems": {
+   "ml_only": {
+    "episodes": 223,
+    "per_replica_hour": 0.3622384059344289,
+    "by_workload": {
+     "production/search-recommendation-service:app": 28,
+     "production/auth-service:app": 24,
+     "production/cart-service:app": 19,
+     "production/notification-service:app": 18,
+     "production/order-service:app": 17,
+     "production/security-telemetry-service:app": 14,
+     "production/aims-redis:aims-redis": 12,
+     "production/inventory-service:app": 12,
+     "production/aims-kafka-dual-role:kafka": 12,
+     "production/payment-service:app": 12,
+     "production/catalog-service:app": 11,
+     "production/aims-kafka-entity-operator:topic-operator": 7,
+     "production/aims-rabbitmq-server:rabbitmq": 6,
+     "production/aims-waypoint:istio-proxy": 6,
+     "production/aims-minio-pool-0:sidecar": 6,
+     "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6,
+     "production/aims-minio-pool-0:minio": 4,
+     "production/aims-postgres-cnpg:postgres": 3,
+     "production/aims-frontend:web": 3,
+     "production/aims-kafka-entity-operator:user-operator": 2,
+     "production/api-gateway:app": 1
+    }
+   },
+   "rule_only": {
+    "episodes": 3937,
+    "per_replica_hour": 6.3952134715867555,
+    "by_workload": {
+     "production/aims-postgres-cnpg:postgres": 2265,
+     "production/aims-kafka-entity-operator:user-operator": 439,
+     "production/aims-kafka-entity-operator:topic-operator": 427,
+     "production/auth-service:app": 72,
+     "production/cart-service:app": 65,
+     "production/security-telemetry-service:app": 63,
+     "production/payment-service:app": 63,
+     "production/catalog-service:app": 62,
+     "production/inventory-service:app": 61,
+     "production/notification-service:app": 61,
+     "production/search-recommendation-service:app": 60,
+     "production/order-service:app": 59,
+     "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 57,
+     "production/aims-redis:aims-redis": 57,
+     "production/aims-kafka-dual-role:kafka": 53,
+     "production/api-gateway:app": 52,
+     "production/aims-waypoint:istio-proxy": 19,
+     "production/aims-rabbitmq-server:rabbitmq": 2
+    }
+   },
+   "family_only": {
+    "episodes": 3937,
+    "per_replica_hour": 6.3952134715867555,
+    "by_workload": {
+     "production/aims-postgres-cnpg:postgres": 2265,
+     "production/aims-kafka-entity-operator:user-operator": 439,
+     "production/aims-kafka-entity-operator:topic-operator": 427,
+     "production/auth-service:app": 72,
+     "production/cart-service:app": 65,
+     "production/security-telemetry-service:app": 63,
+     "production/payment-service:app": 63,
+     "production/catalog-service:app": 62,
+     "production/inventory-service:app": 61,
+     "production/notification-service:app": 61,
+     "production/search-recommendation-service:app": 60,
+     "production/order-service:app": 59,
+     "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 57,
+     "production/aims-redis:aims-redis": 57,
+     "production/aims-kafka-dual-role:kafka": 53,
+     "production/api-gateway:app": 52,
+     "production/aims-waypoint:istio-proxy": 19,
+     "production/aims-rabbitmq-server:rabbitmq": 2
+    }
+   },
+   "ml_or_rule": {
+    "episodes": 3963,
+    "per_replica_hour": 6.437447545821263,
+    "by_workload": {
+     "production/aims-postgres-cnpg:postgres": 2267,
+     "production/aims-kafka-entity-operator:user-operator": 439,
+     "production/aims-kafka-entity-operator:topic-operator": 428,
+     "production/auth-service:app": 72,
+     "production/cart-service:app": 65,
+     "production/payment-service:app": 63,
+     "production/security-telemetry-service:app": 63,
+     "production/catalog-service:app": 62,
+     "production/inventory-service:app": 61,
+     "production/notification-service:app": 61,
+     "production/search-recommendation-service:app": 60,
+     "production/order-service:app": 59,
+     "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 57,
+     "production/aims-redis:aims-redis": 57,
+     "production/aims-kafka-dual-role:kafka": 53,
+     "production/api-gateway:app": 52,
+     "production/aims-waypoint:istio-proxy": 23,
+     "production/aims-rabbitmq-server:rabbitmq": 8,
+     "production/aims-minio-pool-0:sidecar": 6,
+     "production/aims-minio-pool-0:minio": 4,
+     "production/aims-frontend:web": 3
+    }
+   },
+   "ml_or_family": {
+    "episodes": 3963,
+    "per_replica_hour": 6.437447545821263,
+    "by_workload": {
+     "production/aims-postgres-cnpg:postgres": 2267,
+     "production/aims-kafka-entity-operator:user-operator": 439,
+     "production/aims-kafka-entity-operator:topic-operator": 428,
+     "production/auth-service:app": 72,
+     "production/cart-service:app": 65,
+     "production/payment-service:app": 63,
+     "production/security-telemetry-service:app": 63,
+     "production/catalog-service:app": 62,
+     "production/inventory-service:app": 61,
+     "production/notification-service:app": 61,
+     "production/search-recommendation-service:app": 60,
+     "production/order-service:app": 59,
+     "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 57,
+     "production/aims-redis:aims-redis": 57,
+     "production/aims-kafka-dual-role:kafka": 53,
+     "production/api-gateway:app": 52,
+     "production/aims-waypoint:istio-proxy": 23,
+     "production/aims-rabbitmq-server:rabbitmq": 8,
+     "production/aims-minio-pool-0:sidecar": 6,
+     "production/aims-minio-pool-0:minio": 4,
+     "production/aims-frontend:web": 3
+    }
+   }
+  },
+  "rule_calls_by_workload": {
+   "production/aims-kafka-dual-role:kafka": {
+    "seccomp": 20356,
+    "setuid": 20347,
+    "setgid": 20346,
+    "capset": 20346,
+    "chmod": 27,
+    "mprotect": 11
+   },
+   "production/aims-kafka-entity-operator:topic-operator": {
+    "mprotect": 484
+   },
+   "production/aims-kafka-entity-operator:user-operator": {
+    "mprotect": 583
+   },
+   "production/aims-postgres-cnpg:postgres": {
+    "mprotect": 2290
+   },
+   "production/aims-rabbitmq-server:rabbitmq": {
+    "mprotect": 2
+   },
+   "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+    "setuid": 23692,
+    "setgid": 23692,
+    "seccomp": 20369,
+    "capset": 20345,
+    "fchmod": 32,
+    "mprotect": 18
+   },
+   "production/aims-redis:aims-redis": {
+    "setuid": 20348,
+    "setgid": 20348,
+    "capset": 20347,
+    "seccomp": 20347,
+    "mprotect": 1
+   },
+   "production/aims-waypoint:istio-proxy": {
+    "mprotect": 23
+   },
+   "production/api-gateway:app": {
+    "setuid": 36362,
+    "setgid": 36316,
+    "seccomp": 36226,
+    "capset": 36173,
+    "mprotect": 6369
+   },
+   "production/auth-service:app": {
+    "seccomp": 37338,
+    "setgid": 36175,
+    "setuid": 36166,
+    "capset": 36164,
+    "mprotect": 3560
+   },
+   "production/cart-service:app": {
+    "seccomp": 36175,
+    "setgid": 36157,
+    "setuid": 36156,
+    "capset": 36156,
+    "mprotect": 7454
+   },
+   "production/catalog-service:app": {
+    "seccomp": 36864,
+    "setgid": 36180,
+    "setuid": 36177,
+    "capset": 36169,
+    "mprotect": 5124
+   },
+   "production/inventory-service:app": {
+    "seccomp": 36507,
+    "setuid": 36326,
+    "setgid": 36304,
+    "capset": 36172,
+    "mprotect": 751
+   },
+   "production/notification-service:app": {
+    "seccomp": 33921,
+    "setgid": 33900,
+    "setuid": 33899,
+    "capset": 33899,
+    "mprotect": 7657
+   },
+   "production/order-service:app": {
+    "seccomp": 39149,
+    "setgid": 36400,
+    "setuid": 36257,
+    "capset": 36164,
+    "mprotect": 9017
+   },
+   "production/payment-service:app": {
+    "setgid": 36229,
+    "setuid": 36199,
+    "seccomp": 36183,
+    "capset": 36164,
+    "mprotect": 5288
+   },
+   "production/search-recommendation-service:app": {
+    "seccomp": 36187,
+    "setuid": 36169,
+    "setgid": 36168,
+    "capset": 36168,
+    "mprotect": 4546
+   },
+   "production/security-telemetry-service:app": {
+    "setuid": 36166,
+    "setgid": 36166,
+    "capset": 36166,
+    "seccomp": 36166,
+    "mprotect": 2355
+   }
+  }
+ },
+ "decision": {
+  "recall_gain_intervals": 6,
+  "control_rate": 0.6642651296829971,
+  "burden_ml_or_rule": 6.437447545821263,
+  "adopted": false
+ }
+}

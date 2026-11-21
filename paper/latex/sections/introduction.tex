@@ -25,11 +25,12 @@ blind ones. Our contributions are:
 \item \textbf{In-kernel return-value tokens.} A probe that builds one 32-bit token per system call with its error code,
   returned size or opened directory, counts per-thread 4-grams in an eBPF map, and is checked by a proof of one token per
   call. It adds 0.4--0.5\,\textmu s per simple system call of a watched container (\cref{sec:eval-cost}).
-\item \textbf{A label-free model that holds on datasets and live.} On the official split of LID-DS~2021 the model
-  detects 97.40\,\% of attack recordings with 0.33\,\% of normal recordings raising a false alarm and p95 latency
-  1.47\,s; on CB-DS 891/891 breakouts. In two blind 24-hour runs on a 21-workload application it detects every attack of
-  the primary set (315/315 and 314/314) with at most 3/315 idle false alarms, and alerts reach Alertmanager within
-  0.68\,s at p95 (\cref{sec:eval-datasets,sec:eval-live}).
+\item \textbf{A label-free model that holds on datasets and live.} On the official split of LID-DS~2021 the final
+  model detects 97.25\,\% of attack recordings with 0.19\,\% of normal recordings raising a false alarm and p95 latency
+  1.54\,s; on CB-DS 891/891 breakouts. In four blind runs of 24 to 45 hours on a 21-workload application it detects every
+  attack of the primary set; in the final 45-hour run 296/296 with no idle false alarm and p95 0.46\,s to the end of the
+  alarm window, and every trial at 0.1 and 0.5 actions/s, on-off and padded with 300 seen calls per operation
+  (\cref{sec:eval-datasets,sec:eval-live,sec:eval-final}).
 \item \textbf{Which choices matter.} Returned sizes carry most of the signal; five of the 39 hooked system calls suffice
   on LID-DS; a moment Gumbel rule is not a correct distribution but the best normal-only threshold rule we tried; and
   the model beats a count rule on the same tokens at low false-alarm budgets (\cref{sec:eval-design}).
@@ -38,7 +39,8 @@ blind ones. Our contributions are:
   operator activity or gating the model does not fix the first limit, and introduce a kernel lineage tag that separates a
   workload's own process tree from operator sessions (\cref{sec:lineage,sec:eval-benign}).
 \end{itemize}
-A third 26-hour run after a cluster change and a fresh fit catches every primary attack again (315/315, one idle
-control positive, p95 0.45\,s) and every attack padded with 300 pairs of seen calls per operation (105/105); on
-LID-DS~2019, scored once, the unchanged model detects 90.88\,\% of attack recordings at 0.44\,\% false alarms but
-misses Heartbleed and the latency target.
+On LID-DS~2019 the earlier configuration detects 90.88\,\% of attack recordings at 0.44\,\% false alarms but misses
+Heartbleed; the final configuration, chosen on a development part of that dataset, detects 97.15\,\% of the remaining
+attack recordings at 0.46\,\% false alarms, and both miss the latency target because the first unseen behaviour comes
+seconds after the dataset's timestamps. The final configuration doubles the live alert burden (0.36 episodes per
+replica-hour), most of it in windows that hold the commands of Kubernetes exec probes.

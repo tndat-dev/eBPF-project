@@ -1,7 +1,7 @@
 \chapter*{Tóm tắt}
 \addcontentsline{toc}{chapter}{Tóm tắt}
 
-Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes bằng một mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel, học chỉ từ normal. Trên dataset công khai LID-DS 2021, mô hình phát hiện 97,40\% bản ghi tấn công với 0,33\% bản ghi normal bị báo nhầm. Trên một cụm thật, qua ba lượt live blind, nó bắt mọi tấn công ở tốc độ chính (lượt gần nhất 315/315, với 1/315 control idle bị báo nhầm), và cảnh báo tới cuối cửa sổ báo sau p95 dưới 0,5 s.
+Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes bằng một mô hình ngôn ngữ trên token syscall do eBPF dựng trong kernel, học chỉ từ normal. Trên dataset công khai LID-DS 2021, hệ thống cuối (t3) phát hiện 97,25\% bản ghi tấn công với 0,19\% bản ghi normal bị báo nhầm. Trên một cụm thật, qua bốn lượt live blind, nó bắt mọi tấn công ở tốc độ chính (lượt cuối 296/296, không control idle nào bị báo), kể cả tấn công chậm 0,1 lần/s, và cảnh báo tới cuối cửa sổ báo sau p95 dưới 0,5 s.
 
 \textbf{Bài toán.} Công cụ runtime dựa trên luật (Falco, Tetragon) chỉ bắt được hành vi đã biết trước. Phát hiện bất thường từ syscall thì có từ thập niên 1990, nhưng phần lớn công trình đánh giá offline trên trace đã ghi sẵn. Chúng hiếm khi đo độ trễ tới người nhận, gánh cảnh báo trên tải thật, hay khả năng tách tấn công khỏi một process vô hại mới.
 
@@ -12,7 +12,7 @@ Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes 
 \item
   \textbf{Thu thập:} probe eBPF móc \texttt{sys\_\allowbreak{}enter}, \texttt{sys\_\allowbreak{}exit} và seccomp, biến mỗi syscall thành một token 32 bit: tên, cộng mã lỗi, chế độ mở và thư mục đầu của file, hoặc cỡ đọc ghi lúc trả về. Kernel đếm chuỗi 4 token theo từng thread trong cửa sổ 0,5 s.
 \item
-  \textbf{Mô hình:} mỗi workload có một mô hình ngôn ngữ 4-gram làm mượt Witten--Bell. Điểm của cửa sổ là trung bình 10 độ bất ngờ lớn nhất. Ngưỡng là phân vị của phân bố Gumbel khớp trên cực đại của điểm giữ ra (cross-fit 5 fold), chỉ dùng normal. Một cửa sổ vượt ngưỡng là báo.
+  \textbf{Mô hình:} mỗi workload có một mô hình ngôn ngữ 4-gram làm mượt Witten--Bell. Điểm của cửa sổ là trung bình 3 độ bất ngờ lớn nhất. Ngưỡng là phân vị của phân bố Gumbel khớp trên cực đại của điểm giữ ra (cross-fit 5 fold), chỉ dùng normal. Một cửa sổ vượt ngưỡng là báo.
 \item
   \textbf{Đường cảnh báo và RCA:} bridge đẩy cảnh báo thẳng vào Alertmanager; RCA dựng cây bằng chứng process từ sự kiện Tetragon cho mỗi cảnh báo đã gửi.
 \end{itemize}
@@ -22,9 +22,9 @@ Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{LID-DS 2021 official} (15 kịch bản lỗ hổng thật): recall 97,40\% (CI 96,38--98,15\%), 0,33\% bản ghi normal bị báo nhầm, precision theo tỉ lệ của dataset 97,9\%, p95 1,47 s; 14/15 kịch bản đạt 100\%, Juice-Shop 61,2\%. CB-DS (9 kịch bản thoát container): 891/891, 3/1.410 bản ghi normal bị báo nhầm.
+  \textbf{LID-DS 2021 official} (15 kịch bản lỗ hổng thật), t3: recall 97,25\% (CI 96,19--98,01\%), 0,19\% bản ghi normal bị báo nhầm, precision theo tỉ lệ của dataset 98,8\%, p95 1,54 s; 13/15 kịch bản đạt 100\%, ZipSlip 97,6\%, Juice-Shop 61,2\%. CB-DS (9 kịch bản thoát container): 891/891, 3/1.410 bản ghi normal bị báo nhầm.
 \item
-  \textbf{Ba lượt live blind} (24, 24 và 26 giờ) trên cụm 3 worker chạy ứng dụng AIMS (21 workload), mỗi lượt 525 trial gồm tấn công, control idle, một binary vô hại và (từ lượt thứ hai) một lệnh quản trị thật; lượt thứ ba học lại sau khi đổi cấu hình cụm và thêm 210 trial pha loãng cùng một bước tấn công chỉ dùng tool của image. Lượt thứ hai (lượt thứ ba trong ngoặc):
+  \textbf{Bốn lượt live blind} (24, 24, 26 và 45 giờ) trên cụm 3 worker chạy ứng dụng AIMS (21 workload). Mỗi trial gồm tấn công, control idle, một binary vô hại và (từ lượt thứ hai) một lệnh quản trị thật; lượt thứ ba thêm trial pha loãng và một bước tấn công chỉ dùng tool của image; lượt cuối chạy t3 và thêm tốc độ 0,1 và 0,5 lần/s, nhịp bật--tắt 10 s và một hành động của event-generator của Falco. Lượt cuối (lượt v6 với cấu hình v5 trong ngoặc):
 \end{itemize}
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.5\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}@{}}
@@ -34,21 +34,22 @@ Chỉ số, tập chính (6, 12, 24 hành vi/s) & Kỳ vọng & Kết quả \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Recall & ≥ 95\% & 314/314 (315/315) \\
+Recall & ≥ 95\% & 296/296 (315/315) \\
 Precision & ≥ 95\% & 100\% (99,68\%) \\
-Control idle dương & ≤ 5\% & 0/314 (1/315) \\
-p95 kernel → cuối cửa sổ báo & ≤ 3 s, ưu tiên \textless{} 2 s & 0,49 s (0,45 s) \\
-p95 kernel → Alertmanager & & 0,68 s (1,53 s) \\
+Control idle dương & ≤ 5\% & 0/296 (1/315) \\
+p95 kernel → cuối cửa sổ báo & ≤ 3 s, ưu tiên \textless{} 2 s & 0,46 s (0,45 s) \\
+Tốc độ 0,1 / 0,5 lần/s, bật--tắt, PAD 300 & ≥ 95\% & 99/99, 100/100, 96/96, 95/95 \\
+p95 kernel → Alertmanager & & 3,04 s (1,53 s) \\
 \end{longtable}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Gánh cảnh báo:} 0,17 đợt/replica-giờ trên normal (0,41 ở lượt trước, khi mô hình học ít normal hơn).
+  \textbf{Gánh cảnh báo:} 0,36 đợt/replica-giờ trên normal ở lượt cuối (t3); với cấu hình v5 là 0,17, và 0,41 khi mô hình học ít normal hơn. Phần lớn đợt có cửa sổ chứa lệnh của exec probe; sự kiện Kubernetes chỉ giải thích 5/223 đợt.
 \item
-  \textbf{RCA:} 467/522 tấn công có case riêng ở lượt thứ hai, 711/735 ở lượt thứ ba sau bản sửa điều kiện đua; với thứ tự bước xáo ngẫu nhiên, hạng 1 của binary tấn công không phụ thuộc thứ tự (75,5\% và 76,4\%).
+  \textbf{RCA:} 467/522 tấn công có case riêng ở lượt thứ hai, 711/735 ở lượt thứ ba sau bản sửa điều kiện đua, 766/809 ở lượt cuối; với thứ tự bước xáo ngẫu nhiên, hạng 1 của binary tấn công không phụ thuộc thứ tự (lượt thứ ba 75,5\% và 76,4\%, lượt cuối 68,4\% và 69,2\%).
 \item
-  \textbf{Kẻ tấn công thích nghi và luật:} chèn 30 hoặc 300 cặp syscall quen sau mỗi thao tác tấn công không làm lọt trial nào (105/105 mỗi mức). Luật hạ cảnh báo của tool-thuộc-image xoá báo nhầm lệnh quản trị nhưng cũng xoá mọi tấn công dùng tool-thuộc-image (314/315 còn 0/315), nên không được nhận.
+  \textbf{Kẻ tấn công thích nghi và luật:} chèn 30 hoặc 300 cặp syscall quen sau mỗi thao tác tấn công không làm lọt trial nào (105/105 mỗi mức ở lượt thứ ba, 95/95 ở lượt cuối). Luật hạ cảnh báo của tool-thuộc-image xoá báo nhầm lệnh quản trị nhưng cũng xoá mọi tấn công dùng tool-thuộc-image (lượt cuối 286/286 còn 0/286), nên không được nhận. Một luật song song theo danh mục ý đồ (\texttt{setuid}, \texttt{capset}, \texttt{seccomp}\ldots) chỉ bắt thêm 6 hành động event-generator nhưng kích hoạt ở 461/694 control idle và đẩy gánh lên 6,44 đợt/replica-giờ, vì runtime gọi chính các syscall đó khi dựng mọi process qua exec, kể cả exec probe; không được nhận.
 \item
   \textbf{Kiểm từng lựa chọn thiết kế} (development): chỉ 5 trong 39 syscall có hook là cần, và trên official tập 5 syscall cho cùng 1.238 phát hiện với 17 thay vì 26 báo nhầm; quanh bộ tham số đang dùng kết quả phẳng; Gumbel không đúng như một phân bố nhưng là quy tắc ngưỡng tốt nhất đã thử.
 \item
@@ -60,11 +61,11 @@ p95 kernel → Alertmanager & & 0,68 s (1,53 s) \\
 \begin{itemize}
 \tightlist
 \item
-  Mô hình bắt ``process mới'' chứ chưa phân biệt được ác ý: binary vô hại bị gắn cờ 314/314 và lệnh quản trị thật 419/436. Thẻ dòng dõi trong kernel cho thấy hướng ra: chấm riêng phần native thì lệnh quản trị chỉ còn 1/475 và binary vô hại 1/525 bị gắn cờ, nhưng tấn công vào qua \texttt{kubectl exec} cũng nằm ngoài phần đó. Mô hình hơn rõ một luật đếm 4-gram chưa thấy ở báo nhầm thấp, nhưng khi tấn công chỉ dùng chuỗi đã thấy thì cả hai đều không phát hiện gì.
+  Mô hình bắt ``process mới'' chứ chưa phân biệt được ác ý: ở lượt cuối binary vô hại bị gắn cờ 288/288 và lệnh quản trị thật 254/260. Thẻ dòng dõi trong kernel cho thấy hướng ra: chấm riêng phần native thì lệnh quản trị chỉ còn 0/606 và binary vô hại 1/672 bị gắn cờ (lượt cuối), nhưng tấn công vào qua \texttt{kubectl exec} cũng nằm ngoài phần đó. Mô hình hơn rõ một luật đếm 4-gram chưa thấy ở báo nhầm thấp, nhưng khi tấn công chỉ dùng chuỗi đã thấy thì cả hai đều không phát hiện gì.
 \item
-  Trên LID-DS 2019, chấm một lần, mô hình không đổi phát hiện 1.056/1.162 bản ghi tấn công (90,88\%, tính theo độ phân giải 1 s của nhãn) với 0,44\% bản ghi normal bị báo nhầm, nhưng không đạt mức đăng ký: Heartbleed chỉ 24/100, và p95 10,55 s vì ở bốn kịch bản hành vi lạ đầu tiên xuất hiện nhiều giây sau mốc nhãn.
+  Trên LID-DS 2019, mô hình v5 không đổi phát hiện 1.056/1.162 bản ghi tấn công (90,88\%, tính theo độ phân giải 1 s của nhãn) với 0,44\% bản ghi normal bị báo nhầm, nhưng không đạt mức đăng ký: Heartbleed chỉ 24/100. t3, chọn trên 30\% development của chính bộ dữ liệu này, phát hiện 817/841 (97,15\%) bản ghi tấn công còn lại với 0,46\% báo nhầm. Ở cả hai, p95 trên 10 s, vì ở bốn kịch bản hành vi lạ đầu tiên xuất hiện nhiều giây sau mốc nhãn.
 \item
-  Gánh cảnh báo còn trên ngân sách 0,1 đợt/replica-giờ.
+  Gánh cảnh báo còn trên ngân sách 0,1 đợt/replica-giờ, và t3 gấp đôi v5.
 \item
   Tấn công trên cụm là fixture tự viết, trên một cụm và một ứng dụng; nhãn chưa được người độc lập review.
 \end{itemize}

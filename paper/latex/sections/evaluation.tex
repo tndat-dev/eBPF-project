@@ -18,8 +18,8 @@ part (30\,\%: 544 attack and 3{,}403 normal recordings) and an official part (70
 normal). An attack recording is detected when an alarm window ends after the first exploit timestamp; latency is
 measured from that timestamp; a normal recording with any alarm is a false alarm. CB-DS~\cite{elkhairi2022} has 1{,}700
 normal recordings of an e-shop container and nine container-breakout scenarios of 99 recordings each; it has no exploit
-timestamp, so any alarm in an attack recording counts and latency is not measured. LID-DS~2019 is scored once with
-the final model (\cref{sec:eval-2019}).
+timestamp, so any alarm in an attack recording counts and latency is not measured. LID-DS~2019 is a second dataset
+(\cref{sec:eval-2019}).
 
 \paragraph{Cluster campaign.} Each trial targets one replica with consecutive 15\,s intervals on the same container: an
 idle control; a harmless control binary started through the same \texttt{kubectl exec} path as the attack, which only
@@ -31,7 +31,8 @@ missing file; flipping an anonymous page between read and read-write with \textt
 \texttt{seccomp} operation. Every action affects only the calling process or fails before changing host state.
 21 workloads $\times$ 5 fixtures $\times$ 5 rates (1, 3, 6, 12, 24 actions/s) give 525 trials per run; the
 \emph{primary set} is the 315 trials at 6--24/s, rates 1 and 3 model a slow attacker. Trial order is shuffled with a
-fixed seed and attacks start after a 90-minute selection prefix.
+fixed seed and attacks start after a 90-minute selection prefix. Later runs add steps and rates
+(\cref{sec:eval-v6,sec:eval-final}).
 
 \paragraph{Metrics.} Recall: an attack interval with an alarm within its 15\,s. Control positives: idle intervals with
 an alarm. Precision 1:1: TP/(TP+control positives), since each trial has one attack and one idle interval; harmless
@@ -42,37 +43,43 @@ Rates carry Wilson 95\,\% intervals~\cite{wilson1927}; burden a workload-cluster
 
 \subsection{RQ1: public datasets}\label{sec:eval-datasets}
 
-The protocol registered three levels, each equal to the best result reached before on the same data. All three are met.
-On development the model detects 530/544 recordings (97.43\,\%) with 6/3{,}403 false-alarm recordings and p95
-1.52\,s; on CB-DS 891/891 with 3/1{,}410. \Cref{tab:lidds} gives the blind official result.
+The protocol registered three levels, each equal to the best result reached before on the same data. The v5
+configuration (top-10 mean, 1\,\% trim, $\alpha'=1.8\times10^{-4}$) meets all three: on development it detects 530/544
+recordings (97.43\,\%) with 6/3{,}403 false-alarm recordings and p95 1.52\,s; on CB-DS 891/891 with 3/1{,}410. The final
+system t3 changes those three parameters (top-3 mean, 0.5\,\% trim, $\alpha'=3\times10^{-4}$), chosen on a development
+part of LID-DS~2019 (\cref{sec:eval-2019}); it detects 529/544 development recordings with 5 false alarms (p95 1.57\,s)
+and CB-DS 891/891 with 3. \Cref{tab:lidds} gives the official result of both.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering\small
 \caption{LID-DS 2021 official split (1{,}271 attack, 7{,}938 normal recordings); 95\,\% Wilson intervals.}
 \label{tab:lidds}
-\begin{tabular}{@{}lll@{}}
+\begin{tabular}{@{}llll@{}}
 \toprule
-Metric & Target & Result \\
+Metric & Target & v5 & t3 (final) \\
 \midrule
-Recall & $\ge 95\,\%$ & 97.40\,\% (1{,}238/1{,}271) [96.38, 98.15] \\
-False-alarm recordings & reported & 0.33\,\% (26/7{,}938) [0.22, 0.48] \\
-Precision at base rate & $\ge 95\,\%$ & 97.9\,\% \\
-Latency p50 / p95 & p95 $\le 3$\,s & 0.39\,s / 1.47\,s \\
-Detected within 3\,s & reported & 1{,}234/1{,}271 \\
+Recall & $\ge 95\,\%$ & 97.40\,\% [96.38, 98.15] & 97.25\,\% [96.19, 98.01] \\
+Detected & & 1{,}238/1{,}271 & 1{,}236/1{,}271 \\
+False-alarm recordings & reported & 26/7{,}938 (0.33\,\%) & 15/7{,}938 (0.19\,\%) \\
+Precision at base rate & $\ge 95\,\%$ & 97.9\,\% & 98.8\,\% \\
+Latency p50 / p95 & p95 $\le 3$\,s & 0.39 / 1.47\,s & 0.40 / 1.54\,s \\
+Detected within 3\,s & reported & 1{,}234 & 1{,}233 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-Fourteen of 15 scenarios reach 100\,\% recall; every miss belongs to Juice-Shop (52/85). Of its 33 misses, 28 leave no
+With v5, 14 of 15 scenarios reach 100\,\% recall and every miss belongs to Juice-Shop (52/85); t3 also misses two
+ZipSlip recordings (81/83) and has 11 fewer false-alarm recordings. Of its 33 misses, 28 leave no
 trace in any signal we tried (new path, new error code, size, unseen sequence), which caps those signals at
 1{,}243/1{,}271. The missed requests are logins with a modified SQL string to the same endpoint as normal logins: no
 new process, path, error or size, and the traces keep only the first ${\sim}80$ bytes of buffers
-(\cref{sec:discussion}). False alarms concentrate on one scenario (8/532); all others stay below 0.6\,\%. Precision
-depends strongly on the base rate: with the same recall and false-alarm rate it would be 75.0\,\% at 1\,\% attacks and
-22.9\,\% at 0.1\,\%~\cite{arp2022}. The only published result on all 15 scenarios is the dataset authors' STIDE, with a
-mean per-scenario detection rate of 0.59~\cite{grimmer2022}; computed the same way ours is 0.97 (their false alarms are
+(\cref{sec:discussion}). False alarms concentrate on one scenario (8/532 with v5, 7/532 with t3); all others stay below 0.8\,\%. Precision
+depends strongly on the base rate: with the recall and false-alarm rate of t3 it would be 83.9\,\% at 1\,\% attacks and
+34.0\,\% at 0.1\,\% (v5: 75.0\,\% and 22.9\,\%)~\cite{arp2022}. The only published result on all 15 scenarios is the dataset authors' STIDE, with a
+mean per-scenario detection rate of 0.59~\cite{grimmer2022}; computed the same way ours is 0.97 for both configurations (their false alarms are
 counted per alarm cluster, so only detection rates compare). The official split is not entirely unseen: the alphabet
-was designed after looking at other signals on the same recordings.
+was designed after looking at other signals on the same recordings, and the v5 official result was known when t3 was
+chosen.
 
 \paragraph{Why tokens.} An earlier version of the system scored per-window system-call count vectors with
 ExtraTrees~\cite{geurts2006} and a value-range branch. On all LID-DS~2021 test recordings it detected 1{,}154/1{,}815
@@ -120,10 +127,11 @@ set reproduced its official result, the five-call set detects the same 1{,}238/1
 false-alarm recordings (p95 1.46\,s). Adding the details of 13 other calls never increases detections. The 39-call set
 is sufficient but wider than this dataset needs; we keep it because narrowing the probe changes what the cluster sees.
 
-\paragraph{Parameters.} Varying one parameter at a time around the chosen values leaves the result flat: gram length 3,
+\paragraph{Parameters.} Varying one parameter at a time around v5 leaves the result flat: gram length 3,
 a top-3 to top-5 mean, 3 to 10 folds and $\alpha'$ from $5\times10^{-4}$ to $3\times10^{-3}$ all keep 528--530
 detections. It breaks only at the extremes: the top-1 surprise detects 123/544 (one strange event does not separate
-attacks from normal), a top-20 mean 492, grams of length 2 or 6 detect 458 and 493.
+attacks from normal), a top-20 mean 492, grams of length 2 or 6 detect 458 and 493. t3 changes three axes at once and stays in this flat region (529/544, 5
+false alarms); it was chosen for Heartbleed on LID-DS~2019, not for LID-DS~2021.
 
 \paragraph{Is the Gumbel threshold right?} Not as a distribution: an Anderson--Darling test rejects a Gumbel fit of the
 held-out maxima in 15/15 scenarios after Holm correction, and the estimated GEV shape ranges from $-0.28$ to $+0.77$.
@@ -238,10 +246,13 @@ session share of normal traffic differs by workload.
 \paragraph{The native stream on a live cluster.} In the latest run (registered hypothesis H1) we scored only the native
 part of every window (the whole window minus the session part the probe reports) with the workload's model and
 threshold. Over all rates the native part flags 1/475 operator commands drawn from ten tools no run had used, 1/525
-harmless binaries and 1/525 idle controls, against 460/475 and 525/525 when the whole window is scored. This is the
+harmless binaries and 1/525 idle controls, against 460/475 and 525/525 when the whole window is scored. The final run with t3
+repeats it: the native part flags 0/606 operator commands, 1/672 harmless binaries and 0/694 idle controls (whole
+window: 585/606, 672/672, 0/694). This is the
 first learnt mechanism in this work that separates harmless new processes from the workload's own behaviour. It has a
 price the protocol stated in advance: the campaign's attacks enter through \texttt{kubectl exec}, so they are session
-lineage, and the native part detects 0/525 of them. Scoring the native part alone therefore cannot replace the alert
+lineage, and the native part detects 0/525 of them (final run: 0/694 fixtures, 0/666 living-off-the-land steps, 0/556
+event-generator actions). Scoring the native part alone therefore cannot replace the alert
 path; the decision has to know which stream an alarm comes from, and the session stream needs its own treatment.
 
 \paragraph{A rule after the model.} A rule layer that downgrades an alert whose container only saw runtime execs of
@@ -252,8 +263,21 @@ an attack that lives off the land with image tools would also be downgraded. The
 trial adds an attack step that only uses the image's \texttt{sh}, \texttt{cat} and \texttt{ls} (reading the service
 account token, \texttt{/proc}, sockets and accounts, writing and removing a file in \texttt{/tmp}). The model alone
 detects 314/315 of these steps on the primary set (524/525 overall); with R1, 0/315 (0/525). On operator tools never
-seen before, R1 again removes every flag (275/284 $\to$ 0/284). Benefit and harm come from the same condition, so no
+seen before, R1 again removes every flag (275/284 $\to$ 0/284). In the final run with t3, R1 again removes the operator flags (254/260 $\to$ 0/260) and every
+living-off-the-land detection (286/286 $\to$ 0/286). Benefit and harm come from the same condition, so no
 threshold keeps one without the other, and we do not adopt R1.
+
+\paragraph{A rule in parallel.} After the model was fixed, a registered protocol (written before any rule flag was
+computed) adds alerts, never removes them, from a rule over the frozen intent catalogue of an earlier protocol, taken
+from external sources (Docker's default seccomp profile, Falco and Tracee rules): a window fires when it holds
+\texttt{ptrace}, \texttt{setns}, \texttt{unshare}, \texttt{mount}, \texttt{pivot\_root}, \texttt{capset},
+\texttt{setuid}, \texttt{setgid}, \texttt{seccomp}, \texttt{execveat}, \texttt{chmod}, or \texttt{mprotect} outside the
+second after an \texttt{execve}. On the final run, model or rule detects 555/556 event-generator actions against 549/556
+for the model alone, and the same 666/666 living-off-the-land steps and 694/694 fixtures; but the rule fires on 461/694
+idle controls and gives 6.44 episodes per replica-hour against 0.36. Almost every firing is \texttt{setuid},
+\texttt{setgid}, \texttt{capset} or \texttt{seccomp}, which the runtime calls when it sets up every exec'd process,
+including the kubelet's exec probes in an idle container. Control and burden fail the registered levels, so the rule is
+not adopted; on the fixtures, which use catalogue calls, its recall is circular and not a result.
 
 \subsection{RQ5: cost, alert latency and RCA}\label{sec:eval-cost}
 
@@ -296,7 +320,11 @@ delivered 521/522 alerts with p50 0.51\,s and p95 0.68\,s (per-rate p95 0.65--0.
 parallel needed p50 5.29\,s at a fast interval and p50 60.3\,s at the default one, in time for only 143/522 trials.
 Outside the host stall all 2{,}075 alert episodes of the run reached Alertmanager (decision to receipt p50 0.034\,s,
 p95 0.064\,s); during the 3.5-minute stall 113 of 190 were lost, because the bridge retries three times without a
-durable queue.
+durable queue. The final run's bridge has a durable push queue and labels each alert with its stream; it delivered all
+5{,}313/5{,}313 episodes with no stall, but decision to receipt took p50 0.084\,s and p95 3.23\,s, and kernel to
+Alertmanager p95 3.04\,s (749/809 attack trials alerted by a push, the other 56 matched an alert already open from an
+earlier step of the trial), against 1.53\,s in the previous run, while kernel to the end of the alarm window stayed at
+0.46\,s; we have not located the added delay after the decision.
 
 \paragraph{RCA.} 467/522 attacks got their own case (89.5\,\%), and the attack binary ranked first in 464/467 cases
 (99.4\,\%); a case was ready p50 2.33\,s, p95 2.61\,s after the alert. Of the 55 attacks without their own case, 40
@@ -308,6 +336,8 @@ considers execs up to its decision, and once more 2\,s later: 711/735 attacks (9
 no longer depends on the order (268/355, 75.5\,\%, when the attack ran after the harmless binary; 272/356, 76.4\,\%,
 before it). Rank 1 is lower than in the second run because each trial of the latest run holds a second attack; in an
 exploratory read, the living-off-the-land step's process ranks first in 162 of the 170 cases where the fixture does not.
+In the final run, with three attack steps per trial, 766/809 attacks get their own case and the fixture ranks first in
+68.8\,\% (top 5: 93.2\,\%), again independent of the order (68.4\,\% after the harmless binary, 69.2\,\% before).
 
 \subsection{Model aging and the latest run}\label{sec:eval-v6}
 
@@ -324,28 +354,80 @@ normal outside its trials, and runs 735 trials: 525 as in the earlier runs and 2
 pads every attack operation with 30 or 300 pairs of \texttt{getpid} and \texttt{sched\_yield}. All four targets hold
 again (\cref{tab:live}): 315/315 primary attacks (524/525 overall), 1/315 idle control positive, precision 99.68\,\%
 [98.23, 99.94], p95 0.45\,s. Dilution does not hide an attack: 105/105 at both padding levels, because the window score
-averages the ten most surprising events and padding with seen calls adds no surprising ones. The gram map dropped no
+averages the most surprising events (ten in v5) and padding with seen calls adds no surprising ones. The gram map dropped no
 gram. The bridge delivered 3{,}233/3{,}233 episodes (decision to Alertmanager p95 1.21\,s; kernel to Alertmanager p95
 1.53\,s over 721/735 attack trials). The burden, 4 episodes in 51.1 replica-hours, is not comparable with the earlier
 runs, since the campaign covered almost the whole run.
 
+\subsection{The final run}\label{sec:eval-final}
+
+The final run (45\,h, protocol registered before it started) deploys t3 alone on the alert path, fitted on the 12\,h
+normal capture of the previous run plus the second run's normal traffic outside its trials, with the count branches in
+shadow. Its campaign adds slow rates of 0.5 and 0.1 actions/s, an on-off pattern (12/s, alternating every 10\,s),
+padding with 300 pairs of seen calls, and one action of Falco's \texttt{event-generator}~\cite{falco} per trial
+(reading sensitive files, writing below \texttt{/etc}, bulk data removal and similar; an action skipped because the image
+lacks a tool is not counted), next to the idle control, an operator command, the harmless binary, the fixture and the
+living-off-the-land step, in a seeded order. About 9.5\,h of normal traffic without campaign close the run.
+
+\begin{table}[t]
+\centering\small
+\caption{Final run, t3: primary set (6, 12, 24/s) and all rates (0.1--24/s).}
+\label{tab:final}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Metric & Primary [95\,\% CI] & All rates \\
+\midrule
+Recall & 296/296 [98.7, 100] & 694/694 \\
+Control positives & 0/296 [0.0, 1.3] & 0/694 \\
+Precision (1:1) & 100\,\% & 100\,\% \\
+p95 kernel $\to$ end of window & 0.46\,s (p50 0.26\,s) & 0.46\,s \\
+0.5/s; 0.1/s & \multicolumn{2}{l}{100/100; 99/99} \\
+On-off 10\,s; PAD 300 & \multicolumn{2}{l}{96/96 (p95 0.40\,s); 95/95} \\
+Harmless binary flagged & 288/288 & 672/672 \\
+Operator command flagged & 254/260 & 585/606 \\
+Living off the land detected & 286/286 & 666/666 \\
+Event-generator detected & 238/241 & 549/556 \\
+Burden (episodes/replica-hour) & \multicolumn{2}{l}{0.36 [0.28, 0.44]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All four registered hypotheses hold (\cref{tab:final}): the four targets on the primary set, recall $\ge 95\,\%$ at
+PAD~300, at each slow rate and on-off. Per rate the recall is 99/99, 100/100, 99/99, 100/100, 101/101, 99/99 and 96/96
+from 0.1 to 24/s, and every fixture reaches 100\,\%. The 13 executed event-generator actions, which we did not write,
+are detected at 0.949 (\texttt{RemoveBulkDataFromDisk}, 37/39) to 1.0; they also enter through \texttt{kubectl exec}.
+The shadow count branches detect 127/296, 25/296 and 110/296. The gram map recorded no failed insert on any worker,
+scoring took p50 0.169\,s and p95 0.232\,s over 20.96 million windows, and an offline rescoring of 149{,}709 trial
+windows equals the live scores exactly. The price of t3 is burden: 223 episodes in 616.8 replica-hours, 0.36 against
+0.17 with v5, as the fit predicted (held-out blocks above threshold 0.795\,\% against 0.333\,\% on the same data).
+Of the 223 episodes, 176 contain windows with session-lineage events and 47 only native ones; every workload whose
+episodes contain session events runs exec liveness or readiness probes, while the native-only ones use HTTP or TCP
+probes. Kubernetes events (rollouts, scaling, restarts, failed probes within 5\,min before to 1\,min after) explain 5
+episodes, all one autoscaling workload; grouping episodes of a workload less than 10\,min apart leaves 172 incidents.
+
 \subsection{LID-DS 2019}\label{sec:eval-2019}
 LID-DS~2019 has ten scenarios, all among the vulnerabilities of LID-DS~2021, but with different recordings, operating
 system, sysdig version and workload generators; no 2019 recording entered any design choice. Under a registered
-protocol the final model, unchanged, learns each scenario's first 200 normal recordings and the next 50, and scores
-every test recording once, after the scoring code reproduced the registered LID-DS~2021 official result. Every
+protocol the v5 model, unchanged, learns each scenario's first 200 normal recordings and the next 50, and scores
+every test recording, after the scoring code reproduced the registered LID-DS~2021 official result. Every
 exploit timestamp of the 2019 release is a whole second, while alarm windows are located to the microsecond; we
 therefore count an attack recording as detected when an alarm window ends after the timestamp minus 1\,s, and measure
-latency from there. This rule was set after the scoring, on its alarms; on the LID-DS~2021 official part, whose labels
+latency from there. This rule was set after the registered scoring, on its alarms; on the LID-DS~2021 official part, whose labels
 are exact, the same rule leaves the result at 1{,}238/1{,}271.
 
-The model detects 1{,}056/1{,}162 attack recordings (90.88\,\%, [89.08, 92.40]) with 34/7{,}706 false-alarm normal
+v5 detects 1{,}056/1{,}162 attack recordings (90.88\,\%, [89.08, 92.40]) with 34/7{,}706 false-alarm normal
 recordings (0.44\,\%), p95 10.55\,s, and misses the registered targets on recall and latency. Nine scenarios reach
 90--100\,\%; Heartbleed (CVE-2014-0160) reaches 24/100, with no alarm in 76 recordings, although the same vulnerability
 is detected in every LID-DS~2021 recording. The latency comes from four scenarios (brute force p95 14.4\,s, Heartbleed
-11.2\,s, PHP upload 5.6\,s, SQL injection 4.7\,s). On a 30\,\% development part of the 2019 test recordings, defined
+11.2\,s, PHP upload 5.6\,s, SQL injection 4.7\,s). On a 30\,\% development part of the 2019 test recordings (321 attack, 2{,}311 normal), defined
 after the scoring, 111 alternative settings (gram length, top-$k$, threshold level and trim, finer tokens) and a rate
-branch either do not raise recall or lose LID-DS~2021 detections; and the first window holding any sequence unseen in
-learning comes at p95 9.39\,s after the timestamp, so no detector that fires on unseen sequences can meet a 3\,s
-latency on these labels. A model learnt from normal behaviour depends on what the trace records, and its measured
+branch either do not raise recall or lose LID-DS~2021 development detections; and the first window holding any
+sequence unseen in learning comes at p95 9.39\,s after the timestamp, so no detector that fires on unseen sequences can
+meet a 3\,s latency on these labels. An amendment registered before the scorings below relaxed the LID-DS~2021
+development rule by one detection, a decision taken knowing the development results, and chose the closest combination,
+t3 (2019 development 310/321 with 9 false alarms). On the remaining 70\,\% (841 attack, 5{,}395 normal recordings; v5
+had scored them in the registered run, and the driver first reproduced those decisions), t3 detects 817/841
+(97.15\,\%, [95.79, 98.07]) with 25 false-alarm recordings (0.46\,\%), p95 10.95\,s, against 761/841 and 28 for v5;
+the gain is Heartbleed only (17 $\to$ 73 of 77). Recall and false alarms meet the target, latency does not. Without the
+1\,s tolerance t3 detects 582/841. A model learnt from normal behaviour depends on what the trace records, and its measured
 latency on how a dataset places the attack timestamp.

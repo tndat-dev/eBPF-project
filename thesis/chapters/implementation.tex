@@ -100,12 +100,12 @@ Dữ liệu token để phân tích chiếm 16,7--22,6 GB mỗi worker mỗi ng�
 \item
   cắt thời gian thành đoạn 30 phút, chia lần lượt vào 5 fold, học 5 mô hình giữ ra và chấm phần giữ ra;
 \item
-  lấy điểm lớn nhất của từng khối 60 s mỗi container, bỏ 1\% cao nhất, khớp Gumbel theo moment và tính ngưỡng;
+  lấy điểm lớn nhất của từng khối 60 s mỗi container, bỏ phần cao nhất (0,5\% với t3, 1\% với v5), khớp Gumbel theo moment và tính ngưỡng;
 \item
   học mô hình cuối trên toàn bộ dữ liệu, ghi \texttt{MODELS.json} cùng SHA-256 của từng mô hình.
 \end{enumerate}
 
-Lần fit gần nhất (12 giờ capture cộng normal của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}) mất 5 giờ 35 phút CPU và đỉnh 36,0 GB bộ nhớ.
+Lần fit cho lượt v5 (12 giờ capture cộng normal của lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}v4-\allowbreak{}1109}) mất 5 giờ 35 phút CPU và đỉnh 36,0 GB bộ nhớ. Fit của lượt cuối (\texttt{pulse-\allowbreak{}live-\allowbreak{}v7-\allowbreak{}fit-\allowbreak{}1118}) dùng cùng script với \texttt{-\allowbreak{}-top 3 -\allowbreak{}-trim 0.005 -\allowbreak{}-alpha 0.0003}, trên 12 giờ normal của lượt thu v6 cộng normal của lượt v5 ngoài các trial; nó mất 3 giờ 39 phút CPU, đỉnh 14,4 GB.
 
 \section{Bridge và RCA}
 

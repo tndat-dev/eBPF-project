@@ -9,8 +9,8 @@ step and an event-generator action.
 
 Run health: workers 162,000 s each (exit 0); probe `insert_fail_cumulative` 0 and `dir_fail_cumulative` 0 on all three
 workers (`TERMINAL.json` `token_drain`), so no gram-map overflow; issues only `cadence_gap` (6 / 3 / 0). 20.96 million
-token windows scored. Analyses on `.234` 21/11 04:50–11:55 UTC, each in `systemd-run` with `MemoryMax`
-(`final-h0` 16G, `final-rest` 16G, `final-rca` 6G as root, `final-labels` 8G).
+token windows scored. Analyses on `.234` 21/11 04:50–12:20 UTC, each in `systemd-run` with `MemoryMax`
+(`final-h0` 16G, `final-rest` 16G, `final-rca` 6G as root, `final-labels` 8G, `final-rule-intent` 16G, `final-native-h0` 12G).
 
 ## Hypotheses
 
@@ -28,9 +28,11 @@ token windows scored. Analyses on `.234` 21/11 04:50–11:55 UTC, each in `syste
 - **Model alone on the other steps:** harmless binary 288/288 primary (672/672 all rates); operator commands 254/260
   (585/606); lotl 286/286 (666/666); event generator 238/241 (549/556), per action 0.949 (`RemoveBulkDataFromDisk`
   37/39) to 1.0 over 13 actions.
-- **Native stream (pulse-live-v6-v1 H1 method):** native part flags admin 0/621, harmless binary 1/691, attack 0/694,
-  lotl 0/684 (the whole window flags 600/621, 691/691, 694/694, 684/684); the campaign enters through `kubectl exec`, so
-  its steps are session lineage. `native-stream.json`.
+- **Native stream (pulse-live-v6-v1 H1 method):** on the H0 denominators (`native-stream-h0pairs.json`, option
+  `--h0-pairs`: pairs with an attack interval) the native part flags admin 0/606, harmless binary 1/672, idle control
+  0/694, attack 0/694, lotl 0/666, event generator 0/556; the whole window flags 585/606, 672/672, 0/694, 694/694,
+  666/666, 549/556, exactly the H0 counts. Over every interval of the campaign (`native-stream.json`): admin 0/621,
+  harmless binary 1/691. The campaign enters through `kubectl exec`, so its steps are session lineage.
 - **Burden on the normal tail after the campaign (9.5 h):** 223 episodes in 616.8 replica-hours = 0.362 per
   replica-hour [0.278; 0.443] (clustered bootstrap). Replica consensus: 217 single-replica, 6 multi-replica; incidents
   (same workload, < 600 s apart) 172 = 434 per day. Attack harm of the consensus label: 5 of 1,371 detected attack and
@@ -58,6 +60,29 @@ token windows scored. Analyses on `.234` 21/11 04:50–11:55 UTC, each in `syste
 - **Rule R1/R2 (with vs without, `rule-e.json`):** with R1, admin false alarms 254/260 → 0/260, but lotl recall
   286/286 → 0/286 (all rates 684/684 → 0/684): R1 downgrades every lotl attack, as on v6; not adopted.
 - **Count branches (shadow):** C 127/296 (p95 3.86 s), tree 25/296, support 110/296.
+
+## Rule track (protocol `sentinel_pulse/protocol/rule-intent-v1.json`, registered 21/11 19:01 +07 before any rule flag)
+
+Frozen intent catalogue of exec-intent-v1 (ptrace, setns, unshare, mount, pivot_root, capset, setuid, setgid, seccomp,
+execveat, chmod; mprotect only without execve/execveat in the window or the one before), run in parallel with t3 (adds
+alerts, never removes one). `rule-intent.json`, code `scripts/analysis/rule_intent.py` (unit `final-rule-intent`, 36 min
+CPU). All rates, H0 denominators:
+
+| Interval | ML only | Rule only | ML or rule |
+|---|---|---|---|
+| Attack (fixture) | 694/694 | 694/694 | 694/694 |
+| Lotl | 666/666 | 663/666 | 666/666 |
+| Event generator | 549/556 | 555/556 | 555/556 |
+| Idle control | 0/694 | 461/694 | 461/694 |
+| Admin | 585/606 | 605/606 | 605/606 |
+| Harmless binary | 672/672 | 670/672 | 672/672 |
+| Burden (episodes per replica-hour, normal tail, 615.6 replica-hours) | 0.362 (223) | 6.395 (3,937) | 6.437 (3,963) |
+
+The rule recovers 6 of the 7 event-generator actions the model missed; it fires almost only on setuid, setgid, capset
+and seccomp (normal tail: about 425,000 windows each), which the runtime calls for every exec'd process, including the
+kubelet's exec probes in idle containers. Decision: recall gain 6 intervals, but control 66.4 % > 5 % and burden 6.44 >
+1.76: **not adopted**. The family variant (fchmod, fchmodat, setres*, ...) gives the same numbers. The ML-only column
+reproduces H0 (585/606, 0/694, 223 episodes).
 
 ## Side by side with pulse-live-v6-1117 (lidds-ml-v5)
 
@@ -87,7 +112,8 @@ comparison; v5 measured 104 episodes in 630.1 replica-hours (0.165).
 | File | From |
 |---|---|
 | `pulse-live-final.json` | `scripts/analysis/pulse_live_v4.py` (H0, H3, H7, H8, burden, scoring latency, per-action event generator) |
-| `native-stream.json` | `scripts/analysis/native_stream.py` |
+| `native-stream.json`, `native-stream-h0pairs.json` | `scripts/analysis/native_stream.py` (the second with `--h0-pairs`) |
+| `rule-intent.json` | `scripts/analysis/rule_intent.py` |
 | `live-attribution.json.gz` | `scripts/analysis/live_attribution.py` |
 | `rule-e.json` | `scripts/analysis/rule_e_benefit.py` |
 | `burden-context.json` | `scripts/analysis/burden_context.py` |

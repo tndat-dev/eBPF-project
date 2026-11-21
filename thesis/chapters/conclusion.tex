@@ -1,6 +1,6 @@
 \chapter{Kết luận và hướng phát triển}\label{chap:conclusion}
 
-Một mô hình ngôn ngữ đơn giản trên token syscall, học chỉ từ normal, phát hiện được exploit thật của dataset công khai và tấn công trên cụm thật với độ trễ dưới 1 giây, với probe eBPF đủ rẻ để chạy liên tục. Mô hình chưa phân biệt được ác ý với một process vô hại mới, và gánh cảnh báo còn gấp khoảng 4 lần ngân sách.
+Một mô hình ngôn ngữ đơn giản trên token syscall, học chỉ từ normal, phát hiện được exploit thật của dataset công khai và tấn công trên cụm thật với độ trễ dưới 1 giây, với probe eBPF đủ rẻ để chạy liên tục. Mô hình chưa phân biệt được ác ý với một process vô hại mới, và gánh cảnh báo của hệ thống cuối còn gấp khoảng 3,6 lần ngân sách.
 
 \section{Trả lời các câu hỏi nghiên cứu}
 
@@ -12,12 +12,12 @@ Câu hỏi & Trả lời \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-RQ1: phát hiện exploit thật trên dataset? & Có. LID-DS 2021 official: recall 97,40\% (CI 96,38--98,15\%), 0,33\% bản ghi normal bị báo nhầm, precision 97,9\%, p95 1,47 s; 14/15 kịch bản đạt 100\%, Juice-Shop 61,2\%. CB-DS: 891/891 với 3/1.410 báo nhầm. LID-DS 2019 (một lần, blind, dung sai nhãn 1 s): 1.056/1.162 (90,88\%) với 0,44\% báo nhầm, p95 10,55 s; không đạt mức đăng ký \\
-RQ2: lựa chọn thiết kế nào mang kết quả? & Cỡ đọc ghi lúc trả về mang nhiều nhất. Chỉ 5 trong 39 syscall có hook là cần; trên official, tập 5 syscall cho cùng 1.238 phát hiện với 17 thay vì 26 báo nhầm. Thêm syscall khác không tăng phát hiện. Quanh bộ tham số đang dùng kết quả phẳng. Gumbel không đúng như một phân bố nhưng là quy tắc ngưỡng tốt nhất đã thử. Ở báo nhầm thấp, mô hình hơn luật đếm 4-gram chưa thấy 86 bản ghi; với tấn công chỉ dùng chuỗi đã thấy, cả hai đều mù. Thêm một nhánh tần suất không tăng phát hiện (530→530, 891→891) mà chỉ thêm báo nhầm nên không nhận; trên cụm, pha loãng 30 và 300 cặp syscall quen không làm lọt trial nào (105/105 mỗi mức) \\
-RQ3: đạt bốn kỳ vọng trên cụm thật? & Có, ở cả ba lượt live. Lượt thứ hai: tập chính 314/314, control 0/314, p95 0,49 s tới cuối cửa sổ và 0,68 s tới Alertmanager; mọi tốc độ 521/522; gánh 0,17 đợt/replica-giờ, còn trên ngân sách 0,1. Lượt thứ ba, học lại sau khi đổi cụm: 315/315, control 1/315, p95 0,45 s \\
-RQ4: tách được process vô hại mới? & Mô hình một mình: không. Binary vô hại bị gắn cờ 314/314, lệnh quản trị thật 419/436; gate theo mô hình gộp và theo pha sau \texttt{execve} không giữ được kết quả trên dataset nên bị loại. Một luật sau mô hình (hạ cảnh báo khi cửa sổ chỉ có exec của tool-thuộc-image) xoá sạch báo nhầm lệnh quản trị nhưng cũng xoá mọi tấn công dùng tool-thuộc-image (314/315→0/315 ở lượt thứ ba) nên không được nhận. Thẻ dòng dõi trong kernel: chấm riêng phần native thì lệnh quản trị còn 1/475, binary vô hại 1/525, nhưng tấn công vào qua exec cũng ra khỏi phần đó (0/525) \\
-RQ5: chi phí? & Khoảng 0,4--0,5 µs mỗi syscall đơn giản của container được theo dõi, 1,8--2,1 µs cho mở và đóng một file, 0,2--0,3 µs cho syscall của container khác; worker 0,30--0,31 core mỗi node; chấm mỗi cửa sổ p50 0,15 s \\
-RQ6: đường tới người nhận và RCA? & Kernel tới Alertmanager p95 0,68 s (lượt thứ hai) và 1,53 s (lượt thứ ba); tấn công có case riêng 467/522, sau bản sửa điều kiện đua 711/735; hạng 1 của binary tấn công 99,4\% khi tấn công luôn chạy sau, 75,9\% khi thứ tự xáo và mỗi trial có hai tấn công, không phụ thuộc thứ tự \\
+RQ1: phát hiện exploit thật trên dataset? & Có. LID-DS 2021 official, t3: recall 97,25\% (CI 96,19--98,01\%), 0,19\% bản ghi normal bị báo nhầm, precision 98,8\%, p95 1,54 s (v5: 97,40\%, 0,33\%, 1,47 s); Juice-Shop 61,2\%. CB-DS: 891/891 với 3/1.410 báo nhầm. LID-DS 2019 (dung sai nhãn 1 s): v5 1.056/1.162 (90,88\%) với 0,44\% báo nhầm, không đạt mức đăng ký; t3, chọn trên 30\% development, 817/841 (97,15\%) với 0,46\% báo nhầm trên phần còn lại; p95 trên 10 s ở cả hai \\
+RQ2: lựa chọn thiết kế nào mang kết quả? & Cỡ đọc ghi lúc trả về mang nhiều nhất. Chỉ 5 trong 39 syscall có hook là cần; trên official, tập 5 syscall cho cùng 1.238 phát hiện với 17 thay vì 26 báo nhầm. Thêm syscall khác không tăng phát hiện. Quanh bộ tham số đang dùng kết quả phẳng. Gumbel không đúng như một phân bố nhưng là quy tắc ngưỡng tốt nhất đã thử. Ở báo nhầm thấp, mô hình hơn luật đếm 4-gram chưa thấy 86 bản ghi; với tấn công chỉ dùng chuỗi đã thấy, cả hai đều mù. Thêm một nhánh tần suất không tăng phát hiện (530→530, 891→891) mà chỉ thêm báo nhầm nên không nhận; trên cụm, pha loãng 30 và 300 cặp syscall quen không làm lọt trial nào (105/105 mỗi mức; lượt cuối 95/95 ở 300). t3 (3 giá trị, bỏ 0,5\%, $\alpha'$ 0,0003) bắt thêm Heartbleed của LID-DS 2019 và đổi lại gánh trên cụm gấp đôi \\
+RQ3: đạt bốn kỳ vọng trên cụm thật? & Có, ở cả bốn lượt live. Lượt cuối (t3, 45 giờ): tập chính 296/296, control 0/296, p95 0,46 s tới cuối cửa sổ; mọi tốc độ 694/694; tốc độ 0,1 và 0,5 lần/s 99/99 và 100/100, bật--tắt 96/96, PAD 300 95/95; event-generator 549/556; gánh 0,36 đợt/replica-giờ, trên ngân sách 0,1. Với v5: lượt thứ hai 314/314, gánh 0,17; lượt thứ ba, học lại sau khi đổi cụm, 315/315, control 1/315 \\
+RQ4: tách được process vô hại mới? & Mô hình một mình: không. Lượt cuối: binary vô hại bị gắn cờ 288/288, lệnh quản trị thật 254/260; gate theo mô hình gộp và theo pha sau \texttt{execve} không giữ được kết quả trên dataset nên bị loại. Một luật sau mô hình (hạ cảnh báo khi cửa sổ chỉ có exec của tool-thuộc-image) xoá sạch báo nhầm lệnh quản trị nhưng cũng xoá mọi tấn công dùng tool-thuộc-image (314/315→0/315 ở lượt thứ ba, 286/286→0/286 ở lượt cuối) nên không được nhận. Luật song song theo danh mục ý đồ: chỉ thêm 6/556 hành động event-generator, nhưng control idle 461/694 và gánh 6,44 đợt/replica-giờ, nên không nhận. Thẻ dòng dõi trong kernel: chấm riêng phần native thì lệnh quản trị còn 1/475, binary vô hại 1/525, nhưng tấn công vào qua exec cũng ra khỏi phần đó (0/525) \\
+RQ5: chi phí? & Khoảng 0,4--0,5 µs mỗi syscall đơn giản của container được theo dõi, 1,8--2,1 µs cho mở và đóng một file, 0,2--0,3 µs cho syscall của container khác; worker 0,30--0,31 core mỗi node; chấm mỗi cửa sổ p50 0,17 s, p95 0,23 s ở lượt cuối \\
+RQ6: đường tới người nhận và RCA? & Kernel tới Alertmanager p95 0,68 s (lượt thứ hai), 1,53 s (lượt thứ ba) và 3,04 s (lượt cuối, phần thêm nằm sau decision); bridge giao đủ 5.313/5.313 đợt ở lượt cuối; tấn công có case riêng 467/522, sau bản sửa điều kiện đua 711/735, lượt cuối 766/809; hạng 1 của binary tấn công 99,4\% khi tấn công luôn chạy sau, 75,9\% khi thứ tự xáo và mỗi trial có hai tấn công, 68,8\% khi có ba, không phụ thuộc thứ tự \\
 \end{longtable}
 
 \section{Đóng góp}
@@ -28,11 +28,11 @@ RQ6: đường tới người nhận và RCA? & Kernel tới Alertmanager p95 0,
 \item
   \textbf{Một probe eBPF dựng token syscall ngay trong kernel:} tên, mã lỗi, chế độ mở và thư mục đầu (đi ngược cây dentry), cỡ đọc ghi lúc trả về, cùng đếm 4-gram theo thread, với đúng một token cho mỗi syscall đã được kiểm bằng proof.
 \item
-  \textbf{Một mô hình học từ normal chạy giống hệt trên dataset và trên cụm:} mô hình ngôn ngữ Witten--Bell trên token, ngưỡng Gumbel trên điểm giữ ra của cross-fit, quyết định một cửa sổ. Trên LID-DS 2021 official nó đạt khoảng 97\% recall và 0,3\% báo nhầm; trong các nguồn đọc được, chưa thấy mô hình học nào đạt mức này trên đủ 15 kịch bản.
+  \textbf{Một mô hình học từ normal chạy giống hệt trên dataset và trên cụm:} mô hình ngôn ngữ Witten--Bell trên token, ngưỡng Gumbel trên điểm giữ ra của cross-fit, quyết định một cửa sổ. Trên LID-DS 2021 official nó đạt khoảng 97\% recall và 0,2--0,3\% báo nhầm; trong các nguồn đọc được, chưa thấy mô hình học nào đạt mức này trên đủ 15 kịch bản.
 \item
   \textbf{Một hệ thống chạy live trên Kubernetes,} từ kernel tới Alertmanager và cây bằng chứng RCA, với mô hình, probe và code khoá bằng SHA-256.
 \item
-  \textbf{Một cách đánh giá live có đăng ký trước:} lượt 24 giờ trên tải thật, campaign có control idle và binary vô hại, đo độ trễ và gánh cảnh báo theo giờ, mọi con số trong đồ án tính lại được từ biên nhận.
+  \textbf{Một cách đánh giá live có đăng ký trước:} lượt 24--45 giờ trên tải thật, campaign có control idle và binary vô hại, đo độ trễ và gánh cảnh báo theo giờ, mọi con số trong đồ án tính lại được từ biên nhận.
 \item
   \textbf{Bằng chứng thực nghiệm} rằng mô hình chuỗi học từ normal phát hiện điều mới chứ không phải ác ý: binary vô hại bị gắn cờ gần như luôn, và trên cả dataset lẫn cụm mô hình chưa hơn một luật novelty có ngưỡng.
 \end{enumerate}
@@ -59,7 +59,7 @@ Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (
 \item
   \textbf{Kẻ tấn công thích nghi:} thí nghiệm chia theo mức hiểu biết về detector, chỉ dùng 4-gram đã thấy, chạy chậm trong một process có sẵn; một trial \texttt{io\_\allowbreak{}uring}.
 \item
-  \textbf{Gánh cảnh báo:} học lại định kỳ chỉ từ normal đã được xác nhận; gom đợt thành sự cố và tương quan với sự kiện của Kubernetes, báo thêm số sự cố mỗi ngày.
+  \textbf{Gánh cảnh báo:} học lại định kỳ chỉ từ normal đã được xác nhận; tách lệnh của exec probe (phần lớn đợt của lượt cuối) khỏi luồng session của người vận hành, ví dụ học riêng các lệnh probe khai báo trong pod spec; gom đợt thành sự cố chỉ giảm 223 đợt còn 172 và sự kiện Kubernetes chỉ giải thích 5 đợt, nên không đủ.
 \item
   \textbf{Probe gọn hơn:} một bản build chỉ giữ chi tiết cho 5 syscall và bỏ bộ đếm theo cgroup, qua lượt thu và lượt live mới; đo chi phí trên request của ứng dụng thật và tải cực đại của map 4-gram.
 \item

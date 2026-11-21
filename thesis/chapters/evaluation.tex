@@ -1,6 +1,6 @@
 \chapter{Đánh giá}
 
-Mô hình token đạt cả ba tiêu chí trên LID-DS 2021 official: recall 97,40\%, precision theo tỉ lệ của dataset 97,9\%, p95 1,47 s. Trên cụm thật, nó đạt cả bốn kỳ vọng đã đăng ký ở hai lượt live: lượt gần nhất bắt 314/314 tấn công ở tốc độ chính, không báo control idle nào, và cảnh báo tới Alertmanager sau p95 0,68 s. Điểm yếu chính là nó gắn cờ gần như mọi process vô hại mới: binary đối chứng 314/314, lệnh quản trị 255/261. Chương này đi theo thứ tự các câu hỏi nghiên cứu, sau phần phương pháp.
+Hệ thống cuối là mô hình token \textbf{t3} (lấy trung bình 3 độ bất ngờ lớn nhất, bỏ 0,5\% cực đại, $\alpha' = 0{,}0003$; mục~\ref{sec:lidds2019}). Trên LID-DS 2021 official nó đạt cả ba tiêu chí: recall 97,25\%, precision theo tỉ lệ của dataset 98,8\%, p95 1,54 s. Trên cụm thật, mô hình đạt cả bốn kỳ vọng đã đăng ký ở mọi lượt live. Lượt cuối \texttt{pulse-\allowbreak{}live-\allowbreak{}final-\allowbreak{}1119} (45 giờ) bắt 296/296 tấn công ở tốc độ chính và không báo control idle nào, với p95 0,46 s; nó cũng bắt mọi trial ở tốc độ chậm 0,1 và 0,5 lần/s, ở nhịp bật--tắt 10 s và khi pha loãng 300 cặp syscall quen. Điểm yếu chính là mô hình gắn cờ gần như mọi process vô hại mới: binary đối chứng 288/288, lệnh quản trị 254/260. Chương này đi theo thứ tự các câu hỏi nghiên cứu, sau phần phương pháp.
 
 \section{Phương pháp}
 
@@ -11,7 +11,7 @@ Mô hình token đạt cả ba tiêu chí trên LID-DS 2021 official: recall 97,
   \label{fig:eval-flow}
 \end{sidewaysfigure}
 
-\textbf{Đăng ký trước.} Mỗi phân tích chính và mỗi lượt live có một protocol JSON được commit vào git trước khi đọc dữ liệu liên quan: \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} (cùng ba amendment) cho dataset và lượt live gần nhất, \texttt{pulse-\allowbreak{}live-\allowbreak{}v3-\allowbreak{}v1} (cùng hai amendment) cho lượt live, \texttt{token-\allowbreak{}design-\allowbreak{}study-\allowbreak{}v1} cho các lựa chọn thiết kế, \texttt{token-\allowbreak{}probe-\allowbreak{}overhead-\allowbreak{}v1} cho chi phí. Protocol ghi kỳ vọng, định nghĩa chỉ số, luật chọn và code phân tích. Mọi sửa đổi sau đó là một amendment có giờ và lý do. Hình~\ref{fig:eval-flow} cho thấy thứ tự các bước.
+\textbf{Đăng ký trước.} Mỗi phân tích chính và mỗi lượt live có một protocol JSON được commit vào git trước khi đọc dữ liệu liên quan: \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} (cùng ba amendment) cho dataset và lượt live v5, \texttt{lidds2019-\allowbreak{}development-\allowbreak{}v1} (cùng amendment 1) cho cấu hình t3, \texttt{pulse-\allowbreak{}live-\allowbreak{}v3-\allowbreak{}v1} (cùng hai amendment), \texttt{pulse-\allowbreak{}live-\allowbreak{}v6-\allowbreak{}v1} và \texttt{pulse-\allowbreak{}live-\allowbreak{}final-\allowbreak{}v1} cho các lượt live, \texttt{rule-\allowbreak{}intent-\allowbreak{}v1} cho phép so có và không có luật, \texttt{token-\allowbreak{}design-\allowbreak{}study-\allowbreak{}v1} cho các lựa chọn thiết kế, \texttt{token-\allowbreak{}probe-\allowbreak{}overhead-\allowbreak{}v1} cho chi phí. Protocol ghi kỳ vọng, định nghĩa chỉ số, luật chọn và code phân tích. Mọi sửa đổi sau đó là một amendment có giờ và lý do. Hình~\ref{fig:eval-flow} cho thấy thứ tự các bước.
 
 Kết quả được chia hai loại:
 
@@ -55,7 +55,7 @@ Kịch bản & Hành vi \\
 \texttt{seccomp\_\allowbreak{}api\_\allowbreak{}probe} & gọi \texttt{seccomp} với mã thao tác không hợp lệ \\
 \end{longtable}
 
-Mọi thao tác chỉ ảnh hưởng chính process, hoặc chắc chắn thất bại trước khi đổi trạng thái của host. 21 workload × 5 kịch bản × 5 tốc độ (1, 3, 6, 12, 24 lần/s) cho 525 trial. \textbf{Tập chính} là 315 trial ở 6, 12 và 24 lần/s; tốc độ 1 và 3 lần/s đo kẻ tấn công chậm. Thứ tự trial được xáo bằng seed cố định, và tấn công chỉ bắt đầu sau pha chọn 90 phút.
+Mọi thao tác chỉ ảnh hưởng chính process, hoặc chắc chắn thất bại trước khi đổi trạng thái của host. 21 workload × 5 kịch bản × 5 tốc độ (1, 3, 6, 12, 24 lần/s) cho 525 trial. \textbf{Tập chính} là 315 trial ở 6, 12 và 24 lần/s; tốc độ 1 và 3 lần/s đo kẻ tấn công chậm. Thứ tự trial được xáo bằng seed cố định, và tấn công chỉ bắt đầu sau pha chọn 90 phút. Các lượt sau thêm bước và tốc độ (mục~\ref{sec:token-live-v6} và~\ref{sec:token-live-final}).
 
 \textbf{Chỉ số trên cụm:}
 
@@ -77,79 +77,79 @@ Khoảng tin cậy 95\% dùng Wilson cho tỉ lệ và bootstrap theo workload (
 
 \section{RQ1: LID-DS 2021 và CB-DS}\label{sec:lidds}
 
-Protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} đặt trước ba mức, đều bằng kết quả tốt nhất đã đạt trước đó trên cùng dữ liệu: trên development phát hiện ít nhất 530/544 với tối đa 12 báo nhầm và p95 $\leq$ 1,52 s; trên CB-DS 891/891 với tối đa 3 báo nhầm; trên official ít nhất 1.238/1.271 với tối đa 36 báo nhầm và p95 $\leq$ 1,5 s. Chỉ một cấu hình được chấm trên official.
+Protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} đặt trước ba mức, đều bằng kết quả tốt nhất đã đạt trước đó trên cùng dữ liệu: trên development phát hiện ít nhất 530/544 với tối đa 12 báo nhầm và p95 $\leq$ 1,52 s; trên CB-DS 891/891 với tối đa 3 báo nhầm; trên official ít nhất 1.238/1.271 với tối đa 36 báo nhầm và p95 $\leq$ 1,5 s. Cấu hình v5 (trung bình 10 độ bất ngờ lớn nhất, bỏ 1\% cực đại, $\alpha' = 0{,}00018$) đạt cả ba mức. Hệ thống cuối t3 đổi ba tham số đó (3 giá trị, 0,5\%, $\alpha' = 0{,}0003$), được chọn ở amendment 1 của \texttt{lidds2019-\allowbreak{}development-\allowbreak{}v1} (mục~\ref{sec:lidds2019}); bảng dưới đặt hai cấu hình cạnh nhau.
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Development:} 530/544 (97,43\%), 6/3.403 bản ghi normal bị báo nhầm (0,18\%), p95 1,52 s.
+  \textbf{Development:} v5 530/544 (97,43\%), 6/3.403 bản ghi normal bị báo nhầm (0,18\%), p95 1,52 s; t3 529/544 với 5 báo nhầm, p95 1,57 s.
 \item
-  \textbf{CB-DS:} 891/891, 3/1.410 bản ghi normal bị báo nhầm (0,21\%). Cả 9 kịch bản thoát container đều dùng thao tác mà container không làm khi bình thường.
+  \textbf{CB-DS:} 891/891, 3/1.410 bản ghi normal bị báo nhầm (0,21\%) ở cả hai cấu hình. Cả 9 kịch bản thoát container đều dùng thao tác mà container không làm khi bình thường.
 \end{itemize}
 
-\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.36\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.44\linewidth-2\tabcolsep\relax}@{}}
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.28\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.28\linewidth-2\tabcolsep\relax}@{}}
 \caption{Mô hình token trên LID-DS 2021 official (1.271 bản ghi tấn công, 7.938 bản ghi normal).}\label{tab:lidds-ml}\\
 \toprule\noalign{}
-Chỉ số & Kỳ vọng & Kết quả {[}CI 95\%{]} \\
+Chỉ số & Kỳ vọng & v5 {[}CI 95\%{]} & t3 (hệ thống cuối) {[}CI 95\%{]} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Recall & ≥ 95\% & 97,40\% (1.238/1.271) {[}96,38; 98,15{]} \\
-Bản ghi normal bị báo nhầm & báo kèm & 0,33\% (26/7.938) {[}0,22; 0,48{]} \\
-Precision theo tỉ lệ của dataset & ≥ 95\% & 97,9\% \\
-Độ trễ p50 / p95 & p95 ≤ 3 s & 0,39 s / 1,47 s \\
-Phát hiện trong 3 s & báo kèm & 1.234/1.271 (97,1\%) \\
+Recall & ≥ 95\% & 97,40\% (1.238/1.271) {[}96,38; 98,15{]} & 97,25\% (1.236/1.271) {[}96,19; 98,01{]} \\
+Bản ghi normal bị báo nhầm & báo kèm & 0,33\% (26/7.938) {[}0,22; 0,48{]} & 0,19\% (15/7.938) {[}0,11; 0,31{]} \\
+Precision theo tỉ lệ của dataset & ≥ 95\% & 97,9\% & 98,8\% \\
+Độ trễ p50 / p95 & p95 ≤ 3 s & 0,39 s / 1,47 s & 0,40 s / 1,54 s \\
+Phát hiện trong 3 s & báo kèm & 1.234/1.271 (97,1\%) & 1.233/1.271 (97,0\%) \\
 \end{longtable}
 
 \begingroup\small
-\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.4\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.15\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.13\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.17\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.15\linewidth-2\tabcolsep\relax}@{}}
-\caption{Mô hình token trên LID-DS 2021 official theo kịch bản.}\label{tab:lidds-ml-scenarios}\\
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.36\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}@{}}
+\caption{Mô hình token trên LID-DS 2021 official theo kịch bản: phát hiện và bản ghi normal bị báo nhầm, v5 và t3.}\label{tab:lidds-ml-scenarios}\\
 \toprule\noalign{}
-Kịch bản & Phát hiện & Recall & Báo nhầm & Tỉ lệ báo nhầm \\
+Kịch bản & Phát hiện v5 & Phát hiện t3 & Báo nhầm v5 & Báo nhầm t3 \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\texttt{Bruteforce\_CWE-\allowbreak{}307} & 97/97 & 100,0\% & 0/538 & 0,00\% \\
-\texttt{CVE-\allowbreak{}2012-\allowbreak{}2122} & 84/84 & 100,0\% & 0/533 & 0,00\% \\
-\texttt{CVE-\allowbreak{}2014-\allowbreak{}0160} & 84/84 & 100,0\% & 1/531 & 0,19\% \\
-\texttt{CVE-\allowbreak{}2017-\allowbreak{}12635\_6} & 83/83 & 100,0\% & 2/527 & 0,38\% \\
-\texttt{CVE-\allowbreak{}2017-\allowbreak{}7529} & 83/83 & 100,0\% & 0/510 & 0,00\% \\
-\texttt{CVE-\allowbreak{}2018-\allowbreak{}3760} & 85/85 & 100,0\% & 2/516 & 0,39\% \\
-\texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} & 84/84 & 100,0\% & 8/532 & 1,50\% \\
-\texttt{CVE-\allowbreak{}2020-\allowbreak{}13942} & 83/83 & 100,0\% & 0/529 & 0,00\% \\
-\texttt{CVE-\allowbreak{}2020-\allowbreak{}23839} & 84/84 & 100,0\% & 3/532 & 0,56\% \\
-\texttt{CVE-\allowbreak{}2020-\allowbreak{}9484} & 84/84 & 100,0\% & 0/531 & 0,00\% \\
-\texttt{CWE-\allowbreak{}89-\allowbreak{}SQL-\allowbreak{}injection} & 84/84 & 100,0\% & 2/532 & 0,38\% \\
-\texttt{EPS\_CWE-\allowbreak{}434} & 85/85 & 100,0\% & 1/531 & 0,19\% \\
-\texttt{Juice-\allowbreak{}Shop} & 52/85 & 61,2\% & 3/532 & 0,56\% \\
-\texttt{PHP\_CWE-\allowbreak{}434} & 83/83 & 100,0\% & 2/532 & 0,38\% \\
-\texttt{ZipSlip} & 83/83 & 100,0\% & 2/532 & 0,38\% \\
+\texttt{Bruteforce\_CWE-\allowbreak{}307} & 97/97 & 97/97 & 0/538 & 0/538 \\
+\texttt{CVE-\allowbreak{}2012-\allowbreak{}2122} & 84/84 & 84/84 & 0/533 & 1/533 \\
+\texttt{CVE-\allowbreak{}2014-\allowbreak{}0160} & 84/84 & 84/84 & 1/531 & 0/531 \\
+\texttt{CVE-\allowbreak{}2017-\allowbreak{}12635\_6} & 83/83 & 83/83 & 2/527 & 1/527 \\
+\texttt{CVE-\allowbreak{}2017-\allowbreak{}7529} & 83/83 & 83/83 & 0/510 & 0/510 \\
+\texttt{CVE-\allowbreak{}2018-\allowbreak{}3760} & 85/85 & 85/85 & 2/516 & 0/516 \\
+\texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} & 84/84 & 84/84 & 8/532 & 7/532 \\
+\texttt{CVE-\allowbreak{}2020-\allowbreak{}13942} & 83/83 & 83/83 & 0/529 & 0/529 \\
+\texttt{CVE-\allowbreak{}2020-\allowbreak{}23839} & 84/84 & 84/84 & 3/532 & 4/532 \\
+\texttt{CVE-\allowbreak{}2020-\allowbreak{}9484} & 84/84 & 84/84 & 0/531 & 0/531 \\
+\texttt{CWE-\allowbreak{}89-\allowbreak{}SQL-\allowbreak{}injection} & 84/84 & 84/84 & 2/532 & 1/532 \\
+\texttt{EPS\_CWE-\allowbreak{}434} & 85/85 & 85/85 & 1/531 & 0/531 \\
+\texttt{Juice-\allowbreak{}Shop} & 52/85 & 52/85 & 3/532 & 1/532 \\
+\texttt{PHP\_CWE-\allowbreak{}434} & 83/83 & 83/83 & 2/532 & 0/532 \\
+\texttt{ZipSlip} & 83/83 & 81/83 & 2/532 & 0/532 \\
 \end{longtable}
 \endgroup
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Ba tiêu chí đạt} (recall $\geq$ 95\%, precision $\geq$ 95\%, p95 $\leq$ 3 s), và cả ba mức đăng ký trước đều đạt. Cận dưới CI của recall là 96,38\%, nên khẳng định được recall $\geq$ 95\%.
+  \textbf{Ba tiêu chí đạt} (recall $\geq$ 95\%, precision $\geq$ 95\%, p95 $\leq$ 3 s) ở cả hai cấu hình, và cả ba mức đăng ký trước đều đạt. Cận dưới CI của recall là 96,38\% (v5) và 96,19\% (t3), nên khẳng định được recall $\geq$ 95\%. t3 mất 2 bản ghi ZipSlip và bớt 11 bản ghi normal bị báo nhầm.
 \item
-  \textbf{Mọi bản ghi bị lọt đều thuộc Juice-Shop:} 14/15 kịch bản đạt 100\%. 28 trong 33 bản ghi Juice-Shop bị lọt không có dấu vết ở mọi tín hiệu đã thử trên dataset (đường dẫn mới, mã lỗi mới, cỡ đọc ghi, chuỗi chưa thấy), nên trần thông tin của các tín hiệu đó là 1.243/1.271 (97,8\%). Mục~\ref{sec:limits-novelty} bàn về loại exploit này.
+  \textbf{Gần như mọi bản ghi bị lọt đều thuộc Juice-Shop:} với v5, 14/15 kịch bản đạt 100\%; t3 còn lọt thêm 2 bản ghi ZipSlip. 28 trong 33 bản ghi Juice-Shop bị lọt không có dấu vết ở mọi tín hiệu đã thử trên dataset (đường dẫn mới, mã lỗi mới, cỡ đọc ghi, chuỗi chưa thấy), nên trần thông tin của các tín hiệu đó là 1.243/1.271 (97,8\%). Mục~\ref{sec:limits-novelty} bàn về loại exploit này.
 \item
-  \textbf{Báo nhầm} tập trung ở \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} (8/532); mọi kịch bản khác dưới 0,6\%.
+  \textbf{Báo nhầm} tập trung ở \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} (8/532 với v5, 7/532 với t3); mọi kịch bản khác dưới 0,8\%.
 \item
-  \textbf{Tỉ lệ nền:} precision phụ thuộc mạnh vào tỉ lệ tấn công. Với đúng recall và tỉ lệ báo nhầm trên, precision còn 75,0\% khi bản ghi tấn công chiếm 1\% và 22,9\% khi chiếm 0,1\% \citep{arp2022}.
+  \textbf{Tỉ lệ nền:} precision phụ thuộc mạnh vào tỉ lệ tấn công. Với đúng recall và tỉ lệ báo nhầm của t3, precision còn 83,9\% khi bản ghi tấn công chiếm 1\% và 34,0\% khi chiếm 0,1\% (v5: 75,0\% và 22,9\%) \citep{arp2022}.
 \item
-  \textbf{Đặt cạnh số đã công bố:} kết quả duy nhất trên đủ 15 kịch bản mà tác giả dataset công bố là STIDE (chuỗi 7 syscall, cửa sổ 100 syscall, ngưỡng là điểm cao nhất trên validation), với tỉ lệ phát hiện trung bình theo kịch bản 0,59 \citep{grimmer2022}. Tính cùng cách, mô hình token đạt 0,97. Báo nhầm của bài đó được đếm theo số cụm báo động chứ không theo bản ghi, nên chỉ so được tỉ lệ phát hiện.
+  \textbf{Đặt cạnh số đã công bố:} kết quả duy nhất trên đủ 15 kịch bản mà tác giả dataset công bố là STIDE (chuỗi 7 syscall, cửa sổ 100 syscall, ngưỡng là điểm cao nhất trên validation), với tỉ lệ phát hiện trung bình theo kịch bản 0,59 \citep{grimmer2022}. Tính cùng cách, mô hình token đạt 0,97 ở cả hai cấu hình. Báo nhầm của bài đó được đếm theo số cụm báo động chứ không theo bản ghi, nên chỉ so được tỉ lệ phát hiện.
 \item
-  \textbf{Giới hạn:} tập official không hoàn toàn chưa nhìn, vì bảng chữ token được thiết kế sau khi đã xem kết quả của các tín hiệu khác trên cùng bản ghi. Mỗi kịch bản chỉ có khoảng 60 bản ghi validation, nên chỉ kiểm chứng được mức báo nhầm gộp, không theo từng kịch bản. Bằng chứng độc lập là LID-DS 2019 (mục~\ref{sec:lidds2019}), nơi mô hình không đạt.
+  \textbf{Giới hạn:} tập official không hoàn toàn chưa nhìn, vì bảng chữ token được thiết kế sau khi đã xem kết quả của các tín hiệu khác trên cùng bản ghi, và kết quả official của v5 đã biết khi chọn t3. Mỗi kịch bản chỉ có khoảng 60 bản ghi validation, nên chỉ kiểm chứng được mức báo nhầm gộp, không theo từng kịch bản. Bằng chứng từ một bộ dữ liệu khác là LID-DS 2019 (mục~\ref{sec:lidds2019}).
 \end{itemize}
 
-\subsection{LID-DS 2019: chấm một lần}\label{sec:lidds2019}
+\subsection{LID-DS 2019 và cấu hình t3}\label{sec:lidds2019}
 
 LID-DS 2019 có 10 kịch bản, đều thuộc nhóm lỗ hổng của LID-DS 2021, nhưng bản ghi, hệ điều hành, phiên bản sysdig và bộ sinh tải khác nhau, và chưa bản ghi 2019 nào được dùng cho bất kỳ lựa chọn nào. Protocol \texttt{lidds2019-\allowbreak{}confirmation-\allowbreak{}v2} (đăng ký 17/11, trước khi chuyển đổi hay chấm bản ghi nào) giữ nguyên mô hình \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} và mọi tham số. Mỗi kịch bản học từ 200 bản ghi training và 50 bản ghi validation theo thứ tự của \texttt{runs.csv}, và mọi bản ghi test đều là blind. Trước khi đọc dữ liệu 2019, driver phải tái lập đúng kết quả official 2021 qua chính đường code của nó, và nó tái lập đúng (1.238/1.271, 26/7.938, p95 1,47 s). Mức đăng ký C1 là recall $\geq$ 95\%, bản ghi normal bị báo nhầm $\leq$ 1\% và p95 $\leq$ 3 s. Code: \texttt{sentinel\_\allowbreak{}pulse/\allowbreak{}lidds/\allowbreak{}lidds2019.py}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds\_\allowbreak{}ml\_\allowbreak{}token\_\allowbreak{}crossfit.py}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds2019\_\allowbreak{}token.py}.
 
-\textbf{Quy tắc đánh giá: độ phân giải của nhãn.} Mọi thời điểm exploit của LID-DS 2019 là số nguyên giây, trong khi cửa sổ báo dài 0,5 s và được định vị tới micro giây; một cửa sổ báo kết thúc trong 1 s trước mốc nhãn vì vậy có thể đã nằm sau lúc exploit thật bắt đầu. Kết quả dưới đây tính một bản ghi tấn công là phát hiện khi có cửa sổ báo kết thúc sau (mốc nhãn $-$ 1 s), và độ trễ tính từ mốc đó; bản ghi normal không đổi. Quy tắc này được đặt sau lượt chấm (amendment 1 của protocol), trên chính các cảnh báo của lượt chấm duy nhất. Áp cùng quy tắc lên LID-DS 2021 official, nơi nhãn chính xác, vẫn cho 1.238/1.271: quy tắc không thêm phát hiện nào khi nhãn chính xác. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds2019\_\allowbreak{}token.py} (lệnh \texttt{tolerance}).
+\textbf{Quy tắc đánh giá: độ phân giải của nhãn.} Mọi thời điểm exploit của LID-DS 2019 là số nguyên giây, trong khi cửa sổ báo dài 0,5 s và được định vị tới micro giây; một cửa sổ báo kết thúc trong 1 s trước mốc nhãn vì vậy có thể đã nằm sau lúc exploit thật bắt đầu. Kết quả dưới đây tính một bản ghi tấn công là phát hiện khi có cửa sổ báo kết thúc sau (mốc nhãn $-$ 1 s), và độ trễ tính từ mốc đó; bản ghi normal không đổi. Quy tắc này được đặt sau lượt chấm (amendment 1 của protocol), trên chính các cảnh báo của lượt chấm đăng ký. Áp cùng quy tắc lên LID-DS 2021 official, nơi nhãn chính xác, vẫn cho 1.238/1.271: quy tắc không thêm phát hiện nào khi nhãn chính xác. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds2019\_\allowbreak{}token.py} (lệnh \texttt{tolerance}).
 
 \begin{itemize}
 \tightlist
@@ -160,7 +160,9 @@ LID-DS 2019 có 10 kịch bản, đều thuộc nhóm lỗ hổng của LID-DS 2
 \item
   \textbf{Độ trễ:} p95 cao đến từ bốn kịch bản (Bruteforce 14,37 s, CVE-2014-0160 11,19 s, PHP 5,56 s, SQL injection 4,67 s); sáu kịch bản còn lại có p95 từ 1,06 tới 2,39 s.
 \item
-  \textbf{Thử cải thiện trên phần development (protocol \texttt{lidds2019-\allowbreak{}development-\allowbreak{}v1}, đăng ký sau lượt chấm):} 30\% bản ghi test 2019 (321 tấn công, 2.311 normal, chia theo sha256) làm development; 23 ứng viên (độ dài gram, top-k, $\alpha'$, trim, thêm chi tiết token cho từng syscall), mỗi ứng viên phải giữ LID-DS 2021 development ($\geq$ 530/544, $\leq$ 6 báo nhầm) và CB-DS. Không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall, nên mô hình giữ \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5} và theo protocol không chấm thêm gì. Các ứng viên tăng recall (ví dụ top 5: 310/321 so với 295/321, dung sai 1 s) đều chỉ tăng ở CVE-2014-0160 và đều hỏng mức LID-DS 2021; không ứng viên nào đưa p95 về gần 3 s (9,4--11,1 s), vì độ trễ của Bruteforce và CVE-2014-0160 không phụ thuộc các tham số này. Mở rộng thêm 90 tổ hợp (độ dài gram, top-k, trim, $\alpha'$, mỗi tổ hợp chấm lại cả LID-DS 2021 development) và nhánh tần suất cũng không đổi kết luận: chỉ cấu hình gốc qua điều kiện, không tổ hợp nào phát hiện quá 530 trên LID-DS 2021 development trong 6 báo nhầm, và nhánh tần suất không thêm phát hiện nào ở 2019. \textbf{Cận dưới của độ trễ:} cửa sổ đầu tiên sau mốc exploit có gram hay token chưa từng thấy đến ở p95 9,39 s trên các bản ghi tấn công development (Bruteforce 13,11 s, CVE-2014-0160 10,69 s), nên không bộ phát hiện nào dựa trên chuỗi chưa thấy đạt p95 $\leq$ 3 s trên dữ liệu này.
+  \textbf{Thử cải thiện trên phần development (protocol \texttt{lidds2019-\allowbreak{}development-\allowbreak{}v1}, đăng ký sau lượt chấm):} 30\% bản ghi test 2019 (321 tấn công, 2.311 normal, chia theo sha256) làm development; 23 ứng viên (độ dài gram, top-k, $\alpha'$, trim, thêm chi tiết token cho từng syscall), mỗi ứng viên phải giữ LID-DS 2021 development ($\geq$ 530/544, $\leq$ 6 báo nhầm) và CB-DS. Không ứng viên nào vừa giữ LID-DS 2021 vừa tăng recall, nên theo luật ban đầu mô hình giữ \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5}. Các ứng viên tăng recall (ví dụ top 5: 310/321 so với 295/321, dung sai 1 s) đều chỉ tăng ở CVE-2014-0160 và đều hỏng mức LID-DS 2021; không ứng viên nào đưa p95 về gần 3 s (9,4--11,1 s), vì độ trễ của Bruteforce và CVE-2014-0160 không phụ thuộc các tham số này. Mở rộng thêm 90 tổ hợp (độ dài gram, top-k, trim, $\alpha'$, mỗi tổ hợp chấm lại cả LID-DS 2021 development) và nhánh tần suất cũng không đổi kết luận: chỉ cấu hình gốc qua điều kiện, không tổ hợp nào phát hiện quá 530 trên LID-DS 2021 development trong 6 báo nhầm, và nhánh tần suất không thêm phát hiện nào ở 2019. \textbf{Cận dưới của độ trễ:} cửa sổ đầu tiên sau mốc exploit có gram hay token chưa từng thấy đến ở p95 9,39 s trên các bản ghi tấn công development (Bruteforce 13,11 s, CVE-2014-0160 10,69 s), nên không bộ phát hiện nào dựa trên chuỗi chưa thấy đạt p95 $\leq$ 3 s trên dữ liệu này.
+\item
+  \textbf{Amendment 1: cấu hình t3} (đăng ký 18/11 21:08, trước các lần chấm dưới; chủ đồ án nới luật LID-DS 2021 development thêm một phát hiện, khi đã biết kết quả development). Trong 90 tổ hợp, tổ hợp gần nhất với luật cũ là gram 4, trung bình 3 giá trị lớn nhất, bỏ 0,5\% cực đại, $\alpha' = 0{,}0003$: LID-DS 2021 development 529/544 với 5 báo nhầm, p95 1,57 s; 2019 development 310/321 với 9 báo nhầm. Đây là t3, hệ thống cuối của đồ án. Trên LID-DS 2021 official nó đạt 1.236/1.271 với 15 báo nhầm (Bảng~\ref{tab:lidds-ml}). Trên 70\% bản ghi test 2019 còn lại (841 tấn công, 5.395 normal; các bản ghi này đã được v5 chấm ở lượt đăng ký, và trước khi chấm t3, driver tái lập đúng các quyết định đó của v5): t3 phát hiện \textbf{817/841 (97,15\%, CI {[}95,79; 98,07{]})} với dung sai 1 s, 25/5.395 bản ghi normal bị báo nhầm (0,46\%), p95 10,95 s; v5 trên cùng bản ghi là 761/841 (90,49\%), 28 báo nhầm, p95 10,57 s. Phần tăng nằm hết ở CVE-2014-0160 (17 lên 73/77); các kịch bản khác không đổi số phát hiện. Theo mức C1 với dung sai 1 s: recall và báo nhầm đạt, p95 không đạt (cận dưới độ trễ ở trên). Tính theo mốc exploit đã đăng ký (không dung sai), t3 phát hiện 582/841. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}lidds2019\_\allowbreak{}dev.py}, \texttt{scripts/\allowbreak{}lidds2019\_\allowbreak{}amendment1\_\allowbreak{}run.\allowbreak{}sh}.
 \item
   \textbf{Thăm dò (không đăng ký trước):} token của bản ghi 2019 vẫn mang chi tiết; tỉ lệ token nhóm cỡ và token mở file tương đương 2021. Riêng token mã lỗi hiếm hơn hẳn ở một số kịch bản (CVE-2017-7529: 0,1\% so với 8,2\%), gợi ý rằng trace 2019 ghi lỗi khác 2021.
 \end{itemize}
@@ -185,7 +187,30 @@ Kịch bản & Phát hiện & Báo nhầm & p95 \\
 \texttt{ZipSlip} & 98/98 & 2/715 & 2,24 s \\
 \end{longtable}
 
-Kết quả này giới hạn khẳng định của RQ1: mô hình đạt các mức đăng ký trên LID-DS 2021 và CB-DS; trên bản ghi của một bộ dữ liệu khác, thu bằng công cụ và môi trường khác, nó vẫn phát hiện 90,88\% với báo nhầm thấp, nhưng không đạt mức đăng ký. Một mô hình học từ normal phụ thuộc vào đúng loại thông tin mà trace ghi lại, và độ trễ đo được phụ thuộc vào cách bộ dữ liệu đặt mốc tấn công.
+\begingroup\small
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}@{}}
+\caption{LID-DS 2019, 70\% bản ghi test ngoài development, dung sai nhãn 1 s: v5 và t3.}\label{tab:lidds2019-t3}\\
+\toprule\noalign{}
+Kịch bản & Phát hiện v5 & Phát hiện t3 & Báo nhầm v5 & Báo nhầm t3 & p95 t3 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{Bruteforce\_\allowbreak{}CWE-307} & 68/73 & 68/73 & 4/492 & 5/492 & 14,44 s \\
+\texttt{CVE-2012-2122} & 111/114 & 111/114 & 1/683 & 1/683 & 1,12 s \\
+\texttt{CVE-2014-0160} & 17/77 & 73/77 & 4/515 & 4/515 & 11,78 s \\
+\texttt{CVE-2017-7529} & 114/123 & 114/123 & 0/514 & 1/514 & 1,17 s \\
+\texttt{CVE-2018-3760} & 88/91 & 88/91 & 0/576 & 0/576 & 1,07 s \\
+\texttt{CVE-2019-5418} & 69/69 & 69/69 & 0/516 & 0/516 & 1,25 s \\
+\texttt{EPS\_\allowbreak{}CWE-434} & 65/65 & 65/65 & 6/517 & 6/517 & 2,39 s \\
+\texttt{PHP\_\allowbreak{}CWE-434} & 80/80 & 80/80 & 0/545 & 0/545 & 5,64 s \\
+\texttt{SQL\_\allowbreak{}Injection\_\allowbreak{}CWE-89} & 72/72 & 72/72 & 12/526 & 7/526 & 4,84 s \\
+\texttt{ZipSlip} & 77/77 & 77/77 & 1/511 & 1/511 & 2,27 s \\
+\end{longtable}
+\endgroup
+
+
+Kết quả này giới hạn khẳng định của RQ1: mô hình đạt các mức đăng ký trên LID-DS 2021 và CB-DS; trên bản ghi của một bộ dữ liệu khác, thu bằng công cụ và môi trường khác, v5 phát hiện 90,88\% với báo nhầm thấp nhưng không đạt mức đăng ký, và t3, chọn sau trên phần development của chính bộ dữ liệu đó, đạt recall 97,15\% trên phần còn lại nhưng vẫn không đạt mức độ trễ. Một mô hình học từ normal phụ thuộc vào đúng loại thông tin mà trace ghi lại, và độ trễ đo được phụ thuộc vào cách bộ dữ liệu đặt mốc tấn công.
 
 \section{RQ2: lựa chọn thiết kế nào mang kết quả}\label{sec:token-ablation}
 
@@ -249,7 +274,7 @@ Mỗi tham số được đổi riêng, các tham số khác giữ nguyên (Bả
 
 \begingroup\small
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.26\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.74\linewidth-2\tabcolsep\relax}@{}}
-\caption{Đổi từng tham số, development: phát hiện (trên 544) / báo nhầm (trên 3.403). Giá trị đang dùng in đậm.}\label{tab:params-grid}\\
+\caption{Đổi từng tham số, development: phát hiện (trên 544) / báo nhầm (trên 3.403). Giá trị của v5 in đậm.}\label{tab:params-grid}\\
 \toprule\noalign{}
 Tham số & Giá trị: phát hiện / báo nhầm \\
 \midrule\noalign{}
@@ -264,7 +289,7 @@ Phần cực đại bỏ đi & 0: 523 / 4 \quad 0,5\%: 524 / 6 \quad \textbf{1\%
 \end{longtable}
 \endgroup
 
-Bộ đang dùng nằm ở điểm tốt nhất của từng trục, đúng như mong đợi vì nó được chọn trên chính dữ liệu này. Điều đáng biết là quanh nó kết quả phẳng: gram dài 3, lấy trung bình 3 tới 5 giá trị, 3 tới 10 fold, $\alpha'$ từ 0,0005 tới 0,003 đều giữ 528--530 phát hiện. Kết quả chỉ hỏng ở các cực: lấy 1 giá trị (123/544, tức một sự kiện lạ đơn lẻ không đủ để phân biệt), lấy 20, gram dài 2 hoặc 6. Bảng này không dùng để chọn lại.
+Bộ v5 nằm ở điểm tốt nhất của từng trục, đúng như mong đợi vì nó được chọn trên chính dữ liệu này. Điều đáng biết là quanh nó kết quả phẳng: gram dài 3, lấy trung bình 3 tới 5 giá trị, 3 tới 10 fold, $\alpha'$ từ 0,0005 tới 0,003 đều giữ 528--530 phát hiện. Kết quả chỉ hỏng ở các cực: lấy 1 giá trị (123/544, tức một sự kiện lạ đơn lẻ không đủ để phân biệt), lấy 20, gram dài 2 hoặc 6. Bảng này không dùng để chọn lại. Hệ thống cuối t3 đổi cùng lúc ba trục (3 giá trị, bỏ 0,5\%, $\alpha' = 0{,}0003$) và nằm trong vùng phẳng đó: 529/544 với 5 báo nhầm. Nó được chọn vì bắt được Heartbleed của LID-DS 2019 (mục~\ref{sec:lidds2019}), không phải vì tốt hơn trên LID-DS 2021.
 
 \subsection{Ngưỡng Gumbel có đúng không}
 
@@ -272,9 +297,9 @@ Bộ đang dùng nằm ở điểm tốt nhất của từng trục, đúng như
 
 \textbf{Như một quy tắc đặt ngưỡng thì nó vẫn tốt nhất trong các quy tắc đã thử.} Ngưỡng Gumbel theo moment chính là
 \[
-\tau = \bar M + k(\alpha')\, \sigma_M, \qquad k(0{,}00018) = 6{,}27,
+\tau = \bar M + k(\alpha')\, \sigma_M, \qquad k(0{,}00018) = 6{,}27, \quad k(0{,}0003) = 5{,}87,
 \]
-tức ``trung bình cộng 6,27 độ lệch chuẩn của các cực đại đã bỏ 1\%''; $\alpha'$ chỉ là cách đánh số cho $k$. So với các quy tắc không dùng nhãn khác ở cùng ngân sách báo nhầm (Bảng~\ref{tab:threshold-rules}), quy tắc đang dùng không thua ở ngân sách nào.
+tức ``trung bình cộng 6,27 độ lệch chuẩn của các cực đại đã bỏ 1\%'' với v5 (5,87 độ lệch chuẩn của các cực đại đã bỏ 0,5\% với t3); $\alpha'$ chỉ là cách đánh số cho $k$. So với các quy tắc không dùng nhãn khác ở cùng ngân sách báo nhầm (Bảng~\ref{tab:threshold-rules}), quy tắc đang dùng không thua ở ngân sách nào.
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.52\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}@{}}
 \caption{Phát hiện nhiều nhất của mỗi quy tắc ngưỡng trong ngân sách báo nhầm (số bản ghi normal), development.}\label{tab:threshold-rules}\\
@@ -355,7 +380,7 @@ Kết quả này đúng như kỳ vọng: benchmark tĩnh không có tấn công
 
 \section{RQ3: trên cụm thật}\label{sec:token-live}
 
-Mô hình token đã chạy hai lượt live blind 24 giờ trên cả 21 workload, mỗi lượt một campaign 525 trial. Ngưỡng fit trước khi lượt chạy bắt đầu và không đổi trong lượt.
+Mô hình token đã chạy bốn lượt live blind trên cả 21 workload: hai lượt 24 giờ với cấu hình v5 (bên dưới), lượt v6 sau khi đổi cụm (mục~\ref{sec:token-live-v6}) và lượt cuối 45 giờ với hệ thống cuối t3 (mục~\ref{sec:token-live-final}). Ngưỡng fit trước khi lượt chạy bắt đầu và không đổi trong lượt.
 
 \begin{itemize}
 \tightlist
@@ -430,6 +455,61 @@ Tấn công pha loãng PAD 30 / PAD 300 bị bắt & ≥ 95\% & \multicolumn{2}{
   \textbf{Issue của lượt:} chỉ có khoảng trống nhịp (9, 7 và 1 lần trên ba worker); map 4-gram không rơi gram nào.
 \end{itemize}
 
+\subsection{Lượt cuối: hệ thống t3, tấn công chậm, bật--tắt và event-generator}\label{sec:token-live-final}
+
+Lượt \texttt{pulse-\allowbreak{}live-\allowbreak{}final-\allowbreak{}1119} (19--21/11, 45 giờ, protocol \texttt{pulse-\allowbreak{}live-\allowbreak{}final-\allowbreak{}v1}, đăng ký trước khi lượt bắt đầu) chạy hệ thống cuối: mô hình t3 một mình trên đường cảnh báo, fit \texttt{pulse-\allowbreak{}live-\allowbreak{}v7-\allowbreak{}fit-\allowbreak{}1118} từ 12 giờ normal của lượt thu v6 cộng normal của lượt v5 ngoài các trial; nhánh đếm chạy shadow. So với lượt v6, campaign thêm:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{tốc độ chậm} 0,1 và 0,5 lần/s cạnh 1--24 lần/s;
+\item
+  \textbf{bật--tắt:} tấn công ở 12 lần/s chạy và nghỉ xen kẽ theo chu kỳ 10 s;
+\item
+  \textbf{pha loãng} 300 cặp syscall quen sau mỗi thao tác (bỏ mức 30 của lượt v6);
+\item
+  một bước \textbf{event-generator}: một hành động của \texttt{event-\allowbreak{}generator}, bộ mô phỏng hành vi mà dự án Falco công bố (đọc file nhạy cảm, ghi dưới \texttt{/etc}, xoá dữ liệu hàng loạt\ldots), chạy trong container qua \texttt{kubectl exec}; hành động bị bỏ qua vì image thiếu công cụ thì không tính.
+\end{itemize}
+
+Mỗi trial vẫn có control idle 17 s, một lệnh quản trị của bộ v6, binary vô hại, bước tấn công fixture và bước tấn công bằng tool của image, theo thứ tự xáo bằng seed. Pha chọn 90 phút ở đầu lượt và khoảng 9,5 giờ normal không có campaign ở cuối lượt. Code: \texttt{sentinel\_\allowbreak{}pulse/\allowbreak{}attack/\allowbreak{}preview\_\allowbreak{}campaign.py}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}pulse\_\allowbreak{}live\_\allowbreak{}v4.py}; biên nhận \texttt{validation-\allowbreak{}evidence/\allowbreak{}results-\allowbreak{}20261121/\allowbreak{}pulse-\allowbreak{}live-\allowbreak{}final-\allowbreak{}1119/}.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.38\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.26\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.22\linewidth-2\tabcolsep\relax}@{}}
+\caption{Lượt cuối, mô hình t3: tập chính (6, 12, 24 lần/s) và mọi tốc độ (0,1--24 lần/s); trial pha loãng và bật--tắt báo riêng.}\label{tab:token-live-final}\\
+\toprule\noalign{}
+Chỉ số & Kỳ vọng & Tập chính {[}CI 95\%{]} & Mọi tốc độ \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Recall & ≥ 95\% & 296/296 {[}98,7; 100,0{]} & 694/694 \\
+Precision & ≥ 95\% & 100\% {[}98,7; 100,0{]} & 100\% \\
+Control dương & ≤ 5\% & 0/296 {[}0,0; 1,3{]} & 0/694 \\
+p95 kernel → cuối cửa sổ báo & ≤ 3 s & 0,46 s (p50 0,26 s) & 0,46 s \\
+Tốc độ 0,5 / 0,1 lần/s & ≥ 95\% mỗi mức & \multicolumn{2}{l}{100/100 / 99/99} \\
+Bật--tắt 10 s & ≥ 95\% & \multicolumn{2}{l}{96/96 (control 0/96, p95 0,40 s)} \\
+Pha loãng PAD 300 & ≥ 95\% & \multicolumn{2}{l}{95/95 (p95 0,45 s)} \\
+Binary vô hại bị gắn cờ & báo kèm & 288/288 & 672/672 \\
+Lệnh quản trị bị gắn cờ & báo kèm & 254/260 & 585/606 (96,5\%) \\
+Tấn công bằng tool của image bị bắt & báo kèm & 286/286 & 666/666 \\
+Hành động event-generator bị bắt & báo kèm & 238/241 & 549/556 (98,7\%) \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Cả bốn giả thuyết đăng ký đều đạt:} H0 (bốn kỳ vọng trên tập chính), H3 (PAD 300), H7 (hai tốc độ chậm) và H8 (bật--tắt). Theo từng tốc độ, recall là 99/99 (0,1), 100/100 (0,5), 99/99 (1), 100/100 (3), 101/101 (6), 99/99 (12) và 96/96 (24); theo từng kịch bản fixture, 100\% ở cả năm.
+\item
+  \textbf{Event-generator:} 13 hành động đã chạy, tỉ lệ bắt từ 0,949 (\texttt{Remove\allowbreak{}Bulk\allowbreak{}Data\allowbreak{}From\allowbreak{}Disk}, 37/39) tới 1,0. Các hành động này không do đồ án viết và không được dùng để chọn gì, nhưng chúng cũng đi vào qua \texttt{kubectl exec}, nên chúng cũng mang dấu hiệu process mới như fixture.
+\item
+  \textbf{t3 so với nhánh đếm:} các nhánh đếm chạy shadow trên cùng cửa sổ chỉ bắt 127/296 (C, p95 3,86 s), 25/296 (cây) và 110/296 (support).
+\item
+  \textbf{Gánh cảnh báo} trên 9,5 giờ normal cuối lượt là 223 đợt trên 616,8 replica-giờ: \textbf{0,36 đợt/replica-giờ} {[}0,28; 0,44{]}, cao hơn lượt v5 (0,17) và trên ngân sách tham chiếu 0,1. Mức tăng này đã thấy trước khi lượt chạy: trên điểm giữ ra của fit, 1.057/132.971 khối 60 s (0,795\%) vượt ngưỡng t3, so với 443/132.971 (0,333\%) với ngưỡng v5 trên cùng dữ liệu, tức t3 đổi gánh trên cụm lấy recall trên LID-DS 2019. Phân rã theo luồng và theo sự kiện Kubernetes ở mục~\ref{sec:limits-burden}.
+\item
+  \textbf{Sức khoẻ của lượt:} cả ba worker chạy đủ 162.000 s; map 4-gram không có lần ghi hỏng nào (\texttt{insert\_fail} 0 trên cả ba worker), nên không có cảnh báo map đầy; issue chỉ là khoảng trống nhịp (6, 3 và 0 lần). Worker chấm 20,96 triệu cửa sổ, p50 0,169 s, p95 0,232 s sau khi cửa sổ đóng. Chấm lại offline 149.709 cửa sổ trong các khoảng trial cho đúng điểm live (chênh lớn nhất 0).
+\item
+  \textbf{Cạnh lượt v6} (mô hình v5): tập chính 315/315 so với 296/296, control 1/315 so với 0/296, p95 0,45 s so với 0,46 s; chấm cửa sổ p95 0,23 s ở cả hai.
+\end{itemize}
+
 \section{RQ4: tách tấn công khỏi process vô hại mới}\label{sec:benign}
 
 Mô hình gắn cờ gần như mọi process mới đi vào container qua \texttt{kubectl exec}, dù vô hại:
@@ -437,7 +517,7 @@ Mô hình gắn cờ gần như mọi process mới đi vào container qua \text
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Binary vô hại:} 313/315 trial tập chính ở lượt 1109 và 314/314 ở lượt v5; mọi tốc độ 522/525 và 520/522.
+  \textbf{Binary vô hại:} 313/315 trial tập chính ở lượt 1109, 314/314 ở lượt v5 và 288/288 ở lượt cuối (t3); mọi tốc độ 522/525, 520/522 và 672/672.
 \item
   \textbf{Lệnh quản trị thật} (lượt v5; mỗi trial một lệnh trong \texttt{ls}, \texttt{cat}, \texttt{ps}, \texttt{env}, \texttt{id}, \texttt{sh}, \texttt{python}, \texttt{date}, \texttt{uname}, \texttt{df}; lệnh mà image không có thì không tính): 255/261 ở tập chính, 419/436 ở mọi tốc độ (96,1\%). Sáu lệnh bị gắn cờ ở mọi lần chạy; thấp nhất là \texttt{uname} 43/49, \texttt{python} 34/38 và \texttt{date} 45/50. Lớp này chưa từng được dùng để chọn bất cứ gì.
 \end{itemize}
@@ -490,29 +570,30 @@ Proxy có hai điểm mù: nó không phân biệt một gram của phiên exec 
 \end{itemize}
 Proof token cũ vẫn đạt (mỗi syscall đúng một token) trên cả ba worker. LID-DS 2021 không có runtime exec nên mọi sự kiện là native và kết quả của mục~\ref{sec:lidds} không đổi.
 
-\textbf{Luồng native trên cụm (lượt v6, giả thuyết H1, đăng ký trước).} Chấm riêng phần native của mỗi cửa sổ (cả cửa sổ trừ phần session mà probe báo) bằng đúng mô hình và ngưỡng của workload. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}native\_\allowbreak{}stream.py}.
+\textbf{Luồng native trên cụm (lượt v6, giả thuyết H1, đăng ký trước; lặp lại ở lượt cuối với t3).} Chấm riêng phần native của mỗi cửa sổ (cả cửa sổ trừ phần session mà probe báo) bằng đúng mô hình và ngưỡng của workload. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}native\_\allowbreak{}stream.py}.
 
-\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.4\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}@{}}
-\caption{Lượt v6, mọi tốc độ: khoảng bị gắn cờ khi chấm cả cửa sổ và khi chỉ chấm phần native.}\label{tab:native-stream}\\
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.28\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}@{}}
+\caption{Mọi tốc độ: khoảng bị gắn cờ khi chấm cả cửa sổ (đường cảnh báo) và khi chỉ chấm phần native; lượt v6 (v5) và lượt cuối (t3).}\label{tab:native-stream}\\
 \toprule\noalign{}
-Khoảng & Cả cửa sổ (đường cảnh báo) & Chỉ phần native \\
+Khoảng & v6: cả cửa sổ & v6: native & Lượt cuối: cả cửa sổ & Lượt cuối: native \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Control & 1/525 & 1/525 (0,19\%) \\
-Lệnh quản trị (bộ v6) & 460/475 & 1/475 (0,21\%) \\
-Binary vô hại & 525/525 & 1/525 (0,19\%) \\
-Tấn công (fixture) & 524/525 & 0/525 \\
-Tấn công bằng tool của image & 524/525 & 1/525 (0,19\%) \\
+Control & 1/525 & 1/525 & 0/694 & 0/694 \\
+Lệnh quản trị (bộ v6) & 460/475 & 1/475 & 585/606 & 0/606 \\
+Binary vô hại & 525/525 & 1/525 & 672/672 & 1/672 \\
+Tấn công (fixture) & 524/525 & 0/525 & 694/694 & 0/694 \\
+Tấn công bằng tool của image & 524/525 & 1/525 & 666/666 & 0/666 \\
+Event-generator & -- & -- & 549/556 & 0/556 \\
 \end{longtable}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{H1 đạt:} phần native gần như không gắn cờ lệnh quản trị và binary vô hại (mức đăng ký $\leq$ 5\%). Đây là cơ chế \emph{học được} đầu tiên của đồ án tách được process vô hại mới khỏi hành vi của chính workload.
+  \textbf{H1 đạt, và lặp lại với t3:} phần native gần như không gắn cờ lệnh quản trị và binary vô hại (mức đăng ký $\leq$ 5\%; lượt cuối 0/606 và 1/672). Đây là cơ chế \emph{học được} đầu tiên của đồ án tách được process vô hại mới khỏi hành vi của chính workload.
 \item
-  \textbf{Cái giá đi kèm:} tấn công của campaign vào qua \texttt{kubectl exec} nên thuộc luồng session, và trên phần native không tấn công nào bị bắt. Giới hạn này đã ghi trước trong protocol. Vì vậy chỉ chấm phần native không thay được đường cảnh báo; quyết định phải biết cửa sổ báo đến từ luồng nào, và luồng session cần một cách xử lý riêng (mục~\ref{sec:rule-layer} cho thấy luật R1 không phải cách đó).
+  \textbf{Cái giá đi kèm:} tấn công của campaign vào qua \texttt{kubectl exec} nên thuộc luồng session, và trên phần native không tấn công nào bị bắt (lượt cuối: fixture 0/694, tool của image 0/666, event-generator 0/556). Giới hạn này đã ghi trước trong protocol. Vì vậy chỉ chấm phần native không thay được đường cảnh báo; quyết định phải biết cửa sổ báo đến từ luồng nào, và luồng session cần một cách xử lý riêng (mục~\ref{sec:rule-layer} cho thấy luật R1 không phải cách đó).
 \item
   Luồng native chỉ được thử với normal và hoạt động vô hại trên cụm. Với tấn công chạy bên trong process của dịch vụ, bằng chứng là LID-DS 2021, nơi mọi sự kiện là native.
 \end{itemize}
@@ -566,7 +647,40 @@ Gộp mọi tốc độ: recall 521/522 ở cả hai; lệnh quản trị 422/43
   \textbf{Tấn công fixture không đổi:} 315/315 ở cả hai hệ, vì binary của nó không thuộc image.
 \end{itemize}
 
+\textbf{Lặp lại ở lượt cuối (t3).} Trên tập chính, R1 hạ lệnh quản trị từ 254/260 xuống 0/260 và tấn công bằng tool của image từ 286/286 xuống 0/286; tấn công fixture giữ 296/296. Kết luận không đổi khi đổi mô hình. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}rule\_\allowbreak{}e\_\allowbreak{}benefit.py}.
+
 Vì vậy R1, ở dạng hiện tại, \textbf{không được nhận} vào đường cảnh báo: lợi (xoá báo nhầm lệnh quản trị) và hại (bỏ sót mọi tấn công living-off-the-land) cùng đến từ một điều kiện, nên không có ngưỡng nào giữ được cái này mà bỏ cái kia. Thẻ dòng dõi (mục~\ref{sec:lineage}) cho biết lệnh nào vào qua phiên exec, nhưng chưa cho biết phiên đó có hại hay không.
+
+\subsection{Luật song song: danh mục ý đồ, có và không có luật}\label{sec:rule-intent}
+
+Theo thứ tự ``chốt mô hình trước, thêm luật sau'', protocol \texttt{rule-\allowbreak{}intent-\allowbreak{}v1} (đăng ký 21/11, trước khi tính bất kỳ cờ nào của luật; khi đó chỉ kết quả của mô hình một mình là đã biết) thử một luật chạy \emph{song song} với mô hình trên lượt cuối: một cửa sổ kích hoạt luật khi nó có một syscall thuộc danh mục ý đồ đóng băng từ 30/10 theo nguồn ngoài (seccomp mặc định của Docker, luật của Falco và Tracee): \texttt{ptrace}, \texttt{setns}, \texttt{unshare}, \texttt{mount}, \texttt{pivot\_\allowbreak{}root}, \texttt{capset}, \texttt{setuid}, \texttt{setgid}, \texttt{seccomp}, \texttt{execveat}, \texttt{chmod}, và \texttt{mprotect} ở pha ổn định (không có \texttt{execve} trong cửa sổ đó và cửa sổ trước). Luật chỉ thêm cảnh báo, không bỏ cảnh báo nào của mô hình. Mức nhận vào đường cảnh báo: thêm ít nhất một khoảng lotl hay event-generator bị bắt, control idle $\leq$ 5\%, và gánh $\leq$ 1,76 đợt/replica-giờ. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}rule\_\allowbreak{}intent.py}.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.34\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.22\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.22\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.22\linewidth-2\tabcolsep\relax}@{}}
+\caption{Lượt cuối, mọi tốc độ: mô hình một mình, luật một mình, mô hình hoặc luật.}\label{tab:rule-intent}\\
+\toprule\noalign{}
+Khoảng & Mô hình & Luật & Mô hình hoặc luật \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Tấn công (fixture) & 694/694 & 694/694 & 694/694 \\
+Tấn công bằng tool của image & 666/666 & 663/666 & 666/666 \\
+Event-generator & 549/556 & 555/556 & 555/556 \\
+Control idle & 0/694 & 461/694 & 461/694 \\
+Lệnh quản trị & 585/606 & 605/606 & 605/606 \\
+Binary vô hại & 672/672 & 670/672 & 672/672 \\
+Gánh (đợt/replica-giờ) & 0,36 & 6,40 & 6,44 \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Lợi rất nhỏ:} luật bắt thêm 6 trong 7 hành động event-generator mà mô hình bỏ sót (\texttt{Search\allowbreak{}Private\allowbreak{}Keys\allowbreak{}Or\allowbreak{}Passwords} 2, \texttt{Remove\allowbreak{}Bulk\allowbreak{}Data\allowbreak{}From\allowbreak{}Disk}, \texttt{Find\allowbreak{}Aws\allowbreak{}Credentials}, \texttt{Read\allowbreak{}Sensitive\allowbreak{}File\allowbreak{}Untrusted}, \texttt{Clear\allowbreak{}Log\allowbreak{}Activities} mỗi loại 1); với lotl và fixture mô hình đã bắt hết. Độ trễ tập chính gần như không đổi (p95 0,48 s và 0,47 s theo cách đo của phân tích này).
+\item
+  \textbf{Hại rất lớn:} luật kích hoạt ở 461/694 control idle (66,4\%) và 3.937 đợt trên 615,6 replica-giờ normal (6,40 đợt/replica-giờ, gấp khoảng 18 lần mô hình). Gần như mọi lần kích hoạt đến từ \texttt{setuid}, \texttt{setgid}, \texttt{capset} và \texttt{seccomp}: runtime gọi chúng khi dựng \emph{mọi} process vào qua exec, kể cả lệnh exec probe mà kubelet chạy định kỳ trong lúc container đang idle. Biến thể thêm các syscall cùng họ (\texttt{fchmod}, \texttt{fchmodat}, \texttt{setres*}\ldots) cho cùng kết quả.
+\item
+  \textbf{Không nhận:} mức control và mức gánh đều hỏng. Danh mục ý đồ theo tên syscall không phân biệt được lần dựng process hợp lệ với hành vi của tấn công trên cụm có exec probe; trùng với kết luận của đồ án rằng tín hiệu ``có process mới'' tự nó không phải ác ý. Năm fixture dùng chính các syscall trong danh mục, nên recall của luật trên fixture là vòng tròn và không được tính là kết quả.
+\end{itemize}
 
 \section{RQ5: chi phí}\label{sec:overhead}
 
@@ -673,4 +787,13 @@ Cảnh báo → case, p50 / p95 & 2,33 s / 2,61 s \\
   \textbf{Bản sửa, đo ở lượt v6:} RCA xét các lần exec tới thời điểm quyết định, và xét lại một lần sau 2 s nếu chưa thấy exec mới. Ở lượt v6, 711/735 tấn công (96,7\%) có case riêng; trong 24 trial còn lại, kiểm toán follow-up thấy 10 trường hợp thiếu exec, 15 trường hợp exec đã biết bị từ chối và 5 trường hợp không có quyết định.
 \item
   \textbf{Thứ tự không quyết định hạng 1 (giả thuyết H6):} với thứ tự bước xáo ngẫu nhiên, binary fixture đứng hạng 1 trong 268/355 case khi tấn công chạy sau binary vô hại (75,5\%) và 272/356 khi chạy trước (76,4\%), tổng 75,9\%. Mức thấp hơn lượt v5 đến từ thiết kế trial của v6: mỗi trial có hai tấn công. Một phân tích thăm dò (không đăng ký trước) cho thấy trong 162 trên 170 case mà fixture không đứng đầu, nghi phạm hạng 1 là process của bước tấn công bằng tool-của-image trong cùng trial (\texttt{sh}, \texttt{cat}, \texttt{rm}).
+\end{itemize}
+
+\textbf{Lượt cuối.} Bridge có hàng đợi đẩy bền (từ vòng cải thiện sau lượt v6) và nhãn luồng native/session trên mỗi cảnh báo. Code: \texttt{scripts/\allowbreak{}analysis/\allowbreak{}bridge\_\allowbreak{}delivery.py}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}alert\_\allowbreak{}delivery\_\allowbreak{}latency.py}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}rca\_\allowbreak{}coverage.py}.
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Tới Alertmanager:} cả 5.313/5.313 đợt cảnh báo của lượt đều tới, không có khoảng nghẽn; từ decision tới lúc nhận p50 0,084 s, p95 3,23 s, p99 4,96 s. Tính từ sự kiện kernel của tấn công, đường push báo ở 749/809 trial tấn công với p50 0,62 s, p95 3,04 s; 56 trial còn lại khớp một cảnh báo đã mở từ bước trước của cùng trial nên không có lần đẩy mới. Đường push chậm hơn lượt v6 (p95 1,53 s), trong khi độ trễ tới cuối cửa sổ báo không đổi (0,46 s): phần thêm nằm sau decision, ở đoạn bridge tới Alertmanager (p95 3,23 s so với 1,21 s ở lượt v6). Đồ án chưa xác định nguyên nhân.
+\item
+  \textbf{RCA:} 766/809 tấn công có case riêng (24 được gộp sau một case khác, 19 sau case của binary vô hại); binary fixture đứng hạng 1 trong 68,8\% case và trong top 5 ở 93,2\%; theo thứ tự, 258/377 (68,4\%) khi chạy sau binary vô hại và 269/389 (69,2\%) khi chạy trước. Mỗi trial lượt cuối có ba bước tấn công (fixture, tool của image, event-generator), nên hạng 1 của riêng fixture thấp hơn lượt v6. Từ cảnh báo tới case p50 2,6 s, p95 8,7 s.
 \end{itemize}

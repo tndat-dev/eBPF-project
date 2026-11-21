@@ -1,13 +1,14 @@
 \section{Conclusion}\label{sec:conclusion}
 
 A count language model over system-call tokens that keep error codes, returned sizes and the first directory of opened
-files, counted per thread in the kernel and thresholded from normal behaviour only, detects 97.40\,\% of LID-DS~2021
-attack recordings at 0.33\,\% false-alarm recordings, and in blind live runs on a Kubernetes cluster every
-primary-rate attack with no idle false alarm, delivering alerts to Alertmanager within 0.68\,s at p95 for about
-0.4--0.5\,\textmu s per watched system call. The same evaluation shows where it stops: it flags harmless new processes,
-it is blind to attacks built from seen sequences and to data-only attacks inside a process, its threshold is a measured
-knob rather than a guarantee, and its models age when the cluster changes. Separating a workload's own processes from
-operator sessions in the kernel is the direction we take for the first of these limits.
-A third live run after a cluster change replicates the results with a fresh fit and resists dilution, and the native
-lineage stream flags 1/475 operator commands. On LID-DS~2019 the unchanged model detects 90.88\,\% of attack recordings
-at 0.44\,\% false alarms, below our target, with Heartbleed and the dataset's attack timestamps as the limits.
+files, counted per thread in the kernel and thresholded from normal behaviour only, detects 97.25\,\% of LID-DS~2021
+attack recordings at 0.19\,\% false-alarm recordings, and in four blind live runs on a Kubernetes cluster every
+primary-rate attack; in the final 45-hour run it also catches every attack at 0.1 actions/s, on-off and diluted with
+300 seen calls per operation, with no idle false alarm and p95 0.46\,s, for about 0.4--0.5\,\textmu s per watched
+system call. The same evaluation shows where it stops: it flags harmless new processes, it is blind to attacks built from
+seen sequences and to data-only attacks inside a process, its threshold is a measured knob rather than a guarantee, its
+models age when the cluster changes, and its alert burden (0.36 episodes per replica-hour) is above the budget, mostly
+in windows with exec-probe commands. Separating a workload's own processes from exec sessions in the kernel is the
+direction we take for the first and the last of these limits: the native lineage stream flags 0/606 operator
+commands. On LID-DS~2019 the configuration chosen on its development part detects 97.15\,\% of the remaining attack
+recordings at 0.46\,\% false alarms, with the dataset's attack timestamps as the limit on latency.

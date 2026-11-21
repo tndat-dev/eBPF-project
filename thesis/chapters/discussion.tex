@@ -4,15 +4,26 @@ Kết quả mạnh nhất của đồ án là cùng một mô hình học từ n
 
 \section{Detector phát hiện sự mới lạ, không phải ác ý}\label{sec:limits-novelty}
 
-Mọi tấn công trong campaign trên cụm đều là một process mới chạy qua exec, và mô hình bắt ``có process mới'' rất mạnh: binary vô hại bị gắn cờ 314/314 lần ở tập chính của lượt gần nhất, lệnh quản trị thật 255/261. Vì vậy recall 100\% trên cụm có thể bị thổi phồng một phần bởi chính dấu hiệu exec. Đây là dạng tương quan giả mà \citet{arp2022} cảnh báo. Đối chứng binary vô hại đo được mức thổi phồng, nhưng không cho biết recall khi tấn công không sinh process mới; LID-DS 2021, nơi exploit đi qua chính process của dịch vụ, bù một phần cho điều đó.
+Mọi tấn công trong campaign trên cụm đều là một process mới chạy qua exec, và mô hình bắt ``có process mới'' rất mạnh: binary vô hại bị gắn cờ 288/288 lần ở tập chính của lượt cuối, lệnh quản trị thật 254/260. Vì vậy recall 100\% trên cụm có thể bị thổi phồng một phần bởi chính dấu hiệu exec. Đây là dạng tương quan giả mà \citet{arp2022} cảnh báo. Đối chứng binary vô hại đo được mức thổi phồng, nhưng không cho biết recall khi tấn công không sinh process mới; LID-DS 2021, nơi exploit đi qua chính process của dịch vụ, bù một phần cho điều đó.
 
 So với luật đếm 4-gram chưa thấy, mô hình có lợi thế rõ ở báo nhầm thấp: ở cùng ngân sách 6 bản ghi normal, nó phát hiện nhiều hơn 86 bản ghi development (mục~\ref{sec:model-vs-rule}). Lợi thế này đến từ chỗ mô hình chấm được \emph{mức độ} lạ: một 4-gram mới ghép từ các bước quen ít bất ngờ hơn nhiều so với một token chưa từng có. Nhưng khi mọi chuỗi chưa thấy bị bỏ khỏi bản ghi tấn công, mô hình không phát hiện bản ghi nào (0/544). Như vậy trên dataset này, mọi phát hiện của mô hình dựa vào chuỗi chưa thấy; với một tấn công blind tránh được mọi chuỗi mới, mô hình và luật đếm cùng mù. Đây là giới hạn chính về mặt phương pháp (mục~\ref{sec:limits-adaptive}).
 
 Giới hạn ngược chiều với tấn công đi qua exec là tấn công không tạo hành vi hệ thống mới. Mọi bản ghi LID-DS official bị lọt đều thuộc Juice-Shop, và 28 trong số đó không có dấu vết ở mọi tín hiệu đã thử. Trong các bản ghi đã xem của loại \texttt{SQLInjectionUser}, exploit là một request đăng nhập có câu SQL bị sửa, dài hơn bình thường (thân 444 byte so với 55 byte), gửi tới đúng endpoint mà người dùng bình thường gọi. Process \texttt{node} xử lý nó như một lần đăng nhập thường: không có process mới, đường dẫn mới, mã lỗi mới hay cỡ đọc ghi bất thường. Trace syscall của dataset cũng chỉ giữ khoảng 80 byte đầu của buffer, nên câu SQL độc không có trong dữ liệu mà detector đọc. Tấn công chỉ đổi ngữ nghĩa câu truy vấn bên trong process thì mọi detector chỉ đọc syscall đều không thấy; cần một lớp bổ trợ ở tầng ứng dụng như WAF, RASP hay giám sát câu truy vấn ở driver cơ sở dữ liệu. Đồ án không thêm tín hiệu riêng cho loại này, vì thiết kế tín hiệu cho đúng một exploit sau khi đã thấy nó bị lọt là chỉnh theo dữ liệu đã xem.
 
-\section{Gánh cảnh báo}
+\section{Gánh cảnh báo}\label{sec:limits-burden}
 
-Gánh giảm từ 0,41 xuống 0,17 đợt/replica-giờ khi mô hình học thêm normal của một lượt live, nhưng vẫn trên ngân sách tham chiếu 0,1. Với khoảng 64 container được chấm cùng lúc, 0,17 tương đương cỡ 260 đợt cảnh báo mỗi ngày (ước tính $0{,}17 \times 64 \times 24$), chưa kể cảnh báo do process mới vô hại.
+Với cấu hình v5, gánh giảm từ 0,41 xuống 0,17 đợt/replica-giờ khi mô hình học thêm normal của một lượt live, nhưng vẫn trên ngân sách tham chiếu 0,1. Hệ thống cuối t3 tăng lại gánh: 0,36 đợt/replica-giờ {[}0,28; 0,44{]} trên 9,5 giờ normal cuối lượt cuối (223 đợt trên 616,8 replica-giờ), đúng như tỉ lệ khối giữ ra vượt ngưỡng của fit đã báo trước (0,795\% so với 0,333\%). Với khoảng 64 container được chấm cùng lúc, 0,36 tương đương cỡ 550 đợt cảnh báo mỗi ngày (ước tính $0{,}36 \times 64 \times 24$), chưa kể cảnh báo do process mới vô hại. Đây là cái giá của việc chọn t3 vì recall trên LID-DS 2019.
+
+\textbf{Đợt của lượt cuối đến từ đâu} (\texttt{scripts/\allowbreak{}analysis/\allowbreak{}burden\_\allowbreak{}context.py}, \texttt{scripts/\allowbreak{}analysis/\allowbreak{}burden\_\allowbreak{}labels.py}):
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Theo replica:} 217/223 đợt chỉ ở một replica của workload, 6 ở nhiều replica cùng lúc; gom các đợt cùng workload cách nhau dưới 10 phút còn 172 sự cố, khoảng 434 sự cố mỗi ngày.
+\item
+  \textbf{Theo luồng (thẻ dòng dõi):} 176 đợt có cửa sổ chứa cả sự kiện của process vào qua runtime exec lẫn sự kiện native, 47 đợt chỉ có native, không đợt nào chỉ có session. Đợt có exec thuộc các dịch vụ ứng dụng và Redis/Kafka (\texttt{search-\allowbreak{}recommendation-\allowbreak{}service} 28, \texttt{auth-\allowbreak{}service} 24, \texttt{cart-\allowbreak{}service} 19, \ldots); đợt chỉ native thuộc các operator và sidecar (topic operator của Kafka 7, sidecar MinIO 6, RabbitMQ 6, waypoint 6, \ldots). Khớp đúng với cấu hình probe của cụm: mọi workload có đợt chứa sự kiện session đều dùng liveness/readiness probe kiểu exec, còn các workload chỉ có đợt native dùng probe HTTP/TCP hoặc không có probe. Trên normal không có campaign, process vào qua exec là lệnh probe mà kubelet chạy định kỳ.
+\item
+  \textbf{Theo sự kiện Kubernetes:} chỉ 5 đợt có một sự kiện vận hành của cùng workload trong khoảng 5 phút trước tới 1 phút sau (cả 5 là autoscale của \texttt{aims-\allowbreak{}waypoint}: rescale, pod mới được lập lịch và khởi chạy); 218 đợt còn lại không có rollout, scale, restart hay probe thất bại nào gần đó. Gắn nhãn theo sự kiện Kubernetes vì vậy giải thích rất ít gánh trên cụm này.
+\end{itemize}
 
 Precision 99--100\% đo trên campaign cân bằng 1:1. Ở tỉ lệ tấn công thật, precision sẽ thấp hơn rất nhiều. Vì vậy đồ án báo gánh cảnh báo như một giới hạn, không coi precision là bằng chứng dùng được trong vận hành.
 
@@ -26,14 +37,14 @@ Cảnh báo còn lại trên normal có cấu trúc rõ:
   phần lớn đợt đến từ một workload Kafka (89/118 trong mẫu), với các chuỗi bảo trì file.
 \end{itemize}
 
-Hai hướng giảm gánh không cần nhãn tấn công: học từ normal dài hơn (bản fit hiện tại đã thêm normal của chính lượt live trước), và gom các đợt thành sự cố, tương quan với sự kiện của Kubernetes. Mức giảm báo nhầm tốt nhất đã công bố bằng cách xếp hạng cảnh báo theo ngữ cảnh là khoảng 84--86\% \citep{hassan2019}. Nghiên cứu về SOC cũng cho thấy phần lớn cảnh báo bị coi là ``sai'' thực ra là benign trigger: hệ thống thấy đúng sự kiện, chỉ là sự kiện vô hại \citep{alahmadi2022}. Cả hai hướng không thay đổi tỉ lệ binary vô hại bị gắn cờ.
+Hai hướng giảm gánh không cần nhãn tấn công: học từ normal dài hơn (bản fit hiện tại đã thêm normal của chính lượt live trước), và gom các đợt thành sự cố, tương quan với sự kiện của Kubernetes; số đo trên cho thấy hướng thứ hai chỉ gom được phần nhỏ (223 đợt còn 172 sự cố, 5 đợt có sự kiện vận hành), và phần lớn đợt nằm ở cửa sổ có lệnh của exec probe. Mức giảm báo nhầm tốt nhất đã công bố bằng cách xếp hạng cảnh báo theo ngữ cảnh là khoảng 84--86\% \citep{hassan2019}. Nghiên cứu về SOC cũng cho thấy phần lớn cảnh báo bị coi là ``sai'' thực ra là benign trigger: hệ thống thấy đúng sự kiện, chỉ là sự kiện vô hại \citep{alahmadi2022}. Cả hai hướng không thay đổi tỉ lệ binary vô hại bị gắn cờ.
 
 \section{Tính thực tế của tấn công}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Giai đoạn:} fixture trên cụm tự viết, mô phỏng giai đoạn sau xâm nhập. Mọi thao tác cố ý thất bại hoặc chỉ ảnh hưởng chính process, kéo dài 15 s, với tốc độ 1--24 lần/s.
+  \textbf{Giai đoạn:} fixture trên cụm tự viết, mô phỏng giai đoạn sau xâm nhập. Mọi thao tác cố ý thất bại hoặc chỉ ảnh hưởng chính process, kéo dài 15 s, với tốc độ 0,1--24 lần/s. Lượt cuối thêm 13 hành động của event-generator do dự án Falco viết (không do đồ án viết), và chúng cũng vào container qua \texttt{kubectl exec}.
 \item
   \textbf{Độ phủ ATT\&CK for Containers:} chưa có persistence, credential access, discovery, lateral movement hay impact (ví dụ đào coin).
 \item
@@ -49,9 +60,9 @@ Về quy mô, campaign của đồ án không nhỏ so với các đánh giá đ
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Bắt chước normal:} kẻ tấn công biết normal của workload có thể ghép hành vi từ các 4-gram đã có, và chèn syscall quen để pha loãng \citep{wagner2002}. Theo \citet{tan2002}, một detector chuỗi chỉ thấy một chuỗi lạ khi cửa sổ của nó dài ít nhất bằng chuỗi đó; Pulse nhìn 4 token, nên một hành vi chỉ lạ ở độ dài lớn hơn sẽ lọt. Thao tác buộc phải dùng token chưa từng có (một syscall, mã lỗi, thư mục hay cỡ đọc ghi lạ) khó pha loãng hơn, vì điểm cửa sổ là trung bình 10 sự kiện bất ngờ nhất chứ không phải của cả cửa sổ; nhưng vài sự kiện lạ giữa nhiều sự kiện quen vẫn có thể nằm dưới ngưỡng, như ví dụ \texttt{order-\allowbreak{}service} ở mục~\ref{sec:token-model}. Lượt live thứ ba đo một dạng pha loãng đơn giản: chèn 30 hoặc 300 cặp \texttt{getpid} + \texttt{sched\_\allowbreak{}yield} sau mỗi thao tác tấn công không làm lọt trial nào (105/105 mỗi mức, mục~\ref{sec:token-live-v6}). Đó chưa phải một kẻ tấn công thật sự thích nghi, vốn chọn chuỗi theo chính mô hình; né tránh kiểu đó đã được làm tự động với độ thành công 100\% trên năm hệ dựa trên provenance \citep{goyal2023}.
+  \textbf{Bắt chước normal:} kẻ tấn công biết normal của workload có thể ghép hành vi từ các 4-gram đã có, và chèn syscall quen để pha loãng \citep{wagner2002}. Theo \citet{tan2002}, một detector chuỗi chỉ thấy một chuỗi lạ khi cửa sổ của nó dài ít nhất bằng chuỗi đó; Pulse nhìn 4 token, nên một hành vi chỉ lạ ở độ dài lớn hơn sẽ lọt. Thao tác buộc phải dùng token chưa từng có (một syscall, mã lỗi, thư mục hay cỡ đọc ghi lạ) khó pha loãng hơn, vì điểm cửa sổ là trung bình vài sự kiện bất ngờ nhất (3 với t3, 10 với v5) chứ không phải của cả cửa sổ; nhưng vài sự kiện lạ giữa nhiều sự kiện quen vẫn có thể nằm dưới ngưỡng, như ví dụ \texttt{order-\allowbreak{}service} ở mục~\ref{sec:token-model}. Lượt live thứ ba đo một dạng pha loãng đơn giản: chèn 30 hoặc 300 cặp \texttt{getpid} + \texttt{sched\_\allowbreak{}yield} sau mỗi thao tác tấn công không làm lọt trial nào (105/105 mỗi mức, mục~\ref{sec:token-live-v6}); với t3, PAD 300 cho 95/95 và nhịp bật--tắt 10 s cho 96/96 (mục~\ref{sec:token-live-final}). Đó chưa phải một kẻ tấn công thật sự thích nghi, vốn chọn chuỗi theo chính mô hình; né tránh kiểu đó đã được làm tự động với độ thành công 100\% trên năm hệ dựa trên provenance \citep{goyal2023}.
 \item
-  \textbf{Chạy chậm:} ở 1 lần/s mô hình vẫn bắt 105/105 trial, nhưng mỗi trial bắt đầu bằng một lần exec, và burst lúc khởi chạy đủ để báo (mục~\ref{sec:benign}). Kết quả này vì vậy chưa đo được tấn công chậm đi vào một process đã chạy sẵn.
+  \textbf{Chạy chậm:} ở 1 lần/s mô hình vẫn bắt 105/105 trial (lượt v6), và với t3 ở lượt cuối 0,5 lần/s cho 100/100, 0,1 lần/s cho 99/99, nhưng mỗi trial bắt đầu bằng một lần exec, và burst lúc khởi chạy đủ để báo (mục~\ref{sec:benign}). Kết quả này vì vậy chưa đo được tấn công chậm đi vào một process đã chạy sẵn.
 \item
   \textbf{Đi vòng tầng syscall:} thao tác gửi qua \texttt{io\_\allowbreak{}uring} không đi qua \texttt{sys\_\allowbreak{}enter} \citep{armo2025}. Lời gọi \texttt{io\_\allowbreak{}uring\_\allowbreak{}setup} sẽ là token lạ nếu workload chưa từng dùng nó; các thao tác sau đó thì probe không thấy. Điều này chưa được kiểm trên cụm.
 \end{itemize}
