@@ -217,8 +217,28 @@ class TokenBranch:
     exec_hold_seconds after the container's last execve. With "phase_threshold" (amendment 1) a window within those
     seconds is not held but compared with that threshold instead."""
 
-    def __init__(self, spec: dict, sha256_file, gate: dict | None = None):
+    def __init__(self, spec: dict, sha256_file, gate: dict | None = None, session: dict | None = None):
         self.models, self.thresholds = {}, {}
+        # session-stream-v1 (optional, worker cfg tokens.session): the native part of each window against
+        # "native_thresholds" (the workload model at the branch level) OR the session part against a session model:
+        # the workload's own ("per", when the fit gave one) or the pooled one ("pooled"). Absent = the whole window.
+        self.session = None
+        if session:
+            def load(item):
+                path = Path(item['lm'])
+                if sha256_file(path) != item['lm_sha256']:
+                    raise ValueError(f'token session model {path} changed')
+                lm = CountTokenLM.load(path)
+                lm.default_top = int(item.get('top', TOP))
+                thr = float(item['threshold'])
+                if not math.isfinite(thr):
+                    raise ValueError('token session threshold is not finite')
+                return lm, thr
+            native = {k: float(v) for k, v in session['native_thresholds'].items()}
+            if not all(math.isfinite(v) for v in native.values()):
+                raise ValueError('token native threshold is not finite')
+            self.session = dict(native=native, pooled=load(session['pooled']),
+                                per={k: load(v) for k, v in session.get('per', {}).items()})
         self.pool, self.pool_thresholds, self.hold, self.last_exec = None, {}, 0.0, {}
         self.phase_threshold = None
         if gate:
@@ -253,6 +273,8 @@ class TokenBranch:
         s = lm.window_score(window['grams'])
         raw = bool(s > self.thresholds[window['workload_key']])
         out = dict(token_score=s, token_threshold=self.thresholds[window['workload_key']], token_alert=raw)
+        if self.session is not None:
+            return self._session_score(window, lm, out)
         if self.pool is None:
             return out
         key = (window['pod_uid'], window['container_name'])
@@ -266,3 +288,31 @@ class TokenBranch:
         out.update(token_alert=bool(raw and passes), token_alert_raw=raw,
                    token_pool_score=pool_score, token_pool_threshold=threshold, token_exec_held=held)
         return out
+
+    def _session_score(self, window, lm, out):
+        """session-stream-v1: native part by the workload model at its branch threshold, session part by its model."""
+        key = window['workload_key']
+        session = window.get('session')
+        if session is None:
+            raise ValueError('the session branch needs windows of the lineage build')
+        native = native_part(window['grams'], session)
+        native_score = lm.window_score(native) if native else 0.0
+        native_thr = self.session['native'][key]
+        slm, sthr = self.session['per'].get(key, self.session['pooled'])
+        session_score = slm.window_score(session) if session else 0.0
+        alert = bool(native_score > native_thr or session_score > sthr)
+        out.update(token_alert=alert, token_alert_whole=out['token_alert'], token_native_score=native_score,
+                   token_native_threshold=native_thr, token_session_score=session_score, token_session_threshold=sthr,
+                   token_alert_stream=('native' if native_score > native_thr else 'session') if alert else None)
+        return out
+
+
+def native_part(grams, session):
+    """The window minus its session part, count by count (session-stream-v1); rows with nothing left are dropped."""
+    left = {tuple(int(v) for v in g[:4]): int(g[4]) for g in grams}
+    for g in session:
+        k = tuple(int(v) for v in g[:4])
+        left[k] = left.get(k, 0) - int(g[4])
+        if left[k] < 0:
+            raise ValueError('session part exceeds the window')
+    return [[*k, c] for k, c in left.items() if c > 0]

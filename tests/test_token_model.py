@@ -247,3 +247,36 @@ def test_branch_uses_the_top_k_of_its_fit(tmp_path):
     assert abs(ten['token_score'] - loaded.window_score(grams, 10)) < 1e-12
     assert abs(three['token_score'] - loaded.window_score(grams, 3)) < 1e-12
     assert three['token_score'] > ten['token_score']          # the three surprising events are not diluted by seen ones
+
+
+def test_session_branch_scores_native_and_session_parts_apart(tmp_path):
+    # session-stream-v1: an exec probe's sequence learnt by the session model stays quiet even though the workload
+    # model never saw it; a novel session sequence and a novel native one both alert, on their own stream
+    from sentinel_pulse.detector.token_model import TokenBranch, native_part
+    from sentinel_pulse.integrity import sha256_file
+    rng = random.Random(3)
+    normal, probe, attack = [tok(0, 2, 12), tok(3), tok(202)], [tok(1, 2, 5), tok(59), tok(231)], [tok(101, 1, 1), tok(308)]
+    def model(alphabet, name):
+        lm = CountTokenLM()
+        for _ in range(20):
+            lm.learn_window(probe_rows(thread_grams(rng, 100, alphabet)))
+        lm.finalize()
+        path = tmp_path / f'{name}.json.gz'
+        lm.save(path)
+        return dict(lm=str(path), lm_sha256=sha256_file(path), threshold=6.0)
+    key = 'production/api:app'
+    branch = TokenBranch({key: model(normal, 'api')}, sha256_file,
+                         session=dict(native_thresholds={key: 6.0}, pooled=model(probe, 'pool')))
+    native = probe_rows(thread_grams(rng, 50, normal))
+    probe_part = probe_rows(thread_grams(rng, 30, probe))
+    w = lambda grams, session: dict(workload_key=key, grams=grams, session=session)
+    quiet = branch.score(w(native + probe_part, probe_part))
+    assert quiet['token_alert'] is False and quiet['token_alert_whole'] is True
+    bad = probe_rows(thread_grams(rng, 30, attack))
+    hit = branch.score(w(native + bad, bad))
+    assert hit['token_alert'] is True and hit['token_alert_stream'] == 'session'
+    nat = branch.score(w(bad, []))
+    assert nat['token_alert'] is True and nat['token_alert_stream'] == 'native'
+    assert native_part([[1, 2, 3, 4, 5]], [[1, 2, 3, 4, 2]]) == [[1, 2, 3, 4, 3]]
+    with pytest.raises(ValueError):
+        branch.score(dict(workload_key=key, grams=native))

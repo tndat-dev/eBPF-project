@@ -184,7 +184,7 @@ def run(config_path):
     # Cấu hình token: có `models` → chấm và báo; không có (lượt thu normal) → chỉ ghi tokens.jsonl để học sau.
     tokens_cfg=cfg.get('tokens')
     loader_args=['--tokens',tokens_cfg.get('mode','grams')] if tokens_cfg else []
-    token_branch=TokenBranch(tokens_cfg['models'],sha256_file,tokens_cfg.get('gate')) if tokens_cfg and tokens_cfg.get('models') else None
+    token_branch=TokenBranch(tokens_cfg['models'],sha256_file,tokens_cfg.get('gate'),tokens_cfg.get('session')) if tokens_cfg and tokens_cfg.get('models') else None
     if tokens_cfg:
         state.setdefault('token_windows',0);state.setdefault('token_scored',0);state.setdefault('token_alerts',0)
     # lidds-ml-v3 count branches (cfg v3_counts: {"path", "sha256"}; detector/v3_policy.py): tree and support against
@@ -336,7 +336,7 @@ def run(config_path):
                                         **{k:window[k] for k in ('node_name','window_end','workload_key','pod_uid',
                                             'container_name','workload_revision','cgroup_id','run_id','capture_segment',
                                             'token_score','token_threshold','events') },
-                                        **{k:window[k] for k in ('token_alert_raw','token_pool_score','token_pool_threshold',
+                                        **{k:window[k] for k in ('token_alert_raw','token_pool_score','token_pool_threshold','token_alert_whole','token_native_score','token_native_threshold','token_session_score','token_session_threshold','token_alert_stream',
                                             'token_exec_held','token_alert_reason','token_incomplete','session_events')
                                            if k in window})
                                     line=json.dumps(decision,separators=(',',':'),allow_nan=False)+'\n'
