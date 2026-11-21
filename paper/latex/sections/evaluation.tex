@@ -327,7 +327,7 @@ durable queue. The final run's bridge has a durable push queue and labels each a
 5{,}313/5{,}313 episodes with no stall, but decision to receipt took p50 0.084\,s and p95 3.23\,s, and kernel to
 Alertmanager p95 3.04\,s (749/809 attack trials alerted by a push, the other 56 matched an alert already open from an
 earlier step of the trial), against 1.53\,s in the previous run, while kernel to the end of the alarm window stayed at
-0.46\,s; we have not located the added delay after the decision.
+0.46\,s; the added delay was the bridge reading the decision stream late: its RCA case index kept 2{,}000 summaries and re-parsed every evicted case file on each 1\,s scan (3.7\,s per scan on the run's 4{,}915 cases), blocking the main loop; the stream lag was p95 0.07\,s below 2{,}000 cases and 3.5\,s at 3{,}000--5{,}000. The fix remembers every parsed file and bounds only the summaries (0.036\,s per scan).
 
 \paragraph{RCA.} 467/522 attacks got their own case (89.5\,\%), and the attack binary ranked first in 464/467 cases
 (99.4\,\%); a case was ready p50 2.33\,s, p95 2.61\,s after the alert. Of the 55 attacks without their own case, 40
