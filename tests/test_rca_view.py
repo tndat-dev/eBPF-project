@@ -163,3 +163,21 @@ def test_notify_webhook_logs_triage_alerts_only(tmp_path):
         dict(status='resolved', labels=dict(alertname='SentinelPulseTriage', rca_class='tripwire'))]), time.time())
     assert bridge.counters['notifications_tripwire'] == 1
     assert len((tmp_path/'notifications.jsonl').read_text().splitlines()) == 1
+
+
+def test_case_index_beyond_its_summary_limit_does_not_parse_old_files_again(tmp_path, monkeypatch):
+    # pulse-live-final-1119: with more case files than the summary limit, every 1 s scan re-parsed the evicted ones,
+    # blocked the bridge's main loop and delayed the decision stream (push p95 0.07 s below 2,000 cases, 3.5 s above).
+    idx = rca_view.CaseIndex(tmp_path, 'http://h', limit=3)
+    for i in range(6):
+        cid = format(i, 'x') * 24
+        (tmp_path/(cid + '.json')).write_text(json.dumps(case(cid, created=float(i))))
+    assert len(idx.refresh()) == 6
+    calls = []
+    real = rca_view.summarize
+    monkeypatch.setattr(rca_view, 'summarize', lambda *a, **k: calls.append(1) or real(*a, **k))
+    assert idx.refresh() == [] and idx.refresh() == [] and calls == []
+    assert idx.get(format(5, 'x') * 24) is not None and idx.get('0' * 24) is None     # summaries stay bounded
+    cid = 'f' * 24
+    (tmp_path/(cid + '.json')).write_text(json.dumps(case(cid, created=9.0)))
+    assert [s['case_id'] for s in idx.refresh()] == [cid] and len(calls) == 1

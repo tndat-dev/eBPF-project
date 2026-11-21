@@ -306,7 +306,10 @@ nanoseconds compare better than percentages. The worker unit (loader and Python 
 kept for comparison) used 7\,h\,05\,min to 7\,h\,28\,min of CPU per 24\,h, 0.30--0.31 cores of a 24-core node. The
 lineage tag adds no cost we can resolve: in 12 cells (three workers, four operations including fork plus exit plus
 wait) every 95\,\% interval of the paired ratio against the previous build contains zero except one negative; a fork
-with exit and wait takes 332--385\,\textmu s on these VMs. Not measured: the cost per request of a real application.
+with exit and wait takes 332--385\,\textmu s on these VMs. Per request of the real application (open loop at 8 requests/s through the ingress, 12 alternating rounds of 300\,s
+without and with the probe on all workers, 25{,}920 requests, no error), latency rises by 10.5\,ms at p50 (+11.3\,\%,
+95\,\% interval over rounds [0.6, 21.2]), 15.9\,ms at p95 (+5.7\,\%, [3.6, 7.4]) and 34.2\,ms at p99 (+9.5\,\%); the
+cost follows the number of system calls a request makes (database round trips).
 
 \paragraph{Gram-map capacity.} With a load generator that makes every call a new gram in one cgroup, the map first loses
 grams at 400{,}000 calls/s; at 300{,}000 calls/s (142{,}610 distinct grams per window) it loses none, and the loader

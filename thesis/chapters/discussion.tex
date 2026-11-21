@@ -106,7 +106,7 @@ Học lại định kỳ từ normal gần nhất là cách tự nhiên, nhưng 
 \item
   \textbf{Normal ngắn:} mô hình trên cụm học từ 12 giờ normal (cộng normal của một lượt live), và các chế độ tải biến động tập trung trong 90 phút đầu mỗi lượt.
 \item
-  \textbf{Chưa đo:} chi phí trên request của ứng dụng thật với probe token.
+  \textbf{Chi phí trên request} chỉ đo trên một ứng dụng, ở tải 8 request/s: thêm 10,5 ms ở p50 và 15,9 ms ở p95 (mục~\ref{sec:overhead}); tải cao hơn chưa đo.
 \item
   \textbf{Hạ tầng:} cụm chạy trên VM của một host ESXi bị cấp phát bộ nhớ vượt quá RAM thật. Lượt v5 có 3,5 phút host nghẽn, và bộ nhớ của worker có lúc bị driver balloon của host chiếm hàng chục GB. Đo độ trễ và chi phí trên hạ tầng như vậy có nhiễu từ host.
 \end{itemize}

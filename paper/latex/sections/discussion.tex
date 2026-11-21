@@ -36,5 +36,4 @@ attack fixtures and labels given by the trial design rather than by independent 
 through \texttt{kubectl exec}; we did not run exploits of vulnerable software inside services on the cluster, so the
 native stream is tested against attacks only offline, on LID-DS, where every event is native. The bridge of the second run had no durable
 queue and lost 113 of 190 alert episodes during a 3.5-minute host stall; the final run's bridge has one. RCA quality is measured by coverage and the
-rank of the attack binary on one attack type, not by investigators. The overhead was measured with microbenchmarks, not
-per request of a real application.
+rank of the attack binary on one attack type, not by investigators. The per-request cost was measured on one application at 8 requests/s only.

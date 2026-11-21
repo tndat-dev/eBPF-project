@@ -94,6 +94,11 @@ class CaseIndex:
     def __init__(self, directory, base_url='', limit=2000):
         self.dir, self.base_url, self.limit = Path(directory), base_url, limit
         self.seen, self.lock = {}, threading.Lock()
+        # Every case file ever parsed, by name -> mtime, unbounded (a few bytes each). Only the summaries are bounded:
+        # before this, a summary evicted by the limit made its file look new again, so each 1 s scan re-parsed every
+        # file beyond the limit and blocked the bridge's main loop (pulse-live-final-1119: decision-stream lag p95
+        # 0.07 s below 2,000 cases, 3.5 s at 3,000-5,000).
+        self.parsed = {}
 
     def refresh(self):
         if not self.dir.is_dir():
@@ -104,16 +109,17 @@ class CaseIndex:
                 if not e.name.endswith('.json') or not CASE_ID.match(e.name[:-5]):
                     continue
                 mtime = e.stat().st_mtime
-                old = self.seen.get(e.name[:-5])
-                if old is not None and old[0] == mtime:
+                previous = self.parsed.get(e.name[:-5])
+                if previous == mtime:
                     continue
                 try:
                     s = summarize(json.loads(Path(e.path).read_text()), self.base_url)
                 except (ValueError, OSError):
                     continue                                     # partially written or removed: next scan
+                self.parsed[e.name[:-5]] = mtime
                 with self.lock:
                     self.seen[e.name[:-5]] = (mtime, s)
-                if old is None:
+                if previous is None:
                     new.append(s)
         with self.lock:                                          # bounded: drop the oldest summaries
             if len(self.seen) > self.limit:

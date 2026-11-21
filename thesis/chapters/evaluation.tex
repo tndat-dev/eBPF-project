@@ -741,7 +741,22 @@ Syscall/s & Gram khác nhau mỗi cửa sổ (trung vị) & Gram không ghi đư
 
 Map bắt đầu bỏ gram ở 400.000 syscall/s trên một cgroup; tới 300.000 syscall/s, khoảng 142.610 gram mỗi cửa sổ, chưa mất gram nào. Thời gian loader đọc map tăng theo số gram: 0,33 s (lâu nhất 0,41 s) ở 300.000 syscall/s, còn ở 400.000 syscall/s lần đọc lâu nhất là 0,63 s, vượt nhịp 0,5 s. Cửa sổ nặng nhất của cả node ở lượt v5 chỉ có 6.901 gram, nên tải thật còn cách giới hạn khoảng 20 lần. Khi map đầy, gram bị bỏ và loader đếm số lần ghi hỏng; worker không biết cửa sổ đó thiếu, nên đây là một đường né mà kẻ tấn công tạo tải lớn có thể dùng (mục~\ref{sec:limits-adaptive}).
 
-\textbf{Chưa đo:} chi phí trên request của ứng dụng thật với probe token.
+\textbf{Chi phí trên request của ứng dụng thật} (protocol \texttt{app-\allowbreak{}overhead-\allowbreak{}v1}, chạy như hướng D7 của vòng cải thiện, 19/11). Tải mở 8 request/s qua Istio ingress, 12 vòng xen kẽ 300 s tắt probe và 300 s bật probe (build của lượt cuối, chế độ gram, mọi container production được theo dõi) trên cả ba worker; 25.920/25.921 request, không lỗi. Code: \texttt{scripts/\allowbreak{}app\_\allowbreak{}overhead\_\allowbreak{}ab.py}.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.16\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.32\linewidth-2\tabcolsep\relax}@{}}
+\caption{Độ trễ request khi tắt và bật probe token.}\label{tab:app-overhead}\\
+\toprule\noalign{}
+ & Tắt probe & Bật probe & Thêm & Tỉ lệ thêm {[}CI 95\% theo vòng{]} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+p50 & 94,6 ms & 105,1 ms & +10,5 ms & +11,3\% {[}0,6; 21,2{]} \\
+p95 & 279,8 ms & 295,5 ms & +15,9 ms & +5,7\% {[}3,6; 7,4{]} \\
+p99 & 354,6 ms & 397,0 ms & +34,2 ms & +9,5\% {[}6,5; 14,2{]} \\
+\end{longtable}
+
+Theo endpoint ở p50, \texttt{/} và \texttt{/api/health/} nằm trong nhiễu, \texttt{/api/products/} thêm 9,1 ms (+5,2\%): chi phí đi theo số syscall mà một request gây ra (số lượt truy vấn cơ sở dữ liệu).
 
 \section{RQ6: đường tới người nhận và RCA}\label{sec:alert-rca}
 

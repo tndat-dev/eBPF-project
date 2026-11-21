@@ -228,23 +228,45 @@ def claims():
     MLV5 = 'results-20261110/lidds-ml-v5/lidds-ml-v5-official.json'
     mlv5 = receipt(MLV5)
     o = mlv5['official']['pooled']
+    pc2 = lambda x: num(100 * x, 2)
+    T3 = 'results-20261118/lidds2019-development/official2021.json'
+    t3 = receipt(T3)['chosen']
+    t3r, t3f = t3['detected'] / t3['attack_recordings'], t3['false_alarm_recordings'] / t3['normal_recordings']
+    both = f'{MLV5}, {T3}'
     add('v5-official-recall', thesis, tex(f"Recall & ≥ 95% & {pct(o['recall'], 2)} ({thousands(o['detected'])}/{thousands(o['attack_recordings'])}) "
-        f"{br(*o['recall_ci95'])} \\\\"), [], MLV5)
+        f"{br(*o['recall_ci95'])} & {pct(t3r, 2)} ({thousands(t3['detected'])}/{thousands(t3['attack_recordings'])}) {br(*t3['recall_ci95'])} \\\\"), [], both)
     add('v5-official-fa', thesis, tex(f"Bản ghi normal bị báo nhầm & báo kèm & {pct(o['false_alarm_rate'], 2)} ({o['false_alarm_recordings']}/"
-        f"{thousands(o['normal_recordings'])}) {br(*o['false_alarm_ci95'])} \\\\"), [], MLV5)
-    add('v5-official-precision', thesis, tex(f"Precision theo tỉ lệ của dataset & ≥ 95% & {pct(o['precision_base_rate'])} \\\\"), [], MLV5)
-    add('v5-official-latency', thesis, f"Độ trễ p50 / p95 & p95 ≤ 3 s & {num(o['latency_p50'], 2)} s / {num(o['latency_p95'], 2)} s \\\\", [], MLV5)
+        f"{thousands(o['normal_recordings'])}) {br(*o['false_alarm_ci95'])} & {pct(t3f, 2)} ({t3['false_alarm_recordings']}/"
+        f"{thousands(t3['normal_recordings'])}) {br(*t3['false_alarm_ci95'])} \\\\"), [], both)
+    t3p = t3['detected'] / (t3['detected'] + t3['false_alarm_recordings'])
+    add('v5-official-precision', thesis, tex(f"Precision theo tỉ lệ của dataset & ≥ 95% & {pct(o['precision_base_rate'])} & {pct(t3p)} \\\\"), [], both)
+    add('v5-official-latency', thesis, f"Độ trễ p50 / p95 & p95 ≤ 3 s & {num(o['latency_p50'], 2)} s / {num(o['latency_p95'], 2)} s & "
+        f"{num(t3['latency_p50'], 2)} s / {num(t3['latency_p95'], 2)} s \\\\", [], both)
     add('v5-official-3s', thesis, tex(f"Phát hiện trong 3 s & báo kèm & {thousands(o['detected_within_3s'])}/{thousands(o['attack_recordings'])} "
-        f"({pct(o['detected_within_3s'] / o['attack_recordings'])}) \\\\"), [], MLV5)
+        f"({pct(o['detected_within_3s'] / o['attack_recordings'])}) & {thousands(t3['detected_within_3s'])}/{thousands(t3['attack_recordings'])} "
+        f"({pct(t3['detected_within_3s'] / t3['attack_recordings'])}) \\\\"), [], both)
     rb = lambda r: o['recall'] * r / (o['recall'] * r + o['false_alarm_rate'] * (1 - r))
-    add('v5-base-rate', thesis, tex(f"precision còn {pct(rb(0.01))} khi bản ghi tấn công chiếm 1% và {pct(rb(0.001))} khi chiếm 0,1%"), [], MLV5)
+    rb3 = lambda r: t3r * r / (t3r * r + t3f * (1 - r))
+    add('v5-base-rate', thesis, tex(f"precision còn {pct(rb3(0.01))} khi bản ghi tấn công chiếm 1% và {pct(rb3(0.001))} khi chiếm 0,1% "
+        f"(v5: {pct(rb(0.01))} và {pct(rb(0.001))})"), [], both)
     sc = mlv5['official']['scenarios']
     macro = sum(v['recall'] for v in sc.values()) / len(sc)
-    add('v5-macro', thesis, f"Tính cùng cách, mô hình token đạt {num(macro, 2)}.", [], f'{MLV5} (mean over scenarios)')
+    macro3 = sum(t3['scenarios'][k][0] / v['attack_recordings'] for k, v in sc.items()) / len(sc)
+    assert num(macro, 2) == num(macro3, 2)
+    add('v5-macro', thesis, f"Tính cùng cách, mô hình token đạt {num(macro, 2)} ở cả hai cấu hình.", [], f'{both} (mean over scenarios)')
     for s_, m in sc.items():
         t = s_.replace('_', r'\_').replace('-', r'-\allowbreak{}')
-        add(f'ml-v5-thesis-{s_}', thesis, f"\\texttt{{{t}}} & {m['detected']}/{m['attack_recordings']} & {pct(m['recall'])} & "
-            f"{m['false_alarm_recordings']}/{m['normal_recordings']} & {pct(m['false_alarm_rate'], 2)} \\\\".replace('%', r'\%'), [], MLV5)
+        d3, f3 = t3['scenarios'][s_]
+        add(f'ml-v5-thesis-{s_}', thesis, f"\\texttt{{{t}}} & {m['detected']}/{m['attack_recordings']} & {d3}/{m['attack_recordings']} & "
+            f"{m['false_alarm_recordings']}/{m['normal_recordings']} & {f3}/{m['normal_recordings']} \\\\", [], both)
+    HO = 'results-20261118/lidds2019-development/holdout.json'
+    ho = receipt(HO)
+    hc, hv = ho['chosen']['tolerance'], ho['lidds_ml_v5']['tolerance']
+    add('t3-holdout', thesis, f"t3 phát hiện \\textbf{{{hc['detected']}/{hc['attack_recordings']} ({pc2(hc['recall'])}\\%, CI {{[}}"
+        f"{pc2(hc['recall_ci95'][0])}; {pc2(hc['recall_ci95'][1])}{{]}})}} với dung sai 1 s, {hc['false_alarm_recordings']}/"
+        f"{thousands(hc['normal_recordings'])} bản ghi normal bị báo nhầm ({pc2(hc['false_alarm_rate'])}\\%), p95 {num(hc['latency_p95'], 2)} s; "
+        f"v5 trên cùng bản ghi là {hv['detected']}/{hv['attack_recordings']} ({pc2(hv['recall'])}\\%), {hv['false_alarm_recordings']} báo nhầm, "
+        f"p95 {num(hv['latency_p95'], 2)} s", [], HO)
     DEV5 = 'results-20261110/lidds-ml-v5/lidds-ml-v5-development.json'
     c5 = receipt(DEV5)['candidates']['token-hold0-poolnone']
     d, cb = c5['development'], c5['cbds']
@@ -294,8 +316,11 @@ def claims():
     a4, a5 = T4['all_rates'], T5['all_rates']
     add('live-all-rates', thesis, f"lượt 1109 bắt {frac(a4['attack'])} trial và lượt v5 bắt {frac(a5['attack'])}", [], f'{LIVE}, {LIVE5}')
     add('live-all-control', thesis, f"control dương là {frac(a4['control'])} và {frac(a5['control'])}", [], f'{LIVE}, {LIVE5}')
-    add('live-all-benign', thesis, f"{frac(p4['benign'])} trial tập chính ở lượt 1109 và {frac(p5['benign'])} ở lượt v5; mọi tốc độ "
-        f"{frac(a4['benign'])} và {frac(a5['benign'])}", [], f'{LIVE}, {LIVE5}')
+    FIN = 'results-20261121/pulse-live-final-1119'
+    TF = receipt(f'{FIN}/pulse-live-final.json')['arms']['T']
+    pf, af = TF['primary'], TF['all_rates']
+    add('live-all-benign', thesis, f"{frac(p4['benign'])} trial tập chính ở lượt 1109, {frac(p5['benign'])} ở lượt v5 và {frac(pf['benign'])} ở lượt cuối (t3); "
+        f"mọi tốc độ {frac(a4['benign'])}, {frac(a5['benign'])} và {frac(af['benign'])}", [], f'{LIVE}, {LIVE5}, {FIN}/pulse-live-final.json')
     add('live-admin-all', thesis, tex(f"{frac(p5['admin'])} ở tập chính, {frac(a5['admin'])} ở mọi tốc độ ({pct(a5['admin']['rate'])})"), [], LIVE5)
     hard = p5['attack']['hits'] / (p5['attack']['hits'] + p5['control']['hits'] + p5['benign']['hits'])
     add('token-live-hard-precision', thesis, tex(f"{pct(hard)} ({p5['attack']['hits']}/({p5['attack']['hits']} + "
@@ -468,11 +493,42 @@ def claims():
     add('v6-burden', thesis, f"{b6['episodes']} đợt trên {num(b6['replica_hours'], 1)} replica-giờ ({n2(b6['value'])} {{[}}{n2(b6['ci95'][0])}; "
         f"{n2(b6['ci95'][1])}{{]}})", [], V6)
     ns = receipt(f'{V6}/native-stream.json')['intervals']
+    nf = receipt('results-20261121/pulse-live-final-1119/native-stream-h0pairs.json')['intervals']
+    kn = lambda x: f"{x['k']}/{x['n']}"
     for key, label in (('control', 'Control'), ('admin', 'Lệnh quản trị (bộ v6)'), ('benign', 'Binary vô hại'),
                        ('attack', 'Tấn công (fixture)'), ('lotl', 'Tấn công bằng tool của image')):
-        w, na = ns[key]['whole'], ns[key]['native']
-        add(f'v6-native-{key}', thesis, f"{label} & {w['k']}/{w['n']} & {na['k']}/{na['n']}" +
-            (f" ({n2(100 * na['rate'])}\\%)" if na['k'] else '') + " \\\\", [], f'{V6}/native-stream.json')
+        add(f'v6-native-{key}', thesis, f"{label} & {kn(ns[key]['whole'])} & {kn(ns[key]['native'])} & {kn(nf[key]['whole'])} & "
+            f"{kn(nf[key]['native'])} \\\\", [], f'{V6}/native-stream.json, results-20261121/pulse-live-final-1119/native-stream-h0pairs.json')
+    add('final-native-eventgen', thesis, f"Event-generator & -- & -- & {kn(nf['eventgen']['whole'])} & {kn(nf['eventgen']['native'])} \\\\", [],
+        'results-20261121/pulse-live-final-1119/native-stream-h0pairs.json')
+    # final run (pulse-live-final-v1), token model t3, arm T
+    FR = 'results-20261121/pulse-live-final-1119/pulse-live-final.json'
+    dl, rr, bf = TF['dilution'], TF['recall_by_rate'], TF['burden']
+    add('final-recall', thesis, f"Recall & ≥ 95\\% & {frac(pf['attack'])} {br(*pf['attack']['ci95'], 1)} & {frac(af['attack'])} \\\\", [], FR)
+    add('final-precision', thesis, f"Precision & ≥ 95\\% & 100\\% {br(*pf['precision']['ci95'], 1)} & 100\\% \\\\", [], FR)
+    add('final-control', thesis, f"Control dương & ≤ 5\\% & {frac(pf['control'])} {br(*pf['control']['ci95'], 1)} & {frac(af['control'])} \\\\", [], FR)
+    add('final-p95', thesis, f"p95 kernel → cuối cửa sổ báo & ≤ 3 s & {n2(pf['latency_p95'])} s (p50 {n2(pf['latency_p50'])} s) & "
+        f"{n2(af['latency_p95'])} s \\\\", [], FR)
+    add('final-slow', thesis, f"\\multicolumn{{2}}{{l}}{{{frac(rr['0.5'])} / {frac(rr['0.1'])}}} \\\\", [], FR)
+    add('final-onoff', thesis, f"{frac(dl['onoff10']['attack'])} (control {frac(dl['onoff10']['control'])}, p95 {n2(dl['onoff10']['latency_p95'])} s)", [], FR)
+    add('final-pad300', thesis, f"{frac(dl['pad300']['attack'])} (p95 {n2(dl['pad300']['latency_p95'])} s)", [], FR)
+    add('final-benign', thesis, f"Binary vô hại bị gắn cờ & báo kèm & {frac(pf['benign'])} & {frac(af['benign'])} \\\\", [], FR)
+    add('final-admin', thesis, f"Lệnh quản trị bị gắn cờ & báo kèm & {frac(pf['admin'])} & {frac(af['admin'])} ({num(100 * af['admin']['rate'], 1)}\\%) \\\\", [], FR)
+    add('final-lotl', thesis, f"Tấn công bằng tool của image bị bắt & báo kèm & {frac(pf['lotl'])} & {frac(af['lotl'])} \\\\", [], FR)
+    add('final-eventgen', thesis, f"Hành động event-generator bị bắt & báo kèm & {frac(pf['eventgen'])} & {frac(af['eventgen'])} "
+        f"({num(100 * af['eventgen']['rate'], 1)}\\%) \\\\", [], FR)
+    add('final-burden', thesis, f"{bf['episodes']} đợt trên {num(bf['replica_hours'], 1)} replica-giờ: \\textbf{{{n2(bf['value'])} đợt/replica-giờ}} "
+        f"{{[}}{n2(bf['ci95'][0])}; {n2(bf['ci95'][1])}{{]}}", [], FR)
+    RI = 'results-20261121/pulse-live-final-1119/rule-intent.json'
+    ri = receipt(RI)['intervals']
+    for key, label in (('attack', 'Tấn công (fixture)'), ('lotl', 'Tấn công bằng tool của image'), ('eventgen', 'Event-generator'),
+                       ('control', 'Control idle'), ('admin', 'Lệnh quản trị'), ('benign', 'Binary vô hại')):
+        r_ = ri[key]
+        add(f'rule-intent-{key}', thesis, f"{label} & {kn(r_['ml_only'])} & {kn(r_['rule_only'])} & {kn(r_['ml_or_rule'])} \\\\", [], RI)
+    bu = receipt(RI)['burden']['systems']
+    add('rule-intent-burden', thesis, f"Gánh (đợt/replica-giờ) & {n2(bu['ml_only']['per_replica_hour'])} & {n2(bu['rule_only']['per_replica_hour'])} & "
+        f"{n2(bu['ml_or_rule']['per_replica_hour'])} \\\\", [], RI)
+
     rule6 = receipt(f'{V6}/rule-e.json')['comparison']
     h = lambda x: f"{x['hit']}/{x['n']}"
     rp, ra = rule6['primary'], rule6['all_rates']
