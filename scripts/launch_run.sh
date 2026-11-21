@@ -13,6 +13,7 @@
 #   [K8S_EVENTS=1] records Kubernetes events for the run (scripts/k8s_events_record.py)
 #   [ADMIN_COMMANDS=v6] [RANDOM_ORDER=1] [LOTL_ATTACK=1] [DILUTION_PADS=30,300 [DILUTION_RATE=12]]: campaign options of the
 #   next live run (attack/preview_campaign.py), all off by default
+#   [TRAFFIC_PROFILE=diurnal]: load-diurnal-v1 day plan on the Vietnamese wall clock for the whole run
 #   [LOCAL_DECISIONS=1]: async shared writes + local decision copy without the tripwire (implied by FINAL=1); with it
 #   the bridge runs and RCA builds cases from the alerts Alertmanager delivered, as for FINAL=1
 #   bash launch_run.sh [plan|workers|rca|bridge|master|traffic|all]
@@ -73,6 +74,7 @@ plan() {
   [ -n "${ON_OFF:-}" ] && flags+=(--on-off "$ON_OFF" --on-off-rate "${ON_OFF_RATE:-12}")   # D12 on-off attacker
   [ -n "${EVENTGEN:-}" ] && flags+=(--eventgen "$EVENTGEN")   # D18 event-generator step (binary on NFS)
   [ "${REHEARSAL:-0}" = 1 ] && flags+=(--rehearsal)   # pre-flight of the final run
+  [ -n "${TRAFFIC_PROFILE:-}" ] && flags+=(--traffic-profile "$TRAFFIC_PROFILE")   # load-diurnal-v1: diurnal
   [ "${LOCAL_DECISIONS:-0}" = 1 ] && flags+=(--local-decisions --stream-root "$STREAM_ROOT")
   [ "${RECAL_EXCLUDE_CAMPAIGN:-0}" = 1 ] && flags+=(--recalibration-exclude-campaign)
   PYTHONPATH=$SNAP /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.plan_matched_run \

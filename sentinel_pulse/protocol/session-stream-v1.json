@@ -1,0 +1,32 @@
+{
+  "schema": "sentinel-pulse-session-stream-v1",
+  "registered_at": "2026-11-21T19:55+07:00",
+  "registered_before": "any session-branch model is fitted and any score or classifier of this protocol is computed; known: pulse-live-final-v1 results, burden-labels (176/223 normal-tail episodes hold session windows; every workload with such episodes runs exec liveness/readiness probes), rule-intent-v1",
+  "owner_decisions": [
+    "21/11: separate the exec probes declared in pod specs from the session stream; needs a new protocol and a LID-DS rerun",
+    "21/11: try what is still worth trying for harmless new processes"
+  ],
+  "data": {
+    "learning": "session and native parts of the token windows (lineage build) of pulse-token-capture-v6-1116 (12 h normal) and of the selection prefix of pulse-live-final-1119 (90 min, before any trial); nothing after the selection prefix of the final run is learnt",
+    "evaluation": "pulse-live-final-1119: campaign intervals on the H0 denominators (pairs with an attack interval, scripts/analysis/native_stream.py --h0-pairs) and burden on its normal tail (9.5 h after the campaign, as burden_context.py)",
+    "cross_run": "pulse-live-v6-1117 (lineage build, v6 campaign: fixtures, lotl, v6 admin commands, harmless binary) for S3 only"
+  },
+  "candidates": {
+    "S0": "reference: t3 on the whole window (the deployed alert path)",
+    "S1": "two branches: the native part scored by the workload's t3 model and threshold; the session part scored by ONE pooled session model learnt from the session parts of every workload (the windows of exec probes and other runtime execs in normal traffic), threshold by the same rule (moment Gumbel on 60 s block maxima of 5-fold cross-fit over 30 min chunks, top 3, trim 0.005) at alpha' 0.00015 per branch (the pair spends t3's 0.0003); an alarm when either branch fires",
+    "S2": "as S1, but a workload with at least 200 learning blocks holding session events gets its own session model and threshold; the others use the pooled one",
+    "S3": "a learnt triage after S0 (supervised, labels of the campaign design): for every interval the model flags with session events, features are the share of each system call (top 9 bits) among the session events of its alarm windows, the share of error tokens, and the number of alarm windows; L2 logistic regression; evaluated leave-one-family-out (family = fixture scenario, the lotl step, each event-generator action, each operator command, the harmless binary), the operating point set on the training families at <= 5 % of their benign intervals passed; then trained on all final-run families and tested on pulse-live-v6-1117"
+  },
+  "criteria": {
+    "S1_S2_adopt": "all of: primary attack recall >= 95 %, lotl and event-generator recall >= 95 % (all rates), idle control <= 5 %, burden on the normal tail <= 0.24 episodes per replica-hour (one third below t3's 0.36); if both pass, the one with the lower burden; then LID-DS 2021 official, LID-DS 2019 (70 % part, 1 s tolerance) and CB-DS are rerun and must give t3's results (1,236/1,271 with 15; 817/841 with 25; 891/891 with 3), since dataset recordings have no session lineage",
+    "S3_adopt": "as a triage label only (never a suppression of the recorded alert): in leave-one-family-out every attack family keeps >= 90 % and the operator-command and harmless-binary families together are passed at <= 20 %; and on pulse-live-v6-1117 attacks >= 95 % with operator commands and the harmless binary <= 20 %",
+    "reported_always": "admin and harmless-binary flag rates of every candidate, burden by stream, per-family results of S3"
+  },
+  "limits": [
+    "every campaign attack enters through kubectl exec, so the session branch decides recall on the cluster; an attack inside a service process is tested only on LID-DS (native)",
+    "S3 learns from five self-written fixtures, one lotl step, 13 event-generator actions and 20 operator commands: a classifier can learn the campaign rather than intent; leave-one-family-out and the cross-run test are the guards, not a proof",
+    "exec probes are identified by lineage (session) in normal traffic, not by the probe command of the pod spec; an operator exec in normal traffic would be learnt as session normal too"
+  ],
+  "code": "scripts/analysis/token_branch_fit.py --part session (new), scripts/analysis/session_stream.py (new), scripts/analysis/session_triage.py (new)",
+  "order": "runs only when no live run or capture is running (heavy NFS reads); the adopted branch, if any, enters the diurnal live run of load-diurnal-v1"
+}

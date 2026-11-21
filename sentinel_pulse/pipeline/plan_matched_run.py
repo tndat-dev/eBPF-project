@@ -26,6 +26,7 @@ import subprocess
 import time
 
 from ..integrity import sha256_file
+from .traffic_profile import diurnal_schedule
 
 # Every pinned value of a run comes from the command line (profile "custom"): the earlier named profiles pointed at model
 # bundles of finished runs that are no longer on the NFS share.
@@ -61,7 +62,7 @@ def rehearsal_schedule(schedule):
 
 
 def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,custom=None,rates=(6,12,24),
-         final_system=None,recalibration=None,tokens=None,local_decisions=None,rehearsal=False):
+         final_system=None,recalibration=None,tokens=None,local_decisions=None,rehearsal=False,traffic_profile=None):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
     # custom: every pinned value comes from the command line (later runs need no code change)
     if profile!='custom' or not custom:raise ValueError('a run needs the custom profile with every pinned value')
@@ -185,6 +186,14 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
     # Xáo thứ tự trial bằng seed cố định → lịch giống hệt nếu dựng lại, nhưng không theo thứ tự workload.
     random.Random(20261015).shuffle(cfg['schedule'])
     if rehearsal:cfg['schedule']=rehearsal_schedule(cfg['schedule'])
+    # load-diurnal-v1: the regimes on the Vietnamese wall clock for the whole run (pipeline/traffic_profile.py), seed kept
+    if traffic_profile=='diurnal':
+        seed=int(start)%100000
+        cfg.update(traffic_profile=dict(name='diurnal',seed=seed,module='sentinel_pulse/pipeline/traffic_profile.py'))
+        cfg['traffic_schedule']=diurnal_schedule(start,start+cfg['seconds']+86400,seed)
+        config=root/'CONFIG.json'
+        config.write_text(json.dumps(cfg,indent=2)+'\n');config.chmod(0o444)
+        print(config);return
     # Lịch tải: hai vòng 5 pha (756 s rồi 324 s mỗi pha) trong đoạn selection, rồi 'steady' tới hết lượt.
     cfg['traffic_schedule']=[]
     t=start
@@ -228,6 +237,8 @@ if __name__=='__main__':
     p.add_argument('--on-off',help='on-off attacker (improvement-round-v1 D12): comma-separated periods in s (2-60), extra trials '
                    'at --on-off-rate with operations only in the first second of each period')
     p.add_argument('--on-off-rate',type=float,default=12)
+    p.add_argument('--traffic-profile',choices=['selection','diurnal'],default='selection',
+                   help='selection: five regimes in the first 90 min then steady (default); diurnal: load-diurnal-v1 day plan')
     a=p.parse_args()
     # D12: fractional rates (slow attacker, e.g. 0.5, 0.2, 0.1 per second); integers print as before (6, not 6.0)
     rates=tuple((lambda r:int(r) if r==int(r) else r)(float(x)) for x in a.attack_rates.split(','))
@@ -255,4 +266,5 @@ if __name__=='__main__':
                 dilution_pads=pads,dilution_rate=a.dilution_rate,on_off=onoff,eventgen=a.eventgen,
                 on_off_rate=(lambda r:int(r) if r==int(r) else r)(a.on_off_rate)) if a.token_build else None
     plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal,tokens,
-         a.stream_root if a.local_decisions else None,rehearsal=a.rehearsal)
+         a.stream_root if a.local_decisions else None,rehearsal=a.rehearsal,
+         traffic_profile=None if a.traffic_profile=='selection' else a.traffic_profile)

@@ -2,10 +2,10 @@
 # Reproducibly switch only the Sentinel-owned AIMS traffic generators.
 # Đổi chế độ tải của ứng dụng AIMS bằng cách đổi số replica và nhịp gửi request của các deployment loadgen (chỉ các
 # deployment của Sentinel). Các chế độ: steady (nền), peak (giờ cao điểm), burst (đột biến), recovery (hạ tải), toolmix
-# (trộn công cụ), idle. matched_traffic.py gọi script này theo lịch traffic_schedule.
+# (trộn công cụ), night (đêm ít người dùng, load-diurnal-v1), idle. matched_traffic.py gọi script này theo lịch traffic_schedule.
 set -euo pipefail
 
-REGIME=${1:?usage: set_aims_traffic_regime.sh steady|toolmix|peak|burst|recovery|idle}
+REGIME=${1:?usage: set_aims_traffic_regime.sh steady|toolmix|peak|burst|recovery|night|idle}
 NAMESPACE=${NAMESPACE:-production}
 
 case "$REGIME" in
@@ -14,6 +14,8 @@ case "$REGIME" in
   # deliberately spiky burst regime so both normal modes remain identifiable.
   peak)     base_replicas=4; mix_replicas=2; dependency_replicas=3; sleep_seconds=0.25; ingress_interval=0.08; frontend_interval=0.12 ;;
   burst)    base_replicas=6; mix_replicas=2; dependency_replicas=3; sleep_seconds=0; ingress_interval=0.04; frontend_interval=0.06 ;;
+  # Quiet night (load-diurnal-v1): a few users and background jobs, below recovery but never idle.
+  night)    base_replicas=1; mix_replicas=0; dependency_replicas=1; sleep_seconds=4; ingress_interval=1.00; frontend_interval=1.20 ;;
   recovery) base_replicas=1; mix_replicas=0; dependency_replicas=1; sleep_seconds=2; ingress_interval=0.44; frontend_interval=0.40 ;;
   toolmix)  base_replicas=2; mix_replicas=4; dependency_replicas=2; sleep_seconds=1; ingress_interval=0.22; frontend_interval=0.30 ;;
   idle)     base_replicas=0; mix_replicas=0; dependency_replicas=0; sleep_seconds=2; ingress_interval=0.44; frontend_interval=0.40 ;;

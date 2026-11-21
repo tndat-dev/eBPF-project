@@ -1,0 +1,43 @@
+{
+  "schema": "sentinel-pulse-load-diurnal-v1",
+  "registered_at": "2026-11-21T19:50+07:00",
+  "registered_before": "the diurnal normal capture starts; no data under the diurnal profile exists",
+  "owner_decisions": [
+    "21/11: try a protocol whose load covers every regime, not most learning and live data in one regime",
+    "21/11: the load must follow the real regimes over at least 24 h (peak around 08:00, few requests 00:00-06:00, ...), designed to match real demand"
+  ],
+  "problem": "every capture and live run so far applied the five regimes only in the first 90 minutes (two cycles, 756 s then 324 s per regime) and then 'steady' to the end: about 88 % of a 12 h capture and almost all of a live run were one regime, so the models learnt steady traffic and the burden under other loads is unmeasured",
+  "profile": {
+    "code": "sentinel_pulse/pipeline/traffic_profile.py (DAY_PLAN), testbed/traffic/set_aims_traffic_regime.sh (new regime 'night'), plan_matched_run.py --traffic-profile diurnal, launch_run.sh TRAFFIC_PROFILE=diurnal",
+    "day_plan_local_time_utc+7": "00:00 night, 02:00 toolmix (maintenance 30 min), 02:30 night, 05:30 recovery, 07:00 steady, 08:00 peak, 08:30 burst (login storm 10 min), 08:40 peak, 10:00 toolmix, 11:30 peak (lunch), 13:00 steady, 14:30 toolmix (1 h), 15:30 steady, 19:00 peak, 20:00 burst (flash sale 15 min), 20:15 peak, 21:30 recovery, 23:00 night",
+    "jitter": "every boundary after 00:00 moves by a seeded uniform jitter of up to +/-10 min per calendar day (seed in CONFIG.json)",
+    "hours_per_day": "night 5.9, steady 6.5, peak 5.4, toolmix 2.9, recovery 2.7, burst 0.6",
+    "night_regime": "1 east-west and 1 ingress loadgen replica, no read-mix, 1 dependency, sleep 4 s, ingress interval 1.0 s, frontend 1.2 s"
+  },
+  "steps": {
+    "C_capture": "pulse-token-capture-diurnal-<MMDD>: 24 h (SECONDS_TOTAL 86400) of normal traffic under the diurnal profile, lineage token build pulse-tokens-final-f8ccbb2, no campaign, K8s events recorded; no heavy job on any node while it runs",
+    "A_aging": "descriptive, after C: the deployed t3 models (pulse-live-v7-fit-1118, learnt on steady-heavy data) score the whole capture; held-out style exceedance of 60 s container blocks per regime (scripts/analysis/model_aging.py with the regime of each block from PHASES.jsonl)",
+    "F_fit": "t3 fit on the capture plus the final run's normal tail (pulse-live-final-1119 after its campaign; lineage, 9.5 h steady) with the registered parameters (top 3, trim 0.005, alpha' 0.0003, 5-fold cross-fit over 30 min chunks, 60 s blocks); held-out exceedance per regime reported",
+    "L_live": "pulse-live-diurnal-<MMDD>: the final run's campaign (pulse-live-final-v1 options) under the diurnal profile for the whole run, SECONDS_TOTAL at least the campaign plus 12 h of normal tail, so the tail spans night and day; the alert path is t3 alone unless session-stream-v1 adopts a session branch before L starts, in which case that system is the alert path and the comparison with t3 alone is done offline on the same windows"
+  },
+  "hypotheses": {
+    "H0": "primary set: recall >= 95 %, idle control <= 5 %, precision >= 95 %, p95 kernel -> end of alarm window <= 3 s (as pulse-live-final-v1)",
+    "H9": "recall >= 95 % within every regime that holds at least 30 primary-set trials (trial regime = regime at the interval start)",
+    "H10": "burden per regime on the normal tail: no regime above 3 times the pooled burden (a model that learnt every regime has no regime it does not know)"
+  },
+  "reported": [
+    "A: exceedance per regime of the steady-trained models on diurnal data",
+    "F: held-out exceedance per regime of the diurnal fit",
+    "L: everything pulse-live-final-v1 reports, plus recall, control, admin, harmless-binary and burden per regime, and the same against the final run",
+    "trial counts per regime (the campaign runs through day and night)"
+  ],
+  "limits": [
+    "the profile is designed, not replayed from a real shop's logs; the regimes are the loadgen settings of the testbed",
+    "one diurnal capture of 24 h: each regime appears on one day of learning data, so day-to-day variation of the same regime is only the seeded jitter"
+  ],
+  "rules": [
+    "runs complete their full cycle; infrastructure faults are excluded spans, not a reason to stop",
+    "no heavy job on any node while C or L runs",
+    "any change to the model that scores LID-DS reruns LID-DS 2021 and keeps the t3 dataset result (improvements-must-rerun rule); the diurnal profile changes only cluster learning data"
+  ]
+}
