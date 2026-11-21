@@ -1,0 +1,32 @@
+{
+  "schema": "sentinel-pulse-rule-intent-v1",
+  "registered_at": "2026-11-21T19:01+07:00",
+  "registered_before": "any intent-rule flag is computed on pulse-live-final-1119 (only the ML-only results of pulse-live-final-v1 are known: lotl 286/286 primary, event generator 238/241 primary, 549/556 all rates)",
+  "source": "pulse-live-final-v1 'reported': afterwards, as the rule track, an intent-catalogue rule on the living-off-the-land and event-generator steps, with and without; rule-framework-last: rules run parallel to the ML, never as a gate in front of it",
+  "data": "pulse-live-final-1119, tokens.jsonl of the three workers (the whole window, both lineages); the intervals of pulse_live_v4.load_trials restricted to pairs with an attack interval (the H0 denominators)",
+  "rule": {
+    "catalogue": "exec-intent-v1 intent_catalogue, frozen 30/10/2026 from external sources: ptrace 101, setns 308, unshare 272, mount 165, pivot_root 155, capset 126, setuid 105, setgid 106, seccomp 317, execveat 322, chmod 90 (x86_64 numbers), and mprotect 10 in the steady phase",
+    "steady_phase": "mprotect counts only in a window of a container with no execve 59 or execveat 322 token in the same window or the one before (1 s): loading a new program calls mprotect, the steady phase is what follows",
+    "fires": "a window fires when one of its grams' last token (the call itself, top 9 bits of the token) is in the catalogue; an interval is flagged when a window ending in [start, start + 15 s] fires, as the ML",
+    "failures": "the catalogue's failure clause (-EPERM, -EACCES, -EINVAL, -EBADF, -ENOENT) is not observable: none of the catalogue calls is among the 39 hooked syscalls, so their tokens carry the name only; recorded as a limit",
+    "variant_family": "secondary, reported next to the frozen rule: the same rule with the sibling calls of the catalogue entries added (fchmod 91, fchmodat 268, fchmodat2 452, setreuid 113, setregid 114, setresuid 117, setresgid 119, setfsuid 122, setfsgid 123, clone3 435 is not added); not a candidate for adoption, only to show how much the frozen names miss"
+  },
+  "systems": {
+    "ml_only": "token model t3 alone (the deployed alert path; rescoring equals the live score, live-attribution gate)",
+    "rule_only": "the intent rule alone",
+    "ml_or_rule": "an alert when the ML or the rule fires (the rule in parallel, adds alerts, never removes one)"
+  },
+  "reported": [
+    "per label (attack, lotl, eventgen, admin, benign, control) and set (all rates, primary 6/12/24, PAD 300, on-off 10 s): flagged k/n with Wilson 95 % for the three systems",
+    "event generator per action for the three systems; which ML misses the rule recovers",
+    "latency of the first alarm (window end - interval start) on the primary attack set for ml_only and ml_or_rule (p50, p95)",
+    "burden on the normal tail after the campaign (the span of burden_context.py): episodes (alarms of one container merged when < 15 s apart) per replica-hour for rule_only and ml_or_rule, next to ml_only",
+    "which catalogue calls fire on the normal tail (by workload)"
+  ],
+  "decision": "the intent rule is adopted into the alert path only if ml_or_rule raises lotl or event-generator recall (all rates) by at least one interval over ml_only AND keeps idle control <= 5 %, AND its burden stays <= 1.76 episodes per replica-hour (the acceptable bound of lidds-ml-v5); otherwise it is reported and not adopted",
+  "limits": [
+    "the five attack fixtures use catalogue calls (ptrace, setns, seccomp, execveat, mprotect): the rule's recall on them is circular, reported, not a result",
+    "one run, one cluster; the event generator actions are the 13 executed in this run"
+  ],
+  "code": "scripts/analysis/rule_intent.py"
+}
