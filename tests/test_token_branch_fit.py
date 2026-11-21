@@ -130,3 +130,23 @@ def test_top_and_trim_reach_the_threshold_and_the_spec(tmp_path):
     assert abs(f.threshold(f.trimmed_gumbel(list(maxima.values()), 0.005), 0.0003) - entry['threshold']) < 1e-12
     _, _, default = f.fit_crossfit(base)
     assert 'top' not in default
+
+
+def test_split_keeps_one_lineage_part_and_pools_workloads(tmp_path):
+    # session-stream-v1: --part session keeps the session grams (empty parts dropped), --part native the rest;
+    # --pool-key writes every workload into one file
+    run = tmp_path / 'run'
+    seg = run / 'workers' / 'n' / 'segments' / 's00001'
+    seg.mkdir(parents=True)
+    rows = [dict(window_end=10.0, workload_key='a', pod_uid='p', container_name='c', grams=COMMON + RARE, session=RARE),
+            dict(window_end=11.0, workload_key='b', pod_uid='q', container_name='c', grams=COMMON, session=[])]
+    (seg / 'tokens.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+    work = tmp_path / 'work'; work.mkdir()
+    names = f.split([(run, 0.0, 100.0, None)], work, 'session', 'pool/session')
+    assert list(names) == ['pool/session']
+    kept = [json.loads(l) for l in open(names['pool/session'])]
+    assert [r['grams'] for r in kept] == [RARE] and 'session' not in kept[0]
+    work2 = tmp_path / 'work2'; work2.mkdir()
+    names = f.split([(run, 0.0, 100.0, None)], work2, 'native')
+    native = {k: [json.loads(l)['grams'] for l in open(v)] for k, v in names.items()}
+    assert sorted(map(tuple, map(tuple, native['a'][0]))) == sorted(map(tuple, COMMON)) and native['b'] == [COMMON]

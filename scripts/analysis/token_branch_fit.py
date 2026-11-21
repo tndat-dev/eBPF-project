@@ -76,10 +76,29 @@ def trial_spans(campaign):
 
 
 # Tách dòng tokens.jsonl theo workload ra file tạm (đọc mỗi file nguồn đúng một lần).
-def split(sources, work):
+def part_of(w, part):
+    """session-stream-v1: the grams of one lineage part of a window, or None when that part is empty. 'session' is
+    the part counted on session-lineage threads (runtime exec and descendants), 'native' the whole minus it."""
+    if part == 'whole':
+        return w['grams']
+    if 'session' not in w:
+        raise ValueError('--part needs windows of the lineage build')
+    if part == 'session':
+        return w['session'] or None
+    left = {tuple(int(v) for v in g[:4]): int(g[4]) for g in w['grams']}
+    for g in w['session']:
+        key = tuple(int(v) for v in g[:4])
+        left[key] -= int(g[4])
+    native = [[*k, c] for k, c in left.items() if c > 0]
+    return native or None
+
+
+def split(sources, work, part='whole', pool_key=None):
     """One pass over each run: the lines of each workload into their own file (name: sha256 prefix). sources:
     [(run root, lo, hi, excluded spans per container or None)]; a window is kept when lo <= window_end < hi and it
-    lies in no excluded span of its container."""
+    lies in no excluded span of its container. session-stream-v1: with part 'session' or 'native' only that lineage
+    part of a window is kept (windows whose part is empty are dropped); with pool_key every workload goes to one file
+    (a pooled model)."""
     handles, names = {}, {}
     for root, lo, hi, excluded in sources:
         for path in sorted(root.glob('workers/*/segments/*/tokens.jsonl*')):
@@ -92,7 +111,14 @@ def split(sources, work):
                         continue
                     if excluded and any(a <= end < b for a, b in excluded.get((w['pod_uid'], w['container_name']), ())):
                         continue
-                    key = w['workload_key']
+                    if part != 'whole':
+                        grams = part_of(w, part)
+                        if grams is None:
+                            continue
+                        w['grams'] = grams
+                        w.pop('session', None)
+                        line = json.dumps(w, separators=(',', ':'))
+                    key = pool_key or w['workload_key']
                     if key not in handles:
                         names[key] = work / (hashlib.sha256(key.encode()).hexdigest()[:16] + '.jsonl')
                         handles[key] = names[key].open('w')
@@ -281,6 +307,9 @@ def main():
     ap.add_argument('--exec-hold', type=float, default=1.0, help='lidds-ml-v5 gate: seconds held after an execve')
     ap.add_argument('--top', type=int, default=TOP, help='window score: mean of the TOP highest -log p (lidds-ml-v5-t3: 3)')
     ap.add_argument('--trim', type=float, default=TOP_DROP, help='share of the highest held-out maxima dropped before the Gumbel fit')
+    ap.add_argument('--part', choices=['whole', 'session', 'native'], default='whole',
+                    help='session-stream-v1: learn and threshold one lineage part of each window (lineage build)')
+    ap.add_argument('--pool-key', help='session-stream-v1: one pooled model of every workload under this key')
     ap.add_argument('--dump-maxima', type=Path, help='ml-final-study-v1 part C: write the held-out block maxima per workload here')
     a = ap.parse_args()
     if not a.train[0] < a.train[1] <= a.validation[0] < a.validation[1]:
@@ -297,7 +326,7 @@ def main():
     if a.extra_run:
         sources.append((a.extra_run, a.extra_span[0], a.extra_span[1], trial_spans(a.extra_run / 'pulse-development-matrix')))
         a.train, a.validation = crossfit_span(a.train, a.validation, a.extra_span)
-    names = split(sources, work)
+    names = split(sources, work, a.part, a.pool_key)
     jobs = [(k, str(v), a.train, a.validation, a.alpha, a.block, a.minimum_blocks, str(a.output)) for k, v in sorted(names.items())]
     worker = fit_one
     if a.folds:
@@ -338,7 +367,7 @@ def main():
                                                             exec_hold_seconds=a.exec_hold, level=a.pool_level), indent=1) + '\n')
     (a.output / 'MODELS.json').write_text(json.dumps(spec, indent=1, sort_keys=True) + '\n')
     (a.output / 'FIT.json').write_text(json.dumps(dict(schema='pulse-token-branch-fit-v1', run_root=str(a.run_root),
-                                                       extra_run=str(a.extra_run) if a.extra_run else None,
+                                                       extra_run=str(a.extra_run) if a.extra_run else None, part=a.part, pool_key=a.pool_key,
                                                        extra_span=a.extra_span,
                                                        train=a.train, validation=a.validation, alpha=a.alpha,
                                                        branch_alpha=a.alpha * (a.share if a.folds else 1 / 3), block=a.block,

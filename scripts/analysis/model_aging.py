@@ -9,6 +9,10 @@ Gumbel thresholds equal MODELS.json), the share of v5's own held-out blocks abov
 per replica-hour, a replica-hour being 7,200 windows of one container.
 
     python3 model_aging.py --run-root CAPTURE --models FIT/token/MODELS.json [--heldout cluster-threshold.json] --output out.json [--jobs 4]
+
+load-diurnal-v1 step A: --by-regime also reports blocks above, episodes and replica-hours per traffic regime (the
+regime of the run's traffic_schedule at the block's start; an episode belongs to the regime at its first alarm), and
+--design-alpha sets the design level (t3: 0.0003).
 """
 # Mô hình v5 KHÔNG ĐỔI chấm normal mới sau khi đổi cấu hình cụm: tỉ lệ khối vượt ngưỡng so với mức giữ ra của chính nó.
 import argparse
@@ -40,6 +44,7 @@ def read_file(job):
     end)], workloads without a model {workload: windows}) of one tokens.jsonl."""
     path, models, block = job
     maxima, windows, alarms, unknown = {}, defaultdict(int), [], defaultdict(int)
+    windows_at = defaultdict(int)                          # windows per 60 s block start (regime split)
     with open_sealed(Path(path)) as stream:
         for line in stream:
             w = json.loads(line)
@@ -52,9 +57,42 @@ def read_file(job):
             cell = (key, w['pod_uid'], w['container_name'], math.floor(w['window_end'] / block))
             maxima[cell] = max(maxima.get(cell, 0.0), s)
             windows[key] += 1
+            windows_at[math.floor(w['window_end'] / block)] += 1
             if s > thr:
                 alarms.append((key, w['pod_uid'], w['container_name'], w['window_end']))
-    return maxima, dict(windows), alarms, dict(unknown)
+    return maxima, dict(windows), alarms, dict(unknown), dict(windows_at)
+
+
+def regime_of(t, schedule):
+    """Regime of the traffic schedule phase holding t (None outside the schedule)."""
+    for p in schedule:
+        if p['start'] <= t < p['end']:
+            return p['regime']
+    return None
+
+
+def by_regime(maxima, windows_at, alarms, models, schedule, block=BLOCK):
+    """{regime: blocks, above, rate, replica_hours, episodes, per_replica_hour}."""
+    out = defaultdict(lambda: dict(blocks=0, above=0, windows=0, episodes=0))
+    for (w, _, _, b), m in maxima.items():
+        r = regime_of(b * block, schedule)
+        out[r]['blocks'] += 1
+        out[r]['above'] += m > models[w][1]
+    for t, n in windows_at.items():
+        out[regime_of(t * block, schedule)]['windows'] += n
+    by_container = defaultdict(list)
+    for w, pod, container, end in alarms:
+        by_container[(w, pod, container)].append(end)
+    for times in by_container.values():
+        times = sorted(times)
+        starts = [times[0]] + [b for a, b in zip(times, times[1:]) if b - a >= QUIET] if times else []
+        for t in starts:
+            out[regime_of(t, schedule)]['episodes'] += 1
+    for r, v in out.items():
+        v['rate'] = v['above'] / v['blocks'] if v['blocks'] else None
+        v['replica_hours'] = v['windows'] / 7200
+        v['per_replica_hour'] = v['episodes'] / v['replica_hours'] if v['windows'] else None
+    return {str(k): v for k, v in out.items()}
 
 
 def episodes(times, quiet=QUIET):
@@ -111,28 +149,38 @@ def main():
     ap.add_argument('--heldout', type=Path, help='cluster-threshold.json of ml-final-study-v1 part C')
     ap.add_argument('--output', type=Path, required=True)
     ap.add_argument('--jobs', type=int, default=4)
+    ap.add_argument('--by-regime', action='store_true', help='load-diurnal-v1 A: split by the run traffic regime')
+    ap.add_argument('--design-alpha', type=float, default=ALPHA)
     a = ap.parse_args()
     doc = json.loads(a.models.read_text())
     models = {k: (v['lm'], float(v['threshold'])) for k, v in doc.items()}
     files = [str(p) for p in sorted(a.run_root.glob('workers/*/segments/*/tokens.jsonl*'))]
     maxima, windows, alarms, unknown = {}, defaultdict(int), [], defaultdict(int)
+    windows_at = defaultdict(int)
     with Pool(a.jobs) as pool:
-        for m, w, al, un in pool.imap_unordered(read_file, [(f, models, BLOCK) for f in files], chunksize=1):
+        for m, w, al, un, wa in pool.imap_unordered(read_file, [(f, models, BLOCK) for f in files], chunksize=1):
             for cell, s in m.items():                       # a block can straddle two segment files
                 maxima[cell] = max(maxima.get(cell, 0.0), s)
             for k, n in w.items():
                 windows[k] += n
             for k, n in un.items():
                 unknown[k] += n
+            for k, n in wa.items():
+                windows_at[k] += n
             alarms += al
     receipt = json.loads(a.heldout.read_text()) if a.heldout else None
     heldout = v5_heldout(receipt, models) if receipt else None
     rows, pooled = summarize(maxima, windows, alarms, models, heldout)
+    pooled['design'] = a.design_alpha
+    regimes = None
+    if a.by_regime:
+        schedule = json.loads((a.run_root / 'CONFIG.json').read_text())['traffic_schedule']
+        regimes = by_regime(maxima, windows_at, alarms, models, schedule)
     if receipt:
         pooled['v5_burden'] = receipt['burden']['gumbel']
     out = dict(schema='pulse-model-aging-v1', protocol='sentinel_pulse/protocol/pulse-live-v6-v1-amendment-1.json',
                run=str(a.run_root), models=str(a.models), segments_read=len(files), pooled=pooled, workloads=rows,
-               without_model=dict(unknown))
+               without_model=dict(unknown), by_regime=regimes)
     a.output.write_text(json.dumps(out, indent=1))
     print(json.dumps(pooled))
 

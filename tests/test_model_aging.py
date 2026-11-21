@@ -39,7 +39,7 @@ def test_blocks_alarms_and_episodes(tmp_path):
             window(10.0, known, workload='ns/new:c')]                   # no model
     (seg / 'tokens.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
     models = {'ns/w:c': (lm, 5.0)}
-    m, w, al, un = ma.read_file((str(seg / 'tokens.jsonl'), models, 60.0))
+    m, w, al, un, _ = ma.read_file((str(seg / 'tokens.jsonl'), models, 60.0))
     assert un == {'ns/new:c': 1} and w == {'ns/w:c': 5} and len(al) == 3
     rows, pooled = ma.summarize(m, w, al, models)
     r = rows['ns/w:c']
@@ -61,3 +61,14 @@ def test_v5_heldout_share():
     assert rows['ns/w:c']['v5_heldout']['rate'] == 0.0005 and pooled['v5_heldout']['above'] == 2
     with pytest.raises(ValueError):
         ma.v5_heldout(receipt, {'ns/w:c': ('x', 5.1)})
+
+
+def test_by_regime_splits_blocks_windows_and_episodes_by_the_schedule():
+    schedule = [dict(start=0.0, end=120.0, regime='night'), dict(start=120.0, end=240.0, regime='peak')]
+    models = {'w': ('m', 5.0)}
+    maxima = {('w', 'p', 'c', 0): 6.0, ('w', 'p', 'c', 1): 1.0, ('w', 'p', 'c', 2): 9.0}
+    windows_at = {0: 120, 1: 120, 2: 7200}
+    alarms = [('w', 'p', 'c', 10.0), ('w', 'p', 'c', 12.0), ('w', 'p', 'c', 130.0)]
+    out = ma.by_regime(maxima, windows_at, alarms, models, schedule)
+    assert out['night']['blocks'] == 2 and out['night']['above'] == 1 and out['night']['episodes'] == 1
+    assert out['peak']['above'] == 1 and out['peak']['episodes'] == 1 and out['peak']['replica_hours'] == 1.0
