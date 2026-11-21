@@ -190,7 +190,8 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
     if traffic_profile=='diurnal':
         seed=int(start)%100000
         cfg.update(traffic_profile=dict(name='diurnal',seed=seed,module='sentinel_pulse/pipeline/traffic_profile.py'))
-        cfg['traffic_schedule']=diurnal_schedule(start,start+cfg['seconds']+86400,seed)
+        end=start+cfg['seconds']
+        cfg['traffic_schedule']=diurnal_schedule(start,end,seed)+[dict(start=end,end=end+86400,regime='steady')]
         config=root/'CONFIG.json'
         config.write_text(json.dumps(cfg,indent=2)+'\n');config.chmod(0o444)
         print(config);return

@@ -178,10 +178,22 @@ bridge() {
   as_root bash "$SNAP/scripts/alert_bridge.sh" "$RUN"
 }
 
+# improvement-round-v1 D10: Kubernetes events for the whole run (operational labels of alert episodes after the run)
+events() {
+  if [ "${K8S_EVENTS:-0}" = 1 ]; then
+    # a system unit run as dat: a --user unit stops when the launching ssh session closes (dat has no linger;
+    # pulse-live-final-1119 lost its recorder this way at 02:49 UTC, restarted 03:59)
+    as_root systemd-run --unit="pulse-k8s-events-$RUN" --uid=dat --gid=dat -p Environment=HOME=/home/dat \
+      -p MemoryMax=300M -p OOMPolicy=continue --collect /usr/bin/python3 -u "$SNAP/scripts/k8s_events_record.py" \
+      --output "$ROOT/k8s-events.jsonl" --seconds "${SECONDS_TOTAL:-86400}"
+  fi
+}
+
 traffic() {
   cd /tmp
   as_root env PYTHONPATH="$SNAP" /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.matched_services \
     --config "$ROOT/CONFIG.json" --role traffic
+  events    # a normal capture records Kubernetes events too (load-diurnal-v1)
 }
 
 # Bước master: bộ sinh tải + campaign (campaign tự chờ hết 90 phút đầu lượt rồi mới bắt đầu trial).
@@ -191,14 +203,7 @@ master() {
     --config "$ROOT/CONFIG.json" --role traffic
   as_root env PYTHONPATH="$SNAP" /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.matched_services \
     --config "$ROOT/CONFIG.json" --role campaign --credential "$CREDENTIAL"
-  # improvement-round-v1 D10: Kubernetes events for the whole run (operational labels of alert episodes after the run)
-  if [ "${K8S_EVENTS:-0}" = 1 ]; then
-    # a system unit run as dat: a --user unit stops when the launching ssh session closes (dat has no linger;
-    # pulse-live-final-1119 lost its recorder this way at 02:49 UTC, restarted 03:59)
-    as_root systemd-run --unit="pulse-k8s-events-$RUN" --uid=dat --gid=dat -p Environment=HOME=/home/dat \
-      -p MemoryMax=300M -p OOMPolicy=continue --collect /usr/bin/python3 -u "$SNAP/scripts/k8s_events_record.py" \
-      --output "$ROOT/k8s-events.jsonl" --seconds "${SECONDS_TOTAL:-86400}"
-  fi
+  events
 }
 
 case "${1:-all}" in
