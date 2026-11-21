@@ -26,3 +26,12 @@ def test_burden_merges_alarms_into_episodes_per_system():
 
 def test_branch_threshold_is_the_gumbel_quantile():
     assert abs(ss.gumbel_threshold((4.0, 1.0), 0.0003) - (4.0 + 8.1115)) < 1e-3
+
+
+def test_session_branch_config_takes_native_thresholds_from_the_t3_gumbel():
+    import session_branch_config as sbc
+    fit = dict(workloads={'w': dict(gumbel=[4.0, 1.0]), 'x': dict(gumbel=None)})
+    pooled = {'pool/session': dict(lm='/m', lm_sha256='0' * 64, threshold=9.0, top=3)}
+    doc = sbc.build(fit, pooled, None, 0.0003)
+    assert list(doc['native_thresholds']) == ['w'] and abs(doc['native_thresholds']['w'] - 12.1115) < 1e-3
+    assert doc['pooled']['threshold'] == 9.0 and doc['per'] == {}

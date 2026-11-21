@@ -121,6 +121,9 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
             cfg['tokens']['models']=json.loads(Path(tokens['models']).read_text())
             cfg['tokens']['models_document']=dict(path=str(tokens['models']),sha256=sha256_file(Path(tokens['models'])))
         if tokens.get('gate'):cfg['tokens']['gate']=json.loads(Path(tokens['gate']).read_text())
+        if tokens.get('session'):                       # session-stream-v1: native/session branches (TokenBranch)
+            cfg['tokens']['session']=json.loads(Path(tokens['session']).read_text())
+            cfg['tokens']['session_document']=dict(path=str(tokens['session']),sha256=sha256_file(Path(tokens['session'])))
         if tokens.get('admin_control'):cfg['admin_control']=True
         if tokens.get('admin_commands'):cfg['admin_commands']=tokens['admin_commands']
         if tokens.get('random_trial_order'):cfg['random_trial_order']=True
@@ -226,6 +229,7 @@ if __name__=='__main__':
     p.add_argument('--token-build',help='lidds-ml-v3 token probe: directory with build/ and proof/ on every worker')
     p.add_argument('--token-models',type=Path,help='token branch models (MODELS.json of token_branch_fit.py)')
     p.add_argument('--v3-counts',type=Path,help='count-branch thresholds (count_branch_fit.py)')
+    p.add_argument('--token-session',type=Path,help='session-stream-v1: SESSION.json (native_thresholds, pooled, per) of the session branch')
     p.add_argument('--token-gate',type=Path,help='gate of the token branch, protocol lidds-ml-v5 (GATE.json of token_branch_fit.py)')
     p.add_argument('--admin-control',action='store_true',help='real admin commands as benign controls in every trial')
     p.add_argument('--local-decisions',action='store_true',help='async shared writes + local decision copy (--stream-root) without the tripwire')
@@ -262,7 +266,7 @@ if __name__=='__main__':
         if not m:p.error('recalibration must be rolling-W-R')
         recal=dict(window_hours=int(m[1]),refresh_hours=int(m[2]),exclude_campaign=a.recalibration_exclude_campaign)
     if (a.token_models or a.v3_counts) and not a.token_build:p.error('token models and count thresholds need --token-build')
-    tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts,gate=a.token_gate,admin_control=a.admin_control,
+    tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts,gate=a.token_gate,session=a.token_session,admin_control=a.admin_control,
                 admin_commands=a.admin_commands,random_trial_order=a.random_trial_order,lotl_attack=a.lotl_attack,
                 dilution_pads=pads,dilution_rate=a.dilution_rate,on_off=onoff,eventgen=a.eventgen,
                 on_off_rate=(lambda r:int(r) if r==int(r) else r)(a.on_off_rate)) if a.token_build else None

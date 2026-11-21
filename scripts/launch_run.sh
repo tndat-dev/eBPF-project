@@ -66,6 +66,7 @@ plan() {
   [ -n "${TOKEN_MODELS:-}" ] && flags+=(--token-models "$TOKEN_MODELS")
   [ -n "${V3_COUNTS:-}" ] && flags+=(--v3-counts "$V3_COUNTS")
   [ -n "${TOKEN_GATE:-}" ] && flags+=(--token-gate "$TOKEN_GATE")
+  [ -n "${TOKEN_SESSION:-}" ] && flags+=(--token-session "$TOKEN_SESSION")   # session-stream-v1 branch
   [ "${ADMIN_CONTROL:-0}" = 1 ] && flags+=(--admin-control)
   [ -n "${ADMIN_COMMANDS:-}" ] && flags+=(--admin-commands "$ADMIN_COMMANDS")          # v5 (default) or v6
   [ "${RANDOM_ORDER:-0}" = 1 ] && flags+=(--random-trial-order)
