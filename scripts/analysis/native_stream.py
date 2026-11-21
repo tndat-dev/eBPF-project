@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sentinel_pulse.common import open_sealed  # noqa: E402
 import live_attribution as la  # noqa: E402
 
-LABELS = ('control', 'admin', 'benign', 'attack', 'lotl')
+LABELS = ('control', 'admin', 'benign', 'attack', 'lotl', 'eventgen')
 
 
 def native_of(grams, session):
@@ -72,12 +72,14 @@ def collect(root, trials, jobs):
     return windows, len(files)
 
 
-def evaluate(trials, windows, models, lms):
+def evaluate(trials, windows, models, lms, h0_pairs=False):
     out = defaultdict(lambda: dict(native=[0, 0], whole=[0, 0], session_events=0, events=0))
     pair_rate = {t['pair']: t.get('rate') for t in trials if t['label'] == 'attack'}       # control rows carry neither
     pair_pad = {t['pair']: t.get('pad') or 0 for t in trials if t['label'] == 'attack'}
     for t in trials:
         if t['workload'] not in models or t['label'] not in LABELS:
+            continue
+        if h0_pairs and t['pair'] not in pair_rate:          # --h0-pairs: only pairs with an attack interval (H0)
             continue
         lm, thr = lms[t['workload']], models[t['workload']][1]
         a, b = t['start'], t['start'] + la.HORIZON
@@ -107,12 +109,13 @@ def main():
     ap.add_argument('--models', type=Path, required=True)
     ap.add_argument('--output', type=Path, required=True)
     ap.add_argument('--jobs', type=int, default=6)
+    ap.add_argument('--h0-pairs', action='store_true', help='keep only pairs that have an attack interval (the H0 denominators)')
     a = ap.parse_args()
     trials = la.live.load_trials(a.run_root / la.CAMPAIGN)
     models = la.load_models(a.models)
     windows, files = collect(a.run_root, trials, a.jobs)
     lms = {w: la.load_lm(models[w][0]) for w in sorted({t['workload'] for t in trials} & set(models))}
-    res = evaluate(trials, windows, models, lms)
+    res = evaluate(trials, windows, models, lms, a.h0_pairs)
     h1 = {k: res[k]['native']['rate'] for k in ('admin', 'benign') if k in res}
     doc = dict(schema='pulse-live-v6-native-stream', protocol='sentinel_pulse/protocol/pulse-live-v6-v1.json',
                run=str(a.run_root), models=str(a.models), segments_read=files, intervals=res,
