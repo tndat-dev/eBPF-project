@@ -1,0 +1,424 @@
+{
+ "schema": "ml-final-study-v1-rule-e-benefit",
+ "protocol": "sentinel_pulse/protocol/ml-final-study-v1.json",
+ "rules": {
+  "R1": "downgrade an alert whose window had only runtime execs of image binaries (admin on v5)",
+  "R2": "an alert whose exec is a non-image binary stays an alert, labelled drift (benign/attack on v5)"
+ },
+ "run": "/mnt/sentinel-pulse-archive/pulse-live-final-1119",
+ "models": "/mnt/sentinel-pulse-archive/pulse-live-v7-fit-1118/token/MODELS.json",
+ "segments_read": 213,
+ "scope": "benefit side (admin) and, on runs with a living-off-the-land step (pulse-live-v6-v1 H4), the harm side: lotl_recall under ml_only vs ml_plus_rule",
+ "systems": {
+  "ml_only": "token model alone is the alert path (deployed v5)",
+  "ml_plus_rule": "token model + Part E rule layer (R1 downgrade image-tool-only windows, R2 drift label)"
+ },
+ "comparison": {
+  "all_rates": {
+   "ml_only": {
+    "attack_recall": {
+     "hit": 694,
+     "n": 694,
+     "rate": 1.0
+    },
+    "lotl_recall": {
+     "hit": 684,
+     "n": 684,
+     "rate": 1.0
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 600,
+      "n": 621,
+      "rate": 0.966183574879227
+     },
+     "benign": {
+      "hit": 691,
+      "n": 691,
+      "rate": 1.0
+     },
+     "control": {
+      "hit": 1,
+      "n": 754,
+      "rate": 0.001326259946949602
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 1292,
+     "n": 2066,
+     "rate": 0.6253630203291385
+    }
+   },
+   "ml_plus_rule": {
+    "attack_recall": {
+     "hit": 694,
+     "n": 694,
+     "rate": 1.0
+    },
+    "lotl_recall": {
+     "hit": 0,
+     "n": 684,
+     "rate": 0.0
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 0,
+      "n": 621,
+      "rate": 0.0
+     },
+     "benign": {
+      "hit": 691,
+      "n": 691,
+      "rate": 1.0
+     },
+     "control": {
+      "hit": 1,
+      "n": 754,
+      "rate": 0.001326259946949602
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 692,
+     "n": 2066,
+     "rate": 0.33494675701839305
+    }
+   }
+  },
+  "primary": {
+   "ml_only": {
+    "attack_recall": {
+     "hit": 296,
+     "n": 296,
+     "rate": 1.0
+    },
+    "lotl_recall": {
+     "hit": 286,
+     "n": 286,
+     "rate": 1.0
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 254,
+      "n": 260,
+      "rate": 0.9769230769230769
+     },
+     "benign": {
+      "hit": 288,
+      "n": 288,
+      "rate": 1.0
+     },
+     "control": {
+      "hit": 0,
+      "n": 296,
+      "rate": 0.0
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 542,
+     "n": 844,
+     "rate": 0.6421800947867299
+    }
+   },
+   "ml_plus_rule": {
+    "attack_recall": {
+     "hit": 296,
+     "n": 296,
+     "rate": 1.0
+    },
+    "lotl_recall": {
+     "hit": 0,
+     "n": 286,
+     "rate": 0.0
+    },
+    "false_alarm_by_class": {
+     "admin": {
+      "hit": 0,
+      "n": 260,
+      "rate": 0.0
+     },
+     "benign": {
+      "hit": 288,
+      "n": 288,
+      "rate": 1.0
+     },
+     "control": {
+      "hit": 0,
+      "n": 296,
+      "rate": 0.0
+     }
+    },
+    "false_alarm_pooled": {
+     "hit": 288,
+     "n": 844,
+     "rate": 0.3412322274881517
+    }
+   }
+  }
+ },
+ "by_label": {
+  "admin": {
+   "n": 621,
+   "ml": 600,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.966183574879227,
+   "after_r1_rate": 0.0
+  },
+  "admin-pad-10": {
+   "n": 84,
+   "ml": 82,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.9761904761904762,
+   "after_r1_rate": 0.0
+  },
+  "admin-pad300": {
+   "n": 80,
+   "ml": 80,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "admin-primary": {
+   "n": 260,
+   "ml": 254,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.9769230769230769,
+   "after_r1_rate": 0.0
+  },
+  "attack": {
+   "n": 694,
+   "ml": 694,
+   "after_r1": 694,
+   "r2_drift": 694,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "attack-pad-10": {
+   "n": 96,
+   "ml": 96,
+   "after_r1": 96,
+   "r2_drift": 96,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "attack-pad300": {
+   "n": 95,
+   "ml": 95,
+   "after_r1": 95,
+   "r2_drift": 95,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "attack-primary": {
+   "n": 296,
+   "ml": 296,
+   "after_r1": 296,
+   "r2_drift": 296,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "benign": {
+   "n": 691,
+   "ml": 691,
+   "after_r1": 691,
+   "r2_drift": 691,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "benign-pad-10": {
+   "n": 95,
+   "ml": 95,
+   "after_r1": 95,
+   "r2_drift": 95,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "benign-pad300": {
+   "n": 94,
+   "ml": 94,
+   "after_r1": 94,
+   "r2_drift": 94,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "benign-primary": {
+   "n": 288,
+   "ml": 288,
+   "after_r1": 288,
+   "r2_drift": 288,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "control": {
+   "n": 754,
+   "ml": 1,
+   "after_r1": 1,
+   "r2_drift": 0,
+   "ml_rate": 0.001326259946949602,
+   "after_r1_rate": 0.001326259946949602
+  },
+  "control-pad-10": {
+   "n": 96,
+   "ml": 0,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.0,
+   "after_r1_rate": 0.0
+  },
+  "control-pad300": {
+   "n": 95,
+   "ml": 0,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.0,
+   "after_r1_rate": 0.0
+  },
+  "control-primary": {
+   "n": 296,
+   "ml": 0,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 0.0,
+   "after_r1_rate": 0.0
+  },
+  "eventgen": {
+   "n": 556,
+   "ml": 549,
+   "after_r1": 549,
+   "r2_drift": 0,
+   "ml_rate": 0.987410071942446,
+   "after_r1_rate": 0.987410071942446
+  },
+  "eventgen-pad-10": {
+   "n": 83,
+   "ml": 82,
+   "after_r1": 82,
+   "r2_drift": 0,
+   "ml_rate": 0.9879518072289156,
+   "after_r1_rate": 0.9879518072289156
+  },
+  "eventgen-pad300": {
+   "n": 81,
+   "ml": 81,
+   "after_r1": 81,
+   "r2_drift": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 1.0
+  },
+  "eventgen-primary": {
+   "n": 241,
+   "ml": 238,
+   "after_r1": 238,
+   "r2_drift": 0,
+   "ml_rate": 0.9875518672199171,
+   "after_r1_rate": 0.9875518672199171
+  },
+  "lotl": {
+   "n": 684,
+   "ml": 684,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "lotl-pad-10": {
+   "n": 93,
+   "ml": 93,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "lotl-pad300": {
+   "n": 95,
+   "ml": 95,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "lotl-primary": {
+   "n": 286,
+   "ml": 286,
+   "after_r1": 0,
+   "r2_drift": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  }
+ },
+ "admin_by_command": {
+  "find": {
+   "n": 50,
+   "ml": 50,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "grep": {
+   "n": 59,
+   "ml": 59,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "head": {
+   "n": 68,
+   "ml": 67,
+   "after_r1": 0,
+   "ml_rate": 0.9852941176470589,
+   "after_r1_rate": 0.0
+  },
+  "hostname": {
+   "n": 52,
+   "ml": 44,
+   "after_r1": 0,
+   "ml_rate": 0.8461538461538461,
+   "after_r1_rate": 0.0
+  },
+  "ls_tmp": {
+   "n": 60,
+   "ml": 60,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "printenv": {
+   "n": 66,
+   "ml": 62,
+   "after_r1": 0,
+   "ml_rate": 0.9393939393939394,
+   "after_r1_rate": 0.0
+  },
+  "sleep": {
+   "n": 71,
+   "ml": 65,
+   "after_r1": 0,
+   "ml_rate": 0.9154929577464789,
+   "after_r1_rate": 0.0
+  },
+  "stat": {
+   "n": 68,
+   "ml": 68,
+   "after_r1": 0,
+   "ml_rate": 1.0,
+   "after_r1_rate": 0.0
+  },
+  "wc": {
+   "n": 73,
+   "ml": 72,
+   "after_r1": 0,
+   "ml_rate": 0.9863013698630136,
+   "after_r1_rate": 0.0
+  },
+  "whoami": {
+   "n": 54,
+   "ml": 53,
+   "after_r1": 0,
+   "ml_rate": 0.9814814814814815,
+   "after_r1_rate": 0.0
+  }
+ }
+}

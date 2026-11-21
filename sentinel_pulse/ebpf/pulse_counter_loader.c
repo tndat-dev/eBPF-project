@@ -276,8 +276,7 @@ static int is_target(uint64_t cgroup_id)
 /* Print and delete every gram of a window that has closed (window < now_window). One line per (cgroup, window):
  * {"type":"token_grams","window":W,"window_end":wall end,"events":sum,"grams":[[t0,t1,t2,t3,count],...],
  *  "session_events":sum,"session":[[t0,t1,t2,t3,count],...]}. "grams" is the whole window, both lineages added (what
- * the build before the lineage tag printed); "session" is the part of it counted on session-lineage threads
- * (ml-final-study-v1 amendment 2), so native = grams - session. */
+ * the build before the lineage tag printed); "session" is the part of it counted on session-lineage threads, so native = grams - session. */
 /* XẢ MAP 4-GRAM — được gọi mỗi 0,5 s ngay sau ranh giới cửa sổ:
  *   1) Đọc TOÀN BỘ map theo lô 8.192 mục (bpf_map_lookup_batch).
  *   2) Chọn các mục thuộc cửa sổ ĐÃ ĐÓNG (window < now_window); cửa sổ đang mở để lại cho lần sau.
@@ -292,8 +291,8 @@ static long drain_grams(int map_fd, uint64_t now_window, double wall_minus_mono,
     uint32_t batch = 0, count = 0, total = 0;
     int first = 1;
     for (;;) {
-        count = PULSE_GRAM_ENTRIES - total;
-        if (count == 0) break;
+        count = PULSE_GRAM_ENTRIES - total; //tính số ô trống còn lại trong mảng đệm cấp sẵn
+        if (count == 0) break; 
         if (count > 8192) count = 8192;
         int result = bpf_map_lookup_batch(map_fd, first ? NULL : &batch, &batch,
                                           gram_keys + total, gram_values + total, &count, NULL);

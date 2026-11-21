@@ -1,0 +1,136 @@
+{
+ "pulse-live-final-1119": {
+  "schema": "improvement-round-v1-burden-context",
+  "run": "pulse-live-final-1119",
+  "protocol": "sentinel_pulse/protocol/improvement-round-v1-amendment-1.json (D10, D11)",
+  "delta_seconds": 5.0,
+  "incident_gap_seconds": 600.0,
+  "replica_hours": 616.7872222222222,
+  "normal_hours": 9.501069940858416,
+  "episodes": {
+   "all": 223,
+   "single_replica": 217,
+   "multi_replica": 6,
+   "per_replica_hour": {
+    "all": 0.36155094004145133,
+    "single_replica": 0.35182311205827327
+   }
+  },
+  "by_workload": {
+   "production/aims-frontend:web": {
+    "single": 3,
+    "multi": 0,
+    "incidents": 3
+   },
+   "production/aims-kafka-dual-role:kafka": {
+    "single": 12,
+    "multi": 0,
+    "incidents": 10
+   },
+   "production/aims-kafka-entity-operator:topic-operator": {
+    "single": 7,
+    "multi": 0,
+    "incidents": 6
+   },
+   "production/aims-kafka-entity-operator:user-operator": {
+    "single": 2,
+    "multi": 0,
+    "incidents": 2
+   },
+   "production/aims-minio-pool-0:minio": {
+    "single": 2,
+    "multi": 2,
+    "incidents": 3
+   },
+   "production/aims-minio-pool-0:sidecar": {
+    "single": 6,
+    "multi": 0,
+    "incidents": 6
+   },
+   "production/aims-postgres-cnpg:postgres": {
+    "single": 3,
+    "multi": 0,
+    "incidents": 3
+   },
+   "production/aims-rabbitmq-server:rabbitmq": {
+    "single": 4,
+    "multi": 2,
+    "incidents": 5
+   },
+   "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+    "single": 6,
+    "multi": 0,
+    "incidents": 5
+   },
+   "production/aims-redis:aims-redis": {
+    "single": 12,
+    "multi": 0,
+    "incidents": 10
+   },
+   "production/aims-waypoint:istio-proxy": {
+    "single": 4,
+    "multi": 2,
+    "incidents": 5
+   },
+   "production/api-gateway:app": {
+    "single": 1,
+    "multi": 0,
+    "incidents": 1
+   },
+   "production/auth-service:app": {
+    "single": 24,
+    "multi": 0,
+    "incidents": 18
+   },
+   "production/cart-service:app": {
+    "single": 19,
+    "multi": 0,
+    "incidents": 13
+   },
+   "production/catalog-service:app": {
+    "single": 11,
+    "multi": 0,
+    "incidents": 8
+   },
+   "production/inventory-service:app": {
+    "single": 12,
+    "multi": 0,
+    "incidents": 11
+   },
+   "production/notification-service:app": {
+    "single": 18,
+    "multi": 0,
+    "incidents": 13
+   },
+   "production/order-service:app": {
+    "single": 17,
+    "multi": 0,
+    "incidents": 12
+   },
+   "production/payment-service:app": {
+    "single": 12,
+    "multi": 0,
+    "incidents": 10
+   },
+   "production/search-recommendation-service:app": {
+    "single": 28,
+    "multi": 0,
+    "incidents": 19
+   },
+   "production/security-telemetry-service:app": {
+    "single": 14,
+    "multi": 0,
+    "incidents": 9
+   }
+  },
+  "incidents": {
+   "total": 172,
+   "per_day": 434.47738262066065
+  },
+  "attack_harm": {
+   "detected": 1371,
+   "multi_replica": 5,
+   "share": 0.0036469730123997084
+  }
+ }
+}

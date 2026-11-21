@@ -121,7 +121,7 @@ static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
     if (syscall_id >= PULSE_MAX_SYSCALL_ID)
         return 0;
 
-    /* Bước 2 — bộ đếm của mô hình đếm cũ (bản per-CPU nên không cần thao tác nguyên tử). */
+    /* Bước 2 — bộ đếm của mô hình đếm cũ */
     counters->full_counts[syscall_id]++;
 
     if (skipped) counters->seccomp_skipped_or_emulated++;

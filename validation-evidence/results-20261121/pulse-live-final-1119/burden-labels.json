@@ -1,0 +1,1872 @@
+{
+ "schema": "pulse-live-final-v1-burden-labels",
+ "run": "pulse-live-final-1119",
+ "window_before": 300.0,
+ "window_after": 60.0,
+ "reasons": [
+  "BackOff",
+  "Created",
+  "Evicted",
+  "Failed",
+  "Killing",
+  "Preempted",
+  "Pulled",
+  "ScalingReplicaSet",
+  "Scheduled",
+  "Started",
+  "SuccessfulCreate",
+  "SuccessfulDelete",
+  "SuccessfulRescale",
+  "SuccessfulUpdate",
+  "Unhealthy"
+ ],
+ "k8s_recorded_until": 1795218570.664383,
+ "episodes": 223,
+ "by_stream": {
+  "mixed": 176,
+  "native": 47
+ },
+ "k8s_labelled": 5,
+ "k8s_by_reason": {
+  "Created": 5,
+  "Pulled": 5,
+  "ScalingReplicaSet": 5,
+  "Scheduled": 5,
+  "Started": 5,
+  "SuccessfulCreate": 5,
+  "SuccessfulRescale": 5
+ },
+ "k8s_by_workload": {
+  "production/aims-waypoint:istio-proxy": 5
+ },
+ "after_k8s_record_end": 1,
+ "stream_of_labelled": {
+  "native": 5
+ },
+ "episodes_list": [
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795184803.576,
+   "end": 1795184803.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795184975.618,
+   "end": 1795184985.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795185101.056,
+   "end": 1795185101.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795185186.576,
+   "end": 1795185186.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795185340.118,
+   "end": 1795185340.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795185340.576,
+   "end": 1795185340.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795185354.556,
+   "end": 1795185354.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795185386.056,
+   "end": 1795185386.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "start": 1795185387.076,
+   "end": 1795185387.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795185539.056,
+   "end": 1795185539.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795185955.618,
+   "end": 1795185955.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795186036.556,
+   "end": 1795186036.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:sidecar",
+   "start": 1795186053.056,
+   "end": 1795186053.056,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795186078.056,
+   "end": 1795186078.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795186086.056,
+   "end": 1795186086.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795186131.576,
+   "end": 1795186131.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795186345.576,
+   "end": 1795186345.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795186388.556,
+   "end": 1795186388.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "start": 1795186391.618,
+   "end": 1795186391.618,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "start": 1795186395.076,
+   "end": 1795186395.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795186428.576,
+   "end": 1795186428.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795186614.076,
+   "end": 1795186614.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795186797.076,
+   "end": 1795186797.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795187039.056,
+   "end": 1795187039.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795187202.556,
+   "end": 1795187202.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795187253.556,
+   "end": 1795187253.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795187278.576,
+   "end": 1795187278.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795187380.618,
+   "end": 1795187380.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795187567.056,
+   "end": 1795187567.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795187845.118,
+   "end": 1795187845.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795188298.576,
+   "end": 1795188298.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795188327.118,
+   "end": 1795188327.118,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795188390.076,
+   "end": 1795188390.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795188791.056,
+   "end": 1795188791.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "start": 1795188931.556,
+   "end": 1795188931.556,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795189104.618,
+   "end": 1795189104.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795189105.118,
+   "end": 1795189105.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795189303.076,
+   "end": 1795189303.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/api-gateway:app",
+   "start": 1795189724.118,
+   "end": 1795189724.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795189854.556,
+   "end": 1795189854.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795189909.618,
+   "end": 1795189909.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+   "start": 1795190052.076,
+   "end": 1795190052.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795190306.076,
+   "end": 1795190306.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795190368.556,
+   "end": 1795190368.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795190384.556,
+   "end": 1795190384.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795190483.618,
+   "end": 1795190483.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795190579.118,
+   "end": 1795190579.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795190677.076,
+   "end": 1795190677.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795190890.118,
+   "end": 1795190890.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "start": 1795191179.118,
+   "end": 1795191179.118,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-waypoint:istio-proxy",
+   "start": 1795191189.576,
+   "end": 1795191189.576,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795191324.618,
+   "end": 1795191324.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795191452.056,
+   "end": 1795191452.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795191569.576,
+   "end": 1795191569.576,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795191658.056,
+   "end": 1795191658.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795192122.056,
+   "end": 1795192122.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795192412.056,
+   "end": 1795192412.056,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795192433.576,
+   "end": 1795192433.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795192555.056,
+   "end": 1795192555.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795192810.618,
+   "end": 1795192810.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795192953.576,
+   "end": 1795192953.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795192969.076,
+   "end": 1795192969.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795193048.056,
+   "end": 1795193048.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795193129.056,
+   "end": 1795193129.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "start": 1795193157.076,
+   "end": 1795193157.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795193256.076,
+   "end": 1795193256.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795193656.576,
+   "end": 1795193656.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795193718.556,
+   "end": 1795193718.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-waypoint:istio-proxy",
+   "start": 1795193801.076,
+   "end": 1795193801.076,
+   "stream": "native",
+   "k8s": [
+    "Created",
+    "Pulled",
+    "ScalingReplicaSet",
+    "Scheduled",
+    "Started",
+    "SuccessfulCreate",
+    "SuccessfulRescale"
+   ],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795194266.556,
+   "end": 1795194266.556,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795194283.556,
+   "end": 1795194283.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795194535.618,
+   "end": 1795194535.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795194541.118,
+   "end": 1795194541.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "start": 1795194914.576,
+   "end": 1795194914.576,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795195034.076,
+   "end": 1795195034.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795195045.118,
+   "end": 1795195045.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795195071.056,
+   "end": 1795195071.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795195088.576,
+   "end": 1795195088.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795195239.076,
+   "end": 1795195239.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795195907.056,
+   "end": 1795195907.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795195969.076,
+   "end": 1795195969.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795196153.056,
+   "end": 1795196153.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795196235.618,
+   "end": 1795196235.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-waypoint:istio-proxy",
+   "start": 1795196279.618,
+   "end": 1795196279.618,
+   "stream": "native",
+   "k8s": [
+    "Created",
+    "Pulled",
+    "ScalingReplicaSet",
+    "Scheduled",
+    "Started",
+    "SuccessfulCreate",
+    "SuccessfulRescale"
+   ],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795196681.056,
+   "end": 1795196681.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795197693.556,
+   "end": 1795197693.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795197849.556,
+   "end": 1795197849.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795198044.618,
+   "end": 1795198044.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795198207.556,
+   "end": 1795198207.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795198395.618,
+   "end": 1795198395.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795198449.056,
+   "end": 1795198449.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795198652.056,
+   "end": 1795198652.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795198802.576,
+   "end": 1795198802.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795198811.076,
+   "end": 1795198811.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795198820.056,
+   "end": 1795198820.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795198873.556,
+   "end": 1795198873.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795199134.618,
+   "end": 1795199134.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795199440.618,
+   "end": 1795199440.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795199576.076,
+   "end": 1795199576.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "start": 1795199728.576,
+   "end": 1795199731.576,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "start": 1795200537.076,
+   "end": 1795200537.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795200643.556,
+   "end": 1795200643.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795200760.056,
+   "end": 1795200760.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795200801.618,
+   "end": 1795200801.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795200843.056,
+   "end": 1795200843.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795201041.576,
+   "end": 1795201041.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:sidecar",
+   "start": 1795201111.118,
+   "end": 1795201111.118,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795201573.076,
+   "end": 1795201573.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795201748.576,
+   "end": 1795201748.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795201798.576,
+   "end": 1795201798.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795201885.118,
+   "end": 1795201885.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-frontend:web",
+   "start": 1795201951.576,
+   "end": 1795201951.576,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795202029.056,
+   "end": 1795202029.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795202173.556,
+   "end": 1795202173.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795202192.056,
+   "end": 1795202192.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795202447.056,
+   "end": 1795202447.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795202461.576,
+   "end": 1795202461.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795202736.076,
+   "end": 1795202736.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:minio",
+   "start": 1795202767.618,
+   "end": 1795202804.618,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795202796.056,
+   "end": 1795202796.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:sidecar",
+   "start": 1795202899.118,
+   "end": 1795202899.118,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+   "start": 1795203031.118,
+   "end": 1795203031.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795203040.618,
+   "end": 1795203040.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "start": 1795203057.076,
+   "end": 1795203057.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "start": 1795203389.576,
+   "end": 1795203389.576,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795203758.576,
+   "end": 1795203758.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795203855.618,
+   "end": 1795203855.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795204120.618,
+   "end": 1795204120.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795204267.056,
+   "end": 1795204267.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795204404.056,
+   "end": 1795204404.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795204412.056,
+   "end": 1795204412.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795204696.056,
+   "end": 1795204696.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795204807.118,
+   "end": 1795204807.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795204947.056,
+   "end": 1795204947.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795205158.118,
+   "end": 1795205158.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795205333.056,
+   "end": 1795205333.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795205351.118,
+   "end": 1795205351.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795205468.576,
+   "end": 1795205468.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795205543.618,
+   "end": 1795205543.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795205676.118,
+   "end": 1795205676.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+   "start": 1795206263.576,
+   "end": 1795206263.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795206475.576,
+   "end": 1795206475.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795206600.056,
+   "end": 1795206600.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795206618.556,
+   "end": 1795206618.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795206937.618,
+   "end": 1795206937.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:sidecar",
+   "start": 1795206982.056,
+   "end": 1795206982.056,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795207034.556,
+   "end": 1795207034.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795207419.056,
+   "end": 1795207419.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795207518.576,
+   "end": 1795207518.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795207728.576,
+   "end": 1795207728.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795207783.118,
+   "end": 1795207783.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795207891.076,
+   "end": 1795207891.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+   "start": 1795208171.576,
+   "end": 1795208171.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795208625.618,
+   "end": 1795208625.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+   "start": 1795208734.056,
+   "end": 1795208734.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795208746.118,
+   "end": 1795208746.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795208997.056,
+   "end": 1795208997.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795209403.556,
+   "end": 1795209403.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:minio",
+   "start": 1795209409.618,
+   "end": 1795209421.118,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-waypoint:istio-proxy",
+   "start": 1795209412.056,
+   "end": 1795209416.056,
+   "stream": "native",
+   "k8s": [
+    "Created",
+    "Pulled",
+    "ScalingReplicaSet",
+    "Scheduled",
+    "Started",
+    "SuccessfulCreate",
+    "SuccessfulRescale"
+   ],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:minio",
+   "start": 1795209413.056,
+   "end": 1795209421.056,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-waypoint:istio-proxy",
+   "start": 1795209417.576,
+   "end": 1795209417.576,
+   "stream": "native",
+   "k8s": [
+    "Created",
+    "Pulled",
+    "ScalingReplicaSet",
+    "Scheduled",
+    "Started",
+    "SuccessfulCreate",
+    "SuccessfulRescale"
+   ],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795209640.118,
+   "end": 1795209640.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795209994.556,
+   "end": 1795209994.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795210218.556,
+   "end": 1795210218.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/inventory-service:app",
+   "start": 1795210315.618,
+   "end": 1795210315.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795210378.056,
+   "end": 1795210378.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795210390.618,
+   "end": 1795210390.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795210671.118,
+   "end": 1795210671.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795210727.618,
+   "end": 1795210727.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795211110.056,
+   "end": 1795211110.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795211532.576,
+   "end": 1795211532.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:sidecar",
+   "start": 1795211675.056,
+   "end": 1795211675.056,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795212175.618,
+   "end": 1795212175.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795212475.118,
+   "end": 1795212475.118,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+   "start": 1795212631.576,
+   "end": 1795212631.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795212673.076,
+   "end": 1795212673.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795212820.118,
+   "end": 1795212820.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795212837.056,
+   "end": 1795212837.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795212918.556,
+   "end": 1795212918.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795213021.076,
+   "end": 1795213021.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/security-telemetry-service:app",
+   "start": 1795214107.118,
+   "end": 1795214107.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:minio",
+   "start": 1795214227.618,
+   "end": 1795214227.618,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-minio-pool-0:sidecar",
+   "start": 1795214509.118,
+   "end": 1795214509.118,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795214614.056,
+   "end": 1795214614.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795214953.576,
+   "end": 1795214953.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795215059.076,
+   "end": 1795215059.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795215101.576,
+   "end": 1795215101.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795215268.118,
+   "end": 1795215268.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795215314.056,
+   "end": 1795215314.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795215343.576,
+   "end": 1795215343.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795215400.118,
+   "end": 1795215400.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/auth-service:app",
+   "start": 1795215507.556,
+   "end": 1795215507.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795215518.576,
+   "end": 1795215518.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "start": 1795215581.576,
+   "end": 1795215581.576,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795215668.576,
+   "end": 1795215668.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "start": 1795215766.076,
+   "end": 1795215766.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795215915.576,
+   "end": 1795215915.576,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795215973.576,
+   "end": 1795215973.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795216015.118,
+   "end": 1795216015.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "start": 1795216066.076,
+   "end": 1795216066.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795216299.556,
+   "end": 1795216299.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "start": 1795216368.576,
+   "end": 1795216368.576,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/catalog-service:app",
+   "start": 1795216449.076,
+   "end": 1795216449.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795216538.118,
+   "end": 1795216538.118,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-frontend:web",
+   "start": 1795216556.556,
+   "end": 1795216556.556,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795216781.576,
+   "end": 1795216781.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795216855.618,
+   "end": 1795216855.618,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795216904.556,
+   "end": 1795216904.556,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-redis:aims-redis",
+   "start": 1795217080.118,
+   "end": 1795217080.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795217089.076,
+   "end": 1795217089.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "start": 1795217187.076,
+   "end": 1795217187.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-waypoint:istio-proxy",
+   "start": 1795217202.076,
+   "end": 1795217202.076,
+   "stream": "native",
+   "k8s": [
+    "Created",
+    "Pulled",
+    "ScalingReplicaSet",
+    "Scheduled",
+    "Started",
+    "SuccessfulCreate",
+    "SuccessfulRescale"
+   ],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "start": 1795217232.118,
+   "end": 1795217232.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/notification-service:app",
+   "start": 1795217288.576,
+   "end": 1795217288.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795217608.576,
+   "end": 1795217608.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-frontend:web",
+   "start": 1795217816.556,
+   "end": 1795217816.556,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/cart-service:app",
+   "start": 1795217889.056,
+   "end": 1795217889.056,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "start": 1795217997.076,
+   "end": 1795217997.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/order-service:app",
+   "start": 1795218145.118,
+   "end": 1795218145.118,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/payment-service:app",
+   "start": 1795218199.076,
+   "end": 1795218199.076,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/search-recommendation-service:app",
+   "start": 1795218323.576,
+   "end": 1795218323.576,
+   "stream": "mixed",
+   "k8s": [],
+   "recorded": true
+  },
+  {
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "start": 1795218632.076,
+   "end": 1795218632.076,
+   "stream": "native",
+   "k8s": [],
+   "recorded": false
+  }
+ ]
+}

@@ -54,7 +54,8 @@ static uint32_t next_random(void) {
     rng_state ^= rng_state << 17;
     return (uint32_t)rng_state;
 }
-
+//Cấp phát một trang nhớ ẩn danh RW, ghi ngẫu nhiên 1 byte, đổi quyền sang R, đổi lại RW
+//rồi giải phóng (munmap) — mô phỏng kiểu thao tác quyền trang nhớ trước khi nạp/thực thi mã.
 static void anonymous_mprotect_churn(void) {
     const size_t page_size = (size_t)sysconf(_SC_PAGESIZE);
     void *page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
@@ -66,6 +67,8 @@ static void anonymous_mprotect_churn(void) {
     (void)munmap(page, page_size);
 }
 
+//Tạo tiến trình con (fork), cho con gọi ptrace(PTRACE_TRACEME, ...)
+//rồi thoát ngay (_exit(0)), còn tiến trình cha chờ con kết thúc (waitpid)
 static void child_ptrace_handshake(void) {
     pid_t child = fork();
     if (child == 0) {
@@ -77,18 +80,23 @@ static void child_ptrace_handshake(void) {
     if (child > 0) (void)waitpid(child, NULL, 0);
 }
 
+//Gọi SYS_setns với file descriptor -1 (kèm cờ 0 và CLONE_NEWNET)
+//uôn thất bại với EBADF nên không thể chuyển namespace.
 static void invalid_setns_burst(void) {
     // EBADF is guaranteed: no namespace transition can succeed.
     (void)syscall(SYS_setns, -1, 0);
     (void)syscall(SYS_setns, -1, CLONE_NEWNET);
 }
 
+//Gọi SYS_seccomp với mã thao tác không hợp lệ (UINT32_MAX và UINT32_MAX-1)
 static void seccomp_api_probe(void) {
     // An unsupported operation is rejected with EINVAL before state changes.
     (void)syscall(SYS_seccomp, UINT32_MAX, 0U, NULL);
     (void)syscall(SYS_seccomp, UINT32_MAX - 1U, 0U, NULL);
 }
 
+//Chỉ gọi SYS_getpid, đi cùng quy trình khởi chạy tiến trình mới như các kịch bản trên
+//để giúp phân biệt "có tiến trình mới chạy" với "có hành vi tấn công"
 static void benign_exec_control(void) {
     (void)syscall(SYS_getpid);
 }
