@@ -150,3 +150,15 @@ def test_split_keeps_one_lineage_part_and_pools_workloads(tmp_path):
     names = f.split([(run, 0.0, 100.0, None)], work2, 'native')
     native = {k: [json.loads(l)['grams'] for l in open(v)] for k, v in names.items()}
     assert sorted(map(tuple, map(tuple, native['a'][0]))) == sorted(map(tuple, COMMON)) and native['b'] == [COMMON]
+
+
+def test_split_skips_segments_that_start_after_the_span(tmp_path, monkeypatch):
+    run = tmp_path / 'run'
+    for name, ends in (('s00001', (10.0, 20.0)), ('s00002', (150.0, 160.0))):
+        seg = run / 'workers' / 'n' / 'segments' / name
+        seg.mkdir(parents=True)
+        (seg / 'tokens.jsonl').write_text(''.join(json.dumps(dict(window_end=e, workload_key='w', pod_uid='p',
+                                                                   container_name='c', grams=COMMON)) + '\n' for e in ends))
+    work = tmp_path / 'work'; work.mkdir()
+    names = f.split([(run, 0.0, 100.0, None)], work)
+    assert [json.loads(l)['window_end'] for l in open(names['w'])] == [10.0, 20.0]

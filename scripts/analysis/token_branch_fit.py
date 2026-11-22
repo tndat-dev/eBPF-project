@@ -33,6 +33,7 @@ import argparse
 from collections import Counter
 import gzip
 import hashlib
+import itertools
 import json
 import math
 from pathlib import Path
@@ -104,7 +105,10 @@ def split(sources, work, part='whole', pool_key=None):
         for path in sorted(root.glob('workers/*/segments/*/tokens.jsonl*')):
             opener = gzip.open if path.suffix == '.gz' else open
             with opener(path, 'rt') as handle:
-                for line in handle:
+                first = handle.readline()
+                if not first or json.loads(first)['window_end'] >= hi:
+                    continue                       # a segment that starts after the span holds none of it
+                for line in itertools.chain((first,), handle):
                     w = json.loads(line)
                     end = w['window_end']
                     if not lo <= end < hi:
