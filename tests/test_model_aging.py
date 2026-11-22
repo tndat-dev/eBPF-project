@@ -72,3 +72,17 @@ def test_by_regime_splits_blocks_windows_and_episodes_by_the_schedule():
     out = ma.by_regime(maxima, windows_at, alarms, models, schedule)
     assert out['night']['blocks'] == 2 and out['night']['above'] == 1 and out['night']['episodes'] == 1
     assert out['peak']['above'] == 1 and out['peak']['episodes'] == 1 and out['peak']['replica_hours'] == 1.0
+
+
+def test_scores_with_the_top_k_of_the_fit(tmp_path):
+    # a t3 model (top 3) must be scored with its own top: one rare event among many known ones scores higher with 3
+    lm = write_model(tmp_path / 't3.lm.json.gz')
+    seg = tmp_path / 'r' / 's'
+    seg.mkdir(parents=True)
+    (seg / 'tokens.jsonl').write_text(json.dumps(window(10.0, [[A, B, A, B, 30], [T, T, T, T, 3]])) + '\n')
+    ma._LMS.clear()
+    m10, *_ = ma.read_file((str(seg / 'tokens.jsonl'), {'ns/w:c': (lm, 1e9)}, 60.0))
+    ma._LMS.clear()
+    m3, *_ = ma.read_file((str(seg / 'tokens.jsonl'), {'ns/w:c': (lm, 1e9, 3)}, 60.0))
+    ma._LMS.clear()
+    assert list(m3.values())[0] > list(m10.values())[0]

@@ -33,9 +33,12 @@ QUIET = 15.0
 _LMS = {}
 
 
-def _lm(path):
+def _lm(path, top=None):
+    """The model with the window score its fit used (MODELS.json "top"; absent = the model default, v5's 10)."""
     if path not in _LMS:
         _LMS[path] = CountTokenLM.load(Path(path))
+        if top is not None:
+            _LMS[path].default_top = int(top)
     return _LMS[path]
 
 
@@ -52,8 +55,8 @@ def read_file(job):
             if key not in models:
                 unknown[key] += 1
                 continue
-            lm_path, thr = models[key]
-            s = _lm(lm_path).window_score(w['grams'])
+            lm_path, thr, *top = models[key]
+            s = _lm(lm_path, top[0] if top else None).window_score(w['grams'])
             cell = (key, w['pod_uid'], w['container_name'], math.floor(w['window_end'] / block))
             maxima[cell] = max(maxima.get(cell, 0.0), s)
             windows[key] += 1
@@ -153,7 +156,7 @@ def main():
     ap.add_argument('--design-alpha', type=float, default=ALPHA)
     a = ap.parse_args()
     doc = json.loads(a.models.read_text())
-    models = {k: (v['lm'], float(v['threshold'])) for k, v in doc.items()}
+    models = {k: (v['lm'], float(v['threshold']), v.get('top')) for k, v in doc.items()}   # t3: top 3
     files = [str(p) for p in sorted(a.run_root.glob('workers/*/segments/*/tokens.jsonl*'))]
     maxima, windows, alarms, unknown = {}, defaultdict(int), [], defaultdict(int)
     windows_at = defaultdict(int)
