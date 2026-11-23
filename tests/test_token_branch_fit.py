@@ -162,3 +162,19 @@ def test_split_skips_segments_that_start_after_the_span(tmp_path, monkeypatch):
     work = tmp_path / 'work'; work.mkdir()
     names = f.split([(run, 0.0, 100.0, None)], work)
     assert [json.loads(l)['window_end'] for l in open(names['w'])] == [10.0, 20.0]
+
+
+def test_dump_load_keeps_block_maxima_per_event_class_and_the_event_counts(tmp_path):
+    write(tmp_path / 'w.jsonl')
+    out, dump, load = tmp_path / 'out', tmp_path / 'dump', tmp_path / 'load'
+    for d in (out, dump, load):
+        d.mkdir()
+    job = ('w', str(tmp_path / 'w.jsonl'), (START, START + 500), (START + 500, START + 10 * CHUNK), 0.0002, 60.0, 2,
+           str(out), 5, CHUNK, 0.9, str(dump), 10, 0.01, str(load))
+    _, row, _ = f.fit_crossfit(job)
+    doc = json.loads(next(load.glob('*.load.json')).read_text())
+    maxima = {tuple(b[:3]): b[-1] for b in json.loads(next(dump.glob('*.maxima.json')).read_text())['blocks']}
+    assert len(doc['blocks']) == row['validation_blocks'] and sum(doc['events'].values()) == 100
+    for *cell, classes in doc['blocks']:                     # the classes' maximum is the block maximum
+        assert abs(max(classes.values()) - maxima[tuple(cell)]) < 1e-12
+    assert set(doc['events']) == {'100', '120'}               # COMMON = 100 events; + RARE = 120

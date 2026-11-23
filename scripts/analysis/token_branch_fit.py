@@ -150,8 +150,10 @@ def fold_of(window_end, start, seconds, folds):
 
 
 # Lõi cross-fit cho MỘT workload: đếm gram theo fold, chấm mỗi fold bằng mô hình các fold khác, gom cực đại khối 60 s.
-def crossfit_one(path, start, end, block, folds, seconds, top=None):
-    """(final model on every window, held-out block maxima, windows learnt): one parse to count, one to score each fold."""
+def crossfit_one(path, start, end, block, folds, seconds, top=None, load=None):
+    """(final model on every window, held-out block maxima, windows learnt): one parse to count, one to score each fold.
+    load-threshold-v1: with a dict `load`, also the held-out maxima per block and power-of-two event class
+    (load['blocks'][cell][class]) and the held-out windows' event counts (load['events'][count])."""
     grams = [Counter() for _ in range(folds)]
     parts = [open(f'{path}.f{k}', 'w') for k in range(folds)]
     windows = 0
@@ -178,7 +180,14 @@ def crossfit_one(path, start, end, block, folds, seconds, top=None):
             for line in handle:
                 w = json.loads(line)
                 cell = (w['pod_uid'], w['container_name'], math.floor(w['window_end'] / block))
-                maxima[cell] = max(maxima.get(cell, 0.0), lm.window_score(w['grams'], top))
+                score = lm.window_score(w['grams'], top)
+                maxima[cell] = max(maxima.get(cell, 0.0), score)
+                if load is not None:
+                    events = int(w.get('events') or sum(int(g[4]) for g in w['grams']))
+                    cls = max(0, events).bit_length() - 1 if events > 0 else -1
+                    per = load['blocks'].setdefault(cell, {})
+                    per[cls] = max(per.get(cls, 0.0), score)
+                    load['events'][events] = load['events'].get(events, 0) + 1
         del lm
         Path(f'{path}.f{k}').unlink()
     final = CountTokenLM()
@@ -195,7 +204,13 @@ def fit_crossfit(job):
     dump = rest[:1]                                        # optional: dump directory, top-k, trim (lidds-ml-v5-t3)
     top = rest[1] if len(rest) > 1 else TOP
     trim = rest[2] if len(rest) > 2 else TOP_DROP
-    lm, maxima, windows = crossfit_one(path, train[0], validation[1], block, folds, seconds, top)
+    load_dir = rest[3] if len(rest) > 3 else None          # load-threshold-v1 dump directory
+    load = dict(blocks={}, events={}) if load_dir else None
+    lm, maxima, windows = crossfit_one(path, train[0], validation[1], block, folds, seconds, top, load)
+    if load is not None:
+        target = Path(load_dir) / (hashlib.sha256(key.encode()).hexdigest()[:16] + '.load.json')
+        target.write_text(json.dumps(dict(workload=key, block=block, events={str(k): v for k, v in sorted(load['events'].items())},
+                                          blocks=[[*cell, {str(c): v for c, v in classes.items()}] for cell, classes in sorted(load['blocks'].items())])))
     blocks = np.asarray(list(maxima.values()), float)
     if dump and dump[0]:                                   # ml-final-study-v1 part C: the held-out block maxima
         target = Path(dump[0]) / (hashlib.sha256(key.encode()).hexdigest()[:16] + '.maxima.json')
@@ -311,6 +326,7 @@ def main():
     ap.add_argument('--exec-hold', type=float, default=1.0, help='lidds-ml-v5 gate: seconds held after an execve')
     ap.add_argument('--top', type=int, default=TOP, help='window score: mean of the TOP highest -log p (lidds-ml-v5-t3: 3)')
     ap.add_argument('--trim', type=float, default=TOP_DROP, help='share of the highest held-out maxima dropped before the Gumbel fit')
+    ap.add_argument('--dump-load', type=Path, help='load-threshold-v1: held-out block maxima per power-of-two event class and the event counts')
     ap.add_argument('--part', choices=['whole', 'session', 'native'], default='whole',
                     help='session-stream-v1: learn and threshold one lineage part of each window (lineage build)')
     ap.add_argument('--pool-key', help='session-stream-v1: one pooled model of every workload under this key')
@@ -336,7 +352,10 @@ def main():
     if a.folds:
         if a.dump_maxima:
             a.dump_maxima.mkdir(parents=True, exist_ok=True)
-        jobs = [j + (a.folds, a.fold_seconds, a.share, str(a.dump_maxima) if a.dump_maxima else None, a.top, a.trim) for j in jobs]
+        if a.dump_load:
+            a.dump_load.mkdir(parents=True, exist_ok=True)
+        jobs = [j + (a.folds, a.fold_seconds, a.share, str(a.dump_maxima) if a.dump_maxima else None, a.top, a.trim,
+                     str(a.dump_load) if a.dump_load else None) for j in jobs]
         worker = fit_crossfit
     if a.jobs > 1:
         from multiprocessing import Pool
