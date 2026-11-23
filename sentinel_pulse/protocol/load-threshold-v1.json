@@ -1,0 +1,32 @@
+{
+  "schema": "sentinel-pulse-load-threshold-v1",
+  "registered_at": "2026-11-23T09:49+07:00",
+  "registered_before": "any load-binned threshold is computed on any data; known: load-diurnal-v1 A and F (steady-trained t3 on the diurnal capture: blocks above threshold burst 4.70 %, peak 1.54 %, steady 0.53 %, night 0.50 %; diurnal fit held out: burst 4.10 %, peak 1.10 %, pooled 0.71 %), session-stream-v1 and its amendment 1 (S1 adopted)",
+  "owner_decisions": [
+    "23/11: start the protocol and code of the load-aware threshold",
+    "23/11: the running live run may be stopped if needed; there must be only ONE final live run (pulse-live-diurnal-1123 was stopped 09:47 after 12 trial intervals, its data deleted: it ran t3 alone, not the final system)",
+    "23/11: nobody tells the model the regime: the load is what the probe measures in each window"
+  ],
+  "idea": "the window score is the mean of the 3 most surprising events, so a window with many events holds a rare gram by chance more often: one threshold per workload alarms more at peak and burst. The threshold becomes a function of the window's own event count (the 'events' field of every token window, counted in the kernel): no regime label, no external signal",
+  "candidates": {
+    "L0": "t3 (one threshold per unit)",
+    "LB": "for B in {2, 3, 4}: per unit (dataset scenario or cluster workload), bin edges at the k/B quantiles of the held-out windows' event counts, each snapped to the nearest power of two; per bin, the maxima per unit of held-out score (a recording on a dataset, a 60 s container block on the cluster) over the windows of that bin, trimmed moment Gumbel (trim 0.005), threshold at a level a; a window alarms when its score exceeds the threshold of its bin. Two levels per B: a = alpha' (0.0003) per bin, or a = alpha' / B per bin. A bin with fewer than 30 units uses the unit's t3 threshold",
+    "session_branch": "with S1 (session-stream-v1 amendment 1) the native part uses the bins of the native event count; the session part keeps its pooled threshold (probe sessions are small)"
+  },
+  "data": {
+    "datasets": "the existing score caches (columns top3 and events): LID-DS 2021 development and CB-DS, LID-DS 2019 development (1 s tolerance); official 2021 and the 2019 70 % part only after selection",
+    "cluster_normal": "held-out (5-fold cross-fit over 30 min chunks) block maxima per power-of-two event class of the diurnal fit's data (pulse-token-capture-diurnal-1121 + the final run's normal tail), from a new dump of token_branch_fit.py; burden per regime from the capture's traffic schedule",
+    "cluster_attacks": "pulse-live-final-1119 intervals (H0 denominators), scored with the diurnal fit's models"
+  },
+  "selection": {
+    "must": "LID-DS 2021 development >= 529/544 with <= 5 false-alarm recordings and p95 <= 1.57 s; CB-DS 891/891 with <= 3; LID-DS 2019 development (1 s tolerance) >= 310/321 with <= 9 (t3's development levels); cluster held-out block exceedance pooled below t3's on the same data AND burst and peak each at most 2 times steady",
+    "choice": "among candidates meeting every must-rule, the lowest pooled cluster exceedance; ties by fewer LID-DS 2021 development false alarms; none passing = L0 (t3 thresholds) stays",
+    "after_selection": "scored once for the chosen candidate: LID-DS 2021 official (must keep recall >= 95 % with CI lower bound >= 95 %, false-alarm recordings <= 15, p95 <= 3 s), LID-DS 2019 70 % part (recall >= 95 %, false alarms <= 1 %), CB-DS; and on pulse-live-final-1119 intervals with S1: primary recall >= 95 %, PAD 300 >= 95 %, on-off >= 95 %, 0.1 and 0.5 per s >= 95 % each, idle control <= 5 %. Any failure: the chosen candidate is not adopted and t3 thresholds stay"
+  },
+  "final_live_run": "ONE run, pulse-live-diurnal-final-<MMDD>: diurnal profile (load-diurnal-v1) for the whole run, the final run's campaign (pulse-live-final-v1 options), the alert path = S1 with the adopted thresholds (or t3 thresholds), models from the diurnal fit plus a pooled session model fitted on the diurnal capture; hypotheses H0, H3, H7, H8 (pulse-live-final-v1), H9 and H10 (load-diurnal-v1); length at least the campaign plus 12 h of normal tail",
+  "limits": [
+    "an attacker who pads a window with many seen calls moves it into a higher-load bin; PAD 300 and the high rates are the registered checks, not a proof",
+    "one diurnal capture day of learning data"
+  ],
+  "code": "sentinel_pulse/detector/load_threshold.py (fit and apply, shared by datasets, fit and worker), scripts/analysis/load_threshold_study.py, token_branch_fit.py --dump-load"
+}
