@@ -1,0 +1,17 @@
+{
+  "schema": "sentinel-pulse-session-stream-v1-amendment-1",
+  "amends": "sentinel_pulse/protocol/session-stream-v1.json",
+  "registered_at": "2026-11-23T09:41+07:00",
+  "owner_decision": "23/11: 'ok nhận s1' — adopt S1 although it missed the registered burden level",
+  "known_when_decided": "every session-stream-v1 result on pulse-live-final-1119: S1 burden 0.253 episodes per replica-hour against the registered <= 0.24 (S0 0.362, S2 0.281), primary attack 296/296, lotl 666/666, event generator 549/556, idle control 0/694 as S0; operator commands 594/606 (S0 585/606); S3 not adopted",
+  "change": "S1 is adopted as the system's alert path: the native part of each window by the workload's t3 model at alpha' 0.00015 (from its Gumbel fit) OR the session part by one pooled session model at alpha' 0.00015 (sentinel_pulse/detector/token_model.TokenBranch with tokens.session, SESSION.json from scripts/analysis/session_branch_config.py). The decision is a post-hoc relaxation of the burden level by the owner and is reported as such; the registered result (S1 fails <= 0.24) stays the primary record",
+  "follow_up": {
+    "diurnal_run": "pulse-live-diurnal-1123 (running with t3 alone on the alert path) is scored offline for S1 next to S0 on the same windows after it ends (scripts/analysis/session_stream.py with the diurnal t3 fit and a pooled session model fitted on the diurnal capture by the same rule); reported per regime as load-diurnal-v1 reports S0",
+    "lidds_rerun": "after the diurnal run ends: LID-DS 2021 official, LID-DS 2019 (70 % part, 1 s tolerance) and CB-DS scored with S1; dataset recordings carry no session lineage, so S1 must give t3's results (1,236/1,271 with 15; 817/841 with 25; 891/891 with 3); any difference blocks the adoption",
+    "next_live_runs": "the session branch is on the alert path (launch_run.sh TOKEN_SESSION=SESSION.json)"
+  },
+  "limits": [
+    "the burden gain was measured on the final run's normal tail only (9.5 h, mostly steady traffic)",
+    "S1 does not reduce operator-command or harmless-binary flags (594/606 and 672/672)"
+  ]
+}

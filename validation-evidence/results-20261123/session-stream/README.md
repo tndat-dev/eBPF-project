@@ -17,6 +17,10 @@ learnt from capture `pulse-token-capture-v6-1116` plus the final run's selection
 Decision: the registered burden level is ≤ 0.24; S1 (−30 %, no recall loss) and S2 fail it, **not adopted**, so no
 LID-DS rerun. Admin and harmless-binary flags do not change.
 
+**Amendment 1 (23/11 09:41 +07, `session-stream-v1-amendment-1.json`):** the owner adopted S1 knowing it missed the
+registered level (0.253 > 0.24). Follow-up: S1 scored offline on `pulse-live-diurnal-1123`, LID-DS rerun with S1 (must
+give t3's results), session branch on the alert path of later runs.
+
 **S3, learnt triage** (`s3-triage.json`, `scripts/analysis/session_triage.py`; v6 features `v6-session-features.json.gz`,
 whose S0 reproduces the v6 receipts): leave-one-family-out over 3,166 flagged session intervals: operator commands
 passed 0–11 % each, but the harmless binary 61 % (it is the attack fixture's binary in benign mode), held-out fixture
