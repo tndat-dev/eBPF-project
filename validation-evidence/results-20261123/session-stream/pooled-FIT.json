@@ -1,0 +1,40 @@
+{
+ "alpha": 0.0003,
+ "block": 60.0,
+ "branch_alpha": 0.00015,
+ "extra_run": "/mnt/sentinel-pulse-archive/pulse-live-final-1119",
+ "extra_span": [
+  1795056639.152689,
+  1795062039.152689
+ ],
+ "fold_seconds": 1800.0,
+ "folds": 5,
+ "part": "session",
+ "pool_key": "pool/session",
+ "run_root": "/mnt/sentinel-pulse-archive/pulse-token-capture-v6-1116",
+ "schema": "pulse-token-branch-fit-v1",
+ "top": 3,
+ "train": [
+  1794813247.7573142,
+  1794842047.7573142
+ ],
+ "trim": 0.005,
+ "validation": [
+  1794842047.7573142,
+  1795062039.152689
+ ],
+ "workloads": {
+  "pool/session": {
+   "distinct_contexts": 5549,
+   "gumbel": [
+    7.004526316461007,
+    0.7703656919063048
+   ],
+   "threshold": 13.787442360221178,
+   "training_windows": 1199956,
+   "validation_block_max": 48.18291487902996,
+   "validation_blocks": 39530,
+   "validation_blocks_above": 172
+  }
+ }
+}

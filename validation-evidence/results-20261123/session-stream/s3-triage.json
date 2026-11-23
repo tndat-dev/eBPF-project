@@ -1,0 +1,207 @@
+{
+ "schema": "session-stream-v1-s3",
+ "train": "session-stream.json",
+ "rows": 3166,
+ "lofo": {
+  "admin:find": {
+   "label": "admin",
+   "n": 50,
+   "passed": 1,
+   "share": 0.02
+  },
+  "admin:grep": {
+   "label": "admin",
+   "n": 57,
+   "passed": 1,
+   "share": 0.017543859649122806
+  },
+  "admin:head": {
+   "label": "admin",
+   "n": 65,
+   "passed": 0,
+   "share": 0.0
+  },
+  "admin:hostname": {
+   "label": "admin",
+   "n": 44,
+   "passed": 5,
+   "share": 0.11363636363636363
+  },
+  "admin:ls_tmp": {
+   "label": "admin",
+   "n": 58,
+   "passed": 3,
+   "share": 0.05172413793103448
+  },
+  "admin:printenv": {
+   "label": "admin",
+   "n": 61,
+   "passed": 2,
+   "share": 0.03278688524590164
+  },
+  "admin:sleep": {
+   "label": "admin",
+   "n": 62,
+   "passed": 2,
+   "share": 0.03225806451612903
+  },
+  "admin:stat": {
+   "label": "admin",
+   "n": 67,
+   "passed": 3,
+   "share": 0.04477611940298507
+  },
+  "admin:wc": {
+   "label": "admin",
+   "n": 70,
+   "passed": 2,
+   "share": 0.02857142857142857
+  },
+  "admin:whoami": {
+   "label": "admin",
+   "n": 51,
+   "passed": 1,
+   "share": 0.0196078431372549
+  },
+  "attack:anonymous_mprotect_churn": {
+   "label": "attack",
+   "n": 142,
+   "passed": 64,
+   "share": 0.4507042253521127
+  },
+  "attack:child_ptrace_handshake": {
+   "label": "attack",
+   "n": 139,
+   "passed": 69,
+   "share": 0.49640287769784175
+  },
+  "attack:execveat_resolution_probe": {
+   "label": "attack",
+   "n": 137,
+   "passed": 18,
+   "share": 0.13138686131386862
+  },
+  "attack:invalid_setns_burst": {
+   "label": "attack",
+   "n": 136,
+   "passed": 30,
+   "share": 0.22058823529411764
+  },
+  "attack:seccomp_api_probe": {
+   "label": "attack",
+   "n": 140,
+   "passed": 23,
+   "share": 0.16428571428571428
+  },
+  "benign:benign": {
+   "label": "benign",
+   "n": 672,
+   "passed": 408,
+   "share": 0.6071428571428571
+  },
+  "eventgen:ClearLogActivities": {
+   "label": "eventgen",
+   "n": 39,
+   "passed": 34,
+   "share": 0.8717948717948718
+  },
+  "eventgen:CreateFilesBelowDev": {
+   "label": "eventgen",
+   "n": 44,
+   "passed": 34,
+   "share": 0.7727272727272727
+  },
+  "eventgen:CreateHardlinkOverSensitiveFiles": {
+   "label": "eventgen",
+   "n": 48,
+   "passed": 42,
+   "share": 0.875
+  },
+  "eventgen:CreateHiddenFilesOrDirectories": {
+   "label": "eventgen",
+   "n": 40,
+   "passed": 33,
+   "share": 0.825
+  },
+  "eventgen:CreateSymlinkOverSensitiveFiles": {
+   "label": "eventgen",
+   "n": 45,
+   "passed": 36,
+   "share": 0.8
+  },
+  "eventgen:DirectoryTraversalMonitoredFileRead": {
+   "label": "eventgen",
+   "n": 42,
+   "passed": 34,
+   "share": 0.8095238095238095
+  },
+  "eventgen:ExecutionFromDevShm": {
+   "label": "eventgen",
+   "n": 42,
+   "passed": 36,
+   "share": 0.8571428571428571
+  },
+  "eventgen:FilelessExecutionViaMemfdCreate": {
+   "label": "eventgen",
+   "n": 44,
+   "passed": 41,
+   "share": 0.9318181818181818
+  },
+  "eventgen:FindAwsCredentials": {
+   "label": "eventgen",
+   "n": 38,
+   "passed": 32,
+   "share": 0.8421052631578947
+  },
+  "eventgen:PtraceAntiDebugAttempt": {
+   "label": "eventgen",
+   "n": 51,
+   "passed": 46,
+   "share": 0.9019607843137255
+  },
+  "eventgen:ReadSensitiveFileUntrusted": {
+   "label": "eventgen",
+   "n": 40,
+   "passed": 37,
+   "share": 0.925
+  },
+  "eventgen:RemoveBulkDataFromDisk": {
+   "label": "eventgen",
+   "n": 37,
+   "passed": 33,
+   "share": 0.8918918918918919
+  },
+  "eventgen:SearchPrivateKeysOrPasswords": {
+   "label": "eventgen",
+   "n": 39,
+   "passed": 32,
+   "share": 0.8205128205128205
+  },
+  "lotl:lotl": {
+   "label": "lotl",
+   "n": 666,
+   "passed": 208,
+   "share": 0.3123123123123123
+  }
+ },
+ "lofo_summary": {
+  "min_attack_family": 0.13138686131386862,
+  "negatives_passed": 0.34049323786793956,
+  "passes": false
+ },
+ "test": "v6-session-features.json",
+ "cross_run": {
+  "attacks": {
+   "n": 1048,
+   "passed": 806,
+   "share": 0.7690839694656488
+  },
+  "benign": {
+   "n": 985,
+   "passed": 55,
+   "share": 0.05583756345177665
+  },
+  "passes": false
+ },
+ "adopt_as_label": false
+}

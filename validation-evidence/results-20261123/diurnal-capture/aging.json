@@ -1,0 +1,294 @@
+{
+ "schema": "pulse-model-aging-v1",
+ "protocol": "sentinel_pulse/protocol/pulse-live-v6-v1-amendment-1.json",
+ "run": "/mnt/sentinel-pulse-archive/pulse-token-capture-diurnal-1121",
+ "models": "/mnt/sentinel-pulse-archive/pulse-live-v7-fit-1118/token/MODELS.json",
+ "segments_read": 144,
+ "pooled": {
+  "blocks": 95499,
+  "above": 869,
+  "rate": 0.009099571723264118,
+  "design": 0.0003,
+  "replica_hours": 1559.263888888889,
+  "episodes": 880,
+  "per_replica_hour": 0.5643688706387451
+ },
+ "workloads": {
+  "production/aims-frontend:web": {
+   "blocks": 2902,
+   "above": 40,
+   "rate": 0.013783597518952447,
+   "design": 0.00018,
+   "windows": 282309,
+   "replica_hours": 39.209583333333335,
+   "episodes": 41,
+   "per_replica_hour": 1.0456627312625526
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "blocks": 4353,
+   "above": 31,
+   "rate": 0.007121525384792098,
+   "design": 0.00018,
+   "windows": 518589,
+   "replica_hours": 72.02625,
+   "episodes": 31,
+   "per_replica_hour": 0.43039863938494644
+  },
+  "production/aims-kafka-entity-operator:topic-operator": {
+   "blocks": 1451,
+   "above": 5,
+   "rate": 0.0034458993797381117,
+   "design": 0.00018,
+   "windows": 172857,
+   "replica_hours": 24.007916666666667,
+   "episodes": 5,
+   "per_replica_hour": 0.20826463492945035
+  },
+  "production/aims-kafka-entity-operator:user-operator": {
+   "blocks": 1451,
+   "above": 3,
+   "rate": 0.002067539627842867,
+   "design": 0.00018,
+   "windows": 172857,
+   "replica_hours": 24.007916666666667,
+   "episodes": 3,
+   "per_replica_hour": 0.12495878095767021
+  },
+  "production/aims-minio-pool-0:minio": {
+   "blocks": 2902,
+   "above": 21,
+   "rate": 0.007236388697450034,
+   "design": 0.00018,
+   "windows": 319089,
+   "replica_hours": 44.31791666666667,
+   "episodes": 24,
+   "per_replica_hour": 0.5415417015315476
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "blocks": 2902,
+   "above": 2,
+   "rate": 0.0006891798759476223,
+   "design": 0.00018,
+   "windows": 287093,
+   "replica_hours": 39.874027777777776,
+   "episodes": 2,
+   "per_replica_hour": 0.05015796275074628
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "blocks": 4353,
+   "above": 6,
+   "rate": 0.0013783597518952446,
+   "design": 0.00018,
+   "windows": 518542,
+   "replica_hours": 72.01972222222223,
+   "episodes": 6,
+   "per_replica_hour": 0.0833105129381998
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "blocks": 4353,
+   "above": 35,
+   "rate": 0.008040431886055594,
+   "design": 0.00018,
+   "windows": 518584,
+   "replica_hours": 72.02555555555556,
+   "episodes": 35,
+   "per_replica_hour": 0.4859386328926461
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "blocks": 4353,
+   "above": 14,
+   "rate": 0.0032161727544222376,
+   "design": 0.00018,
+   "windows": 518584,
+   "replica_hours": 72.02555555555556,
+   "episodes": 14,
+   "per_replica_hour": 0.19437545315705845
+  },
+  "production/aims-redis:aims-redis": {
+   "blocks": 4353,
+   "above": 48,
+   "rate": 0.011026878015161957,
+   "design": 0.00018,
+   "windows": 518580,
+   "replica_hours": 72.025,
+   "episodes": 49,
+   "per_replica_hour": 0.6803193335647344
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "blocks": 4086,
+   "above": 29,
+   "rate": 0.007097405775819873,
+   "design": 0.00018,
+   "windows": 485209,
+   "replica_hours": 67.39013888888888,
+   "episodes": 31,
+   "per_replica_hour": 0.46000795533471145
+  },
+  "production/api-gateway:app": {
+   "blocks": 5804,
+   "above": 73,
+   "rate": 0.012577532736044108,
+   "design": 0.00018,
+   "windows": 691452,
+   "replica_hours": 96.035,
+   "episodes": 74,
+   "per_replica_hour": 0.7705524027698235
+  },
+  "production/auth-service:app": {
+   "blocks": 5804,
+   "above": 60,
+   "rate": 0.010337698139214336,
+   "design": 0.00018,
+   "windows": 691429,
+   "replica_hours": 96.03180555555555,
+   "episodes": 60,
+   "per_replica_hour": 0.6247930011613629
+  },
+  "production/cart-service:app": {
+   "blocks": 5804,
+   "above": 61,
+   "rate": 0.01050999310820124,
+   "design": 0.00018,
+   "windows": 691430,
+   "replica_hours": 96.03194444444445,
+   "episodes": 62,
+   "per_replica_hour": 0.6456185007882215
+  },
+  "production/catalog-service:app": {
+   "blocks": 5804,
+   "above": 120,
+   "rate": 0.02067539627842867,
+   "design": 0.00018,
+   "windows": 691453,
+   "replica_hours": 96.0351388888889,
+   "episodes": 122,
+   "per_replica_hour": 1.2703683402921095
+  },
+  "production/inventory-service:app": {
+   "blocks": 5804,
+   "above": 51,
+   "rate": 0.008787043418332184,
+   "design": 0.00018,
+   "windows": 691450,
+   "replica_hours": 96.03472222222223,
+   "episodes": 51,
+   "per_replica_hour": 0.5310579217586231
+  },
+  "production/notification-service:app": {
+   "blocks": 5804,
+   "above": 57,
+   "rate": 0.009820813232253619,
+   "design": 0.00018,
+   "windows": 691433,
+   "replica_hours": 96.03236111111111,
+   "episodes": 57,
+   "per_replica_hour": 0.5935499173455707
+  },
+  "production/order-service:app": {
+   "blocks": 5804,
+   "above": 47,
+   "rate": 0.008097863542384563,
+   "design": 0.00018,
+   "windows": 691439,
+   "replica_hours": 96.03319444444445,
+   "episodes": 47,
+   "per_replica_hour": 0.4894141059442698
+  },
+  "production/payment-service:app": {
+   "blocks": 5804,
+   "above": 48,
+   "rate": 0.008270158511371467,
+   "design": 0.00018,
+   "windows": 691440,
+   "replica_hours": 96.03333333333333,
+   "episodes": 48,
+   "per_replica_hour": 0.49982644914960084
+  },
+  "production/search-recommendation-service:app": {
+   "blocks": 5804,
+   "above": 70,
+   "rate": 0.012060647829083391,
+   "design": 0.00018,
+   "windows": 691442,
+   "replica_hours": 96.03361111111111,
+   "episodes": 70,
+   "per_replica_hour": 0.7289114632897625
+  },
+  "production/security-telemetry-service:app": {
+   "blocks": 5804,
+   "above": 48,
+   "rate": 0.008270158511371467,
+   "design": 0.00018,
+   "windows": 691439,
+   "replica_hours": 96.03319444444445,
+   "episodes": 48,
+   "per_replica_hour": 0.4998271720281905
+  }
+ },
+ "without_model": {},
+ "by_regime": {
+  "burst": {
+   "blocks": 3216,
+   "above": 151,
+   "windows": 380326,
+   "episodes": 151,
+   "rate": 0.04695273631840796,
+   "replica_hours": 52.823055555555555,
+   "per_replica_hour": 2.8586002534667627
+  },
+  "peak": {
+   "blocks": 20904,
+   "above": 321,
+   "windows": 2482047,
+   "episodes": 337,
+   "rate": 0.015355912743972445,
+   "replica_hours": 344.72875,
+   "per_replica_hour": 0.9775801989245168
+  },
+  "None": {
+   "blocks": 195,
+   "above": 1,
+   "windows": 19898,
+   "episodes": 0,
+   "rate": 0.005128205128205128,
+   "replica_hours": 2.763611111111111,
+   "per_replica_hour": 0.0
+  },
+  "recovery": {
+   "blocks": 11129,
+   "above": 68,
+   "windows": 1307531,
+   "episodes": 68,
+   "rate": 0.006110162638152575,
+   "replica_hours": 181.6015277777778,
+   "per_replica_hour": 0.3744461890387302
+  },
+  "night": {
+   "blocks": 23867,
+   "above": 120,
+   "windows": 2779523,
+   "episodes": 121,
+   "rate": 0.0050278627393472155,
+   "replica_hours": 386.0448611111111,
+   "per_replica_hour": 0.31343507501107204
+  },
+  "toolmix": {
+   "blocks": 11457,
+   "above": 76,
+   "windows": 1352963,
+   "episodes": 76,
+   "rate": 0.006633499170812604,
+   "replica_hours": 187.9115277777778,
+   "per_replica_hour": 0.40444565002886257
+  },
+  "steady": {
+   "blocks": 24731,
+   "above": 132,
+   "windows": 2904412,
+   "episodes": 127,
+   "rate": 0.005337430754922971,
+   "replica_hours": 403.3905555555556,
+   "per_replica_hour": 0.31483136689973734
+  }
+ }
+}

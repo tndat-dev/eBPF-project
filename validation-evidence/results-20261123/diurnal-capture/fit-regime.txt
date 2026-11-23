@@ -1,0 +1,8 @@
+pooled 132142 933 0.706
+burst 3216 132 4.104
+peak 20904 229 1.095
+toolmix 11457 79 0.69
+final-run tail (steady) 37372 209 0.559
+steady 24197 127 0.525
+recovery 11129 54 0.485
+night 23867 103 0.432
