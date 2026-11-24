@@ -161,7 +161,13 @@ def score_recording(w, g, c, tokmap, get, spec):
     u, inv = np.unique(void(tokmap[g[:, g.shape[1] - n:]]), return_inverse=True)
     tab = np.asarray([get(k) for k in u.tolist()], float).reshape(-1, 4)[inv]
     s, any_new = tab[:, 0], np.maximum(tab[:, 1], tab[:, 2])
-    ends, scores, total, (ug, ua) = window_table(w, s, c, spec['tops'], (tab[:, 1], any_new))
+    if spec.get('_mask_ids'):                              # improvement-round-2 A2: masked calls never enter the top-k
+        s = np.where(np.isin(tokmap[g[:, -1]] >> 23, list(spec['_mask_ids'])), 0.0, s)
+    if spec.get('distinct'):                               # improvement-round-2 A3: each distinct gram once in the top-k
+        ends, scores, _, (ug, ua) = window_table(w, s, np.ones_like(c), spec['tops'], (tab[:, 1], any_new))
+        _, _, total, _ = window_table(w, s, c, spec['tops'][:1])
+    else:
+        ends, scores, total, (ug, ua) = window_table(w, s, c, spec['tops'], (tab[:, 1], any_new))
     out = [ends, *scores, total, ug, ua]
     if spec['seen_only']:                                  # the attacker avoided every unseen sequence: those rows are gone
         keep = tab[:, 3] == 0
@@ -181,6 +187,9 @@ def score_scenario(cache, spec):
     if n > meta['n']:
         raise ValueError(f"the cache holds {meta['n']}-grams")
     tokmap = token_map([tuple(f) for f in meta['vocab']], spec)
+    if spec.get('mask_calls'):                             # name ids of the masked calls (token_map numbers names in order)
+        names = sorted({f[0] for f in meta['vocab']})
+        spec = dict(spec, _mask_ids=[i for i, name in enumerate(names) if name in set(spec['mask_calls'])])
     rec = lambda key: (z[f'{key}/w'], z[f'{key}/g'], z[f'{key}/c'])
     learning = sorted(name for name, r in meta['recordings'].items() if r['split'] in ('training', 'validation'))
     counts = [Counter() for _ in range(folds)]

@@ -262,3 +262,21 @@ def test_official_scoring_needs_official_caches_a_reproduced_base_and_runs_once(
     assert doc['subset']['attack_recordings'] == 10 and doc['removed'] == ['close', 'futex']
     with pytest.raises(SystemExit, match='scored once'):
         st.official(a)
+
+
+def test_mask_and_distinct_change_only_the_top_k():
+    # improvement-round-2 A2/A3: a masked call never enters the top-k; distinct counts a repeated gram once
+    import numpy as np
+    import lidds_token_study as st
+    tokmap = np.array([1 << 23, 2 << 23, 3 << 23, st.TOK_NONE], np.uint32)      # vocab index -> token (name id << 23)
+    g = np.array([[0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 0, 2]])                    # last tokens: name ids 1, 2, 3
+    w = np.array([10.0, 10.0, 10.0]); c = np.array([5, 1, 1])
+    surprise = {1 << 23: 9.0, 2 << 23: 3.0, 3 << 23: 1.0}
+    get = lambda key: (surprise[int(np.frombuffer(key, np.uint32)[-1])], 0.0, 0.0, 0.0)
+    spec = dict(n=4, tops=[3], seen_only=False)
+    base = st.score_recording(w, g, c, tokmap, get, spec)[0]
+    assert abs(base[1] - 9.0) < 1e-12 and base[2] == 7                           # top3 = 9, 9, 9; events 7
+    masked = st.score_recording(w, g, c, tokmap, get, dict(spec, _mask_ids=[1]))[0]
+    assert abs(masked[1] - (3.0 + 1.0 + 0.0) / 3) < 1e-12 and masked[2] == 7
+    distinct = st.score_recording(w, g, c, tokmap, get, dict(spec, distinct=True))[0]
+    assert abs(distinct[1] - (9.0 + 3.0 + 1.0) / 3) < 1e-12 and distinct[2] == 7
