@@ -1,0 +1,746 @@
+{
+ "schema": "alarm-tokens-v1",
+ "run": "/mnt/sentinel-pulse-archive/pulse-token-capture-diurnal-1121",
+ "models": "/mnt/sentinel-pulse-archive/pulse-live-v7-fit-1118/token/MODELS.json",
+ "regimes": {
+  "burst": {
+   "windows": 379661,
+   "alarm_windows": 157,
+   "alarm_share": 0.00041352680417530377,
+   "kind_share": {
+    "size": 0.3354564755838641,
+    "name": 0.524416135881104,
+    "err": 0.12526539278131635,
+    "open": 0.014861995753715499
+   },
+   "novelty_share": {
+    "new_context": 0.9363057324840764,
+    "new_token": 0.06369426751592357
+   },
+   "top_tokens": [
+    [
+     "futex:err:11",
+     33
+    ],
+    [
+     "accept4:name",
+     28
+    ],
+    [
+     "futex:name",
+     22
+    ],
+    [
+     "sched_yield:name",
+     22
+    ],
+    [
+     "getpid:name",
+     21
+    ],
+    [
+     "read:size:8",
+     21
+    ],
+    [
+     "epoll_ctl:name",
+     17
+    ],
+    [
+     "writev:size:7",
+     14
+    ],
+    [
+     "futex:err:110",
+     13
+    ],
+    [
+     "brk:name",
+     11
+    ],
+    [
+     "read:size:7",
+     11
+    ],
+    [
+     "rt_sigreturn:name",
+     11
+    ],
+    [
+     "mmap:name",
+     10
+    ],
+    [
+     "socket:name",
+     10
+    ],
+    [
+     "write:size:5",
+     9
+    ]
+   ],
+   "top_workloads": [
+    [
+     "production/api-gateway:app",
+     41
+    ],
+    [
+     "production/catalog-service:app",
+     28
+    ],
+    [
+     "production/aims-frontend:web",
+     14
+    ],
+    [
+     "production/aims-redis:aims-redis",
+     11
+    ],
+    [
+     "production/cart-service:app",
+     9
+    ],
+    [
+     "production/auth-service:app",
+     8
+    ],
+    [
+     "production/payment-service:app",
+     7
+    ],
+    [
+     "production/inventory-service:app",
+     7
+    ]
+   ]
+  },
+  "night": {
+   "windows": 2785919,
+   "alarm_windows": 124,
+   "alarm_share": 4.450954963155785e-05,
+   "kind_share": {
+    "name": 0.6155913978494624,
+    "size": 0.19623655913978494,
+    "err": 0.11827956989247312,
+    "open": 0.06989247311827956
+   },
+   "novelty_share": {
+    "new_context": 0.9623655913978495,
+    "new_token": 0.03763440860215054
+   },
+   "top_tokens": [
+    [
+     "sched_yield:name",
+     41
+    ],
+    [
+     "futex:name",
+     29
+    ],
+    [
+     "futex:err:11",
+     28
+    ],
+    [
+     "rt_sigreturn:name",
+     27
+    ],
+    [
+     "openat:open:r",
+     21
+    ],
+    [
+     "epoll_ctl:name",
+     13
+    ],
+    [
+     "fcntl:name",
+     10
+    ],
+    [
+     "read:size:10",
+     9
+    ],
+    [
+     "fstat:name",
+     7
+    ],
+    [
+     "rseq:name",
+     7
+    ],
+    [
+     "mmap:name",
+     7
+    ],
+    [
+     "faccessat2:name",
+     6
+    ],
+    [
+     "socket:name",
+     5
+    ],
+    [
+     "openat2:open:r",
+     5
+    ],
+    [
+     "epoll_pwait:name",
+     5
+    ]
+   ],
+   "top_workloads": [
+    [
+     "production/auth-service:app",
+     16
+    ],
+    [
+     "production/security-telemetry-service:app",
+     13
+    ],
+    [
+     "production/search-recommendation-service:app",
+     12
+    ],
+    [
+     "production/aims-redis:aims-redis",
+     11
+    ],
+    [
+     "production/payment-service:app",
+     10
+    ],
+    [
+     "production/notification-service:app",
+     10
+    ],
+    [
+     "production/aims-rabbitmq-server:rabbitmq",
+     8
+    ],
+    [
+     "production/aims-minio-pool-0:minio",
+     8
+    ]
+   ]
+  },
+  "outside": {
+   "windows": 78078,
+   "alarm_windows": 4,
+   "alarm_share": 5.1230820461589695e-05,
+   "kind_share": {
+    "name": 0.5833333333333334,
+    "err": 0.16666666666666666,
+    "size": 0.25
+   },
+   "novelty_share": {
+    "new_context": 1.0
+   },
+   "top_tokens": [
+    [
+     "epoll_ctl:name",
+     2
+    ],
+    [
+     "read:size:10",
+     2
+    ],
+    [
+     "accept4:name",
+     1
+    ],
+    [
+     "stat:err:2",
+     1
+    ],
+    [
+     "futex:err:110",
+     1
+    ],
+    [
+     "read:name",
+     1
+    ],
+    [
+     "epoll_pwait:name",
+     1
+    ],
+    [
+     "rt_sigreturn:name",
+     1
+    ],
+    [
+     "capget:name",
+     1
+    ],
+    [
+     "read:size:3",
+     1
+    ]
+   ],
+   "top_workloads": [
+    [
+     "production/catalog-service:app",
+     1
+    ],
+    [
+     "production/auth-service:app",
+     1
+    ],
+    [
+     "production/notification-service:app",
+     1
+    ],
+    [
+     "production/order-service:app",
+     1
+    ]
+   ]
+  },
+  "peak": {
+   "windows": 2486406,
+   "alarm_windows": 344,
+   "alarm_share": 0.0001383523044908997,
+   "kind_share": {
+    "name": 0.5813953488372093,
+    "size": 0.27810077519379844,
+    "err": 0.12209302325581395,
+    "open": 0.018410852713178296
+   },
+   "novelty_share": {
+    "new_token": 0.04844961240310078,
+    "new_context": 0.9515503875968992
+   },
+   "top_tokens": [
+    [
+     "futex:err:11",
+     78
+    ],
+    [
+     "futex:name",
+     71
+    ],
+    [
+     "sched_yield:name",
+     64
+    ],
+    [
+     "rt_sigreturn:name",
+     50
+    ],
+    [
+     "epoll_ctl:name",
+     44
+    ],
+    [
+     "accept4:name",
+     34
+    ],
+    [
+     "getpid:name",
+     29
+    ],
+    [
+     "read:size:10",
+     27
+    ],
+    [
+     "socket:name",
+     26
+    ],
+    [
+     "brk:name",
+     21
+    ],
+    [
+     "read:size:8",
+     18
+    ],
+    [
+     "getsockname:name",
+     16
+    ],
+    [
+     "epoll_pwait:name",
+     16
+    ],
+    [
+     "mmap:name",
+     16
+    ],
+    [
+     "write:size:5",
+     13
+    ]
+   ],
+   "top_workloads": [
+    [
+     "production/catalog-service:app",
+     66
+    ],
+    [
+     "production/inventory-service:app",
+     34
+    ],
+    [
+     "production/api-gateway:app",
+     31
+    ],
+    [
+     "production/cart-service:app",
+     26
+    ],
+    [
+     "production/aims-frontend:web",
+     24
+    ],
+    [
+     "production/aims-waypoint:istio-proxy",
+     23
+    ],
+    [
+     "production/aims-minio-pool-0:minio",
+     19
+    ],
+    [
+     "production/notification-service:app",
+     17
+    ]
+   ]
+  },
+  "recovery": {
+   "windows": 1300752,
+   "alarm_windows": 68,
+   "alarm_share": 5.227745181249e-05,
+   "kind_share": {
+    "name": 0.6127450980392157,
+    "size": 0.20588235294117646,
+    "err": 0.09803921568627451,
+    "open": 0.08333333333333333
+   },
+   "novelty_share": {
+    "new_context": 0.9558823529411765,
+    "new_token": 0.04411764705882353
+   },
+   "top_tokens": [
+    [
+     "sched_yield:name",
+     24
+    ],
+    [
+     "rt_sigreturn:name",
+     23
+    ],
+    [
+     "futex:err:11",
+     16
+    ],
+    [
+     "futex:name",
+     13
+    ],
+    [
+     "openat:open:r",
+     11
+    ],
+    [
+     "fstat:name",
+     5
+    ],
+    [
+     "rseq:name",
+     5
+    ],
+    [
+     "openat2:open:r",
+     5
+    ],
+    [
+     "close:name",
+     5
+    ],
+    [
+     "read:size:8",
+     4
+    ],
+    [
+     "epoll_pwait:name",
+     4
+    ],
+    [
+     "read:size:10",
+     4
+    ],
+    [
+     "getsockname:name",
+     4
+    ],
+    [
+     "mmap:name",
+     3
+    ],
+    [
+     "fcntl:name",
+     3
+    ]
+   ],
+   "top_workloads": [
+    [
+     "production/search-recommendation-service:app",
+     7
+    ],
+    [
+     "production/order-service:app",
+     7
+    ],
+    [
+     "production/cart-service:app",
+     7
+    ],
+    [
+     "production/payment-service:app",
+     6
+    ],
+    [
+     "production/security-telemetry-service:app",
+     6
+    ],
+    [
+     "production/auth-service:app",
+     6
+    ],
+    [
+     "production/notification-service:app",
+     6
+    ],
+    [
+     "production/inventory-service:app",
+     5
+    ]
+   ]
+  },
+  "steady": {
+   "windows": 2845145,
+   "alarm_windows": 124,
+   "alarm_share": 4.35830159798534e-05,
+   "kind_share": {
+    "name": 0.6370967741935484,
+    "size": 0.18010752688172044,
+    "err": 0.12634408602150538,
+    "open": 0.056451612903225805
+   },
+   "novelty_share": {
+    "new_context": 0.9596774193548387,
+    "new_token": 0.04032258064516129
+   },
+   "top_tokens": [
+    [
+     "sched_yield:name",
+     45
+    ],
+    [
+     "futex:err:11",
+     32
+    ],
+    [
+     "rt_sigreturn:name",
+     28
+    ],
+    [
+     "futex:name",
+     26
+    ],
+    [
+     "openat:open:r",
+     18
+    ],
+    [
+     "close:name",
+     12
+    ],
+    [
+     "epoll_pwait:name",
+     10
+    ],
+    [
+     "read:size:10",
+     9
+    ],
+    [
+     "epoll_ctl:name",
+     8
+    ],
+    [
+     "fstat:name",
+     7
+    ],
+    [
+     "mmap:name",
+     6
+    ],
+    [
+     "write:size:3",
+     5
+    ],
+    [
+     "fcntl:name",
+     4
+    ],
+    [
+     "lseek:name",
+     4
+    ],
+    [
+     "getpeername:name",
+     4
+    ]
+   ],
+   "top_workloads": [
+    [
+     "production/search-recommendation-service:app",
+     25
+    ],
+    [
+     "production/aims-rabbitmq-server:rabbitmq",
+     11
+    ],
+    [
+     "production/notification-service:app",
+     11
+    ],
+    [
+     "production/order-service:app",
+     9
+    ],
+    [
+     "production/security-telemetry-service:app",
+     9
+    ],
+    [
+     "production/payment-service:app",
+     9
+    ],
+    [
+     "production/aims-redis:aims-redis",
+     8
+    ],
+    [
+     "production/catalog-service:app",
+     8
+    ]
+   ]
+  },
+  "toolmix": {
+   "windows": 1350739,
+   "alarm_windows": 76,
+   "alarm_share": 5.626549614692402e-05,
+   "kind_share": {
+    "name": 0.6359649122807017,
+    "open": 0.02631578947368421,
+    "size": 0.19298245614035087,
+    "err": 0.14473684210526316
+   },
+   "novelty_share": {
+    "new_context": 0.9605263157894737,
+    "new_token": 0.039473684210526314
+   },
+   "top_tokens": [
+    [
+     "sched_yield:name",
+     23
+    ],
+    [
+     "futex:err:11",
+     20
+    ],
+    [
+     "futex:name",
+     17
+    ],
+    [
+     "rt_sigreturn:name",
+     13
+    ],
+    [
+     "socket:name",
+     7
+    ],
+    [
+     "epoll_ctl:name",
+     7
+    ],
+    [
+     "epoll_pwait:name",
+     6
+    ],
+    [
+     "futex:err:110",
+     6
+    ],
+    [
+     "brk:name",
+     6
+    ],
+    [
+     "write:size:5",
+     6
+    ],
+    [
+     "fstat:name",
+     5
+    ],
+    [
+     "read:size:10",
+     5
+    ],
+    [
+     "getpid:name",
+     4
+    ],
+    [
+     "openat:open:r",
+     4
+    ],
+    [
+     "futex:err:512",
+     4
+    ]
+   ],
+   "top_workloads": [
+    [
+     "production/catalog-service:app",
+     12
+    ],
+    [
+     "production/search-recommendation-service:app",
+     7
+    ],
+    [
+     "production/auth-service:app",
+     7
+    ],
+    [
+     "production/order-service:app",
+     6
+    ],
+    [
+     "production/notification-service:app",
+     6
+    ],
+    [
+     "production/payment-service:app",
+     5
+    ],
+    [
+     "production/cart-service:app",
+     5
+    ],
+    [
+     "production/aims-kafka-dual-role:kafka",
+     4
+    ]
+   ]
+  }
+ }
+}

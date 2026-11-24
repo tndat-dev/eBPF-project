@@ -1,0 +1,30 @@
+{
+  "schema": "sentinel-pulse-improvement-round-2",
+  "registered_at": "2026-11-24T14:15+07:00",
+  "registered_before": "any score of these candidates is computed; known: everything of load-diurnal-v1 (A, F), session-stream-v1 and amendments 1-2 (S1a adopted), load-threshold-v1 (L0 stays), and the normal-data diagnosis alarm-tokens.json (validation-evidence/results-20261124/load-threshold/): about 95 % of the most surprising events of normal alarm windows are known tokens in a new 4-gram order, led in every regime by futex (EAGAIN), sched_yield, rt_sigreturn, futex, epoll_ctl and accept4",
+  "owner_decision": "24/11: every possible improvement is tried before the one final live run",
+  "base": "S1a with t3 (session-stream-v1 amendment 2)",
+  "candidates": {
+    "A1_more_days": "two more days of diurnal capture (load-diurnal-v1 profile), so each regime is learnt on three days; measured by held-out block exceedance per regime of a fit on the three days against the one-day fit",
+    "A2_mask": "the window score ignores events whose call is futex (202), sched_yield (24) or rt_sigreturn (15): they stay in every 4-gram context but do not enter the top-3 mean; the mask comes from the normal-data diagnosis only (no attack data)",
+    "A3_distinct": "the top-3 mean takes each distinct gram once (multiplicity 1), so a rare gram repeated many times at high load counts like one occurrence",
+    "A2_A3": "both",
+    "A4_persist": "a window alarms only when its score and the score of the same container's previous window (or recording's previous window) both exceed the threshold; the threshold is fitted on the persistence score min(s_t, s_t-1) by the same Gumbel rule; latency grows by about 0.5 s",
+    "A5_kneser_ney": "interpolated Kneser-Ney instead of Witten-Bell (the kn-n4 score caches); scored on datasets first, on the cluster only if it passes them",
+    "A6_alpha_per_workload": "per-workload alpha': alpha' x min(1, pooled held-out exceedance / the workload's), lowering the level only for noisy workloads; cluster only (datasets have one alpha' per scenario as before)",
+    "B1_operator_sessions": "the pooled session model also learns the session part of the operator-command intervals of pulse-live-v6-1117 and pulse-live-final-1119, evaluated leave-one-command-out (the evaluated command's intervals never learnt); harmless-binary intervals are not learnt (it is the attack fixture's binary)"
+  },
+  "not_tried_offline": {
+    "B2_exec_identity": "the probe records the executable of every exec session and each command gets its own session model: a probe change (proof, overhead, new capture); proposed to the owner with the results of this round",
+    "B3_kubernetes_audit": "pods/exec audit records (who ran which command) as context: a rule-like signal outside the ML, needs the API server audit policy; owner decision"
+  },
+  "must": {
+    "datasets": "for every candidate that changes dataset scoring (A2, A3, A2_A3, A4, A5): LID-DS 2021 development >= 529/544 with <= 5 false-alarm recordings and p95 <= 1.6 s, CB-DS 891/891 with <= 3, LID-DS 2019 development (1 s tolerance) >= 310/321 with <= 9 (t3's development levels, the p95 rounded as reported)",
+    "cluster_normal": "held-out (5-fold cross-fit over 30 min chunks, diurnal capture plus the final run's normal tail) block exceedance pooled below t3's 0.706 % on the same data; reported per regime",
+    "cluster_attacks": "on pulse-live-final-1119 intervals (H0 denominators) with the candidate's diurnal models and thresholds: primary attack recall >= 95 %, PAD 300 >= 95 %, on-off >= 95 %, 0.1 and 0.5 per s >= 95 % each, lotl and event generator >= 95 %, idle control <= 5 %, p95 kernel -> end of alarm window <= 3 s",
+    "B1": "operator commands flagged lower than without B1 on the held-out command, every attack family as above"
+  },
+  "adoption": "each candidate that meets every must-rule that applies to it is adopted; adopted candidates are then combined and the combination checked once against the same must-rules; LID-DS 2021 official, the LID-DS 2019 70 % part and CB-DS are scored once for the final combination if it changes dataset scoring (must keep recall >= 95 % with CI lower bound >= 95 %, official false alarms <= 15, p95 <= 3 s; 2019 recall >= 95 %, false alarms <= 1 %)",
+  "order": "datasets first (score caches, cheap), then the cluster cross-fits of the dataset survivors and A6, B1, then A1 (two capture days; no heavy job meanwhile), then the final fit on three days with the adopted candidates, then the one final live run",
+  "code": "scripts/analysis/lidds_token_study.py (spec options mask_calls, distinct, persist), sentinel_pulse/detector/token_model.py (window_score options), scripts/analysis/token_branch_fit.py (score options), scripts/analysis/improvement_round2.py"
+}
