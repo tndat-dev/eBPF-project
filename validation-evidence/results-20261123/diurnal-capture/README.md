@@ -21,7 +21,7 @@ because the script ignored MODELS.json `top`; fixed, rerun, the wrong output dis
 
 The steady level (0.32) matches the final run's normal tail (0.36); peak and burst carry 3 and 9 times as many alarms.
 
-**F, diurnal t3 fit** `pulse-live-diurnal-fit-1122` (`diurnal-fit-FIT.json`; capture train 80 % / validation 20 % plus
+**F, diurnal t3 fit** `pulse-live-diurnal-fit-1122` (refitted identically as `pulse-live-diurnal-fit-1123` with the load dumps; same models and thresholds, only the gzip timestamps differ; 1122 removed) (`diurnal-fit-FIT.json`; capture train 80 % / validation 20 % plus
 the final run's normal tail, 5-fold cross-fit over 30 min chunks, top 3, trim 0.005, α′ 0.0003; 4 h 47 min CPU; 21
 models). Held-out block exceedance per regime (`fit-regime.txt`, `scripts/analysis/fit_regime_exceedance.py`): burst
 4.10 %, peak 1.10 %, toolmix 0.69 %, final-run tail (steady) 0.56 %, steady 0.53 %, recovery 0.49 %, night 0.43 %,

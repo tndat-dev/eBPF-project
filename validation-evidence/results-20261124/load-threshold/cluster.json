@@ -1,0 +1,314 @@
+{
+ "schema": "load-threshold-v1-cluster",
+ "fit": "/mnt/sentinel-pulse-archive/pulse-live-diurnal-fit-1123",
+ "candidates": {
+  "L0": {
+   "pooled": {
+    "blocks": 132142,
+    "above": 933,
+    "share": 0.007060586338938414
+   },
+   "regimes": {
+    "burst": {
+     "blocks": 3216,
+     "above": 132,
+     "share": 0.041044776119402986
+    },
+    "night": {
+     "blocks": 23867,
+     "above": 103,
+     "share": 0.004315582184606361
+    },
+    "outside-capture": {
+     "blocks": 37372,
+     "above": 209,
+     "share": 0.005592422134218131
+    },
+    "peak": {
+     "blocks": 20904,
+     "above": 229,
+     "share": 0.010954841178721775
+    },
+    "recovery": {
+     "blocks": 11129,
+     "above": 54,
+     "share": 0.004852187977356456
+    },
+    "steady": {
+     "blocks": 24197,
+     "above": 127,
+     "share": 0.005248584535272968
+    },
+    "toolmix": {
+     "blocks": 11457,
+     "above": 79,
+     "share": 0.006895347822292048
+    }
+   }
+  },
+  "L2-per-bin": {
+   "pooled": {
+    "blocks": 132142,
+    "above": 1285,
+    "share": 0.009724387401431793
+   },
+   "regimes": {
+    "burst": {
+     "blocks": 3216,
+     "above": 163,
+     "share": 0.05068407960199005
+    },
+    "night": {
+     "blocks": 23867,
+     "above": 163,
+     "share": 0.006829513554279968
+    },
+    "outside-capture": {
+     "blocks": 37372,
+     "above": 296,
+     "share": 0.007920368190088836
+    },
+    "peak": {
+     "blocks": 20904,
+     "above": 282,
+     "share": 0.0134902411021814
+    },
+    "recovery": {
+     "blocks": 11129,
+     "above": 77,
+     "share": 0.00691886063437865
+    },
+    "steady": {
+     "blocks": 24197,
+     "above": 186,
+     "share": 0.007686903335124189
+    },
+    "toolmix": {
+     "blocks": 11457,
+     "above": 118,
+     "share": 0.010299380291524832
+    }
+   }
+  },
+  "L2-split": {
+   "pooled": {
+    "blocks": 132142,
+    "above": 935,
+    "share": 0.007075721572248036
+   },
+   "regimes": {
+    "burst": {
+     "blocks": 3216,
+     "above": 119,
+     "share": 0.03700248756218905
+    },
+    "night": {
+     "blocks": 23867,
+     "above": 117,
+     "share": 0.0049021661708635355
+    },
+    "outside-capture": {
+     "blocks": 37372,
+     "above": 218,
+     "share": 0.005833244139997859
+    },
+    "peak": {
+     "blocks": 20904,
+     "above": 199,
+     "share": 0.009519709146574818
+    },
+    "recovery": {
+     "blocks": 11129,
+     "above": 63,
+     "share": 0.005660885973582532
+    },
+    "steady": {
+     "blocks": 24197,
+     "above": 131,
+     "share": 0.005413894284415423
+    },
+    "toolmix": {
+     "blocks": 11457,
+     "above": 88,
+     "share": 0.007680893776730383
+    }
+   }
+  },
+  "L3-per-bin": {
+   "pooled": {
+    "blocks": 132142,
+    "above": 1586,
+    "share": 0.012002240014529824
+   },
+   "regimes": {
+    "burst": {
+     "blocks": 3216,
+     "above": 183,
+     "share": 0.05690298507462686
+    },
+    "night": {
+     "blocks": 23867,
+     "above": 207,
+     "share": 0.008673063225373947
+    },
+    "outside-capture": {
+     "blocks": 37372,
+     "above": 361,
+     "share": 0.009659638231831318
+    },
+    "peak": {
+     "blocks": 20904,
+     "above": 335,
+     "share": 0.016025641025641024
+    },
+    "recovery": {
+     "blocks": 11129,
+     "above": 101,
+     "share": 0.009075388624314853
+    },
+    "steady": {
+     "blocks": 24197,
+     "above": 246,
+     "share": 0.010166549572261024
+    },
+    "toolmix": {
+     "blocks": 11457,
+     "above": 153,
+     "share": 0.01335428122545169
+    }
+   }
+  },
+  "L3-split": {
+   "pooled": {
+    "blocks": 132142,
+    "above": 1013,
+    "share": 0.007665995671323273
+   },
+   "regimes": {
+    "burst": {
+     "blocks": 3216,
+     "above": 124,
+     "share": 0.03855721393034826
+    },
+    "night": {
+     "blocks": 23867,
+     "above": 126,
+     "share": 0.0052792558763145765
+    },
+    "outside-capture": {
+     "blocks": 37372,
+     "above": 223,
+     "share": 0.005967034143208819
+    },
+    "peak": {
+     "blocks": 20904,
+     "above": 219,
+     "share": 0.01047646383467279
+    },
+    "recovery": {
+     "blocks": 11129,
+     "above": 75,
+     "share": 0.006739149968550634
+    },
+    "steady": {
+     "blocks": 24197,
+     "above": 153,
+     "share": 0.006323097904698929
+    },
+    "toolmix": {
+     "blocks": 11457,
+     "above": 93,
+     "share": 0.008117308195862791
+    }
+   }
+  },
+  "L4-per-bin": {
+   "pooled": {
+    "blocks": 132142,
+    "above": 1904,
+    "share": 0.014408742110759638
+   },
+   "regimes": {
+    "burst": {
+     "blocks": 3216,
+     "above": 246,
+     "share": 0.07649253731343283
+    },
+    "night": {
+     "blocks": 23867,
+     "above": 247,
+     "share": 0.010349017471823018
+    },
+    "outside-capture": {
+     "blocks": 37372,
+     "above": 428,
+     "share": 0.011452424274858182
+    },
+    "peak": {
+     "blocks": 20904,
+     "above": 387,
+     "share": 0.018513203214695753
+    },
+    "recovery": {
+     "blocks": 11129,
+     "above": 122,
+     "share": 0.01096235061550903
+    },
+    "steady": {
+     "blocks": 24197,
+     "above": 289,
+     "share": 0.011943629375542423
+    },
+    "toolmix": {
+     "blocks": 11457,
+     "above": 185,
+     "share": 0.0161473335078991
+    }
+   }
+  },
+  "L4-split": {
+   "pooled": {
+    "blocks": 132142,
+    "above": 1138,
+    "share": 0.008611947753174615
+   },
+   "regimes": {
+    "burst": {
+     "blocks": 3216,
+     "above": 157,
+     "share": 0.048818407960199005
+    },
+    "night": {
+     "blocks": 23867,
+     "above": 140,
+     "share": 0.005865839862571752
+    },
+    "outside-capture": {
+     "blocks": 37372,
+     "above": 260,
+     "share": 0.006957080166969924
+    },
+    "peak": {
+     "blocks": 20904,
+     "above": 231,
+     "share": 0.011050516647531573
+    },
+    "recovery": {
+     "blocks": 11129,
+     "above": 77,
+     "share": 0.00691886063437865
+    },
+    "steady": {
+     "blocks": 24197,
+     "above": 164,
+     "share": 0.006777699714840683
+    },
+    "toolmix": {
+     "blocks": 11457,
+     "above": 109,
+     "share": 0.009513834337086498
+    }
+   }
+  }
+ }
+}

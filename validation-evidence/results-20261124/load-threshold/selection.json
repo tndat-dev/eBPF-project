@@ -1,0 +1,44 @@
+{
+ "schema": "load-threshold-v1-selection",
+ "candidates": {
+  "L2-per-bin": {
+   "dev_must": false,
+   "cluster_must": false,
+   "cluster_pooled": 0.009724387401431793,
+   "lidds2021_false_alarms": 16
+  },
+  "L2-split": {
+   "dev_must": false,
+   "cluster_must": false,
+   "cluster_pooled": 0.007075721572248036,
+   "lidds2021_false_alarms": 13
+  },
+  "L3-per-bin": {
+   "dev_must": false,
+   "cluster_must": false,
+   "cluster_pooled": 0.012002240014529824,
+   "lidds2021_false_alarms": 23
+  },
+  "L3-split": {
+   "dev_must": false,
+   "cluster_must": false,
+   "cluster_pooled": 0.007665995671323273,
+   "lidds2021_false_alarms": 16
+  },
+  "L4-per-bin": {
+   "dev_must": false,
+   "cluster_must": false,
+   "cluster_pooled": 0.014408742110759638,
+   "lidds2021_false_alarms": 34
+  },
+  "L4-split": {
+   "dev_must": false,
+   "cluster_must": false,
+   "cluster_pooled": 0.008611947753174615,
+   "lidds2021_false_alarms": 18
+  }
+ },
+ "passing": [],
+ "chosen": "L0",
+ "chosen_candidate": null
+}
