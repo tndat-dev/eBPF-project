@@ -96,7 +96,10 @@ def main():
     snaps = [r for r in rows if r['type'] == 'cgroup_snapshot_extended' and r['cgroup_id'] == cgid]
     first, last = snaps[0], snaps[-1]
     delta = sum(int(v) - int(first['full_counts'].get(k, 0)) for k, v in last['full_counts'].items())
-    after_first = sum(r['events'] for r in grams if r['window_end'] > float(first['observed_at']) + 0.25)
+    # tokens of the windows that close between the two snapshots the counter delta spans (both ends alike: a window
+    # drained after the last snapshot, or not drained before the loader stopped, is outside both counts)
+    after_first = sum(r['events'] for r in grams
+                      if float(first['observed_at']) + 0.25 < r['window_end'] <= float(last['observed_at']) + 0.25)
     ses = lambda part: sum(r['session_events'] for r in part)
     nat = lambda part: sum(r['events'] - r['session_events'] for r in part)
     A = span(grams, t['attached'] + MARGIN, t['b0'] - MARGIN)
