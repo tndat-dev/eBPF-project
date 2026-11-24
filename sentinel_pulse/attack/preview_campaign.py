@@ -192,9 +192,21 @@ def one_pair(runtime,cfg,root,item,index):
         nonlocal eventgen,eventgen_args
         action=EVENTGEN_ACTIONS[index%len(EVENTGEN_ACTIONS)]
         egpath=path.rsplit('/',1)[0]+'/sentinel-eventgen'
-        eventgen_args=['--container-id',identity['container_id'],'--pod-uid',identity['pod_uid'],'--container-name',container,
-                       '--binary',cfg['eventgen_binary'],'--sha256',cfg['eventgen_hash'],'--path',egpath]
-        runtime.remote_sudo(worker['host'],shlex.join([*prefix,'stage',*eventgen_args]))
+        args_eg=['--container-id',identity['container_id'],'--pod-uid',identity['pod_uid'],'--container-name',container,
+                 '--binary',cfg['eventgen_binary'],'--sha256',cfg['eventgen_hash'],'--path',egpath]
+        # load-threshold-v1 / final run: a container that cannot hold the 57 MB binary (Strimzi /tmp is a 5 MiB emptyDir)
+        # skips this step only; the other steps of the pair still run (pulse-live-final-1119 lost whole pairs here)
+        try:
+            runtime.remote_sudo(worker['host'],shlex.join([*prefix,'stage',*args_eg]))
+        except Exception as exc:                            # noqa: BLE001 - any staging failure skips the step
+            try:runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*args_eg]))
+            except Exception:pass                           # noqa: BLE001 - nothing may have been staged
+            (trial_dir/'eventgen.stderr').write_text(f'stage failed: {exc}')
+            atomic_json(trial_dir/'EVENTGEN.json',dict(action=action,returncode=None,outcome='skipped',reason='stage_failed'))
+            append_jsonl(root/'EVENTGEN.jsonl',dict(trial_id=f'{index}:eventgen',action=action,outcome='skipped',
+                                                     reason='stage_failed',returncode=None))
+            return
+        eventgen_args=args_eg
         eventgen=dict(identity,**item,label='attack_eventgen',attack_kind='event_generator',eventgen_action=action,
                       start_at=time.time(),trial_id=f'{index}:eventgen',binary_path=egpath,duration_seconds=15)
         append_jsonl(root/'INTERVALS.jsonl',eventgen)
@@ -267,12 +279,12 @@ def one_pair(runtime,cfg,root,item,index):
             capture.terminate()
             try:capture.wait(timeout=5)
             except subprocess.TimeoutExpired:capture.kill();capture.wait()
-        if staged:
-            runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*args]))
-        if benign_args is not None:
-            runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*benign_args]))
-        if eventgen_args is not None:
-            runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*eventgen_args]))
+        # each cleanup on its own: a failing cleanup is recorded and never hides the pair's result or a step's error
+        for kind,cleanup in (('fixture',args if staged else None),('benign',benign_args),('eventgen',eventgen_args)):
+            if cleanup is None:continue
+            try:runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*cleanup]))
+            except Exception as exc:                        # noqa: BLE001
+                append_jsonl(root/'CLEANUP_ERRORS.jsonl',dict(pair=index,kind=kind,error=str(exc)[:500],at=time.time()))
 
 
 # VÒNG CAMPAIGN: kiểm binary/policy đúng SHA-256 đã đăng ký → chờ hết đoạn normal đầu lượt (attack_not_before) → với mỗi
