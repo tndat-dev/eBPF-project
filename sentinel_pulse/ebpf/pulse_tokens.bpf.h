@@ -38,6 +38,18 @@ struct {
     __type(value, __u64);
 } pulse_grams SEC(".maps");
 
+/* exec-identity-v1: program name of every program hash seen (hash -> comm); the loader prints new entries. */
+struct pulse_prog_name {
+    char comm[16];
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 4096);
+    __type(key, __u32);
+    __type(value, struct pulse_prog_name);
+} pulse_prog_names SEC(".maps");
+
 /* 0: gram insert failed (map full), 1: first directory walk deeper than PULSE_TOK_DIR_DEPTH, 2: grams counted */
 /* Ba bộ đếm sức khoẻ (per-CPU): [0] số lần chèn gram thất bại vì map đầy (insert_fail — phải luôn bằng 0 trong lượt
  * chạy hợp lệ), [1] số lần đi cây thư mục quá 64 bậc, [2] tổng số gram đã đếm. Loader in ra trong dòng "token_drain". */
@@ -149,7 +161,7 @@ static __always_inline void pulse_tok_emit(struct pulse_task_state *state, __u64
             .cgroup_id = cgroup_id,
             .window = (__u32)(now_ns / PULSE_TOK_WINDOW_NS),
             .tok = { state->tok[0], state->tok[1], state->tok[2], tok },
-            .pad = state->lineage,
+            .pad = state->lineage | (state->prog << 1),     /* exec-identity-v1: program of a session thread */
         };
         /* Gram đã có trong map → cộng 1 (nguyên tử vì nhiều CPU có thể cộng cùng khoá). Chưa có → chèn với giá trị 1.
          * Nếu chèn thất bại do CPU khác vừa chèn cùng khoá → tra lại và cộng; nếu vẫn không có → map đầy, đếm insert_fail. */
@@ -306,10 +318,32 @@ static __always_inline __u32 pulse_tok_dir_of_fd(long fd)
  *   - ret >= 0 với syscall mở file (OPEN) → ret là fd: token = tên + w/r + thư mục đầu. Cờ mở (để biết r hay w) lấy
  *     từ thanh ghi tham số đã lưu (regs->si cho open, regs->dx cho openat) hoặc từ struct open_how (openat2);
  *   - còn lại → chỉ tên. */
+/* exec-identity-v1: 15-bit FNV-1a hash of the current comm (never 0); the name is kept once in pulse_prog_names. */
+static __always_inline __u32 pulse_tok_prog(void)
+{
+    struct pulse_prog_name name = {};
+    bpf_get_current_comm(&name.comm, sizeof(name.comm));
+    __u32 h = 2166136261u;
+#pragma unroll
+    for (int i = 0; i < 16; i++) {
+        if (!name.comm[i])
+            break;
+        h = (h ^ (__u8)name.comm[i]) * 16777619u;
+    }
+    h = (h ^ (h >> 15)) & 0x7fff;
+    if (!h)
+        h = 1;
+    bpf_map_update_elem(&pulse_prog_names, &h, &name, BPF_NOEXIST);
+    return h;
+}
+
 static __always_inline int pulse_tok_return(struct pulse_task_state *state, __u64 cgroup_id, __u32 nr, __u32 flags,
                                             const struct pt_regs *regs, long ret)
 {
     __u32 tok = pulse_tok_plain(nr);
+    /* a session thread that executed a program carries its name from now on (inherited at fork) */
+    if (nr == 59 && ret == 0 && state->lineage == PULSE_LINEAGE_SESSION)
+        state->prog = pulse_tok_prog();
     if (ret < 0 && ret >= -4095) {
         if (flags & PULSE_TF_ERR)
             tok |= PULSE_TOK_KIND_ERR | (__u32)(-ret);
@@ -382,6 +416,7 @@ int pulse_tok_fork(struct bpf_raw_tracepoint_args *context)
     struct pulse_task_state state = {
         .cgroup_id = cgroup_id,
         .lineage = parent->lineage,
+        .prog = parent->prog,
     };
     pulse_tok_reset(&state);
     __u64 child_key = ((__u64)BPF_CORE_READ(child, tgid) << 32) | (__u32)BPF_CORE_READ(child, pid);

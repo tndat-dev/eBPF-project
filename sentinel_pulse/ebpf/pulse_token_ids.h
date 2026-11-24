@@ -155,7 +155,7 @@ struct pulse_gram_key {
     __u64 cgroup_id;
     __u32 window;   /* CLOCK_MONOTONIC / 0.5 s at emission */
     __u32 tok[4];   /* oldest first; tok[3] is the token just emitted */
-    __u32 pad;      /* the thread's lineage (PULSE_LINEAGE_*); 0 in builds before the lineage tag */
+    __u32 pad;      /* bit 0: the thread's lineage (PULSE_LINEAGE_*); bits 1-15: its program hash (exec-identity-v1), 0 = none */
 };
 
 /* ml-final-study-v1 amendment 2: telemetry only. Native = the workload's own process tree; session = a process that

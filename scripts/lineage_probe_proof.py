@@ -115,11 +115,23 @@ def main():
         orphan_keeps_session_lineage=ses(D) > 0,
         native_only_at_the_end=len(E) > 0 and ses(E) == 0 and nat(E) > 0,
         one_token_per_syscall=after_first == delta)
+    # exec-identity-v1: the session part per program adds up, and the programs of the exec sessions are named
+    names = {}
+    for r in rows:
+        if r['type'] == 'prog_names':
+            names.update(r['names'])
+    if any('session_prog' in r for r in grams):
+        progs = lambda part: {names.get(str(g[5]), '?') for r in part for g in r.get('session_prog', ())}
+        checks.update(
+            session_prog_adds_up=all(sum(int(g[4]) for g in r.get('session_prog', ())) == r['session_events'] for r in grams),
+            exec_programs_named={'ls', 'cat', 'sleep'} <= progs(B),
+            orphan_program_named=bool({'ls', 'cat', 'sleep'} & progs(D)),
+            native_has_no_program=all((g[5] if len(g) > 5 else 0) != 0 for r in grams for g in r.get('session_prog', ())))
     out = dict(schema='pulse-lineage-proof-v1', protocol='sentinel_pulse/protocol/ml-final-study-v1-amendment-2.json',
                valid=all(checks.values()), checks=checks, cgroup_id=cgid, cgroup_path=str(cg), times=t,
                phases={k: dict(windows=len(v), native_events=nat(v), session_events=ses(v))
                        for k, v in (('A', A), ('B', B), ('C', C), ('D', D), ('E', E))},
-               token_events_after_first_snapshot=after_first, full_count_delta=delta)
+               token_events_after_first_snapshot=after_first, full_count_delta=delta, prog_names=names)
     (a.out / 'RESULTS.json').write_text(json.dumps(out, indent=2, sort_keys=True) + '\n')
     print(json.dumps(dict(valid=out['valid'], checks=checks, phases=out['phases'])))
     sys.exit(0 if out['valid'] else 1)

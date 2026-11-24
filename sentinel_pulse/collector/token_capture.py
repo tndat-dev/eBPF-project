@@ -72,6 +72,10 @@ def token_window(row: dict, metadata: dict):
     if 'session' in row:                 # builds with the lineage tag; "grams" stays the whole window
         check_session(row['session'], row.get('session_events', 0), row['grams'])
         lineage = dict(session_events=int(row.get('session_events', 0)), session=row['session'])
+        if 'session_prog' in row:        # exec-identity-v1: the session part per program hash
+            if sum(int(g[4]) for g in row['session_prog']) != lineage['session_events']:
+                raise ValueError('session_prog does not add up to session_events')
+            lineage['session_prog'] = row['session_prog']
     cg = int(row['cgroup_id'])
     item = metadata.get(str(cg))
     if not item or item.get('namespace') not in WATCHED_NAMESPACES:

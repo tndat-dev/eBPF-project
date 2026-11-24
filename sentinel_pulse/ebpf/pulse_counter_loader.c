@@ -286,6 +286,31 @@ static int is_target(uint64_t cgroup_id)
  *        "window_end" = giờ thực của cuối cửa sổ (đổi từ đồng hồ monotonic bằng wall_minus_mono).
  *   4) Xoá các mục đã in khỏi map (bpf_map_delete_batch) để map không đầy.
  * Thời gian xả đo được: 3–7 ms ở tải thật; 0,33 s ở 143.000 gram/cửa sổ (map-capacity-v1). */
+/* exec-identity-v1: print the program names (hash -> comm) not printed before, one line when there are new ones:
+ * {"type":"prog_names","observed_at":T,"names":{"<hash>":"<comm>",...}}; characters outside [A-Za-z0-9._+:@-] become _. */
+static void print_prog_names(int names_fd, double observed_at)
+{
+    static uint8_t printed[32768];
+    uint32_t key = 0, next = 0;
+    int first = 1, more = bpf_map_get_next_key(names_fd, NULL, &next) == 0;
+    while (more) {
+        key = next;
+        more = bpf_map_get_next_key(names_fd, &key, &next) == 0;
+        if (key >= sizeof(printed) || printed[key]) continue;
+        char comm[17] = {0};
+        if (bpf_map_lookup_elem(names_fd, &key, comm) < 0) continue;
+        for (int i = 0; i < 16 && comm[i]; i++) {
+            char c = comm[i];
+            if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '_' ||
+                  c == '+' || c == ':' || c == '@' || c == '-')) comm[i] = '_';
+        }
+        printf("%s\"%u\":\"%s\"", first ? "{\"type\":\"prog_names\",\"names\":{" : ",", key, comm);
+        first = 0;
+        printed[key] = 1;
+    }
+    if (!first) printf("},\"observed_at\":%.9f}\n", observed_at);
+}
+
 static long drain_grams(int map_fd, uint64_t now_window, double wall_minus_mono, uint64_t *drained_total)
 {
     uint32_t batch = 0, count = 0, total = 0;
@@ -326,7 +351,7 @@ static long drain_grams(int map_fd, uint64_t now_window, double wall_minus_mono,
                 uint64_t count = 0;
                 uint32_t next = index;
                 while (next < end && same_gram(&gram_keys[old_index[next]], key)) {
-                    if (gram_keys[old_index[next]].pad == PULSE_LINEAGE_SESSION) session_events += gram_values[old_index[next]];
+                    if ((gram_keys[old_index[next]].pad & 1u) == PULSE_LINEAGE_SESSION) session_events += gram_values[old_index[next]];
                     count += gram_values[old_index[next++]];
                 }
                 printf("%s[%u,%u,%u,%u,%llu]", index > start ? "," : "", key->tok[0], key->tok[1], key->tok[2],
@@ -335,11 +360,29 @@ static long drain_grams(int map_fd, uint64_t now_window, double wall_minus_mono,
             }
             printf("],\"session_events\":%llu,\"session\":[", (unsigned long long)session_events);
             int first_session = 1;
+            for (uint32_t index = start; index < end;) {      /* session part per gram, summed over programs */
+                const struct pulse_gram_key *key = &gram_keys[old_index[index]];
+                uint64_t count = 0;
+                uint32_t next = index;
+                while (next < end && same_gram(&gram_keys[old_index[next]], key)) {
+                    if ((gram_keys[old_index[next]].pad & 1u) == PULSE_LINEAGE_SESSION) count += gram_values[old_index[next]];
+                    next++;
+                }
+                if (count) {
+                    printf("%s[%u,%u,%u,%u,%llu]", first_session ? "" : ",", key->tok[0], key->tok[1], key->tok[2],
+                           key->tok[3], (unsigned long long)count);
+                    first_session = 0;
+                }
+                index = next;
+            }
+            /* exec-identity-v1: the session part per program hash, [t0,t1,t2,t3,count,prog] */
+            printf("],\"session_prog\":[");
+            first_session = 1;
             for (uint32_t index = start; index < end; index++) {
                 const struct pulse_gram_key *key = &gram_keys[old_index[index]];
-                if (key->pad != PULSE_LINEAGE_SESSION) continue;
-                printf("%s[%u,%u,%u,%u,%llu]", first_session ? "" : ",", key->tok[0], key->tok[1], key->tok[2],
-                       key->tok[3], (unsigned long long)gram_values[old_index[index]]);
+                if ((key->pad & 1u) != PULSE_LINEAGE_SESSION) continue;
+                printf("%s[%u,%u,%u,%u,%llu,%u]", first_session ? "" : ",", key->tok[0], key->tok[1], key->tok[2],
+                       key->tok[3], (unsigned long long)gram_values[old_index[index]], key->pad >> 1);
                 first_session = 0;
             }
             printf("]}\n");
@@ -466,8 +509,9 @@ int main(int argc, char **argv)
     if (!fork_program || libbpf_get_error(fork_link)) { fprintf(stderr, "lineage hook pulse_tok_fork unavailable\n"); return 1; }
     int grams_fd = bpf_object__find_map_fd_by_name(object, "pulse_grams");
     int token_stats_fd = bpf_object__find_map_fd_by_name(object, "pulse_tok_stats");
+    int prog_names_fd = bpf_object__find_map_fd_by_name(object, "pulse_prog_names");   /* exec-identity-v1 */
     uint64_t *token_scratch = calloc((size_t)cpu_count, sizeof(uint64_t));
-    if (grams_fd < 0 || token_stats_fd < 0 || !token_scratch) { fprintf(stderr, "token maps missing\n"); return 1; }
+    if (grams_fd < 0 || token_stats_fd < 0 || prog_names_fd < 0 || !token_scratch) { fprintf(stderr, "token maps missing\n"); return 1; }
     uint64_t grams_drained = 0;
     fprintf(stderr, "token probe: mode=%s exit=sys_exit hooks=1 lineage=fork\n", token_mode);
 #endif
@@ -519,6 +563,7 @@ int main(int argc, char **argv)
                    (unsigned long long)tok_stat_sum(token_stats_fd, 2, cpu_count, token_scratch),
                    (unsigned long long)tok_stat_sum(token_stats_fd, 0, cpu_count, token_scratch),
                    (unsigned long long)tok_stat_sum(token_stats_fd, 1, cpu_count, token_scratch));
+            print_prog_names(prog_names_fd, wall_time());
         }
 #endif
         uint32_t zero = 0; uint64_t task_failures = 0;

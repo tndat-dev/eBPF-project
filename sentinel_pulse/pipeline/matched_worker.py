@@ -247,6 +247,7 @@ def run(config_path):
                             if row['type']=='cgroup_snapshot_extended':pending.append(row);continue
                             if row['type']=='stat':stream.stats[row['name']]=int(row['cumulative']);continue
                             if tokens_cfg and row['type']=='token_grams':token_pending.append(row);continue
+                            if tokens_cfg and row['type']=='prog_names':tokens.write(line.decode()+'\n');continue   # exec-identity-v1
                             if tokens_cfg and row['type']=='token_drain':
                                 state['token_drain']={k:row[k] for k in ('drain_seconds','entries_cumulative',
                                     'grams_cumulative','insert_fail_cumulative','dir_fail_cumulative')};continue

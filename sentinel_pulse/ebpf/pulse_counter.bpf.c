@@ -53,6 +53,7 @@ struct pulse_task_state {
     __u32 tok[3];       /* the thread's last three tokens, oldest first; PULSE_TOK_NONE when empty */
     __u32 tok_pending;  /* this call entered and gives its token at return (raw_tp/sys_exit mode) */
     __u32 lineage;      /* PULSE_LINEAGE_NATIVE: the workload's own process tree; PULSE_LINEAGE_SESSION: entered by a runtime exec */
+    __u32 prog;         /* exec-identity-v1: 15-bit hash of the comm after the session thread's last execve; 0 = none */
 #else
     __u32 padding;
 #endif
@@ -152,6 +153,7 @@ static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
         if (previous->cgroup_id != cgroup_id) {
             pulse_tok_reset(previous);
             previous->lineage = pulse_tok_lineage(cgroup_id);
+            previous->prog = 0;
         }
         if (token_here)
             pulse_tok_emit(previous, cgroup_id, now_ns, pulse_tok_plain(syscall_id));
