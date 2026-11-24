@@ -124,9 +124,11 @@ def main():
         progs = lambda part: {names.get(str(g[5]), '?') for r in part for g in r.get('session_prog', ())}
         checks.update(
             session_prog_adds_up=all(sum(int(g[4]) for g in r.get('session_prog', ())) == r['session_events'] for r in grams),
-            exec_programs_named={'ls', 'cat', 'sleep'} <= progs(B),
-            orphan_program_named=bool({'ls', 'cat', 'sleep'} & progs(D)),
-            native_has_no_program=all((g[5] if len(g) > 5 else 0) != 0 for r in grams for g in r.get('session_prog', ())))
+            # busybox runs some applets (sleep) inside sh without an execve: the executed programs are sh, ls and cat
+            exec_programs_named={'sh', 'ls', 'cat'} <= progs(B),
+            orphan_program_named=bool({'ls', 'cat'} & progs(D)),
+            # the runtime's setup before the session's first execve has program 0; after it the session is named
+            session_carries_programs=sum(int(g[4]) for r in B for g in r.get('session_prog', ()) if int(g[5]) != 0) > 0)
     out = dict(schema='pulse-lineage-proof-v1', protocol='sentinel_pulse/protocol/ml-final-study-v1-amendment-2.json',
                valid=all(checks.values()), checks=checks, cgroup_id=cgid, cgroup_path=str(cg), times=t,
                phases={k: dict(windows=len(v), native_events=nat(v), session_events=ses(v))
