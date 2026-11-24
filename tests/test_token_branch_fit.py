@@ -178,3 +178,15 @@ def test_dump_load_keeps_block_maxima_per_event_class_and_the_event_counts(tmp_p
     for *cell, classes in doc['blocks']:                     # the classes' maximum is the block maximum
         assert abs(max(classes.values()) - maxima[tuple(cell)]) < 1e-12
     assert set(doc['events']) == {'100', '120'}               # COMMON = 100 events; + RARE = 120
+
+
+def test_score_options_reach_the_threshold_and_the_spec(tmp_path):
+    write(tmp_path / 'w.jsonl', rare_chunk=3)
+    out = tmp_path / 'out'
+    out.mkdir()
+    base = ('w', str(tmp_path / 'w.jsonl'), (START, START + 500), (START + 500, START + 10 * CHUNK), 0.0002, 60.0, 2,
+            str(out), 5, CHUNK, 1.0, None, 3, 0.005, None)
+    _, _, plain = f.fit_crossfit(base + (None,))
+    _, _, masked = f.fit_crossfit(base + (dict(mask=[3, 4, 5, 6], distinct=True, persist=True),))
+    assert masked['mask'] == [3, 4, 5, 6] and masked['distinct'] is True and masked['persist'] is True
+    assert 'mask' not in plain and masked['threshold'] != plain['threshold']

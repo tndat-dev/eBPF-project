@@ -70,6 +70,8 @@ class CountTokenLM:
         self.total = 0
         self.finalized = False
         self.default_top = TOP      # window score: mean of this many highest -log p (lidds-ml-v5: 10, lidds-ml-v5-t3: 3)
+        self.default_mask = frozenset()   # improvement-round-2 A2: calls whose events never enter the top-k
+        self.default_distinct = False     # improvement-round-2 A3: each gram once in the top-k
 
     # Học MỘT gram với trọng số `weight` (= số lần probe thấy gram đó). Với mỗi k, ngữ cảnh là k token ngay trước w.
     # Học "gram thấy c lần" bằng weight = c cho kết quả y hệt gọi learn c lần (test_token_model.py kiểm).
@@ -141,11 +143,17 @@ class CountTokenLM:
     # ĐIỂM CỬA SỔ: mỗi gram cho độ bất ngờ -ln p, lặp lại `c` lần (bội số). Sắp giảm dần, lấy 10 sự kiện bất ngờ
     # nhất (một gram có thể chiếm nhiều chỗ nếu c > 1), trả trung bình. Ví dụ RabbitMQ trong đồ án:
     # 6 lần 34,0 + 4 lần 7,0 → (204 + 28)/10 = 23,2 > ngưỡng 13,4 → cửa sổ bị báo.
-    def window_score(self, grams, top: int | None = None) -> float:
+    def window_score(self, grams, top: int | None = None, mask=None, distinct: bool | None = None) -> float:
         """Mean of the top highest -log p of a window's events; 0 for an empty window (as the offline scorer).
-        top None = the model's default_top (TOP unless the fit set another, MODELS.json "top")."""
+        top None = the model's default_top (TOP unless the fit set another, MODELS.json "top").
+        improvement-round-2: `mask` (call numbers; None = the model's default_mask) scores events of those calls as 0,
+        so they never enter the top-k (they stay in every context); `distinct` (None = default_distinct) takes each
+        gram once."""
         top = self.default_top if top is None else int(top)
-        values = sorted(((-math.log(self.prob(strip(gram))), int(c)) for *gram, c in grams), reverse=True)
+        mask = self.default_mask if mask is None else mask
+        distinct = self.default_distinct if distinct is None else distinct
+        values = sorted(((0.0 if mask and (int(gram[-1]) >> NR_SHIFT) in mask else -math.log(self.prob(strip(gram))),
+                          1 if distinct else int(c)) for *gram, c in grams), reverse=True)
         taken, total = 0, 0.0
         for nll, c in values:
             use = min(c, top - taken)
@@ -219,6 +227,7 @@ class TokenBranch:
 
     def __init__(self, spec: dict, sha256_file, gate: dict | None = None, session: dict | None = None):
         self.models, self.thresholds = {}, {}
+        self.persist, self.previous = set(), {}              # improvement-round-2 A4: workloads, container -> (end, score)
         # session-stream-v1 (optional, worker cfg tokens.session): the native part of each window against
         # "native_thresholds" (the workload model at the branch level) OR the session part against a session model:
         # the workload's own ("per", when the fit gave one) or the pooled one ("pooled"). Absent = the whole window.
@@ -230,6 +239,8 @@ class TokenBranch:
                     raise ValueError(f'token session model {path} changed')
                 lm = CountTokenLM.load(path)
                 lm.default_top = int(item.get('top', TOP))
+                lm.default_mask = frozenset(int(x) for x in item.get('mask', ()))
+                lm.default_distinct = bool(item.get('distinct', False))
                 thr = float(item['threshold'])
                 if not math.isfinite(thr):
                     raise ValueError('token session threshold is not finite')
@@ -260,6 +271,10 @@ class TokenBranch:
                 raise ValueError(f'token model of {key} changed')
             self.models[key] = CountTokenLM.load(path)
             self.models[key].default_top = int(item.get('top', TOP))      # lidds-ml-v5-t3: 3; absent = 10
+            self.models[key].default_mask = frozenset(int(x) for x in item.get('mask', ()))   # improvement-round-2
+            self.models[key].default_distinct = bool(item.get('distinct', False))
+            if item.get('persist'):
+                self.persist.add(key)                              # improvement-round-2 A4
             if self.models[key].default_top < 1:
                 raise ValueError(f'token top of {key} must be >= 1')
             self.thresholds[key] = float(item['threshold'])
@@ -271,6 +286,11 @@ class TokenBranch:
         if lm is None:
             return None
         s = lm.window_score(window['grams'])
+        if window['workload_key'] in self.persist:          # two consecutive windows must both be surprising
+            container = (window.get('pod_uid'), window.get('container_name'))
+            end, prior = self.previous.get(container, (None, 0.0))
+            self.previous[container] = (window['window_end'], s)
+            s = min(s, prior) if end is not None and abs(window['window_end'] - end - 0.5) < 1e-3 else 0.0
         raw = bool(s > self.thresholds[window['workload_key']])
         out = dict(token_score=s, token_threshold=self.thresholds[window['workload_key']], token_alert=raw)
         if self.session is not None:

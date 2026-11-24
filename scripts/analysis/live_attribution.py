@@ -122,16 +122,21 @@ def interval_windows(windows, trial):
 TOP_OF = {}     # model path -> top-k of its window score (MODELS.json "top", absent = TOP)
 
 
+OPTS_OF = {}                     # improvement-round-2: lm path -> (mask, distinct) of its fit
+
+
 def load_models(path):
     doc = json.loads(Path(path).read_text())
     TOP_OF.update({v['lm']: int(v.get('top', TOP)) for v in doc.values()})
+    OPTS_OF.update({v['lm']: (frozenset(v.get('mask', ())), bool(v.get('distinct', False))) for v in doc.values()})
     return {k: (v['lm'], float(v['threshold'])) for k, v in doc.items()}
 
 
 def load_lm(lm_path):
-    """A workload model with the top-k its fit used."""
+    """A workload model with the top-k (and improvement-round-2 score options) its fit used."""
     lm = CountTokenLM.load(Path(lm_path))
     lm.default_top = TOP_OF.get(str(lm_path), TOP)
+    lm.default_mask, lm.default_distinct = OPTS_OF.get(str(lm_path), (frozenset(), False))
     return lm
 
 

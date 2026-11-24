@@ -280,3 +280,25 @@ def test_session_branch_scores_native_and_session_parts_apart(tmp_path):
     assert native_part([[1, 2, 3, 4, 5]], [[1, 2, 3, 4, 2]]) == [[1, 2, 3, 4, 3]]
     with pytest.raises(ValueError):
         branch.score(dict(workload_key=key, grams=native))
+
+
+def test_token_branch_persistence_needs_two_consecutive_surprising_windows(tmp_path):
+    from sentinel_pulse.detector.token_model import TokenBranch
+    from sentinel_pulse.integrity import sha256_file
+    rng = random.Random(4)
+    normal = [tok(0, 2, 12), tok(3), tok(202)]
+    lm = CountTokenLM()
+    for _ in range(20):
+        lm.learn_window(probe_rows(thread_grams(rng, 100, normal)))
+    lm.finalize()
+    path = tmp_path / 'm.json.gz'
+    lm.save(path)
+    key = 'production/api:app'
+    branch = TokenBranch({key: dict(lm=str(path), lm_sha256=sha256_file(path), threshold=6.0, persist=True,
+                                    mask=[202], distinct=True)}, sha256_file)
+    odd = probe_rows(thread_grams(rng, 50, normal + [tok(59, 1, 13)]))
+    w = lambda end, grams: dict(workload_key=key, pod_uid='p', container_name='c', window_end=end, grams=grams)
+    assert branch.score(w(10.0, odd))['token_alert'] is False          # first odd window alone: no alarm
+    assert branch.score(w(10.5, odd))['token_alert'] is True           # the second consecutive one alarms
+    assert branch.score(w(12.0, odd))['token_alert'] is False          # a gap resets the persistence
+    assert branch.models[key].default_mask == frozenset({202}) and branch.models[key].default_distinct
