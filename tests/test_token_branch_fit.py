@@ -190,3 +190,44 @@ def test_score_options_reach_the_threshold_and_the_spec(tmp_path):
     _, _, masked = f.fit_crossfit(base + (dict(mask=[3, 4, 5, 6], distinct=True, persist=True),))
     assert masked['mask'] == [3, 4, 5, 6] and masked['distinct'] is True and masked['persist'] is True
     assert 'mask' not in plain and masked['threshold'] != plain['threshold']
+
+
+def _segment(root, rows):
+    seg = root / 'workers' / 'n' / 'segments' / 's00001'
+    seg.mkdir(parents=True)
+    (seg / 'tokens.jsonl').write_text(''.join((r if isinstance(r, str) else json.dumps(r)) + '\n' for r in rows))
+    return root
+
+
+def test_split_skips_program_name_lines_and_collects_them(tmp_path):
+    """exec-identity-v1: the loader's prog_names lines (also the first line of a segment) are not windows."""
+    names_line = '{"type":"prog_names","names":{"7":"find"},"observed_at":5.0}'
+    row = dict(type='token_window', window_end=10.0, workload_key='w', pod_uid='p', container_name='c', grams=COMMON,
+               session=[], session_prog=[])
+    root = _segment(tmp_path / 'run', [names_line, row, '{"type":"prog_names","names":{"9":"grep"},"observed_at":11.0}'])
+    work = tmp_path / 'work'
+    work.mkdir()
+    seen = {}
+    names = f.split([(root, 0.0, 100.0, None)], work, prog_names=seen)
+    assert [json.loads(l)['window_end'] for l in names['w'].read_text().splitlines()] == [10.0]
+    assert seen == {'7': {'find'}, '9': {'grep'}}
+
+
+def test_by_prog_splits_the_session_part_per_program(tmp_path):
+    sess = [[TOK_NONE, TOK_NONE, 1 << 23, 2 << 23, 3, 7], [TOK_NONE, TOK_NONE, 1 << 23, 2 << 23, 2, 9],
+            [TOK_NONE, 1 << 23, 2 << 23, 3 << 23, 1, 7]]
+    row = dict(type='token_window', window_end=10.0, workload_key='w', pod_uid='p', container_name='c', grams=COMMON,
+               session=[[TOK_NONE, TOK_NONE, 1 << 23, 2 << 23, 5], [TOK_NONE, 1 << 23, 2 << 23, 3 << 23, 1]],
+               session_prog=sess)
+    empty = dict(row, window_end=11.0, session=[], session_prog=[])
+    root = _segment(tmp_path / 'run', [row, empty])
+    work = tmp_path / 'work'
+    work.mkdir()
+    names = f.split([(root, 0.0, 100.0, None)], work, part='session', pool_key='session', by_prog=True)
+    assert sorted(names) == ['session|prog:7', 'session|prog:9']
+    seven = [json.loads(l) for l in names['session|prog:7'].read_text().splitlines()]
+    assert len(seven) == 1 and seven[0]['grams'] == [g[:5] for g in sess if g[5] == 7]
+    assert 'session' not in seven[0] and 'session_prog' not in seven[0]
+    import pytest
+    with pytest.raises(ValueError):
+        f.split([(root, 0.0, 100.0, None)], work, part='whole', by_prog=True)

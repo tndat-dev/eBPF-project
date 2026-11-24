@@ -88,6 +88,8 @@ def read_tail_tokens(job):
     out = []
     with open_sealed(Path(path)) as stream:
         for line in stream:
+            if line.startswith('{"type":"prog_names"'):   # exec-identity-v1 program-name lines
+                continue
             end = float(la._field(line, 'window_end'))
             if not (lo <= end < hi) or live.in_spans(end, spans):
                 continue

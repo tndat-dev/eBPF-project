@@ -1,0 +1,102 @@
+{
+ "schema": "improvement-round-2-datasets",
+ "gate_t3": true,
+ "mask": [
+  "futex",
+  "sched_yield",
+  "rt_sigreturn",
+  "sigreturn"
+ ],
+ "candidates": {
+  "t3": {
+   "lidds2021_development": {
+    "detected": 529,
+    "false_alarm_recordings": 5,
+    "latency_p95": 1.5737290382385245,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 3
+   },
+   "lidds2019_development": {
+    "detected": 310,
+    "false_alarm_recordings": 9,
+    "latency_p95": 11.127933149000114
+   },
+   "must": true
+  },
+  "A2_mask": {
+   "lidds2021_development": {
+    "detected": 526,
+    "false_alarm_recordings": 5,
+    "latency_p95": 1.4993542432785034,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 3
+   },
+   "lidds2019_development": {
+    "detected": 310,
+    "false_alarm_recordings": 13,
+    "latency_p95": 11.127933149000114
+   },
+   "must": false
+  },
+  "A3_distinct": {
+   "lidds2021_development": {
+    "detected": 528,
+    "false_alarm_recordings": 4,
+    "latency_p95": 1.6419479489326474,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 2
+   },
+   "lidds2019_development": {
+    "detected": 309,
+    "false_alarm_recordings": 8,
+    "latency_p95": 11.129258673000093
+   },
+   "must": false
+  },
+  "A2_A3": {
+   "lidds2021_development": {
+    "detected": 527,
+    "false_alarm_recordings": 4,
+    "latency_p95": 1.4512468814849853,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 3
+   },
+   "lidds2019_development": {
+    "detected": 309,
+    "false_alarm_recordings": 12,
+    "latency_p95": 11.129258673000093
+   },
+   "must": false
+  },
+  "A4_persist": {
+   "lidds2021_development": {
+    "detected": 286,
+    "false_alarm_recordings": 3,
+    "latency_p95": 7.181425750255585,
+    "cb_detected": 808,
+    "cb_false_alarm_recordings": 0
+   },
+   "lidds2019_development": {
+    "detected": 159,
+    "false_alarm_recordings": 12,
+    "latency_p95": 12.482597341298787
+   },
+   "must": false
+  },
+  "A5_kneser_ney": {
+   "lidds2021_development": {
+    "detected": 530,
+    "false_alarm_recordings": 6,
+    "latency_p95": 1.5638370752334574,
+    "cb_detected": 891,
+    "cb_false_alarm_recordings": 0
+   },
+   "lidds2019_development": {
+    "detected": 288,
+    "false_alarm_recordings": 7,
+    "latency_p95": 9.372680573900329
+   },
+   "must": false
+  }
+ }
+}

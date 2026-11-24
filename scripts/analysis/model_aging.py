@@ -50,6 +50,8 @@ def read_file(job):
     windows_at = defaultdict(int)                          # windows per 60 s block start (regime split)
     with open_sealed(Path(path)) as stream:
         for line in stream:
+            if line.startswith('{"type":"prog_names"'):   # exec-identity-v1 program-name lines
+                continue
             w = json.loads(line)
             key = w['workload_key']
             if key not in models:

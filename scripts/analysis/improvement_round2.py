@@ -140,19 +140,25 @@ def collect(run_root, trials, jobs):
     return windows
 
 
-def evaluate_system(trials, windows, native, session_lm, session_thr, persist=False):
-    """S1a flags per label set: native part by native[w] = (lm, threshold) OR session part by the session model;
-    with persist the native score is min(s_t, s_t-1) of consecutive windows. Returns (sets, attack latencies)."""
+def eligible(trials):
+    """The trials S1a is judged on (their pair has an attack) and the attack trial of each pair."""
+    attack_pairs = {t['pair']: t for t in trials if t['label'] == 'attack'}
+    return [(i, t) for i, t in enumerate(trials) if t['pair'] in attack_pairs], attack_pairs
+
+
+def native_hits(trials, windows, native, persist=False):
+    """{trial index: end of the first window from the trial start (up to HORIZON) whose native part exceeds the
+    workload's threshold, or None}; with persist the score is min(s_t, s_t-1) of consecutive windows. Trials of a
+    workload without a native model are left out (as before). It does not depend on the session model, so B1 computes
+    it once."""
     import live_attribution as la
     from native_stream import native_of
-    attack_pairs = {t['pair']: t for t in trials if t['label'] == 'attack'}
-    counts, latency = {}, []
-    for t in trials:
-        if t['pair'] not in attack_pairs or t['workload'] not in native:
+    out = {}
+    for i, t in eligible(trials)[0]:
+        if t['workload'] not in native:
             continue
         lm, thr = native[t['workload']]
-        prev_end, prev = None, 0.0
-        first = None
+        prev_end, prev, first = None, 0.0, None
         for end, g, sess in windows.get(t['key'], ()):
             if end > t['start'] + la.HORIZON:
                 break
@@ -160,12 +166,32 @@ def evaluate_system(trials, windows, native, session_lm, session_thr, persist=Fa
             s = lm.window_score(nat) if nat else 0.0
             p = (min(s, prev) if prev_end is not None and abs(end - prev_end - 0.5) < 1e-3 else 0.0) if persist else s
             prev_end, prev = end, s
-            if end < t['start']:
-                continue
-            hit = p > thr or (bool(sess) and session_lm.window_score(sess) > session_thr)
-            if hit:
+            if end >= t['start'] and p > thr:
                 first = end
                 break
+        out[i] = first
+    return out
+
+
+def session_hit(t, windows, session_lm, session_thr, before=None):
+    """End of the first window from the trial start (up to HORIZON, and before `before`) whose session part exceeds
+    the session threshold, or None."""
+    import live_attribution as la
+    for end, g, sess in windows.get(t['key'], ()):
+        if end > t['start'] + la.HORIZON or (before is not None and end >= before):
+            break
+        if end >= t['start'] and sess and session_lm.window_score(sess) > session_thr:
+            return end
+    return None
+
+
+def tally(trials, firsts):
+    """(counts per label set, primary attack latencies) from {trial index: first alarm end or None}."""
+    import live_attribution as la
+    attack_pairs = eligible(trials)[1]
+    counts, latency = {}, []
+    for i, first in sorted(firsts.items()):
+        t = trials[i]
         pair = attack_pairs[t['pair']]
         pad = pair.get('pad') or 0
         sets = [f"{t['label']}-pad{pad}"] if pad else [t['label']] + ([f"{t['label']}-primary"] if pair['rate'] in la.PRIMARY else [])
@@ -178,6 +204,83 @@ def evaluate_system(trials, windows, native, session_lm, session_thr, persist=Fa
         if first is not None and t['label'] == 'attack' and not pad and pair['rate'] in la.PRIMARY:
             latency.append(first - (t.get('kernel') or t['start']))
     return counts, latency
+
+
+def with_session(trials, windows, nhits, session_lm, session_thr, keep=None):
+    """{trial index: first alarm} of S1a: the native hit, or an earlier session hit. keep(t) limits the trials."""
+    out = {}
+    for i, nat in nhits.items():
+        t = trials[i]
+        if keep and not keep(t):
+            continue
+        sess = session_hit(t, windows, session_lm, session_thr, before=nat)
+        out[i] = sess if sess is not None else nat
+    return out
+
+
+def evaluate_system(trials, windows, native, session_lm, session_thr, persist=False):
+    """S1a flags per label set: native part by native[w] = (lm, threshold) OR session part by the session model;
+    with persist the native score is min(s_t, s_t-1) of consecutive windows. Returns (sets, attack latencies)."""
+    nhits = native_hits(trials, windows, native, persist)
+    return tally(trials, with_session(trials, windows, nhits, session_lm, session_thr))
+
+
+class OverlayLM:
+    """B1: the pooled session model plus extra counts, without copying or re-finalizing the pooled model. Gives the
+    same probabilities as a CountTokenLM that learnt the base's windows and the extra ones (tests/test_improvement_offline.py).
+    base: a finalized CountTokenLM; extra: an unfinalized CountTokenLM of the extra windows."""
+
+    def __init__(self, base, extra):
+        from sentinel_pulse.detector.token_model import CountTokenLM
+        self.b, self.d, self.n = base, extra, base.n
+        self.default_top, self.default_mask, self.default_distinct = base.default_top, base.default_mask, base.default_distinct
+        self.total = base.total + extra.total
+        self.stats = []
+        for k, level in enumerate(extra.count):
+            merged = {}
+            for h, c in level.items():
+                bc = base.count[k].get(h) or {}
+                tot, types = base.stats[k].get(h, (0, 0))
+                merged[h] = (tot + sum(c.values()), types + sum(1 for w in c if w not in bc))
+            self.stats.append(merged)
+        self.n_names = len(set(base.names) | set(extra.names))
+        self.given_total, self.given_types = {}, {}
+        for name in set(base.given) | set(extra.given):
+            bg, dg = base.given.get(name) or {}, extra.given.get(name) or {}
+            self.given_total[name] = sum(bg.values()) + sum(dg.values())
+            self.given_types[name] = len(set(bg) | set(dg))
+        unseen = [0.5 / (self.given_total[n] + 0.5 * (self.given_types[n] + 1)) for n in self.given_total]
+        self.unseen_given = sum(unseen) / len(unseen) if unseen else 1.0
+        self.memo = {}
+        self.window_score = CountTokenLM.window_score.__get__(self)
+
+    def base(self, w):
+        from sentinel_pulse.detector.token_model import call_of
+        name = call_of(w)
+        p_name = (self.b.names.get(name, 0) + self.d.names.get(name, 0) + 0.5) / (self.total + 0.5 * (self.n_names + 1))
+        if not self.given_types.get(name):
+            return p_name * self.unseen_given
+        c = (self.b.given.get(name) or {}).get(w, 0) + (self.d.given.get(name) or {}).get(w, 0)
+        return p_name * (c + 0.5) / (self.given_total[name] + 0.5 * (self.given_types[name] + 1))
+
+    def prob(self, g):
+        g = tuple(g[-self.n:])
+        hit = self.memo.get(g)
+        if hit is not None:
+            return hit
+        w = g[-1]
+        p = self.base(w)
+        for k in range(1, min(self.n, len(g))):
+            h = g[-1 - k:-1]
+            st = self.stats[k].get(h) or self.b.stats[k].get(h)
+            if not st:
+                continue
+            tot, types = st
+            c = (self.b.count[k].get(h) or {}).get(w, 0) + (self.d.count[k].get(h) or {}).get(w, 0)
+            p = (c + types * p) / (tot + types)
+        if len(self.memo) < 2_000_000:
+            self.memo[g] = p
+        return p
 
 
 def attack_criteria(counts, latency):
@@ -231,13 +334,22 @@ def intervals(a):
                 for end, g, sess in ws.get(t['key'], ()):
                     if t['start'] <= end <= t['start'] + la.HORIZON and sess:
                         admin_grams.setdefault(t['command'], []).append(sess)
-        native = native_models(a.system[0].split('=', 1)[1].split(':')[0], None, a.fit)
+        base_spec = a.system[0].split('=', 1)[1].split(':')
+        scale = json.loads(Path(a.alpha_scale).read_text()) if 'a6' in base_spec[1:] else None
+        native = native_models(base_spec[0], scale, a.fit)
+        nhits = native_hits(trials, windows, native, persist='persist' in base_spec[1:])   # once: no session model in it
+        from sentinel_pulse.detector.token_model import CountTokenLM, strip
         per = {}
         for cmd in sorted(admin_grams):
-            lm = la.augmented(sp, [g for c, gs in admin_grams.items() if c != cmd for g in gs])
-            lm.default_top = session_lm.default_top
-            held = [t for t in trials if t['label'] != 'admin' or t['command'] == cmd]
-            counts, lat = evaluate_system(held, windows, native, lm, sthr)
+            extra = CountTokenLM(session_lm.n)
+            for c, gs in admin_grams.items():
+                if c != cmd:
+                    for grams in gs:
+                        for *g, n in grams:
+                            extra.learn(strip(g), int(n))
+            lm = OverlayLM(session_lm, extra)
+            counts, lat = tally(trials, with_session(trials, windows, nhits, lm, sthr,
+                                                     keep=lambda t: t['label'] != 'admin' or t['command'] == cmd))
             per[cmd] = dict(admin=counts.get('admin'), criteria=attack_criteria(counts, lat))
             print('B1', cmd, json.dumps(per[cmd], default=float), flush=True)
         doc['b1'] = per

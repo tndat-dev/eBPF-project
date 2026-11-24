@@ -102,6 +102,8 @@ def read_segment(job):
     intervals, alarms = [], []
     with open_sealed(Path(path)) as stream:
         for line in stream:
+            if line.startswith('{"type":"prog_names"'):   # exec-identity-v1 program-name lines
+                continue
             end = float(la._field(line, 'window_end'))
             pod = la._field(line, 'pod_uid')
             in_tail = lo <= end < hi and not live.in_spans(end, excluded)

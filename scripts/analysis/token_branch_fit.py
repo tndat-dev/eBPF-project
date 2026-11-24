@@ -94,26 +94,65 @@ def part_of(w, part):
     return native or None
 
 
-def split(sources, work, part='whole', pool_key=None):
+PROG_NAMES = '{"type":"prog_names"'     # exec-identity-v1: the loader's program-name lines share tokens.jsonl
+
+
+def by_program(w):
+    """exec-identity-v1: {program hash: the session grams of that program} of one window (lineage build with programs)."""
+    if 'session_prog' not in w:
+        raise ValueError('--by-prog needs windows of the exec-identity build')
+    out = {}
+    for g in w['session_prog']:
+        out.setdefault(int(g[5]), []).append([int(v) for v in g[:5]])
+    return out
+
+
+def split(sources, work, part='whole', pool_key=None, by_prog=False, prog_names=None):
     """One pass over each run: the lines of each workload into their own file (name: sha256 prefix). sources:
     [(run root, lo, hi, excluded spans per container or None)]; a window is kept when lo <= window_end < hi and it
     lies in no excluded span of its container. session-stream-v1: with part 'session' or 'native' only that lineage
     part of a window is kept (windows whose part is empty are dropped); with pool_key every workload goes to one file
-    (a pooled model)."""
+    (a pooled model). exec-identity-v1: with by_prog (part 'session') the session part of a window goes per program
+    to the file of key '<pool key>|prog:<hash>'; the loader's program-name lines are skipped everywhere and, with a dict
+    prog_names, collected as {hash: set of names}."""
+    if by_prog and part != 'session':
+        raise ValueError('--by-prog needs --part session')
     handles, names = {}, {}
+
+    def put(key, line):
+        if key not in handles:
+            names[key] = work / (hashlib.sha256(key.encode()).hexdigest()[:16] + '.jsonl')
+            handles[key] = names[key].open('w')
+        handles[key].write(line if line.endswith('\n') else line + '\n')
     for root, lo, hi, excluded in sources:
         for path in sorted(root.glob('workers/*/segments/*/tokens.jsonl*')):
             opener = gzip.open if path.suffix == '.gz' else open
             with opener(path, 'rt') as handle:
                 first = handle.readline()
+                while first.startswith(PROG_NAMES):
+                    if prog_names is not None:
+                        for h, n in json.loads(first)['names'].items():
+                            prog_names.setdefault(h, set()).add(n)
+                    first = handle.readline()
                 if not first or json.loads(first)['window_end'] >= hi:
                     continue                       # a segment that starts after the span holds none of it
                 for line in itertools.chain((first,), handle):
+                    if line.startswith(PROG_NAMES):
+                        if prog_names is not None:
+                            for h, n in json.loads(line)['names'].items():
+                                prog_names.setdefault(h, set()).add(n)
+                        continue
                     w = json.loads(line)
                     end = w['window_end']
                     if not lo <= end < hi:
                         continue
                     if excluded and any(a <= end < b for a, b in excluded.get((w['pod_uid'], w['container_name']), ())):
+                        continue
+                    if by_prog:
+                        for prog, grams in sorted(by_program(w).items()):
+                            row = {k: v for k, v in w.items() if k not in ('session', 'session_prog')}
+                            row['grams'] = grams
+                            put(f"{pool_key or w['workload_key']}|prog:{prog}", json.dumps(row, separators=(',', ':')))
                         continue
                     if part != 'whole':
                         grams = part_of(w, part)
@@ -121,12 +160,9 @@ def split(sources, work, part='whole', pool_key=None):
                             continue
                         w['grams'] = grams
                         w.pop('session', None)
+                        w.pop('session_prog', None)
                         line = json.dumps(w, separators=(',', ':'))
-                    key = pool_key or w['workload_key']
-                    if key not in handles:
-                        names[key] = work / (hashlib.sha256(key.encode()).hexdigest()[:16] + '.jsonl')
-                        handles[key] = names[key].open('w')
-                    handles[key].write(line if line.endswith('\n') else line + '\n')
+                    put(pool_key or w['workload_key'], line)
     for h in handles.values():
         h.close()
     return names
@@ -330,9 +366,11 @@ def main():
     ap.add_argument('--folds', type=int, default=0, help='cross-fit folds (lidds-ml-v4); 0 = training / validation split')
     ap.add_argument('--fold-seconds', type=float, default=1800.0)
     ap.add_argument('--share', type=float, default=1 / 3, help='share of alpha for this branch')
-    ap.add_argument('--extra-run', type=Path, help='a finished live run whose normal is learnt too (needs --folds): its '
-                    'windows inside --extra-span, outside every campaign interval of their container (-5 s, +25 s)')
-    ap.add_argument('--extra-span', type=float, nargs=2, metavar=('START', 'END'))
+    ap.add_argument('--extra-run', type=Path, action='append', default=[],
+                    help='a finished live run or capture whose normal is learnt too (needs --folds): its windows inside '
+                    'its --extra-span, outside every campaign interval of their container (-5 s, +25 s) when it has a '
+                    'campaign; repeat both options for several (exec-identity-v1 final fit: three diurnal days)')
+    ap.add_argument('--extra-span', type=float, nargs=2, action='append', default=[], metavar=('START', 'END'))
     ap.add_argument('--pool-level', type=float, help='lidds-ml-v5 gate: level of the pool threshold (needs --folds)')
     ap.add_argument('--exec-hold', type=float, default=1.0, help='lidds-ml-v5 gate: seconds held after an execve')
     ap.add_argument('--top', type=int, default=TOP, help='window score: mean of the TOP highest -log p (lidds-ml-v5-t3: 3)')
@@ -344,6 +382,8 @@ def main():
     ap.add_argument('--part', choices=['whole', 'session', 'native'], default='whole',
                     help='session-stream-v1: learn and threshold one lineage part of each window (lineage build)')
     ap.add_argument('--pool-key', help='session-stream-v1: one pooled model of every workload under this key')
+    ap.add_argument('--by-prog', action='store_true',
+                    help="exec-identity-v1: with --part session, one model per program hash (key '<pool key>|prog:<hash>')")
     ap.add_argument('--dump-maxima', type=Path, help='ml-final-study-v1 part C: write the held-out block maxima per workload here')
     a = ap.parse_args()
     if not a.train[0] < a.train[1] <= a.validation[0] < a.validation[1]:
@@ -351,16 +391,20 @@ def main():
     a.output.mkdir(parents=True, exist_ok=False)
     work = a.work or a.output / 'split'
     work.mkdir(parents=True, exist_ok=True)
-    if bool(a.extra_run) != bool(a.extra_span) or (a.extra_run and not a.folds):
-        raise SystemExit('--extra-run needs --extra-span and --folds')
-    if a.extra_run and not (a.extra_span[0] < a.extra_span[1]
-                            and (a.validation[1] <= a.extra_span[0] or a.extra_span[1] <= a.train[0])):
-        raise SystemExit('the extra span must not overlap the capture')
+    if len(a.extra_run) != len(a.extra_span) or (a.extra_run and not a.folds):
+        raise SystemExit('every --extra-run needs its --extra-span, and --folds')
     sources = [(a.run_root, a.train[0], a.validation[1], None)]
-    if a.extra_run:
-        sources.append((a.extra_run, a.extra_span[0], a.extra_span[1], trial_spans(a.extra_run / 'pulse-development-matrix')))
-        a.train, a.validation = crossfit_span(a.train, a.validation, a.extra_span)
-    names = split(sources, work, a.part, a.pool_key)
+    for run, span in zip(a.extra_run, a.extra_span):
+        if not span[0] < span[1]:
+            raise SystemExit('an extra span must have START < END')
+        campaign = run / 'pulse-development-matrix'
+        sources.append((run, span[0], span[1], trial_spans(campaign) if campaign.exists() else None))   # a capture has no campaign
+        try:
+            a.train, a.validation = crossfit_span(a.train, a.validation, span)
+        except ValueError:
+            raise SystemExit('the extra spans must not overlap the capture or each other') from None
+    prog_names = {}
+    names = split(sources, work, a.part, a.pool_key, a.by_prog, prog_names)
     jobs = [(k, str(v), a.train, a.validation, a.alpha, a.block, a.minimum_blocks, str(a.output)) for k, v in sorted(names.items())]
     worker = fit_one
     if a.folds:
@@ -405,8 +449,11 @@ def main():
                                                             exec_hold_seconds=a.exec_hold, level=a.pool_level), indent=1) + '\n')
     (a.output / 'MODELS.json').write_text(json.dumps(spec, indent=1, sort_keys=True) + '\n')
     (a.output / 'FIT.json').write_text(json.dumps(dict(schema='pulse-token-branch-fit-v1', run_root=str(a.run_root),
-                                                       extra_run=str(a.extra_run) if a.extra_run else None, part=a.part, pool_key=a.pool_key,
-                                                       extra_span=a.extra_span,
+                                                       extra_run=str(a.extra_run[0]) if len(a.extra_run) == 1 else None,
+                                                       extra_span=a.extra_span[0] if len(a.extra_span) == 1 else None,
+                                                       extra_runs=[str(r) for r in a.extra_run], extra_spans=a.extra_span,
+                                                       part=a.part, pool_key=a.pool_key, by_prog=a.by_prog,
+                                                       prog_names={h: sorted(n) for h, n in sorted(prog_names.items())},
                                                        train=a.train, validation=a.validation, alpha=a.alpha,
                                                        branch_alpha=a.alpha * (a.share if a.folds else 1 / 3), block=a.block,
                                                        folds=a.folds, fold_seconds=a.fold_seconds if a.folds else None,

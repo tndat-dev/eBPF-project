@@ -1,0 +1,2 @@
+S1a {"primary": 1.0, "pad300": 1.0, "on_off": 1.0, "rate01": 1.0, "rate05": 1.0, "lotl": 1.0, "eventgen": 0.987410071942446, "control": 0.0, "p95": 0.49066048860549927, "passes": true}
+B1 find {"admin": [50, 50], "criteria": {"primary": 1.0, "pad300": 1.0, "on_off": 1.0, "rate01": 1.0, "rate05": 1.0, "lotl": 1.0, "eventgen": 0.987410071942446, "control": 0.0, "p95": 0.4939637780189514, "passes": true}}
