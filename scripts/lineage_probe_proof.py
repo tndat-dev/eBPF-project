@@ -78,7 +78,7 @@ def main():
         t['attached'] = time.time()
         time.sleep(4.0)
         t['b0'], t['b1'] = crictl_exec(a.container_id, 'ls / >/dev/null; cat /etc/hostname >/dev/null; sleep 1; ls /tmp >/dev/null')
-        time.sleep(3.0)
+        time.sleep(5.0)      # phase C spans several loop iterations of the pod (3 s left it empty in some runs, any build)
         t['d0'], t['d1'] = crictl_exec(a.container_id, '(sleep 1.2; ls / >/dev/null; cat /etc/hostname >/dev/null) >/dev/null 2>&1 & exit 0')
         time.sleep(5.0)
         t['end'] = time.time()
