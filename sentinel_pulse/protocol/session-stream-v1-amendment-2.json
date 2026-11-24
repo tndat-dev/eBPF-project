@@ -1,0 +1,14 @@
+{
+  "schema": "sentinel-pulse-session-stream-v1-amendment-2",
+  "amends": "sentinel_pulse/protocol/session-stream-v1.json and its amendment 1",
+  "registered_at": "2026-11-24T13:18+07:00",
+  "owner_decision": "24/11: 'ok chot s1a'",
+  "correction": "amendment 1 stated that S1 gives t3's dataset results because recordings carry no session lineage; that was wrong: S1 scores the native part at alpha' 0.00015, so on a dataset S1 is t3 at 0.00015: LID-DS 2021 development 523/544 (t3 529/544), 5 false-alarm recordings, CB-DS 891/891 with 2, LID-DS 2019 development 310/321 with 3 (validation-evidence/results-20261124/load-threshold/). By amendment 1's own rule (any dataset difference blocks the adoption) S1 is not adopted",
+  "known_when_decided": "S1a on pulse-live-final-1119 (computed 23-24/11 after amendment 1): primary attacks 296/296, lotl 666/666, event generator 549/556, idle control 0/694, operator commands and harmless binaries as S0, burden 0.273 episodes per replica-hour (S0 0.362, S1 0.253); load-threshold-v1 not adopted (L0 stays)",
+  "change": "S1a is the alert path: the native part of each window against the workload's t3 threshold (alpha' 0.0003, unchanged) OR the session part against one pooled session model at alpha' 0.00015 (TokenBranch with tokens.session; SESSION.json from scripts/analysis/session_branch_config.py --branch-alpha 0.0003). On datasets, which have no session lineage, S1a is t3 by construction, so LID-DS 2021, LID-DS 2019 and CB-DS keep t3's results without a rescoring",
+  "final_live_run": "the one final live run (load-threshold-v1 'final_live_run') uses S1a with pulse-live-diurnal-fit-1123 (t3 models fitted on the diurnal capture plus the final run's normal tail) and its pooled session model (SESSION-S1a.json); S0 (t3 whole window) is recomputed offline on the same windows for the comparison",
+  "limits": [
+    "the burden gain was measured on the final run's normal tail (mostly steady traffic); the final run measures it per regime",
+    "S1a does not reduce operator-command or harmless-binary flags; the extra alarms at peak and burst are in the native part"
+  ]
+}
