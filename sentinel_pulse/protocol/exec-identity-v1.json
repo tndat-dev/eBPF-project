@@ -1,0 +1,23 @@
+{
+  "schema": "sentinel-pulse-exec-identity-v1",
+  "registered_at": "2026-11-24T16:53+07:00",
+  "registered_before": "the probe change exists and any data with program identity is recorded",
+  "owner_decisions": [
+    "24/11: do B2 of improvement-round-2 (program identity of exec sessions, a session model per program)",
+    "24/11: B3 (Kubernetes pods/exec audit) last, after the model is fixed, as the rule comparison (with and without)"
+  ],
+  "idea": "a session process (entered by a runtime exec, and its descendants) carries the name of the program it executed (the task's comm right after a successful execve, inherited at fork); the session part of a window is scored per program by a model of that program learnt from normal operations (exec probes and routine operator commands), and by the pooled session model (S1a) when the program has too little learning data. A routine command already seen is then judged against its own past behaviour; a new program falls back to the pooled model as in S1a",
+  "probe": {
+    "change": "pulse_task_state gains prog: on a successful execve return of a session-lineage thread, prog = a 15-bit FNV-1a hash of the 16-byte comm (never 0), and the comm is stored once in a new map pulse_prog_names (hash -> comm); fork copies prog; native threads keep prog 0. The gram key's pad = lineage | prog << 1. The loader keeps 'grams' and 'session' as before (summed over programs) and adds 'session_prog': [[t0,t1,t2,t3,count,prog], ...] plus a 'prog_names' line for every new hash",
+    "checks": "the token proof (one token per syscall) and the lineage proof must pass on the three workers; the overhead A/B of token-probe-overhead-v1 (getpid, read, futex, open+close, mmap+munmap, forkwait) against the final build must show no added cost beyond the 95 % interval of the earlier comparisons"
+  },
+  "routine_operations": "during the A1 capture (two diurnal days) a routine operator runs, about every 10 min at a seeded random time, one command of the routine set in a seeded random production container through kubectl exec: find, grep, sleep, stat, wc (five of the nine v6 operator commands other than ls_tmp, chosen by sha256('exec-identity-v1:' + name) rank; ls_tmp is left out because the living-off-the-land step uses ls). Held out: head, hostname, printenv, whoami (and ls_tmp). These are normal operations and are learnt",
+  "learning": "session models per program name from the session_prog part of the capture's windows (minimum 200 learning blocks per program, else the pooled session model), cross-fit and Gumbel rule as the pooled session model at alpha' 0.00015",
+  "evaluation": "on the one final live run (alert path S1a; the program identity recorded), offline: S1a against S1a+B2 on the same windows: operator commands flagged for the routine set and for the held-out set; attack, lotl and event-generator recall (primary >= 95 %, PAD 300, on-off, 0.1 and 0.5 per s >= 95 % each, lotl and event generator >= 95 %), idle control <= 5 %, burden per regime. B2 is reported as a learnt mechanism measured on the final run; it is not on that run's alert path",
+  "limits": [
+    "comm is the program name (16 bytes), not a verified identity: an attacker who names its binary like a routine command is scored by that command's model",
+    "operator commands are simulated by a schedule; real operator behaviour varies more",
+    "the datasets have no runtime exec, so B2 does not change LID-DS or CB-DS"
+  ],
+  "code": "sentinel_pulse/ebpf/pulse_counter.bpf.c, pulse_tokens.bpf.h, pulse_token_ids.h, pulse_counter_loader.c, sentinel_pulse/collector/token_capture.py, scripts/routine_operations.py, scripts/analysis/token_branch_fit.py --part session --by-prog"
+}
