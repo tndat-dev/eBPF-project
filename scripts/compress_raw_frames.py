@@ -91,9 +91,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--run-root', type=Path, required=True, help='e.g. .../matched-parallel-20261015')
     parser.add_argument('--files', nargs='+', default=['raw.jsonl'])
+    parser.add_argument('--worker', default='*', help='only this worker directory (one job per node in parallel)')
     args = parser.parse_args()
     total = dict(compressed=0, saved_bytes=0, mismatched=[])
-    for seal in sorted(args.run_root.glob('workers/*/segments/s*/TERMINAL.json')):
+    for seal in sorted(args.run_root.glob(f'workers/{args.worker}/segments/s*/TERMINAL.json')):
         for result in compress(seal.parent, args.files):
             if result['status'] == 'compressed':
                 total['compressed'] += 1
