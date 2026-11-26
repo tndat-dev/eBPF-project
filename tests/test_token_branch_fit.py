@@ -231,3 +231,19 @@ def test_by_prog_splits_the_session_part_per_program(tmp_path):
     import pytest
     with pytest.raises(ValueError):
         f.split([(root, 0.0, 100.0, None)], work, part='whole', by_prog=True)
+
+
+def test_gzip_scratch_gives_the_same_fit(tmp_path):
+    """--gzip-work: the split and the fold files are gzip, the model and the held-out maxima are unchanged."""
+    rows = write(tmp_path / 'w.jsonl')
+    root = _segment(tmp_path / 'run', rows)
+    out = {}
+    for gz in (False, True):
+        work = tmp_path / f'work{gz}'
+        work.mkdir()
+        names = f.split([(root, 0.0, 1e9, None)], work, gzip_work=gz)
+        assert str(names['w']).endswith('.jsonl.gz') == gz
+        final, maxima, windows = f.crossfit_one(str(names['w']), START, START + 10 * CHUNK, 60.0, 5, CHUNK)
+        out[gz] = (final.to_json(), maxima, windows)
+        assert not list(work.glob('*.f[0-9]*'))
+    assert out[False] == out[True]

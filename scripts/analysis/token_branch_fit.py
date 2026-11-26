@@ -94,6 +94,20 @@ def part_of(w, part):
     return native or None
 
 
+def _open(path, mode='r'):
+    """A scratch file, gzip (level 1) when its name ends in .gz (--gzip-work: the split of three capture days does
+    not fit the analysis host's disk uncompressed)."""
+    path = str(path)
+    if path.endswith('.gz'):
+        return gzip.open(path, mode + 't', compresslevel=1) if 'w' in mode else gzip.open(path, 'rt')
+    return open(path, mode)
+
+
+def _part(path, k):
+    path = str(path)
+    return f'{path[:-3]}.f{k}.gz' if path.endswith('.gz') else f'{path}.f{k}'
+
+
 PROG_NAMES = '{"type":"prog_names"'     # exec-identity-v1: the loader's program-name lines share tokens.jsonl
 
 
@@ -107,7 +121,7 @@ def by_program(w):
     return out
 
 
-def split(sources, work, part='whole', pool_key=None, by_prog=False, prog_names=None):
+def split(sources, work, part='whole', pool_key=None, by_prog=False, prog_names=None, gzip_work=False):
     """One pass over each run: the lines of each workload into their own file (name: sha256 prefix). sources:
     [(run root, lo, hi, excluded spans per container or None)]; a window is kept when lo <= window_end < hi and it
     lies in no excluded span of its container. session-stream-v1: with part 'session' or 'native' only that lineage
@@ -121,8 +135,8 @@ def split(sources, work, part='whole', pool_key=None, by_prog=False, prog_names=
 
     def put(key, line):
         if key not in handles:
-            names[key] = work / (hashlib.sha256(key.encode()).hexdigest()[:16] + '.jsonl')
-            handles[key] = names[key].open('w')
+            names[key] = work / (hashlib.sha256(key.encode()).hexdigest()[:16] + ('.jsonl.gz' if gzip_work else '.jsonl'))
+            handles[key] = _open(names[key], 'w')
         handles[key].write(line if line.endswith('\n') else line + '\n')
     for root, lo, hi, excluded in sources:
         for path in sorted(root.glob('workers/*/segments/*/tokens.jsonl*')):
@@ -191,9 +205,9 @@ def crossfit_one(path, start, end, block, folds, seconds, top=None, load=None, s
     load-threshold-v1: with a dict `load`, also the held-out maxima per block and power-of-two event class
     (load['blocks'][cell][class]) and the held-out windows' event counts (load['events'][count])."""
     grams = [Counter() for _ in range(folds)]
-    parts = [open(f'{path}.f{k}', 'w') for k in range(folds)]
+    parts = [_open(_part(path, k), 'w') for k in range(folds)]
     windows = 0
-    with open(path) as handle:
+    with _open(path) as handle:
         for line in handle:
             w = json.loads(line)
             if start <= w['window_end'] < end:
@@ -214,7 +228,7 @@ def crossfit_one(path, start, end, block, folds, seconds, top=None, load=None, s
         lm.finalize()
         opts = score_opts or {}
         previous = {}                                   # improvement-round-2 A4: container -> (window end, raw score)
-        with open(f'{path}.f{k}') as handle:
+        with _open(_part(path, k)) as handle:
             for line in handle:
                 w = json.loads(line)
                 cell = (w['pod_uid'], w['container_name'], math.floor(w['window_end'] / block))
@@ -232,7 +246,7 @@ def crossfit_one(path, start, end, block, folds, seconds, top=None, load=None, s
                     per[cls] = max(per.get(cls, 0.0), score)
                     load['events'][events] = load['events'].get(events, 0) + 1
         del lm
-        Path(f'{path}.f{k}').unlink()
+        Path(_part(path, k)).unlink()
     final = CountTokenLM()
     for part in grams:
         for gram, c in part.items():
@@ -302,7 +316,7 @@ def fit_pool_threshold(job):
     key, path, pool_path, start, end, block = job
     pool = CountTokenLM.load(Path(pool_path))
     maxima, last_exec = {h: {} for h in POOL_HOLDS}, {}
-    with open(path) as handle:
+    with _open(path) as handle:
         for line in handle:
             w = json.loads(line)
             if not start <= w['window_end'] < end:
@@ -325,7 +339,7 @@ def fit_one(job):
     """Learn on the training span, score the validation span, fit the Gumbel; (key, report row, spec entry or None)."""
     key, path, train, validation, alpha, block, minimum, output = job
     lm, trained = CountTokenLM(), 0
-    with open(path) as handle:
+    with _open(path) as handle:
         for line in handle:
             w = json.loads(line)
             if train[0] <= w['window_end'] < train[1]:
@@ -333,7 +347,7 @@ def fit_one(job):
                 trained += 1
     lm.finalize()
     maxima = {}
-    with open(path) as handle:
+    with _open(path) as handle:
         for line in handle:
             w = json.loads(line)
             if validation[0] <= w['window_end'] < validation[1]:
@@ -382,6 +396,7 @@ def main():
     ap.add_argument('--part', choices=['whole', 'session', 'native'], default='whole',
                     help='session-stream-v1: learn and threshold one lineage part of each window (lineage build)')
     ap.add_argument('--pool-key', help='session-stream-v1: one pooled model of every workload under this key')
+    ap.add_argument('--gzip-work', action='store_true', help='gzip (level 1) the per-workload scratch files')
     ap.add_argument('--by-prog', action='store_true',
                     help="exec-identity-v1: with --part session, one model per program hash (key '<pool key>|prog:<hash>')")
     ap.add_argument('--dump-maxima', type=Path, help='ml-final-study-v1 part C: write the held-out block maxima per workload here')
@@ -404,7 +419,7 @@ def main():
         except ValueError:
             raise SystemExit('the extra spans must not overlap the capture or each other') from None
     prog_names = {}
-    names = split(sources, work, a.part, a.pool_key, a.by_prog, prog_names)
+    names = split(sources, work, a.part, a.pool_key, a.by_prog, prog_names, a.gzip_work)
     jobs = [(k, str(v), a.train, a.validation, a.alpha, a.block, a.minimum_blocks, str(a.output)) for k, v in sorted(names.items())]
     worker = fit_one
     if a.folds:
@@ -460,7 +475,7 @@ def main():
                                                        top=a.top, trim=a.trim,
                                                        workloads=report),
                                                   indent=1, sort_keys=True) + '\n')
-    for f in work.glob('*.jsonl'):
+    for f in [*work.glob('*.jsonl'), *work.glob('*.jsonl.gz')]:
         f.unlink()
     work.rmdir() if not any(work.iterdir()) else None
 
