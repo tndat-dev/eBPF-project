@@ -1,0 +1,333 @@
+{
+ "schema": "improvement-round-2-intervals",
+ "run": "/mnt/sentinel-pulse-archive/pulse-live-final-1119",
+ "session": "/mnt/sentinel-pulse-archive/pulse-live-diurnal-fit-1123/session-pooled/MODELS.json",
+ "systems": {
+  "S1a_A6": {
+   "models": "/mnt/sentinel-pulse-archive/pulse-live-diurnal-fit-1123/token/MODELS.json",
+   "flags": [
+    "a6"
+   ],
+   "counts": {
+    "control": [
+     0,
+     694
+    ],
+    "control-primary": [
+     0,
+     296
+    ],
+    "eventgen": [
+     549,
+     556
+    ],
+    "eventgen-primary": [
+     238,
+     241
+    ],
+    "benign": [
+     672,
+     672
+    ],
+    "benign-primary": [
+     288,
+     288
+    ],
+    "attack": [
+     694,
+     694
+    ],
+    "attack-primary": [
+     296,
+     296
+    ],
+    "attack-rate-24": [
+     96,
+     96
+    ],
+    "lotl": [
+     666,
+     666
+    ],
+    "lotl-primary": [
+     286,
+     286
+    ],
+    "admin": [
+     594,
+     606
+    ],
+    "admin-primary": [
+     258,
+     260
+    ],
+    "control-pad-10": [
+     0,
+     96
+    ],
+    "lotl-pad-10": [
+     93,
+     93
+    ],
+    "eventgen-pad-10": [
+     82,
+     83
+    ],
+    "attack-pad-10": [
+     96,
+     96
+    ],
+    "benign-pad-10": [
+     95,
+     95
+    ],
+    "admin-pad-10": [
+     83,
+     84
+    ],
+    "attack-rate-6": [
+     101,
+     101
+    ],
+    "attack-rate-12": [
+     99,
+     99
+    ],
+    "attack-rate-1": [
+     99,
+     99
+    ],
+    "attack-rate-0.5": [
+     100,
+     100
+    ],
+    "control-pad300": [
+     0,
+     95
+    ],
+    "eventgen-pad300": [
+     81,
+     81
+    ],
+    "attack-pad300": [
+     95,
+     95
+    ],
+    "lotl-pad300": [
+     95,
+     95
+    ],
+    "benign-pad300": [
+     94,
+     94
+    ],
+    "attack-rate-0.1": [
+     99,
+     99
+    ],
+    "attack-rate-3": [
+     100,
+     100
+    ],
+    "admin-pad300": [
+     80,
+     80
+    ]
+   },
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.49066048860549927,
+    "passes": true
+   }
+  }
+ },
+ "b1": {
+  "find": {
+   "admin": [
+    50,
+    50
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  },
+  "grep": {
+   "admin": [
+    57,
+    57
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  },
+  "head": {
+   "admin": [
+    65,
+    66
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  },
+  "hostname": {
+   "admin": [
+    42,
+    52
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  },
+  "ls_tmp": {
+   "admin": [
+    58,
+    58
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  },
+  "printenv": {
+   "admin": [
+    54,
+    65
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  },
+  "sleep": {
+   "admin": [
+    67,
+    68
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  },
+  "stat": {
+   "admin": [
+    67,
+    67
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  },
+  "wc": {
+   "admin": [
+    70,
+    71
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  },
+  "whoami": {
+   "admin": [
+    51,
+    52
+   ],
+   "criteria": {
+    "primary": 1.0,
+    "pad300": 1.0,
+    "on_off": 1.0,
+    "rate01": 1.0,
+    "rate05": 1.0,
+    "lotl": 1.0,
+    "eventgen": 0.987410071942446,
+    "control": 0.0,
+    "p95": 0.4939637780189514,
+    "passes": true
+   }
+  }
+ }
+}

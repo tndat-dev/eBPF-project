@@ -30,9 +30,32 @@ toolmix 0.69 -> 0.63 %, steady 0.52 -> 0.49 %, recovery 0.49 -> 0.47 %, night 0.
 S1a + A6 both give primary 100 %, PAD 300 100 %, on-off 100 %, 0.1 and 0.5 per s 100 %, lotl 100 %, event generator
 98.7 %, idle control 0 %, p95 kernel -> end of alarm window 0.49 s. **A6 is adopted** (every must-rule met).
 
-**B1, leave-one-command-out operator sessions** (`b1-partial.txt`): only the first held-out command was evaluated
-before the run was stopped (about 30 min per command): `find` stays flagged 50/50, as without B1, attacks unchanged.
-B1 is rerun with a faster evaluation after the A1 capture.
+**B1, leave-one-command-out operator sessions** (`b1.json`, `b1-log.txt`; run 26/11 on .234, unit `b1-1126`, the faster
+evaluation: native part scored once, session model per held-out command = pooled model of fit 1123 plus the other
+commands' operator sessions of `pulse-live-final-1119` and `pulse-live-v6-1117`). The S1a + A6 line reproduces the earlier
+receipt exactly (primary 100 %, PAD 300 100 %, on-off 100 %, 0.1 and 0.5 per s 100 %, lotl 100 %, event generator 98.7 %,
+idle control 0 %, p95 0.49 s). Operator sessions flagged, held-out command (B1) against S1a + A6 without B1:
+
+| held out | flagged with B1 |
+|---|---|
+| find | 50/50 |
+| grep | 57/57 |
+| head | 65/66 |
+| hostname | 42/52 |
+| ls_tmp | 58/58 |
+| printenv | 54/65 |
+| sleep | 67/68 |
+| stat | 67/67 |
+| wc | 70/71 |
+| whoami | 51/52 |
+| **all** | **581/606 (95.9 %)**; without B1 594/606 (98.0 %) |
+
+Every attack family stays as without B1 for every held-out command (p95 0.49 s). B1 lowers the operator sessions flagged
+by 13 of 606; a command never learnt stays flagged in 9 of 10 cases, so learning other commands' sessions in the pooled
+model hardly carries over to a new command. The per-command count without B1 was not written by this run
+(`admin_without_b1` is added to the code for the rerun). In the final fit the routine commands (find, grep, sleep,
+stat, wc) are learnt from capture 1124 as normal operations (exec-identity-v1), and the held-out commands are not learnt,
+so the final run measures them as new commands.
 
 **Not offline**: B2 (program identity of exec sessions) is protocol `exec-identity-v1` (receipts in
 `../exec-identity/`); B3 (Kubernetes pods/exec audit) comes last, after the model is fixed.

@@ -350,7 +350,10 @@ def intervals(a):
             lm = OverlayLM(session_lm, extra)
             counts, lat = tally(trials, with_session(trials, windows, nhits, lm, sthr,
                                                      keep=lambda t: t['label'] != 'admin' or t['command'] == cmd))
-            per[cmd] = dict(admin=counts.get('admin'), criteria=attack_criteria(counts, lat))
+            keep = lambda t: t['label'] == 'admin' and t['command'] == cmd
+            base = tally(trials, with_session(trials, windows, nhits, session_lm, sthr, keep=keep))[0]   # same command without B1
+            per[cmd] = dict(admin=counts.get('admin'), admin_without_b1=base.get('admin'),
+                            criteria=attack_criteria(counts, lat))
             print('B1', cmd, json.dumps(per[cmd], default=float), flush=True)
         doc['b1'] = per
     Path(a.output).write_text(json.dumps(doc, indent=1, default=float))
