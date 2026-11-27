@@ -78,7 +78,7 @@ def main():
     thr = {'t3': {w: models[w]['threshold'] for w in models},
            'A6': {w: threshold(fits[w]['gumbel'], ALPHA * scale[w]) if scale[w] < 1 else models[w]['threshold']
                   for w in models}}
-    out = dict(schema='burst-round-v1-metric', fit=str(a.fit_dir), capture=str(a.capture))
+    out: dict = dict(schema='burst-round-v1-metric', fit=str(a.fit_dir), capture=str(a.capture))
     for name in ('t3', 'A6'):
         out[name] = summary(shares(blocks, thr[name], regime))
         s = out[name]
