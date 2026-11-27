@@ -1,0 +1,224 @@
+{
+ "alpha": 0.0003,
+ "block": 60.0,
+ "branch_alpha": 0.00015,
+ "by_prog": true,
+ "extra_run": null,
+ "extra_runs": [],
+ "extra_span": null,
+ "extra_spans": [],
+ "fold_seconds": 1800.0,
+ "folds": 5,
+ "part": "session",
+ "pool_key": "pool/session",
+ "prog_names": {
+  "10461": [
+   "sleep"
+  ],
+  "10683": [
+   "hostname"
+  ],
+  "19409": [
+   "redis-cli"
+  ],
+  "20721": [
+   "grep"
+  ],
+  "2153": [
+   "curl"
+  ],
+  "23588": [
+   "kafka_readiness"
+  ],
+  "24586": [
+   "python"
+  ],
+  "26022": [
+   "bash"
+  ],
+  "29178": [
+   "sh"
+  ],
+  "32396": [
+   "kafka_liveness."
+  ],
+  "32443": [
+   "find"
+  ],
+  "3648": [
+   "wc"
+  ],
+  "4345": [
+   "readlink"
+  ],
+  "5345": [
+   "stat"
+  ]
+ },
+ "run_root": "/mnt/sentinel-pulse-archive/pulse-token-capture-diurnal2-1124",
+ "schema": "pulse-token-branch-fit-v1",
+ "top": 3,
+ "train": [
+  1795521400.1032605,
+  1795659640.1032605
+ ],
+ "trim": 0.005,
+ "validation": [
+  1795659640.1032605,
+  1795694200.1032605
+ ],
+ "workloads": {
+  "pool/session|prog:0": {
+   "distinct_contexts": 5952,
+   "gumbel": [
+    6.614520487763907,
+    0.7033235159511015
+   ],
+   "threshold": 12.8071435632977,
+   "training_windows": 2301385,
+   "validation_block_max": 51.68589083862994,
+   "validation_blocks": 141232,
+   "validation_blocks_above": 291
+  },
+  "pool/session|prog:10461": {
+   "distinct_contexts": 233,
+   "training_windows": 116,
+   "validation_blocks": 61
+  },
+  "pool/session|prog:10683": {
+   "distinct_contexts": 65,
+   "gumbel": [
+    0.2310394712454928,
+    2.1387696187694442e-05
+   ],
+   "threshold": 0.23122778563842947,
+   "training_windows": 205880,
+   "validation_block_max": 0.4621600410845231,
+   "validation_blocks": 17286,
+   "validation_blocks_above": 3
+  },
+  "pool/session|prog:19409": {
+   "distinct_contexts": 162,
+   "gumbel": [
+    0.8419102531219917,
+    1e-06
+   ],
+   "threshold": 0.841919057922251,
+   "training_windows": 206120,
+   "validation_block_max": 0.9162916404528872,
+   "validation_blocks": 17286,
+   "validation_blocks_above": 1
+  },
+  "pool/session|prog:20721": {
+   "distinct_contexts": 314,
+   "gumbel": [
+    1.1944852898687053,
+    2.5572386991797076e-05
+   ],
+   "threshold": 1.1947104496283185,
+   "training_windows": 104012,
+   "validation_block_max": 35.664162353237174,
+   "validation_blocks": 8679,
+   "validation_blocks_above": 37
+  },
+  "pool/session|prog:2153": {
+   "distinct_contexts": 439,
+   "gumbel": [
+    5.7639762094130145,
+    0.11285513898480316
+   ],
+   "threshold": 6.757643166396227,
+   "training_windows": 51473,
+   "validation_block_max": 10.494147242322283,
+   "validation_blocks": 8643,
+   "validation_blocks_above": 49
+  },
+  "pool/session|prog:23588": {
+   "distinct_contexts": 147,
+   "gumbel": [
+    1.7917596632940176,
+    1e-06
+   ],
+   "threshold": 1.7917684680942767,
+   "training_windows": 51462,
+   "validation_block_max": 1.7917602483097885,
+   "validation_blocks": 8643,
+   "validation_blocks_above": 0
+  },
+  "pool/session|prog:24586": {
+   "distinct_contexts": 597,
+   "gumbel": [
+    4.595211640267571,
+    0.14107583680649657
+   ],
+   "threshold": 5.837356204745477,
+   "training_windows": 3873235,
+   "validation_block_max": 54.38797821373282,
+   "validation_blocks": 115240,
+   "validation_blocks_above": 1342
+  },
+  "pool/session|prog:26022": {
+   "distinct_contexts": 420,
+   "gumbel": [
+    4.461286290161445,
+    0.11286980954883115
+   ],
+   "threshold": 5.455082418530615,
+   "training_windows": 107210,
+   "validation_block_max": 19.382235720405408,
+   "validation_blocks": 8643,
+   "validation_blocks_above": 1
+  },
+  "pool/session|prog:29178": {
+   "distinct_contexts": 219,
+   "gumbel": [
+    2.955358148910438,
+    0.20298044718046054
+   ],
+   "threshold": 4.742560442853471,
+   "training_windows": 206357,
+   "validation_block_max": 5.481614077455215,
+   "validation_blocks": 17286,
+   "validation_blocks_above": 42
+  },
+  "pool/session|prog:32396": {
+   "distinct_contexts": 153,
+   "gumbel": [
+    1.7917694503852004,
+    2.851357581086805e-06
+   ],
+   "threshold": 1.7917945560191695,
+   "training_windows": 53711,
+   "validation_block_max": 2.74263815866284,
+   "validation_blocks": 8643,
+   "validation_blocks_above": 1
+  },
+  "pool/session|prog:32443": {
+   "distinct_contexts": 337,
+   "training_windows": 63,
+   "validation_blocks": 63
+  },
+  "pool/session|prog:3648": {
+   "distinct_contexts": 272,
+   "training_windows": 54,
+   "validation_blocks": 53
+  },
+  "pool/session|prog:4345": {
+   "distinct_contexts": 152,
+   "gumbel": [
+    1.7917592777149605,
+    1e-06
+   ],
+   "threshold": 1.7917680825152196,
+   "training_windows": 52603,
+   "validation_block_max": 1.791759858836618,
+   "validation_blocks": 8643,
+   "validation_blocks_above": 0
+  },
+  "pool/session|prog:5345": {
+   "distinct_contexts": 384,
+   "training_windows": 57,
+   "validation_blocks": 57
+  }
+ }
+}

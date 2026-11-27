@@ -36,26 +36,27 @@ commands' operator sessions of `pulse-live-final-1119` and `pulse-live-v6-1117`)
 receipt exactly (primary 100 %, PAD 300 100 %, on-off 100 %, 0.1 and 0.5 per s 100 %, lotl 100 %, event generator 98.7 %,
 idle control 0 %, p95 0.49 s). Operator sessions flagged, held-out command (B1) against S1a + A6 without B1:
 
-| held out | flagged with B1 |
-|---|---|
-| find | 50/50 |
-| grep | 57/57 |
-| head | 65/66 |
-| hostname | 42/52 |
-| ls_tmp | 58/58 |
-| printenv | 54/65 |
-| sleep | 67/68 |
-| stat | 67/67 |
-| wc | 70/71 |
-| whoami | 51/52 |
-| **all** | **581/606 (95.9 %)**; without B1 594/606 (98.0 %) |
+| held out | with B1 | without B1 |
+|---|---|---|
+| find | 50/50 | 50/50 |
+| grep | 57/57 | 57/57 |
+| head | 65/66 | 65/66 |
+| hostname | 42/52 | 44/52 |
+| ls_tmp | 58/58 | 58/58 |
+| printenv | 54/65 | 65/65 |
+| sleep | 67/68 | 67/68 |
+| stat | 67/67 | 67/67 |
+| wc | 70/71 | 70/71 |
+| whoami | 51/52 | 51/52 |
+| **all** | **581/606 (95.9 %)** | **594/606 (98.0 %)** |
 
-Every attack family stays as without B1 for every held-out command (p95 0.49 s). B1 lowers the operator sessions flagged
-by 13 of 606; a command never learnt stays flagged in 9 of 10 cases, so learning other commands' sessions in the pooled
-model hardly carries over to a new command. The per-command count without B1 was not written by this run
-(`admin_without_b1` is added to the code for the rerun). In the final fit the routine commands (find, grep, sleep,
-stat, wc) are learnt from capture 1124 as normal operations (exec-identity-v1), and the held-out commands are not learnt,
-so the final run measures them as new commands.
+The per-command count without B1 comes from the rerun of 27/11 (unit `b1-1127`, `admin_without_b1`; the S1a + A6 line and
+every with-B1 count equal the 26/11 run). Every attack family stays as without B1 for every held-out command (p95 0.49 s).
+B1 lowers the flagged sessions for two commands only (printenv 65 -> 54, hostname 44 -> 42) and leaves eight unchanged:
+learning other commands' sessions in the pooled model hardly carries over to a new command. The rule ("flagged lower on
+the held-out command") holds for 2 of 10 commands, so B1 is not adopted. In the final fit the routine commands (find,
+grep, sleep, stat, wc) are learnt from capture 1124 as normal operations (exec-identity-v1), the held-out commands are
+not learnt.
 
 **Not offline**: B2 (program identity of exec sessions) is protocol `exec-identity-v1` (receipts in
 `../exec-identity/`); B3 (Kubernetes pods/exec audit) comes last, after the model is fixed.

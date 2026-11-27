@@ -1,0 +1,336 @@
+{
+ "alpha": 0.0003,
+ "block": 60.0,
+ "branch_alpha": 0.0003,
+ "by_prog": false,
+ "extra_run": null,
+ "extra_runs": [
+  "/mnt/sentinel-pulse-archive/pulse-token-capture-diurnal-1121",
+  "/mnt/sentinel-pulse-archive/pulse-live-final-1119"
+ ],
+ "extra_span": null,
+ "extra_spans": [
+  [
+   1795265817.0669737,
+   1795352217.0669737
+  ],
+  [
+   1795184498.5691864,
+   1795218639.152689
+  ]
+ ],
+ "fold_seconds": 1800.0,
+ "folds": 5,
+ "part": "whole",
+ "pool_key": null,
+ "prog_names": {
+  "10461": [
+   "sleep"
+  ],
+  "10683": [
+   "hostname"
+  ],
+  "19409": [
+   "redis-cli"
+  ],
+  "20721": [
+   "grep"
+  ],
+  "2153": [
+   "curl"
+  ],
+  "23588": [
+   "kafka_readiness"
+  ],
+  "24586": [
+   "python"
+  ],
+  "26022": [
+   "bash"
+  ],
+  "29178": [
+   "sh"
+  ],
+  "32396": [
+   "kafka_liveness."
+  ],
+  "32443": [
+   "find"
+  ],
+  "3648": [
+   "wc"
+  ],
+  "4345": [
+   "readlink"
+  ],
+  "5345": [
+   "stat"
+  ]
+ },
+ "run_root": "/mnt/sentinel-pulse-archive/pulse-token-capture-diurnal2-1124",
+ "schema": "pulse-token-branch-fit-v1",
+ "top": 3,
+ "train": [
+  1795184498.5691864,
+  1795659640.1032605
+ ],
+ "trim": 0.005,
+ "validation": [
+  1795659640.1032605,
+  1795694200.1032605
+ ],
+ "workloads": {
+  "production/aims-frontend:web": {
+   "distinct_contexts": 1757,
+   "gumbel": [
+    4.85045022365726,
+    1.422638074029785
+   ],
+   "threshold": 16.390290018757764,
+   "training_windows": 959189,
+   "validation_block_max": 45.114506190204565,
+   "validation_blocks": 9784,
+   "validation_blocks_above": 14
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "distinct_contexts": 6867,
+   "gumbel": [
+    9.207938767198032,
+    1.0668215715891567
+   ],
+   "threshold": 17.86154522609452,
+   "training_windows": 1747849,
+   "validation_block_max": 66.66659333655396,
+   "validation_blocks": 14676,
+   "validation_blocks_above": 135
+  },
+  "production/aims-kafka-entity-operator:topic-operator": {
+   "distinct_contexts": 2154,
+   "gumbel": [
+    6.469902023504162,
+    1.0858565876103285
+   ],
+   "threshold": 15.277912500816438,
+   "training_windows": 582572,
+   "validation_block_max": 35.76567689509003,
+   "validation_blocks": 4892,
+   "validation_blocks_above": 39
+  },
+  "production/aims-kafka-entity-operator:user-operator": {
+   "distinct_contexts": 2114,
+   "gumbel": [
+    7.26427487094449,
+    1.065704682905563
+   ],
+   "threshold": 15.908821600094592,
+   "training_windows": 582568,
+   "validation_block_max": 30.409971634202396,
+   "validation_blocks": 4892,
+   "validation_blocks_above": 44
+  },
+  "production/aims-minio-pool-0:minio": {
+   "distinct_contexts": 19474,
+   "gumbel": [
+    8.618254131572717,
+    1.8266913134534446
+   ],
+   "threshold": 23.435603320494486,
+   "training_windows": 1072787,
+   "validation_block_max": 44.626094530924455,
+   "validation_blocks": 9784,
+   "validation_blocks_above": 70
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "distinct_contexts": 3403,
+   "gumbel": [
+    6.424405479563229,
+    1.3425640057838424
+   ],
+   "threshold": 17.31471821914028,
+   "training_windows": 967820,
+   "validation_block_max": 40.73173640437996,
+   "validation_blocks": 9784,
+   "validation_blocks_above": 32
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "distinct_contexts": 10451,
+   "gumbel": [
+    7.988337422007345,
+    1.4543935053290666
+   ],
+   "threshold": 19.785763877065577,
+   "training_windows": 1747698,
+   "validation_block_max": 65.0317334312299,
+   "validation_blocks": 14676,
+   "validation_blocks_above": 90
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "distinct_contexts": 6478,
+   "gumbel": [
+    7.802399443004931,
+    1.3018374212293404
+   ],
+   "threshold": 18.362355312665446,
+   "training_windows": 1747830,
+   "validation_block_max": 39.69758039020213,
+   "validation_blocks": 14676,
+   "validation_blocks_above": 147
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "distinct_contexts": 6057,
+   "gumbel": [
+    7.598309424384378,
+    0.9929542111245437
+   ],
+   "threshold": 15.652735022449551,
+   "training_windows": 1747827,
+   "validation_block_max": 35.532085830306826,
+   "validation_blocks": 14676,
+   "validation_blocks_above": 92
+  },
+  "production/aims-redis:aims-redis": {
+   "distinct_contexts": 5848,
+   "gumbel": [
+    7.104073089037946,
+    0.9497987013466443
+   ],
+   "threshold": 14.808439400624028,
+   "training_windows": 1747821,
+   "validation_block_max": 33.575585775271016,
+   "validation_blocks": 14676,
+   "validation_blocks_above": 129
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "distinct_contexts": 12077,
+   "gumbel": [
+    9.12541054209906,
+    1.5763784655105078
+   ],
+   "threshold": 21.91232752437066,
+   "training_windows": 1644438,
+   "validation_block_max": 49.23562199574982,
+   "validation_blocks": 13852,
+   "validation_blocks_above": 87
+  },
+  "production/api-gateway:app": {
+   "distinct_contexts": 9897,
+   "gumbel": [
+    7.697458718904009,
+    1.302223374460632
+   ],
+   "threshold": 18.260545278329413,
+   "training_windows": 2330223,
+   "validation_block_max": 53.41497366554821,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 82
+  },
+  "production/auth-service:app": {
+   "distinct_contexts": 5422,
+   "gumbel": [
+    7.138642975266637,
+    0.9699350160334625
+   ],
+   "threshold": 15.006346575367289,
+   "training_windows": 2330621,
+   "validation_block_max": 59.84905400492365,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 130
+  },
+  "production/cart-service:app": {
+   "distinct_contexts": 5160,
+   "gumbel": [
+    7.218302045624027,
+    0.9283449615028919
+   ],
+   "threshold": 14.748644671690862,
+   "training_windows": 2330722,
+   "validation_block_max": 26.56388068143273,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 135
+  },
+  "production/catalog-service:app": {
+   "distinct_contexts": 9174,
+   "gumbel": [
+    7.9343259945281055,
+    1.122383334783561
+   ],
+   "threshold": 17.038626032980314,
+   "training_windows": 2330296,
+   "validation_block_max": 67.91242374099575,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 121
+  },
+  "production/inventory-service:app": {
+   "distinct_contexts": 8177,
+   "gumbel": [
+    7.664552132068641,
+    1.0830190654717105
+   ],
+   "threshold": 16.449545827043615,
+   "training_windows": 2330176,
+   "validation_block_max": 68.03861718112218,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 145
+  },
+  "production/notification-service:app": {
+   "distinct_contexts": 5204,
+   "gumbel": [
+    7.402542189964779,
+    0.9274802546192218
+   ],
+   "threshold": 14.925870678641767,
+   "training_windows": 2330734,
+   "validation_block_max": 40.82621363218747,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 127
+  },
+  "production/order-service:app": {
+   "distinct_contexts": 6463,
+   "gumbel": [
+    7.355390427238484,
+    0.9260322766763804
+   ],
+   "threshold": 14.86697352979636,
+   "training_windows": 2330307,
+   "validation_block_max": 68.0072020129201,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 173
+  },
+  "production/payment-service:app": {
+   "distinct_contexts": 6427,
+   "gumbel": [
+    7.631715639048453,
+    0.9743464641180718
+   ],
+   "threshold": 15.535203044665142,
+   "training_windows": 2330326,
+   "validation_block_max": 61.34862050316403,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 172
+  },
+  "production/search-recommendation-service:app": {
+   "distinct_contexts": 5179,
+   "gumbel": [
+    7.162501089379582,
+    0.8876725651428918
+   ],
+   "threshold": 14.362926397299763,
+   "training_windows": 2330301,
+   "validation_block_max": 63.45630418633235,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 129
+  },
+  "production/security-telemetry-service:app": {
+   "distinct_contexts": 5327,
+   "gumbel": [
+    6.734947130300392,
+    1.0637224154782363
+   ],
+   "threshold": 15.36341454246891,
+   "training_windows": 2330324,
+   "validation_block_max": 67.80016809677561,
+   "validation_blocks": 19568,
+   "validation_blocks_above": 107
+  }
+ }
+}

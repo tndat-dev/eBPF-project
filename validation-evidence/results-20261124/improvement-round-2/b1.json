@@ -154,6 +154,10 @@
     50,
     50
    ],
+   "admin_without_b1": [
+    50,
+    50
+   ],
    "criteria": {
     "primary": 1.0,
     "pad300": 1.0,
@@ -169,6 +173,10 @@
   },
   "grep": {
    "admin": [
+    57,
+    57
+   ],
+   "admin_without_b1": [
     57,
     57
    ],
@@ -190,6 +198,10 @@
     65,
     66
    ],
+   "admin_without_b1": [
+    65,
+    66
+   ],
    "criteria": {
     "primary": 1.0,
     "pad300": 1.0,
@@ -208,6 +220,10 @@
     42,
     52
    ],
+   "admin_without_b1": [
+    44,
+    52
+   ],
    "criteria": {
     "primary": 1.0,
     "pad300": 1.0,
@@ -223,6 +239,10 @@
   },
   "ls_tmp": {
    "admin": [
+    58,
+    58
+   ],
+   "admin_without_b1": [
     58,
     58
    ],
@@ -244,6 +264,10 @@
     54,
     65
    ],
+   "admin_without_b1": [
+    65,
+    65
+   ],
    "criteria": {
     "primary": 1.0,
     "pad300": 1.0,
@@ -259,6 +283,10 @@
   },
   "sleep": {
    "admin": [
+    67,
+    68
+   ],
+   "admin_without_b1": [
     67,
     68
    ],
@@ -280,6 +308,10 @@
     67,
     67
    ],
+   "admin_without_b1": [
+    67,
+    67
+   ],
    "criteria": {
     "primary": 1.0,
     "pad300": 1.0,
@@ -298,6 +330,10 @@
     70,
     71
    ],
+   "admin_without_b1": [
+    70,
+    71
+   ],
    "criteria": {
     "primary": 1.0,
     "pad300": 1.0,
@@ -313,6 +349,10 @@
   },
   "whoami": {
    "admin": [
+    51,
+    52
+   ],
+   "admin_without_b1": [
     51,
     52
    ],

@@ -1,0 +1,68 @@
+{
+ "pool/session|prog:0": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/dc0bd3e15cac5954.lm.json.gz",
+  "lm_sha256": "f128ebbcf345bcc41890d0c18a19d78c5ecd920f7bc60a6e401037baf082d812",
+  "threshold": 12.8071435632977,
+  "top": 3
+ },
+ "pool/session|prog:10683": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/4e7c0e272df88dfc.lm.json.gz",
+  "lm_sha256": "9fe29c8f3e50345171befd157babf0f8ff14a2449087069148eded5482ea150f",
+  "threshold": 0.23122778563842947,
+  "top": 3
+ },
+ "pool/session|prog:19409": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/0f32aa121be14a25.lm.json.gz",
+  "lm_sha256": "4fdeaea606ab8cfe38f9ddd78206351b751c47080f6b257f11ddaef0ecc84ecb",
+  "threshold": 0.841919057922251,
+  "top": 3
+ },
+ "pool/session|prog:20721": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/6072b08f077eb398.lm.json.gz",
+  "lm_sha256": "bb8f5474ce875c3ffaf9942ef2670be639e5ddf9d913f933994d1627aba1a31b",
+  "threshold": 1.1947104496283185,
+  "top": 3
+ },
+ "pool/session|prog:2153": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/9cac9c283c54ac46.lm.json.gz",
+  "lm_sha256": "710da31369e2119f192d492a257dab506eed75b66a4aaf2fe7f5c5c0242dad90",
+  "threshold": 6.757643166396227,
+  "top": 3
+ },
+ "pool/session|prog:23588": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/bbb2687e0ebab4c2.lm.json.gz",
+  "lm_sha256": "d603203b231eed54426ad9a9eeb0115501487b95d81429f18d828b88697c9097",
+  "threshold": 1.7917684680942767,
+  "top": 3
+ },
+ "pool/session|prog:24586": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/aa2b80ec8a859045.lm.json.gz",
+  "lm_sha256": "890e4e75a8ae2e5e0f06264a44a5915966b57f347ad68877d51faaa67de77786",
+  "threshold": 5.837356204745477,
+  "top": 3
+ },
+ "pool/session|prog:26022": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/fd6e0b73e2b1b4cc.lm.json.gz",
+  "lm_sha256": "9c171cf658982ce3174465199ca4baf1b6f78bcbeb208147153cfda292c0763a",
+  "threshold": 5.455082418530615,
+  "top": 3
+ },
+ "pool/session|prog:29178": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/d037715ddf9b1693.lm.json.gz",
+  "lm_sha256": "9aa02bd59a2a948249c51c3164062e37511ab5f8d99c385d5354000f3e5d9c61",
+  "threshold": 4.742560442853471,
+  "top": 3
+ },
+ "pool/session|prog:32396": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/658d0942a2cb9a91.lm.json.gz",
+  "lm_sha256": "8e7c598933ec6a0ce404790743b0ecfd750c6000c0006a56bc8694e8f560bf79",
+  "threshold": 1.7917945560191695,
+  "top": 3
+ },
+ "pool/session|prog:4345": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-prog/f2be00aa8fee6774.lm.json.gz",
+  "lm_sha256": "548e6bd489046e28973c1c98c65c5f4634130c3b8f608b32690e3422e60d4db3",
+  "threshold": 1.7917680825152196,
+  "top": 3
+ }
+}

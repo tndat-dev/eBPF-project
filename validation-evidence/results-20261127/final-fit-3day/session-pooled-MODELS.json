@@ -1,0 +1,8 @@
+{
+ "pool/session": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/session-pooled/303b205992da782d.lm.json.gz",
+  "lm_sha256": "38d5d74864c1dac811cbd46bdff2a723baf764ced477309c41def2ea176e86d9",
+  "threshold": 13.102509782700778,
+  "top": 3
+ }
+}

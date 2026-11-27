@@ -1,0 +1,128 @@
+{
+ "production/aims-frontend:web": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/2175be1a47a74ff3.lm.json.gz",
+  "lm_sha256": "107ddc4cbb98772b76c1b59e6e35b898bf6daff8ca25711d2d56cecd55a93215",
+  "threshold": 16.390290018757764,
+  "top": 3
+ },
+ "production/aims-kafka-dual-role:kafka": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/d505edc304f40b91.lm.json.gz",
+  "lm_sha256": "29f68e95feaf4d2102d1871081bff031d07677a0ac802d0e2e01527b44d176ca",
+  "threshold": 17.86154522609452,
+  "top": 3
+ },
+ "production/aims-kafka-entity-operator:topic-operator": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/65c273b979fbb4a6.lm.json.gz",
+  "lm_sha256": "3a6e8228613f40109ba39cfba81a4f5bb6c4b119b48795bc3fdf165b8ccfbc08",
+  "threshold": 15.277912500816438,
+  "top": 3
+ },
+ "production/aims-kafka-entity-operator:user-operator": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/1c790e197cc5d512.lm.json.gz",
+  "lm_sha256": "48554317a8b072601fe92d466f547627f91157592172a16d9486f41bc582313c",
+  "threshold": 15.908821600094592,
+  "top": 3
+ },
+ "production/aims-minio-pool-0:minio": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/4ebaac2ba0b2193c.lm.json.gz",
+  "lm_sha256": "17f6f53434fda8011bf9a1bd9c2e00bfaf110f12174203d2c6b041f5e988e461",
+  "threshold": 23.435603320494486,
+  "top": 3
+ },
+ "production/aims-minio-pool-0:sidecar": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/01a202641dccf78a.lm.json.gz",
+  "lm_sha256": "3efd6a669e5369f78d43cec59568e891d8746f02748064e4a7245995f89f26d5",
+  "threshold": 17.31471821914028,
+  "top": 3
+ },
+ "production/aims-postgres-cnpg:postgres": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/546a29770a5d8242.lm.json.gz",
+  "lm_sha256": "497d94278765c02caf1ecc776b12ea571bf3518076771ebf4b467c5317f70c3e",
+  "threshold": 19.785763877065577,
+  "top": 3
+ },
+ "production/aims-rabbitmq-server:rabbitmq": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/2669103e2a01be69.lm.json.gz",
+  "lm_sha256": "5c227a8ca39264b9bf8c1485b2fabb63adc02e336d648a991cc1c5c7bb559ebc",
+  "threshold": 18.362355312665446,
+  "top": 3
+ },
+ "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/b5b0f60f470cdbcc.lm.json.gz",
+  "lm_sha256": "b7f35b3de92c6e8a271637caefd5a9103a9cd67c3368646dabac1a7ad2ac63d8",
+  "threshold": 15.652735022449551,
+  "top": 3
+ },
+ "production/aims-redis:aims-redis": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/80296e36aced0d85.lm.json.gz",
+  "lm_sha256": "5f205d755620ed894d51842a8fbf911a6c4813dd575cc00c6837ce525baabf7b",
+  "threshold": 14.808439400624028,
+  "top": 3
+ },
+ "production/aims-waypoint:istio-proxy": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/9f91b3c03cc3b091.lm.json.gz",
+  "lm_sha256": "2047d49362ba008c0dcb4d4eec0e658aeccbe145869440eb6e0f364fabd17687",
+  "threshold": 21.91232752437066,
+  "top": 3
+ },
+ "production/api-gateway:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/148f313b5c25cbb5.lm.json.gz",
+  "lm_sha256": "dc9ed5f775c3e8782f965cebdde84f7ad25ab6e3b2fbca4c4a4c70cb60f5aac1",
+  "threshold": 18.260545278329413,
+  "top": 3
+ },
+ "production/auth-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/ffd392c0992c0135.lm.json.gz",
+  "lm_sha256": "dd10d94588cb8a00d2583d386b66fa70ce679a670edadcecf422776abd140aa7",
+  "threshold": 15.006346575367289,
+  "top": 3
+ },
+ "production/cart-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/8735406b3e6984cb.lm.json.gz",
+  "lm_sha256": "11720785317599869e89ec9544dce87d566fe37a680be600fc83a3f78a482287",
+  "threshold": 14.748644671690862,
+  "top": 3
+ },
+ "production/catalog-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/d64195fd262c1016.lm.json.gz",
+  "lm_sha256": "be066de1293cb33d1e99e204e218cf24a6483f46b587010e7aad29f1773a1d73",
+  "threshold": 17.038626032980314,
+  "top": 3
+ },
+ "production/inventory-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/a4d0b337952401f7.lm.json.gz",
+  "lm_sha256": "87e6162810fa6d39fa44f8fb58e0ba43d7397f58aefe60d165863da5001d6e33",
+  "threshold": 16.449545827043615,
+  "top": 3
+ },
+ "production/notification-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/be35083d0657c05a.lm.json.gz",
+  "lm_sha256": "fec1436f4b2cca15c37c9fcd0fa72879586582d77c379e6f5b566ce7063f0e3a",
+  "threshold": 14.925870678641767,
+  "top": 3
+ },
+ "production/order-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/8c28b0adb05033ee.lm.json.gz",
+  "lm_sha256": "48490f26031c420c7dc5f8565fd7057564d204450461ea5170bc46734ff23c3b",
+  "threshold": 14.86697352979636,
+  "top": 3
+ },
+ "production/payment-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/66e2b4b0e4a03c44.lm.json.gz",
+  "lm_sha256": "5d9f36a19a608b05eafa2f18fb2203737cd6680a10b77a82d848840d274d7863",
+  "threshold": 15.535203044665142,
+  "top": 3
+ },
+ "production/search-recommendation-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/cdf504dc7785eb50.lm.json.gz",
+  "lm_sha256": "b2ba8eac97f8349c3671d29298d4f4bbb003608d61db668c6fd305c197d919ff",
+  "threshold": 14.362926397299763,
+  "top": 3
+ },
+ "production/security-telemetry-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-diurnal3-fit-1126/token/7faa2a4aba3c4e72.lm.json.gz",
+  "lm_sha256": "a0351f8c0e91ff11b0a3ac5980253f02a108493eca494a5af8586b2c10bc67e5",
+  "threshold": 15.36341454246891,
+  "top": 3
+ }
+}
