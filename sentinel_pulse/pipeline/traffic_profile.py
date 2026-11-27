@@ -76,6 +76,27 @@ def diurnal_schedule(start: float, end: float, seed: int):
     return out
 
 
+# burst-round-v1: a sale day (repeated flash sales), to learn the burst regime; minutes per cycle, burst drawn in [10, 15]
+SALE_CYCLE = (('steady', 10), ('peak', 8), ('burst', None), ('peak', 5), ('recovery', 5))
+
+
+def sale_schedule(start: float, end: float, seed: int):
+    """traffic_schedule entries {start, end, regime} of repeated sale cycles (steady, peak, burst 10-15 min, peak,
+    recovery) from start to end; each phase except burst moves by up to +/-2 min (seeded), none shorter than 3 min."""
+    rng = random.Random(seed)
+    out, t = [], start
+    while t < end:
+        for regime, minutes in SALE_CYCLE:
+            length = rng.uniform(10, 15) if minutes is None else max(3.0, minutes + rng.uniform(-2, 2))
+            e = min(t + length * 60.0, end)
+            if e > t:
+                out.append(dict(start=t, end=e, regime=regime))
+            t = e
+            if t >= end:
+                break
+    return out
+
+
 def coverage(schedule):
     """Seconds per regime of a schedule."""
     out = {}

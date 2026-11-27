@@ -1,0 +1,29 @@
+{
+  "schema": "sentinel-pulse-burst-round-v1",
+  "registered_at": "2026-11-27T19:39+07:00",
+  "registered_before": "the sale-day capture starts and any fit with it exists; the final live run has not started",
+  "owner_decisions": [
+    "27/11: 'Thử thêm vòng burst' (one more improvement round for the burst regime before the one final live run)"
+  ],
+  "problem": "load-diurnal-v1 H10 (no regime above 3 times the pooled burden) is predicted to fail at burst: on the held-out 60 s blocks of capture pulse-token-capture-diurnal2-1124 under the three-day fit (pulse-live-diurnal3-fit-1126) with A6 thresholds, burst 2.44 % (67/2,747) against pooled 0.698 %, ratio 3.49 (t3: 2.55 %, 0.725 %, 3.51)",
+  "diagnosis": {
+    "done_before_registration": "held-out burst blocks of capture 1124 (four burst spans: 5, 5, 17 and 14 min): the exceedance is spread over 16 of 21 workloads (api-gateway 6.7 % highest), flat over the minutes of a burst, stays raised for about 10 min after a burst ends, and no exceeding block belongs to a pod younger than 30 min; earlier (alarm_tokens.py, 24/11) about 95 % of the most surprising events at high load were familiar calls in an unseen order",
+    "reading": "burst is about 0.6 h per day, so the learning data hold about 66 min of it (two days of 1124, one of 1121): the models have not seen enough orderings of the calls under burst load. Thresholds conditioned on window size (load-threshold-v1), masking futex and the like (A2), distinct grams (A3), persistence (A4) and Kneser-Ney (A5) did not meet their rules"
+  },
+  "candidate": {
+    "K2_sale_day_capture": "8 h of normal traffic under a sale-day profile (sentinel_pulse/pipeline/traffic_profile.py sale_schedule: repeated cycles of steady, peak, burst 10-15 min, peak, recovery; about 30 % burst), probe pulse-tokens-prog-bee57bf, no campaign, K8s events recorded; then the three-day fit is redone with this capture as one more extra run, same parameters (alpha' 0.0003, top 3, trim 0.005, 5-fold cross-fit over 30 min chunks, 60 s blocks), A6 recomputed, pooled session model refitted, SESSION-S1a-A6.json rebuilt"
+  },
+  "must": {
+    "burst": "held-out block exceedance with A6 thresholds on the blocks of capture 1124: burst share <= 3 x the pooled share of the same blocks, and below 2.44 %",
+    "other_regimes": "on the same blocks, no other regime above its current share + 0.10 percentage point, pooled not above 0.698 %",
+    "cluster_attacks": "on pulse-live-final-1119 intervals (H0 denominators) with the new models and S1a + A6: primary >= 95 %, PAD 300 >= 95 %, on-off >= 95 %, 0.1 and 0.5 per s >= 95 % each, lotl and event generator >= 95 %, idle control <= 5 %, p95 kernel -> end of alarm window <= 3 s",
+    "datasets": "no rescoring: the change is cluster learning data only (datasets score with their own t3 models); the t3 gate on the current code (27/11) is kept"
+  },
+  "decision": "every must met: the final live run uses the new fit; otherwise it uses pulse-live-diurnal3-fit-1126 and records the H10 risk at burst",
+  "metric_code": "scripts/analysis/burst_round.py",
+  "limits": [
+    "the sale-day profile is designed, not replayed from a real shop's logs",
+    "the 1124 burst blocks are few (2,747 blocks, 67 above): the rule is on point estimates and is reported with Wilson intervals",
+    "the held-out measure stays on capture 1124 blocks so that the added burst-heavy blocks do not dilute the pooled share"
+  ]
+}

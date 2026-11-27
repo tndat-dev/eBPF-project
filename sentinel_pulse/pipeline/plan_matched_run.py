@@ -26,7 +26,7 @@ import subprocess
 import time
 
 from ..integrity import sha256_file
-from .traffic_profile import diurnal_schedule
+from .traffic_profile import diurnal_schedule, sale_schedule
 
 # Every pinned value of a run comes from the command line (profile "custom"): the earlier named profiles pointed at model
 # bundles of finished runs that are no longer on the NFS share.
@@ -190,11 +190,12 @@ def plan(source,root,run_id,smoke=False,profile='custom',frozen_source=None,cust
     random.Random(20261015).shuffle(cfg['schedule'])
     if rehearsal:cfg['schedule']=rehearsal_schedule(cfg['schedule'])
     # load-diurnal-v1: the regimes on the Vietnamese wall clock for the whole run (pipeline/traffic_profile.py), seed kept
-    if traffic_profile=='diurnal':
+    if traffic_profile in ('diurnal','sale'):   # sale: burst-round-v1 sale-day capture (repeated flash sales)
         seed=int(start)%100000
-        cfg.update(traffic_profile=dict(name='diurnal',seed=seed,module='sentinel_pulse/pipeline/traffic_profile.py'))
+        cfg.update(traffic_profile=dict(name=traffic_profile,seed=seed,module='sentinel_pulse/pipeline/traffic_profile.py'))
         end=start+cfg['seconds']
-        cfg['traffic_schedule']=diurnal_schedule(start,end,seed)+[dict(start=end,end=end+86400,regime='steady')]
+        plan=diurnal_schedule if traffic_profile=='diurnal' else sale_schedule
+        cfg['traffic_schedule']=plan(start,end,seed)+[dict(start=end,end=end+86400,regime='steady')]
         config=root/'CONFIG.json'
         config.write_text(json.dumps(cfg,indent=2)+'\n');config.chmod(0o444)
         print(config);return
@@ -242,8 +243,9 @@ if __name__=='__main__':
     p.add_argument('--on-off',help='on-off attacker (improvement-round-v1 D12): comma-separated periods in s (2-60), extra trials '
                    'at --on-off-rate with operations only in the first second of each period')
     p.add_argument('--on-off-rate',type=float,default=12)
-    p.add_argument('--traffic-profile',choices=['selection','diurnal'],default='selection',
-                   help='selection: five regimes in the first 90 min then steady (default); diurnal: load-diurnal-v1 day plan')
+    p.add_argument('--traffic-profile',choices=['selection','diurnal','sale'],default='selection',
+                   help='selection: five regimes in the first 90 min then steady (default); diurnal: load-diurnal-v1 day plan; '
+                        'sale: burst-round-v1 repeated flash-sale cycles')
     a=p.parse_args()
     # D12: fractional rates (slow attacker, e.g. 0.5, 0.2, 0.1 per second); integers print as before (6, not 6.0)
     rates=tuple((lambda r:int(r) if r==int(r) else r)(float(x)) for x in a.attack_rates.split(','))

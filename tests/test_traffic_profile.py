@@ -1,6 +1,6 @@
 import datetime
 
-from sentinel_pulse.pipeline.traffic_profile import REGIMES, TZ_OFFSET, coverage, diurnal_schedule
+from sentinel_pulse.pipeline.traffic_profile import sale_schedule, REGIMES, TZ_OFFSET, coverage, diurnal_schedule
 
 VN = datetime.timezone(datetime.timedelta(seconds=TZ_OFFSET))
 
@@ -35,3 +35,16 @@ def test_seeded_jitter_moves_boundaries_by_at_most_ten_minutes_and_is_reproducib
     assert len(bursts) == 4 and all(p['end'] - p['start'] >= 300 for p in bursts)
     first_peak = next(p for p in a if p['regime'] == 'peak')
     assert abs(local(first_peak['start']).hour * 60 + local(first_peak['start']).minute - 480) <= 10
+
+
+def test_sale_day_repeats_flash_sales_about_a_third_of_the_time_without_gaps():
+    start = 1_795_000_000.0
+    sched = sale_schedule(start, start + 8 * 3600, seed=5)
+    assert sched == sale_schedule(start, start + 8 * 3600, seed=5)
+    assert sched[0]['start'] == start and sched[-1]['end'] == start + 8 * 3600
+    assert all(a['end'] == b['start'] for a, b in zip(sched, sched[1:]))
+    cov = coverage(sched)
+    assert set(cov) == {'steady', 'peak', 'burst', 'recovery'}
+    bursts = [p for p in sched if p['regime'] == 'burst']
+    assert len(bursts) >= 10 and all(600 <= p['end'] - p['start'] <= 900 for p in bursts[:-1])
+    assert 0.25 <= cov['burst'] / (8 * 3600) <= 0.40
