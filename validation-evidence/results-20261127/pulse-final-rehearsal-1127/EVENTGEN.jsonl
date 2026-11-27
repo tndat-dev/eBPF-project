@@ -1,0 +1,6 @@
+{"action":"DirectoryTraversalMonitoredFileRead","outcome":"error","returncode":0,"trial_id":"1:eventgen"}
+{"action":"CreateSymlinkOverSensitiveFiles","outcome":"executed","returncode":0,"trial_id":"2:eventgen"}
+{"action":"CreateHardlinkOverSensitiveFiles","outcome":"skipped","returncode":0,"trial_id":"3:eventgen"}
+{"action":"ClearLogActivities","outcome":"executed","returncode":0,"trial_id":"4:eventgen"}
+{"action":"FindAwsCredentials","outcome":"executed","returncode":0,"trial_id":"5:eventgen"}
+{"action":"SearchPrivateKeysOrPasswords","outcome":"executed","returncode":0,"trial_id":"6:eventgen"}
