@@ -1,0 +1,3 @@
+k8s-worker1.local {"compressed": 64, "saved_bytes": 22040874928, "mismatched": []}
+k8s-worker4.local {"compressed": 64, "saved_bytes": 19545145841, "mismatched": []}
+k8s-worker3.local {"compressed": 68, "saved_bytes": 22968485595, "mismatched": []}
