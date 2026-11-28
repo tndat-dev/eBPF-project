@@ -1,0 +1,23 @@
+{
+ "production/aims-frontend:web": 1.0,
+ "production/aims-kafka-dual-role:kafka": 0.7165632942014055,
+ "production/aims-kafka-entity-operator:topic-operator": 0.8197049804879714,
+ "production/aims-kafka-entity-operator:user-operator": 0.736061615132056,
+ "production/aims-minio-pool-0:minio": 0.9130890921891327,
+ "production/aims-minio-pool-0:sidecar": 1.0,
+ "production/aims-postgres-cnpg:postgres": 1.0,
+ "production/aims-rabbitmq-server:rabbitmq": 0.711849062002712,
+ "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1.0,
+ "production/aims-redis:aims-redis": 0.7784248735569226,
+ "production/aims-waypoint:istio-proxy": 1.0,
+ "production/api-gateway:app": 1.0,
+ "production/auth-service:app": 1.0,
+ "production/cart-service:app": 1.0,
+ "production/catalog-service:app": 1.0,
+ "production/inventory-service:app": 0.9617871771058865,
+ "production/notification-service:app": 1.0,
+ "production/order-service:app": 0.7513962321139738,
+ "production/payment-service:app": 0.7840656335102335,
+ "production/search-recommendation-service:app": 1.0,
+ "production/security-telemetry-service:app": 1.0
+}

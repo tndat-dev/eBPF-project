@@ -1,0 +1,101 @@
+{
+ "alpha": 0.0003,
+ "block": 60.0,
+ "branch_alpha": 0.00015,
+ "by_prog": false,
+ "extra_run": null,
+ "extra_runs": [
+  "/mnt/sentinel-pulse-archive/pulse-token-capture-diurnal-1121",
+  "/mnt/sentinel-pulse-archive/pulse-live-final-1119",
+  "/mnt/sentinel-pulse-archive/pulse-token-capture-sale-1127"
+ ],
+ "extra_span": null,
+ "extra_spans": [
+  [
+   1795265817.0669737,
+   1795352217.0669737
+  ],
+  [
+   1795184498.5691864,
+   1795218639.152689
+  ],
+  [
+   1795783458.1090028,
+   1795812258.1090028
+  ]
+ ],
+ "fold_seconds": 1800.0,
+ "folds": 5,
+ "part": "session",
+ "pool_key": "pool/session",
+ "prog_names": {
+  "10461": [
+   "sleep"
+  ],
+  "10683": [
+   "hostname"
+  ],
+  "19409": [
+   "redis-cli"
+  ],
+  "20721": [
+   "grep"
+  ],
+  "2153": [
+   "curl"
+  ],
+  "23588": [
+   "kafka_readiness"
+  ],
+  "24586": [
+   "python"
+  ],
+  "26022": [
+   "bash"
+  ],
+  "29178": [
+   "sh"
+  ],
+  "32396": [
+   "kafka_liveness."
+  ],
+  "32443": [
+   "find"
+  ],
+  "3648": [
+   "wc"
+  ],
+  "4345": [
+   "readlink"
+  ],
+  "5345": [
+   "stat"
+  ]
+ },
+ "run_root": "/mnt/sentinel-pulse-archive/pulse-token-capture-diurnal2-1124",
+ "schema": "pulse-token-branch-fit-v1",
+ "top": 3,
+ "train": [
+  1795184498.5691864,
+  1795659640.1032605
+ ],
+ "trim": 0.005,
+ "validation": [
+  1795659640.1032605,
+  1795812258.1090028
+ ],
+ "workloads": {
+  "pool/session": {
+   "distinct_contexts": 6953,
+   "gumbel": [
+    7.036656018776196,
+    0.689662963025871
+   ],
+   "threshold": 13.109000654373375,
+   "training_windows": 8102222,
+   "validation_block_max": 69.94949484990296,
+   "validation_blocks": 263327,
+   "validation_blocks_above": 688
+  }
+ }
+}

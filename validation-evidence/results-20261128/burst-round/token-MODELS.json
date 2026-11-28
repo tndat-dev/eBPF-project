@@ -1,0 +1,128 @@
+{
+ "production/aims-frontend:web": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/2175be1a47a74ff3.lm.json.gz",
+  "lm_sha256": "1eed700eb95317a84367c4a07702255d9428d162e4dbba4d2816addf9d8af002",
+  "threshold": 16.432344869103915,
+  "top": 3
+ },
+ "production/aims-kafka-dual-role:kafka": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/d505edc304f40b91.lm.json.gz",
+  "lm_sha256": "cf54f1f0607dfea19740674fb5fec122b07ede21ae39c189647579241e3b8968",
+  "threshold": 17.511791105139537,
+  "top": 3
+ },
+ "production/aims-kafka-entity-operator:topic-operator": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/65c273b979fbb4a6.lm.json.gz",
+  "lm_sha256": "9982e052bff6b0c41ffdee3880bfc0acd4099c0c3a3f1210123595a8277e26f0",
+  "threshold": 14.98261785737635,
+  "top": 3
+ },
+ "production/aims-kafka-entity-operator:user-operator": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/1c790e197cc5d512.lm.json.gz",
+  "lm_sha256": "7dba0e897042298579bca0a08d9d865ad19ef08c6cebea6fac96d1daee60ba57",
+  "threshold": 15.627179127535054,
+  "top": 3
+ },
+ "production/aims-minio-pool-0:minio": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/4ebaac2ba0b2193c.lm.json.gz",
+  "lm_sha256": "69ef1f81b504a8c7cbc3654b5177f2eab217dbfa3195ffd0c69604e90d95d2dd",
+  "threshold": 23.132982364287926,
+  "top": 3
+ },
+ "production/aims-minio-pool-0:sidecar": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/01a202641dccf78a.lm.json.gz",
+  "lm_sha256": "a82e78beeaed87c3e1ca3ead9d09ab05c00d36d04aa57b2497e13228cea4e28e",
+  "threshold": 17.146468285712213,
+  "top": 3
+ },
+ "production/aims-postgres-cnpg:postgres": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/546a29770a5d8242.lm.json.gz",
+  "lm_sha256": "da135eb42c6c07a59631745d6715fba27c5649f85f34607996c85672a479e6f6",
+  "threshold": 19.541111806757776,
+  "top": 3
+ },
+ "production/aims-rabbitmq-server:rabbitmq": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/2669103e2a01be69.lm.json.gz",
+  "lm_sha256": "c663fec25f887d8d2456f10eb1bd7bdcaa450cd9fd0216986b174743dd61514e",
+  "threshold": 17.93241182449426,
+  "top": 3
+ },
+ "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/b5b0f60f470cdbcc.lm.json.gz",
+  "lm_sha256": "bd9022c8ed9dccd0cd5b0991305ddab3f52d2534171bbaf8328c7634bc5f830a",
+  "threshold": 15.395726735835279,
+  "top": 3
+ },
+ "production/aims-redis:aims-redis": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/80296e36aced0d85.lm.json.gz",
+  "lm_sha256": "4d5b5240ec3814d7c083ec22a7e3cc1e573bb7956bc7daf449f8bf4be2885030",
+  "threshold": 14.817501393434855,
+  "top": 3
+ },
+ "production/aims-waypoint:istio-proxy": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/9f91b3c03cc3b091.lm.json.gz",
+  "lm_sha256": "7a3f79e515f1289ba0ad9d626289e3ec42e7ad2a9e8dc0144a71b5c5a1b6f7b0",
+  "threshold": 21.783388451060738,
+  "top": 3
+ },
+ "production/api-gateway:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/148f313b5c25cbb5.lm.json.gz",
+  "lm_sha256": "a62fdf3ff6ec8afb3c6eb47c49e507ab54bd9f9d1df8b277c735cf9ba738f9b2",
+  "threshold": 18.154059434763575,
+  "top": 3
+ },
+ "production/auth-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/ffd392c0992c0135.lm.json.gz",
+  "lm_sha256": "ab2a8fa01d3f18d7feb7d51ce3549d98e9f2800409674abc02a77057f4514152",
+  "threshold": 14.930548362234376,
+  "top": 3
+ },
+ "production/cart-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/8735406b3e6984cb.lm.json.gz",
+  "lm_sha256": "9865266c994358ccd6183699b05b2125771df11285db6325a9a6f75485ae6b0d",
+  "threshold": 14.59299639156145,
+  "top": 3
+ },
+ "production/catalog-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/d64195fd262c1016.lm.json.gz",
+  "lm_sha256": "8d4608ef6911e1c4205bfb18c7d92d0b0a765678542fe3536906aa4c861c72a5",
+  "threshold": 17.094852130108446,
+  "top": 3
+ },
+ "production/inventory-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/a4d0b337952401f7.lm.json.gz",
+  "lm_sha256": "fe84ae3c173d18fafd701bb0b0c1ed9f2ba9b799c0d85121c6ce096fa1134368",
+  "threshold": 16.577880211840935,
+  "top": 3
+ },
+ "production/notification-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/be35083d0657c05a.lm.json.gz",
+  "lm_sha256": "198b5013bfb71b11d8bfe43411917376faa39dec0204fc6b1bbe27c56fd2eba5",
+  "threshold": 14.85309943355217,
+  "top": 3
+ },
+ "production/order-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/8c28b0adb05033ee.lm.json.gz",
+  "lm_sha256": "c4c2352f54590c5a3be897ab0b30f80f934199a3b0f88c4fdc69ecce898295ce",
+  "threshold": 14.922819605255746,
+  "top": 3
+ },
+ "production/payment-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/66e2b4b0e4a03c44.lm.json.gz",
+  "lm_sha256": "a3477e6d3bb4e035b29c35060c00523094422bc744b1b55b6ed42ea4d75931a1",
+  "threshold": 15.489262175693916,
+  "top": 3
+ },
+ "production/search-recommendation-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/cdf504dc7785eb50.lm.json.gz",
+  "lm_sha256": "8c43f1d5e9ad2d07de973008318326d374b26e3114bc12c5ba6913da7e41fd14",
+  "threshold": 14.270364804383483,
+  "top": 3
+ },
+ "production/security-telemetry-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/token/7faa2a4aba3c4e72.lm.json.gz",
+  "lm_sha256": "db9ab4604af10d5ba41a516430d209d4e7248b4de130627237ab7c26dbabfbde",
+  "threshold": 15.309924237596482,
+  "top": 3
+ }
+}

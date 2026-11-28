@@ -1,0 +1,76 @@
+{
+ "schema": "improvement-round-2-a6",
+ "scale": {
+  "production/aims-frontend:web": 1.0,
+  "production/aims-kafka-dual-role:kafka": 0.7165632942014055,
+  "production/aims-kafka-entity-operator:topic-operator": 0.8197049804879714,
+  "production/aims-kafka-entity-operator:user-operator": 0.736061615132056,
+  "production/aims-minio-pool-0:minio": 0.9130890921891327,
+  "production/aims-minio-pool-0:sidecar": 1.0,
+  "production/aims-postgres-cnpg:postgres": 1.0,
+  "production/aims-rabbitmq-server:rabbitmq": 0.711849062002712,
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1.0,
+  "production/aims-redis:aims-redis": 0.7784248735569226,
+  "production/aims-waypoint:istio-proxy": 1.0,
+  "production/api-gateway:app": 1.0,
+  "production/auth-service:app": 1.0,
+  "production/cart-service:app": 1.0,
+  "production/catalog-service:app": 1.0,
+  "production/inventory-service:app": 0.9617871771058865,
+  "production/notification-service:app": 1.0,
+  "production/order-service:app": 0.7513962321139738,
+  "production/payment-service:app": 0.7840656335102335,
+  "production/search-recommendation-service:app": 1.0,
+  "production/security-telemetry-service:app": 1.0
+ },
+ "workload_share": {
+  "production/aims-frontend:web": 0.0013028103480364787,
+  "production/aims-kafka-dual-role:kafka": 0.009367826788262298,
+  "production/aims-kafka-entity-operator:topic-operator": 0.008189093616229295,
+  "production/aims-kafka-entity-operator:user-operator": 0.00911967243625535,
+  "production/aims-minio-pool-0:minio": 0.007351572678205844,
+  "production/aims-minio-pool-0:sidecar": 0.003722315280104225,
+  "production/aims-postgres-cnpg:postgres": 0.006203858800173708,
+  "production/aims-rabbitmq-server:rabbitmq": 0.009429865376264036,
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0.006265897388175445,
+  "production/aims-redis:aims-redis": 0.008623363732241453,
+  "production/aims-waypoint:istio-proxy": 0.0057748445234166775,
+  "production/api-gateway:app": 0.004327191513121161,
+  "production/auth-service:app": 0.006700167504187605,
+  "production/cart-service:app": 0.006327935976177182,
+  "production/catalog-service:app": 0.0064209938581797875,
+  "production/inventory-service:app": 0.006979341150195421,
+  "production/notification-service:app": 0.006467522799181091,
+  "production/order-service:app": 0.00893355667225014,
+  "production/payment-service:app": 0.008561325144239717,
+  "production/search-recommendation-service:app": 0.006188349153173274,
+  "production/security-telemetry-service:app": 0.005071654569142006
+ },
+ "pooled_share": 0.006712640822905405,
+ "exceedance": {
+  "t3": {
+   "pooled": 0.006712640822905405,
+   "regimes": {
+    "burst": 0.017473607571896616,
+    "night": 0.004229633872317927,
+    "outside-capture": 0.0069579602958349555,
+    "peak": 0.00973197552329126,
+    "recovery": 0.004585829374096261,
+    "steady": 0.006655716022783028,
+    "toolmix": 0.005316926816300178
+   }
+  },
+  "A6": {
+   "pooled": 0.006537626638288023,
+   "regimes": {
+    "burst": 0.017109574080815437,
+    "night": 0.004075428470723003,
+    "outside-capture": 0.006799824834565979,
+    "peak": 0.009506175627159212,
+    "recovery": 0.0043792604833712044,
+    "steady": 0.006421059368133627,
+    "toolmix": 0.005240970718924462
+   }
+  }
+ }
+}

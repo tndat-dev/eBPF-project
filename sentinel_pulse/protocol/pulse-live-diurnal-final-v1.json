@@ -1,0 +1,58 @@
+{
+  "schema": "sentinel-pulse-pulse-live-diurnal-final-v1",
+  "registered_at": "2026-11-28T17:14+07:00",
+  "registered_before": "the one final live run pulse-live-diurnal-final-<MMDD>; its rehearsal (pulse-final-rehearsal-1127, 6 trials) only checked that every step runs with the S1a + A6 alert path and the program-identity probe, and set the duration",
+  "implements": "load-diurnal-v1 step L_live with the system adopted by session-stream-v1 amendment 2 (S1a), improvement-round-2 (A6; A1 three days of learning data), burst-round-v1 (sale-day capture in the learning data) and exec-identity-v1 (B2 offline)",
+  "owner_decisions": [
+    "23/11: decide every change offline, then one final live run of the complete system",
+    "24/11: 'ok chot s1a'; B2 measured on the final run, B3 last after the model is fixed",
+    "27/11: 'Thử thêm vòng burst' (burst-round-v1, every must met 28/11)"
+  ],
+  "seen_before_registration": "all results of pulse-live-final-1119, load-diurnal-v1 A and F, session-stream-v1, load-threshold-v1, improvement-round-2 (A2-A6, B1), the three-day fit (validation-evidence/results-20261127/final-fit-3day/, including the per-program model table), the rehearsal (validation-evidence/results-20261127/pulse-final-rehearsal-1127/) and burst-round-v1 (validation-evidence/results-20261128/burst-round/: held-out burst 1.71 %, burst/pooled 2.71; on pulse-live-final-1119 intervals living off the land 634/666 with the three-day and the burst fits)",
+  "system": {
+    "alert_path": "S1a + A6: a window alarms when its native part exceeds the workload's t3 threshold at alpha' 0.0003 x the A6 factor, or its session part exceeds the pooled session threshold at alpha' 0.00015; one window fires",
+    "models": "pulse-live-burst-fit-1128/token/MODELS.json (sha256 d6d1aef4...) and SESSION-S1a-A6.json (sha256 bed55930...); count branch in shadow (pulse-live-v7-fit-1118 count thresholds, as pulse-live-final-v1)",
+    "learning_data": "capture pulse-token-capture-diurnal2-1124 (two diurnal days, routine operator commands), capture pulse-token-capture-diurnal-1121 (one diurnal day), the normal tail of pulse-live-final-1119 and the sale-day capture pulse-token-capture-sale-1127 (8 h, 2.59 h burst)",
+    "probe": "/home/dat/pulse-tokens-prog-bee57bf (exec-identity-v1: program identity of exec sessions; token and lineage proofs pass, no measured added cost)",
+    "snapshot": "runtime-<commit that registers this file>-20261128 (CONFIG.json source_commit)",
+    "datasets": "S1a and A6 do not change dataset scoring (no session lineage in recordings; A6 is cluster only); t3 gate on the current code: LID-DS 2021 development 529/544 with 5, CB-DS 891/891 with 3, LID-DS 2019 development 310/321 with 9"
+  },
+  "campaign": {
+    "options": "as pulse-live-final-v1: 945 trials (525 base at 1, 3, 6, 12, 24 per s; 210 slow at 0.5 and 0.1 per s; 105 PAD 300 at 12 per s; 105 on-off 10 s at 12 per s), steps control, operator command (v6 set), harmless binary, living off the land, event-generator action, seeded random order; an event-generator binary that cannot be staged skips only that step",
+    "traffic": "load-diurnal-v1 profile for the whole run",
+    "seconds_total": 180000,
+    "timing": "rehearsal 136.9-139.3 s per trial: campaign about 36.4 h after a 1.5 h selection span, then about 12 h of normal without campaign",
+    "k8s_events": "recorded for the whole run"
+  },
+  "hypotheses": {
+    "H0": "primary set (6, 12, 24 per s): recall >= 95 %, idle control positives <= 5 %, precision (1:1) >= 95 %, p95 kernel -> end of alarm window <= 3 s",
+    "H3": "PAD 300: recall >= 95 %",
+    "H7": "slow rates 0.5 and 0.1 per s: recall >= 95 % each",
+    "H8": "on-off 10 s: recall >= 95 %",
+    "H9": "recall >= 95 % within every regime that holds at least 30 primary-set trials (trial regime = regime at the interval start)",
+    "H10": "burden per regime on the normal tail: no regime above 3 times the pooled burden; known before the run: the tail holds about one evening burst (15 min), and the held-out burst share of the learning data is 1.71 % (Wilson 1.29-2.27 %) against pooled 0.631 %"
+  },
+  "offline_on_the_same_windows": {
+    "S0": "t3 whole window (the pulse-live-final-1119 system) with the same three-day models",
+    "S1a": "without A6",
+    "B2": "exec-identity-v1 evaluation: S1a + A6 against S1a + A6 + B2 (session part scored by the program's model of pulse-live-diurnal3-fit-1126/session-prog where it has one, 200 learning blocks minimum as registered, else the pooled model of the run's fit): operator commands flagged for the routine set (find, grep, sleep, stat, wc) and the held-out set (head, hostname, printenv, whoami, ls_tmp), attack families as H0, H3, H7, H8 plus lotl and event generator, idle control, burden per regime. Secondary (registered here): the same with a 50 learning-block minimum (per-program models fitted on capture 1124 with --minimum-blocks 50 after the run, same parameters). Known before the run: sleep, find, stat and wc have about 60 learning blocks each and stay on the pooled model; hostname and grep have models from exec probes; this is reported as such"
+  },
+  "reported": [
+    "everything pulse-live-final-v1 reports (event generator per action and pooled, living off the land, operator commands, harmless binaries, native-stream flags, burden on the normal tail with Kubernetes-event and stream labels, gram-map overflow alerts, insert failures, bridge delivery, kernel -> Alertmanager latency, RCA)",
+    "recall, control, operator commands, harmless binaries and burden per regime; trial counts per regime",
+    "side by side with pulse-live-final-1119",
+    "living off the land against operator commands flagged: the trade-off measured in burst-round-v1 (learning routine operator commands lowers both)"
+  ],
+  "analysis": [
+    "scripts/analysis/pulse_live_v4.py",
+    "scripts/analysis/live_attribution.py",
+    "scripts/analysis/native_stream.py",
+    "scripts/analysis/session_stream.py",
+    "scripts/analysis/burden_context.py",
+    "scripts/analysis/rca_coverage.py"
+  ],
+  "rules": [
+    "run the full cycle; no heavy job on any node during the run; infrastructure faults are excluded spans, not a reason to stop",
+    "no model, threshold or code change after registration; B3 (Kubernetes pods/exec audit rule) is compared afterwards, with and without"
+  ]
+}

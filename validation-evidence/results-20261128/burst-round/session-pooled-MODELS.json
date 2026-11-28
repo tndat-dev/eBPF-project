@@ -1,0 +1,8 @@
+{
+ "pool/session": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-burst-fit-1128/session-pooled/303b205992da782d.lm.json.gz",
+  "lm_sha256": "4975069cd47de77e8eec0888cd687931c30b1d4706ca2a9b1d536129550e8f74",
+  "threshold": 13.109000654373375,
+  "top": 3
+ }
+}
